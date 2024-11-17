@@ -8,16 +8,16 @@
     "preview": "vite preview"
   },
   "devDependencies": {
-    "@sveltejs/adapter-vercel": "^3.1.0",
-    "@sveltejs/kit": "^1.30.4",
-    "svelte": "^4.2.19",
+    "@sveltejs/adapter-vercel": "^5.4.7",
+    "@sveltejs/kit": "^2.8.1",
+    "svelte": "^5.2.2",
     "typescript": "^5.6.3",
-    "vite": "^4.5.5"
+    "vite": "^5.4.11"
   },
   "type": "module",
   "main": "svelte.config.js",
   "keywords": [],
-  "author": "",
+  "author": "JRM",
   "license": "ISC",
-  "description": ""
+  "description": "Fetch multiples from NYU database"
 }

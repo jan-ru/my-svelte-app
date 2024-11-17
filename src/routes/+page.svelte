@@ -1,6 +1,21 @@
 <script>
   let greeting = 'Welcome to SvelteKit JRM';
+	let a = $state(1);
+	let b = $state(2);
 </script>
+
+<label>
+	<input type="number" value={a} min="0" max="10" />
+	<input type="range" value={a} min="0" max="10" />
+</label>
+
+<label>
+	<input type="number" value={b} min="0" max="10" />
+	<input type="range" value={b} min="0" max="10" />
+</label>
+
+<p>{a} + {b} = {a + b}</p>
+
 
 <main>
   <h1>{greeting}</h1>
@@ -18,7 +33,7 @@
   h1 {
     color: #ff3e00;
     text-transform: uppercase;
-    font-size: 4em;
+    font-size: 3em;
     font-weight: 100;
   }
 </style>
