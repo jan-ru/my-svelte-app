@@ -4,6 +4,10 @@
 	let b = $state(2);
 </script>
 
+<svelte:head>
+	<title>Fetch valuation multiples</title>
+</svelte:head>
+
 <label>
 	<input type="number" bind:value={a} min="0" max="10" />
 	<input type="range" bind:value={a} min="0" max="10" />
