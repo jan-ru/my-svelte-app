@@ -24,7 +24,7 @@ Replace the demo home page with a tool for comparing valuation multiples from th
 - The data is updated about once a year. The files checked carry the update date 2026-01-05 (Excel serial 46027 in cell B1 of the "Industry Averages" sheet).
 - Each workbook has two sheets: "Variables & FAQ" and "Industry Averages". The second holds the data.
 - The header row is the row whose first cell is `Industry Name`. Its position varies (row 8, 9 or 10, one-based), so it must be located, not hardcoded.
-- Each file has 96 data rows: 94 industries plus `Total Market` and `Total Market (without financials)`. The names are identical across all 32 files.
+- Each file has 96 data rows: 94 industries plus two aggregate rows, `Total Market` and `Total Market (without financials)`. Industry names are identical across all 32 files, with one exception: in `peEurope`, `pbvEurope` and `psEurope` the first aggregate row is called `Grand Total`. The parser aliases `Grand Total` to `Total Market`.
 - Missing values are the text `NA`. Some industries have few firms (for example Japan, Aerospace/Defense: 5).
 
 ### File names
@@ -74,7 +74,8 @@ For every region except US the file name is `<prefix><suffix>` with prefixes `ve
 | `src/lib/components/GroupedBarChart.svelte` | One SVG panel |
 | `src/routes/+page.server.ts` | Load function and cache headers |
 | `src/routes/+page.svelte` | Selectors, pivot control, legend, panel grid, data tables |
-| `scripts/check-data.mjs` | `npm run check:data`: fetch the real files and confirm every catalog column still resolves |
+| `src/lib/server/nyu.live.ts` | Live check behind `npm run check:data`: fetch the real files and confirm every catalog column still resolves |
+| `src/lib/server/testing/make-workbook.ts` | Test helper that builds small `.xls` fixtures with SheetJS |
 
 ### Dependencies
 
@@ -83,7 +84,7 @@ For every region except US the file name is `<prefix><suffix>` with prefixes `ve
 
 ### Data flow
 
-1. The URL carries `m` (multiples), `r` (regions), `i` (industries), and the layout roles `p` (panels), `x` (x axis), `c` (colour). Lists are comma-separated ids; industries use their names.
+1. The URL carries `m` (multiples), `r` (regions), `i` (industries), and the layout roles `p` (panels), `x` (x axis), `c` (colour). Lists use repeated parameters (`m=ev_ebitda&m=pe_trailing`), not commas, because industry names are free text. A parameter that is present but empty (`m=`) means the visitor cleared that list; an absent parameter means "use the default". A parameter holding only unknown values is treated as absent.
 2. `load` parses the URL with `params.ts`. If any dimension is empty it returns the catalog and no data. Otherwise it calls `getComparison`.
 3. `load` returns the values, the industry list (from any one workbook), and the data update date. It sets `Cache-Control: public, s-maxage=86400, stale-while-revalidate` so Vercel's CDN caches each distinct view.
 4. `layout.ts` reshapes the result for the chosen roles. `+page.svelte` renders one `GroupedBarChart` per panel.
@@ -142,7 +143,7 @@ Vitest. No test touches the network.
 - `layout.ts`: every pivot permutation and the swap rule.
 - `chart.ts`: `niceTicks`, including negative values and all-zero data.
 
-`npm run check:data` is not part of the test suite. It fetches the real files and confirms all 9 multiples resolve. Run it each January after NYU updates the data.
+`npm run check:data` is not part of the test suite. It runs `src/lib/server/nyu.live.ts` through a separate Vitest config (`vitest.live.config.ts`), fetches the real files and confirms all 9 multiples resolve in all 8 regions with at least 20 industries holding a numeric value (the lowest observed in 2026 is 79). Run it each January after NYU updates the data.
 
 ## CI
 
