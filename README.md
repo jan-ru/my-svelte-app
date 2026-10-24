@@ -16,7 +16,7 @@ Every selection is stored in the URL, so a view can be bookmarked or shared, for
 
 ## How it works
 
-NYU publishes the data as legacy `.xls` workbooks, one per multiple family and region (32 files, updated about once a year). The server downloads only the files a view needs, parses them with [SheetJS](https://sheetjs.com), and keeps them in memory for 24 hours. Responses are cacheable by Vercel's CDN. If NYU is unreachable, a previously cached copy is served.
+NYU publishes the data as legacy `.xls` workbooks, one per multiple family and region (32 files, updated about once a year). The server downloads only the files a view needs, parses them with [SheetJS](https://sheetjs.com), and keeps them in memory for 24 hours. Responses are cacheable by Vercel's CDN. If NYU is unreachable, a previously cached copy is served. A January update can take up to about three days to show on already-cached URLs (24 h in-memory + 24 h CDN `s-maxage` + 24 h `stale-while-revalidate`).
 
 ## Tech stack
 

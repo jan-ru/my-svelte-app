@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { MULTIPLES, REGIONS, type Family } from '../catalog';
+import { DEFAULT_SELECTION } from '../params';
 import { fetchWorkbook, pickColumn, type WorkbookData } from './nyu';
 
 // Fetches the real NYU files. Run with `npm run check:data`, e.g. each January.
@@ -22,4 +23,12 @@ describe('live NYU data', () => {
 			});
 		}
 	}
+
+	it('default industries exist in the US pe column', async () => {
+		const pe = MULTIPLES.find((m) => m.id === 'pe_trailing')!;
+		const column = pickColumn(await load(pe.family, 'us'), pe.column, pe.group);
+		for (const name of DEFAULT_SELECTION.industries) {
+			expect(column.has(name), name).toBe(true);
+		}
+	});
 });

@@ -53,7 +53,7 @@
 				patternTransform="rotate(45)"
 			>
 				<rect width="6" height="6" fill={colors[si]} />
-				<line x1="0" y1="0" x2="0" y2="6" stroke="#fff" stroke-width="2.5" />
+				<line x1="3" y1="0" x2="3" y2="6" stroke="#fff" stroke-width="2.5" />
 			</pattern>
 		{/each}
 	</defs>
@@ -73,7 +73,7 @@
 						: ''}
 				</title>
 				{#if bar.value === null}
-					<text class="na" x={barX(ci, si) + barW / 2} y={y(0) - 4} text-anchor="middle">n/a</text>
+					<text class="na" x={barX(ci, si) + barW / 2} y={y(0) - 4} text-anchor="middle">{bar.error ? 'unavailable' : 'n/a'}</text>
 				{:else}
 					<rect
 						x={barX(ci, si)}

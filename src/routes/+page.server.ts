@@ -3,6 +3,8 @@ import { parseParams } from '$lib/params';
 import { getComparison, getIndustries } from '$lib/server/compare';
 import type { PageServerLoad } from './$types';
 
+export const config = { maxDuration: 30 };
+
 const CACHEABLE = 'public, s-maxage=86400, stale-while-revalidate=86400';
 
 export const load: PageServerLoad = async ({ url, setHeaders }) => {
@@ -14,7 +16,8 @@ export const load: PageServerLoad = async ({ url, setHeaders }) => {
 		loadError = 'The NYU data could not be loaded right now.';
 	}
 
-	// Filter against the known list before the cap so unknown names cannot crowd out real ones.
+	// parseParams filters against the known list before the cap, but its fallback defaults are not
+	// filtered, so drop any default the data does not know.
 	const view = parseParams(url.searchParams, industries.length > 0 ? industries : undefined);
 	if (industries.length > 0) {
 		view.selection.industries = view.selection.industries.filter((name) =>

@@ -49,6 +49,26 @@ describe('createCache', () => {
 		).resolves.toBe('old');
 	});
 
+	it('backs off for RETRY_MS after a failed refresh', async () => {
+		vi.spyOn(console, 'warn').mockImplementation(() => {});
+		let t = 0;
+		const cache = createCache<string>({ ttlMs: 1000, now: () => t });
+		await cache.get('k', async () => 'old');
+
+		t = 2000;
+		const failing = vi.fn().mockRejectedValue(new Error('down'));
+		await expect(cache.get('k', failing)).resolves.toBe('old');
+		expect(failing).toHaveBeenCalledTimes(1);
+
+		t = 2000 + 10 * 60 * 1000 - 1;
+		await expect(cache.get('k', failing)).resolves.toBe('old');
+		expect(failing).toHaveBeenCalledTimes(1);
+
+		t = 2000 + 10 * 60 * 1000 + 1;
+		await expect(cache.get('k', failing)).resolves.toBe('old');
+		expect(failing).toHaveBeenCalledTimes(2);
+	});
+
 	it('rejects when there is nothing to fall back on, and retries next time', async () => {
 		const cache = createCache<string>({ ttlMs: 1000 });
 		await expect(

@@ -120,7 +120,7 @@
 					{#each selection.industries as name (name)}
 						<label class="chip">
 							<input type="checkbox" name="i" value={name} checked />
-							{name} ✕
+							{name} <span aria-hidden="true">✕</span><span class="sr-only">remove</span>
 						</label>
 					{/each}
 				</div>
@@ -194,7 +194,7 @@
 									<tr>
 										<th scope="row">{category}</th>
 										{#each panel.bars[ci] as bar, si (si)}
-											<td title={bar.error}>{bar.error ? 'n/a' : formatMultiple(bar.value)}</td>
+											<td title={bar.error}>{bar.error ? 'unavailable' : formatMultiple(bar.value)}</td>
 										{/each}
 									</tr>
 								{/each}
@@ -263,6 +263,14 @@
 		flex-wrap: wrap;
 		gap: 0.4rem;
 		margin-bottom: 0.5rem;
+	}
+	.sr-only {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		overflow: hidden;
+		clip-path: inset(50%);
+		white-space: nowrap;
 	}
 	.chip {
 		position: relative;
