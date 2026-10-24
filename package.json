@@ -20,6 +20,6 @@
   "type": "module",
   "keywords": [],
   "author": "JRM",
-  "license": "ISC",
+  "license": "MIT",
   "description": "Fetch multiples from NYU database"
 }
