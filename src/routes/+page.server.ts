@@ -1,13 +1,11 @@
 import { buildLayout } from '$lib/layout';
-import { DEFAULT_SELECTION, parseParams } from '$lib/params';
+import { parseParams } from '$lib/params';
 import { getComparison, getIndustries } from '$lib/server/compare';
 import type { PageServerLoad } from './$types';
 
 const CACHEABLE = 'public, s-maxage=86400, stale-while-revalidate=86400';
 
 export const load: PageServerLoad = async ({ url, setHeaders }) => {
-	const view = parseParams(url.searchParams);
-
 	let industries: string[] = [];
 	let loadError: string | null = null;
 	try {
@@ -16,11 +14,12 @@ export const load: PageServerLoad = async ({ url, setHeaders }) => {
 		loadError = 'The NYU data could not be loaded right now.';
 	}
 
+	// Filter against the known list before the cap so unknown names cannot crowd out real ones.
+	const view = parseParams(url.searchParams, industries.length > 0 ? industries : undefined);
 	if (industries.length > 0) {
-		const known = view.selection.industries.filter((name) => industries.includes(name));
-		const askedForSome = url.searchParams.getAll('i').some((v) => v !== '');
-		view.selection.industries =
-			known.length === 0 && askedForSome ? [...DEFAULT_SELECTION.industries] : known;
+		view.selection.industries = view.selection.industries.filter((name) =>
+			industries.includes(name)
+		);
 	}
 
 	const { selection, layout } = view;

@@ -271,6 +271,10 @@
 		padding: 0.1rem 0.6rem;
 		cursor: pointer;
 	}
+	.chip:focus-within {
+		outline: 2px solid #1a56db;
+		outline-offset: 2px;
+	}
 	.chip input {
 		position: absolute;
 		opacity: 0;

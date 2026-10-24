@@ -44,6 +44,30 @@ describe('parseParams', () => {
 		expect(selection.industries).toEqual(['Steel', 'Software (Internet)']);
 	});
 
+	it('normalises repeated roles to a valid permutation', () => {
+		expect(parse('p=regions&x=regions&c=industries').layout).toEqual({
+			panels: 'regions',
+			x: 'multiples',
+			color: 'industries'
+		});
+		expect(parse('p=regions&x=regions&c=regions').layout).toEqual({
+			panels: 'regions',
+			x: 'multiples',
+			color: 'industries'
+		});
+		expect(parse('p=regions').layout).toEqual({
+			panels: 'regions',
+			x: 'multiples',
+			color: 'industries'
+		});
+	});
+
+	it('filters industries by the known list before capping at 4', () => {
+		const known = ['Steel', 'Retail (General)'];
+		const sp = new URLSearchParams('i=bogus1&i=bogus2&i=bogus3&i=bogus4&i=Steel');
+		expect(parseParams(sp, known).selection.industries).toEqual(['Steel']);
+	});
+
 	it('reads a valid layout', () => {
 		expect(parse('p=regions&x=multiples&c=industries').layout).toEqual({
 			panels: 'regions',
@@ -52,9 +76,13 @@ describe('parseParams', () => {
 		});
 	});
 
-	it('falls back to the default layout when roles repeat or are unknown', () => {
-		expect(parse('p=regions&x=regions&c=industries').layout).toEqual(DEFAULT_LAYOUT);
-		expect(parse('p=foo&x=regions&c=industries').layout).toEqual(DEFAULT_LAYOUT);
+	it('fills unknown roles from the leftover dimensions and defaults when absent', () => {
+		expect(parse('p=foo&x=regions&c=industries').layout).toEqual({
+			panels: 'multiples',
+			x: 'regions',
+			color: 'industries'
+		});
+		expect(parse('p=foo&x=bar&c=baz').layout).toEqual(DEFAULT_LAYOUT);
 	});
 });
 

@@ -44,21 +44,28 @@ function readList(
 }
 
 function readLayout(sp: URLSearchParams): Layout {
-	const panels = sp.get('p');
-	const x = sp.get('x');
-	const color = sp.get('c');
-	const roles = [panels, x, color];
-	const valid =
-		roles.every((r): r is Role => ROLES.includes(r as Role)) && new Set(roles).size === 3;
-	return valid ? { panels: panels as Role, x: x as Role, color: color as Role } : { ...DEFAULT_LAYOUT };
+	const asked = [sp.get('p'), sp.get('x'), sp.get('c')];
+	const dims = [DEFAULT_LAYOUT.panels, DEFAULT_LAYOUT.x, DEFAULT_LAYOUT.color];
+	const used = new Set<Role>();
+	const slots = asked.map((r) => {
+		if (r !== null && ROLES.includes(r as Role) && !used.has(r as Role)) {
+			used.add(r as Role);
+			return r as Role;
+		}
+		return null;
+	});
+	const leftover = dims.filter((d) => !used.has(d));
+	const [panels, x, color] = slots.map((r) => r ?? leftover.shift()!);
+	return { panels, x, color };
 }
 
-export function parseParams(sp: URLSearchParams): ViewParams {
+export function parseParams(sp: URLSearchParams, knownIndustries?: readonly string[]): ViewParams {
+	const known = knownIndustries && new Set(knownIndustries);
 	return {
 		selection: {
 			multiples: readList(sp, 'm', (v) => MULTIPLE_IDS.has(v), DEFAULT_SELECTION.multiples),
 			regions: readList(sp, 'r', (v) => REGION_IDS.has(v), DEFAULT_SELECTION.regions),
-			industries: readList(sp, 'i', (v) => v.length <= MAX_NAME_LENGTH, DEFAULT_SELECTION.industries)
+			industries: readList(sp, 'i', (v) => v.length <= MAX_NAME_LENGTH && (!known || known.has(v)), DEFAULT_SELECTION.industries)
 		},
 		layout: readLayout(sp)
 	};
