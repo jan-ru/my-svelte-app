@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { PageProps } from './$types';
+	import { yahooUrl } from '#lib/yahoo';
 
 	let { data }: PageProps = $props();
 
@@ -82,7 +83,7 @@
 					{#each data.result.rows as c (c.ticker + c.name)}
 						<tr>
 							<th scope="row">{c.name}</th>
-							<td>{c.ticker}</td>
+							<td>{#if yahooUrl(c.ticker)}<a href={yahooUrl(c.ticker)} target="_blank" rel="noopener noreferrer">{c.ticker}</a>{:else}{c.ticker}{/if}</td>
 							<td>{#if c.sic}<a href={`/companies?sic=${c.sic}`}><code>{c.sic}</code></a>{/if}</td>
 							<td><a href={`/companies?industry=${encodeURIComponent(c.industry)}`}>{c.industry}</a></td>
 							<td>{c.country}</td>
