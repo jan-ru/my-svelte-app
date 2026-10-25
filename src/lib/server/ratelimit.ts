@@ -29,3 +29,23 @@ export function createRateLimiter(options: { max: number; windowMs: number; now?
 		}
 	};
 }
+
+/**
+ * Decide one login attempt. Synchronous on purpose: the limit check and the failure record
+ * happen with no await in between, so parallel requests cannot all pass the check first.
+ * A limited key never reaches the password comparison.
+ */
+export function checkLogin(
+	limiter: RateLimiter,
+	key: string,
+	submitted: string,
+	matches: (submitted: string) => boolean
+): 'limited' | 'wrong' | 'ok' {
+	if (limiter.isLimited(key)) return 'limited';
+	if (!matches(submitted)) {
+		limiter.recordFailure(key);
+		return 'wrong';
+	}
+	limiter.reset(key);
+	return 'ok';
+}

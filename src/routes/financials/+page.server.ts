@@ -2,7 +2,7 @@ import { FMP_API_KEY, SESSION_SECRET, SITE_PASSWORD } from '$app/env/private';
 import { fail, redirect } from '@sveltejs/kit';
 import { SESSION_COOKIE, SESSION_MS, createSession, passwordMatches } from '#lib/server/auth';
 import { loadFinancials } from '#lib/server/financials';
-import { createRateLimiter } from '#lib/server/ratelimit';
+import { checkLogin, createRateLimiter } from '#lib/server/ratelimit';
 import type { Actions, PageServerLoad } from './$types';
 
 const limiter = createRateLimiter({ max: 5, windowMs: 15 * 60 * 1000 });
@@ -29,16 +29,17 @@ export const actions: Actions = {
 			return fail(503, { message: 'This page is not configured.' });
 		}
 
-		const ip = getClientAddress();
-		if (limiter.isLimited(ip)) return fail(429, { message: 'Too many attempts. Try again later.' });
+		// Read the body first: awaiting it between the limit check and the failure record would let
+		// N parallel requests all pass the check. From here to checkLogin there is no await, so
+		// check-and-record is atomic per instance (the limiter itself is per instance, best effort).
+		const form = await request.formData();
+		// The key is getClientAddress(), i.e. x-forwarded-for, which Vercel overwrites with the real client IP.
+		const result = checkLogin(limiter, getClientAddress(), String(form.get('password') ?? ''), (submitted) =>
+			passwordMatches(submitted, password)
+		);
+		if (result === 'limited') return fail(429, { message: 'Too many attempts. Try again later.' });
+		if (result === 'wrong') return fail(401, { message: 'Wrong password.' });
 
-		const submitted = String((await request.formData()).get('password') ?? '');
-		if (!passwordMatches(submitted, password)) {
-			limiter.recordFailure(ip);
-			return fail(401, { message: 'Wrong password.' });
-		}
-
-		limiter.reset(ip);
 		cookies.set(SESSION_COOKIE, createSession(secret), {
 			path: COOKIE_PATH,
 			httpOnly: true,
