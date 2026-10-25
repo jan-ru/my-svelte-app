@@ -19,6 +19,11 @@ describe('yahooUrl', () => {
 		expect(yahooUrl('XSAT:ABC')).toBe('https://finance.yahoo.com/lookup?s=ABC');
 		expect(yahooUrl('KOSE:A B')).toBe('https://finance.yahoo.com/lookup?s=A%20B');
 	});
+	it('looks up numeric BSE scrip codes by company name', () => {
+		expect(yahooUrl('BSE:523395', '3M India Limited (BSE:523395)')).toBe(
+			'https://finance.yahoo.com/lookup?s=3M%20India%20Limited'
+		);
+	});
 	it('returns null without a usable ticker', () => {
 		expect(yahooUrl('-')).toBeNull();
 		expect(yahooUrl('')).toBeNull();

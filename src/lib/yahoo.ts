@@ -14,9 +14,14 @@ const SUFFIX: Record<string, string> = {
 const SYMBOL = /^[A-Za-z0-9.&-]+$/;
 
 /** Yahoo Finance page for a Capital IQ style ticker such as `ENXTAM:ABN`; null when there is none. */
-export function yahooUrl(ticker: string): string | null {
+export function yahooUrl(ticker: string, name = ''): string | null {
 	const [exchange, symbol] = ticker.split(':', 2);
 	if (!symbol) return null;
+	// Yahoo's .BO symbols are names (RELIANCE.BO), not the numeric BSE scrip codes used here
+	const company = name.replace(/\s*\([^()]*\)$/, '');
+	if (exchange === 'BSE' && /^\d+$/.test(symbol) && company) {
+		return `https://finance.yahoo.com/lookup?s=${encodeURIComponent(company)}`;
+	}
 	const suffix = SUFFIX[exchange];
 	if (suffix === undefined || !SYMBOL.test(symbol)) {
 		return `https://finance.yahoo.com/lookup?s=${encodeURIComponent(symbol)}`;
