@@ -1,9 +1,13 @@
 // Builds src/lib/data/crosswalk.json from the official correspondence tables.
-// Usage: node scripts/build-crosswalk.mjs <input-dir>
+// Usage: node scripts/build-crosswalk.ts <input-dir>
 // The input directory must contain the files listed in FILES (see docs/crosswalk.md).
 import * as XLSX from 'xlsx';
 import fs from 'node:fs';
 import path from 'node:path';
+
+type Key = keyof typeof FILES;
+type Table = Record<string, string[]>;
+type Row = unknown[];
 
 const FILES = {
 	sbiStructure: 'sbi2025_structuur.xlsx',
@@ -16,18 +20,18 @@ const FILES = {
 
 const dir = process.argv[2];
 if (!dir) {
-	console.error('Usage: node scripts/build-crosswalk.mjs <input-dir>');
+	console.error('Usage: node scripts/build-crosswalk.ts <input-dir>');
 	process.exit(1);
 }
-const file = (key) => path.join(dir, FILES[key]);
-const sheetRows = (key, sheet) => {
+const file = (key: Key): string => path.join(dir, FILES[key]);
+const sheetRows = (key: Key, sheet?: string): Row[] => {
 	const wb = XLSX.read(fs.readFileSync(file(key)), { type: 'buffer', sheets: sheet });
-	return XLSX.utils.sheet_to_json(wb.Sheets[sheet ?? wb.SheetNames[0]], { header: 1, defval: null });
+	return XLSX.utils.sheet_to_json<Row>(wb.Sheets[sheet ?? wb.SheetNames[0]], { header: 1, defval: null });
 };
 
-function parseCsv(text) {
-	const rows = [];
-	let row = [];
+function parseCsv(text: string): string[][] {
+	const rows: string[][] = [];
+	let row: string[] = [];
 	let cell = '';
 	let quoted = false;
 	for (let i = 0; i < text.length; i++) {
@@ -50,15 +54,15 @@ function parseCsv(text) {
 	return rows.slice(1); // header
 }
 
-const clean = (v) => String(v ?? '').replace(/\s+/g, ' ').trim();
-const addTo = (map, key, value) => {
+const clean = (v: unknown): string => String(v ?? '').replace(/\s+/g, ' ').trim();
+const addTo = (map: Table, key: string, value: string): void => {
 	if (!map[key]) map[key] = [];
 	if (!map[key].includes(value)) map[key].push(value);
 };
-const sorted = (map) => Object.fromEntries(Object.entries(map).sort(([a], [b]) => a.localeCompare(b)).map(([k, v]) => [k, [...v].sort()]));
+const sorted = (map: Table): Table => Object.fromEntries(Object.entries(map).sort(([a], [b]) => a.localeCompare(b)).map(([k, v]) => [k, [...v].sort()]));
 
 // 1. SBI 2025 structure (levels 1-4 = sections, divisions, groups, classes; first four levels equal NACE Rev. 2.1).
-const sbi25 = {};
+const sbi25: Record<string, { level: number; section: string; nl: string; en: string }> = {};
 for (const r of sheetRows('sbiStructure', 'Structuur SBI2025 versie 2026').slice(1)) {
 	const level = Number(r[0]);
 	const code = clean(r[2]);
@@ -67,8 +71,8 @@ for (const r of sheetRows('sbiStructure', 'Structuur SBI2025 versie 2026').slice
 }
 
 // 2. SBI 2025 -> SBI 2008 (= NACE Rev. 2 = ISIC Rev. 4 at four digits).
-const sbi25ToNace2 = {};
-const nace2Titles = {};
+const sbi25ToNace2: Table = {};
+const nace2Titles: Record<string, string> = {};
 for (const r of sheetRows('sbi25to08', 'SBI2025-SBI2008 v2.0').slice(1)) {
 	const from = clean(r[0]).slice(0, 4);
 	const to = clean(r[3]).slice(0, 4);
@@ -80,17 +84,17 @@ for (const r of sheetRows('sbi25to08', 'SBI2025-SBI2008 v2.0').slice(1)) {
 
 // 2b. NACE Rev. 2 -> ISIC Rev. 4. A NACE class is either an ISIC class or a subdivision of one
 // (for example NACE 58.21 and 58.29 sit inside ISIC 5820), so fall back to the ISIC class of the same group.
-const isic4Codes = new Set();
-const nace2ToIsic4 = {};
+const isic4Codes = new Set<string>();
+const nace2ToIsic4: Record<string, string> = {};
 
 // 3. ISIC Rev. 4 -> ISIC Rev. 3.1 (UN).
-const isic4ToIsic31 = {};
+const isic4ToIsic31: Table = {};
 for (const r of parseCsv(fs.readFileSync(file('isic4to31'), 'utf8'))) {
 	addTo(isic4ToIsic31, clean(r[0]), clean(r[2]));
 	isic4Codes.add(clean(r[0]));
 }
-const unmappedNace2 = [];
-const approximated = [];
+const unmappedNace2: string[] = [];
+const approximated: string[] = [];
 for (const nace of new Set(Object.values(sbi25ToNace2).flat())) {
 	let isic = [nace, nace.slice(0, 3) + '0'].find((c) => isic4Codes.has(c));
 	if (!isic) {
@@ -107,9 +111,9 @@ console.log(`NACE Rev. 2 -> ISIC Rev. 4: ${Object.keys(nace2ToIsic4).length - ap
 if (unmappedNace2.length) console.warn('NACE Rev. 2 codes without an ISIC Rev. 4 class:', unmappedNace2.join(' '));
 
 // 4. ISIC Rev. 3.1 -> NAICS 2002 US (UN).
-const isic31ToNaics = {};
-const isic31Titles = {};
-const naicsTitles = {};
+const isic31ToNaics: Table = {};
+const isic31Titles: Record<string, string> = {};
+const naicsTitles: Record<string, string> = {};
 for (const r of parseCsv(fs.readFileSync(file('isic31Naics'), 'utf8'))) {
 	const isic = clean(r[0]);
 	const naics = clean(r[2]);
@@ -120,8 +124,8 @@ for (const r of parseCsv(fs.readFileSync(file('isic31Naics'), 'utf8'))) {
 }
 
 // 5. NAICS 2002 -> SIC 1987 (US Census).
-const naicsToSic = {};
-const sicTitles = {};
+const naicsToSic: Table = {};
+const sicTitles: Record<string, string> = {};
 for (const r of sheetRows('sicNaics').slice(1)) {
 	if (typeof r[0] !== 'number' || typeof r[2] !== 'number') continue;
 	const sic = String(r[0]).padStart(4, '0');
@@ -132,7 +136,7 @@ for (const r of sheetRows('sicNaics').slice(1)) {
 }
 
 // 6. SIC -> Damodaran industry, counted over the companies in indname.xls.
-const sicToDamodaran = {};
+const sicToDamodaran: Record<string, Record<string, number>> = {};
 let companies = 0;
 for (const r of sheetRows('indname', 'By industry').slice(1)) {
 	const industry = clean(r[2]);
@@ -151,7 +155,7 @@ const damodaran = Object.fromEntries(
 // Some company SIC codes are group codes that are not in the Census table (6020 stands for 6021, 6022, 6029).
 // Record them as aliases of the real codes in the same three-digit group.
 const realSic = Object.keys(sicTitles);
-const sicAlias = {};
+const sicAlias: Table = {};
 let aliased = 0;
 let unresolved = 0;
 for (const [sic, counts] of Object.entries(sicToDamodaran)) {
