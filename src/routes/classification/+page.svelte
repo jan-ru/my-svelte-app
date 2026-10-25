@@ -24,6 +24,7 @@
 <nav>
 	<a href="/">home</a>
 	<a href="/classification" aria-current="page">classification</a>
+	<a href="/companies">companies</a>
 	<a href="/about">about</a>
 </nav>
 
@@ -97,7 +98,9 @@
 					{:else}
 						<ul>
 							{#each items as item (item.code)}
-								<li><code>{item.code}</code>{item.title ? ` ${item.title}` : ''}</li>
+								<li>
+									{#if step.key === 'sic'}<a href={`/companies?sic=${item.code}`}><code>{item.code}</code></a>{:else}<code>{item.code}</code>{/if}{item.title ? ` ${item.title}` : ''}
+								</li>
 							{/each}
 						</ul>
 					{/if}
@@ -145,7 +148,7 @@
 		<p role="status">Unknown industry “{data.industry}”.</p>
 	{:else if data.reverse}
 		{@const r = data.reverse}
-		<h3>{r.industry}</h3>
+		<h3>{r.industry} <a class="note" href={`/companies?industry=${encodeURIComponent(r.industry)}`}>list companies</a></h3>
 		<p class="note">
 			{r.companies.toLocaleString('en')} companies in {r.sic.length} SIC codes. Showing the {Math.min(r.sbi25.length, data.maxReverse)}
 			best of {r.sbi25.length} SBI 2025 classes. {percent(r.followed)} of the companies could be followed through every step; the rest have SIC codes missing from one of the correspondence tables.
@@ -166,7 +169,7 @@
 			<summary>SIC codes of this industry <span class="count">({r.sic.length})</span></summary>
 			<ul>
 				{#each r.sic as s (s.code)}
-					<li><code>{s.code}</code> {s.title} <span class="count">({s.companies.toLocaleString('en')} companies)</span></li>
+					<li><a href={`/companies?sic=${s.code}`}><code>{s.code}</code></a> {s.title} <span class="count">({s.companies.toLocaleString('en')} companies)</span></li>
 				{/each}
 			</ul>
 		</details>

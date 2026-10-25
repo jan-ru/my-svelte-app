@@ -65,6 +65,7 @@
 <nav>
 	<a href="/" aria-current="page">home</a>
 	<a href="/classification">classification</a>
+	<a href="/companies">companies</a>
 	<a href="/about">about</a>
 </nav>
 

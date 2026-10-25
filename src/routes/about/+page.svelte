@@ -6,6 +6,7 @@
 <nav>
 	<a href="/">home</a>
 	<a href="/classification">classification</a>
+	<a href="/companies">companies</a>
 	<a href="/about" aria-current="page">about</a>
 </nav>
 

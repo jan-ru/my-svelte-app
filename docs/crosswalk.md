@@ -25,3 +25,7 @@ The same page also goes from a Damodaran industry to SBI 2025 classes. It starts
 
 - NACE Rev. 2 to ISIC Rev. 4 does not use an official table. A NACE class is an ISIC class or a subdivision of one, so the build matches by exact code, then by the same three-digit group, then by the nearest ISIC code in the same division (the build prints how many of each).
 - Companies whose SIC code is missing from the Census table (and has no siblings) cannot be followed; the page shows the share that could.
+
+## Company list
+
+`node scripts/build-companies.mjs <path-to-indname.xls>` writes `src/lib/data/companies.json` (about 3.4 MB, 1 MB gzipped): name, ticker, SIC code, industry, country and region for each of the 48,156 companies, with the repeated text stored once in lookup lists. The `/companies` page reads it on the server only. Rebuild it, together with the crosswalk, when NYU publishes a new `indname.xls`. NYU states no licence terms on the pages consulted; check them before redistributing the file beyond this repository.
