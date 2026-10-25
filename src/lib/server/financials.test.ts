@@ -1,5 +1,5 @@
 // src/lib/server/financials.test.ts
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { FmpError, type Statement } from './fmp';
 import { loadFinancials, type StatementFetcher } from './financials';
 
@@ -7,6 +7,10 @@ const statement: Statement = {
 	lines: ['revenue'],
 	years: [{ fiscalYear: '2024', date: '2024-12-31', currency: 'USD', values: { revenue: 5_000_000 } }]
 };
+
+afterEach(() => {
+	vi.restoreAllMocks();
+});
 
 const base = { authed: true, rawSymbol: 'aapl', apiKey: 'KEY' };
 
@@ -73,5 +77,26 @@ describe('loadFinancials', () => {
 		expect(logged).toContain('AAPL');
 		expect(logged).not.toContain('TOPSECRET');
 		expect(logged).not.toContain('apikey');
+	});
+	it('treats a non-FmpError as unavailable and logs nothing sensitive', async () => {
+		const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+		const log = vi.spyOn(console, 'log').mockImplementation(() => {});
+		const fetcher: StatementFetcher = async (kind) => {
+			if (kind === 'cashflow') {
+				throw new Error('boom https://financialmodelingprep.com/stable/x?apikey=TOPSECRET');
+			}
+			return statement;
+		};
+		const view = await loadFinancials({ ...base, apiKey: 'TOPSECRET', fetcher });
+		if (view.state !== 'ready') throw new Error('expected ready');
+		const failed = view.tables.find((t) => t.kind === 'cashflow')!;
+		expect(failed.table).toBeNull();
+		expect(failed.message).toMatch(/FMP is unavailable/);
+		expect(failed.message).not.toContain('TOPSECRET');
+		expect(view.tables.filter((t) => t.table)).toHaveLength(2);
+		const logged = JSON.stringify([spy.mock.calls, warn.mock.calls, log.mock.calls]);
+		expect(logged).not.toContain('TOPSECRET');
+		expect(logged).not.toContain('financialmodelingprep');
 	});
 });
