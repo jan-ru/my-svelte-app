@@ -62,8 +62,8 @@ The three variables are declared in `src/env.ts` and read with named imports fro
 
 | Case | Behaviour |
 |---|---|
-| No or wrong password | Login form with a short message; HTTP 200 for the gated page (see Access gate), 429 when limited |
-| `SITE_PASSWORD`, `SESSION_SECRET` or `FMP_API_KEY` not set | "Not configured" message; no data; the missing name is logged, never shown |
+| No or wrong password | Login form with a short message; the login action answers a wrong password with HTTP 401 and a rate-limited attempt with 429 |
+| `SITE_PASSWORD`, `SESSION_SECRET` or `FMP_API_KEY` not set | The page shows only the "not configured" message and no data; the login action logs the missing variable when someone tries to log in; names are never shown to visitors |
 | Invalid ticker text | Message under the input; no FMP call |
 | Unknown ticker or empty result | "No annual statements found for X" |
 | FMP refuses the ticker (plan or exchange) | "Your FMP plan does not cover X" with FMP's reason, key removed |
