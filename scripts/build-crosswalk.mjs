@@ -78,9 +78,33 @@ for (const r of sheetRows('sbi25to08', 'SBI2025-SBI2008 v2.0').slice(1)) {
 	nace2Titles[to] ??= clean(r[5]);
 }
 
+// 2b. NACE Rev. 2 -> ISIC Rev. 4. A NACE class is either an ISIC class or a subdivision of one
+// (for example NACE 58.21 and 58.29 sit inside ISIC 5820), so fall back to the ISIC class of the same group.
+const isic4Codes = new Set();
+const nace2ToIsic4 = {};
+
 // 3. ISIC Rev. 4 -> ISIC Rev. 3.1 (UN).
 const isic4ToIsic31 = {};
-for (const r of parseCsv(fs.readFileSync(file('isic4to31'), 'utf8'))) addTo(isic4ToIsic31, clean(r[0]), clean(r[2]));
+for (const r of parseCsv(fs.readFileSync(file('isic4to31'), 'utf8'))) {
+	addTo(isic4ToIsic31, clean(r[0]), clean(r[2]));
+	isic4Codes.add(clean(r[0]));
+}
+const unmappedNace2 = [];
+const approximated = [];
+for (const nace of new Set(Object.values(sbi25ToNace2).flat())) {
+	let isic = [nace, nace.slice(0, 3) + '0'].find((c) => isic4Codes.has(c));
+	if (!isic) {
+		// No official NACE-ISIC table is used here. NACE classes extend ISIC classes, so take the nearest
+		// ISIC class in the same division: the largest code at or below, else the smallest above.
+		const division = [...isic4Codes].filter((c) => c.slice(0, 2) === nace.slice(0, 2)).sort();
+		isic = [...division].reverse().find((c) => c <= nace) ?? division.find((c) => c > nace);
+		if (isic) approximated.push(nace);
+	}
+	if (isic) nace2ToIsic4[nace] = isic;
+	else unmappedNace2.push(nace);
+}
+console.log(`NACE Rev. 2 -> ISIC Rev. 4: ${Object.keys(nace2ToIsic4).length - approximated.length} exact or same group, ${approximated.length} by nearest code`);
+if (unmappedNace2.length) console.warn('NACE Rev. 2 codes without an ISIC Rev. 4 class:', unmappedNace2.join(' '));
 
 // 4. ISIC Rev. 3.1 -> NAICS 2002 US (UN).
 const isic31ToNaics = {};
@@ -124,18 +148,35 @@ const damodaran = Object.fromEntries(
 		.map(([sic, counts]) => [sic, Object.entries(counts).sort((a, b) => b[1] - a[1])])
 );
 
+// Some company SIC codes are group codes that are not in the Census table (6020 stands for 6021, 6022, 6029).
+// Record them as aliases of the real codes in the same three-digit group.
+const realSic = Object.keys(sicTitles);
+const sicAlias = {};
+let aliased = 0;
+let unresolved = 0;
+for (const [sic, counts] of Object.entries(sicToDamodaran)) {
+	if (sicTitles[sic]) continue;
+	const total = Object.values(counts).reduce((a, b) => a + b, 0);
+	const children = realSic.filter((c) => c.slice(0, 3) === sic.slice(0, 3)).sort();
+	if (children.length) (sicAlias[sic] = children), (aliased += total);
+	else unresolved += total;
+}
+console.log(`SIC group codes: ${Object.keys(sicAlias).length} aliased (${aliased} companies), ${unresolved} companies unresolved`);
+
 const out = {
 	generated: new Date().toISOString().slice(0, 10),
 	companies,
 	sbi25,
 	sbi25ToNace2: sorted(sbi25ToNace2),
 	nace2Titles,
+	nace2ToIsic4,
 	isic4ToIsic31: sorted(isic4ToIsic31),
 	isic31Titles,
 	isic31ToNaics: sorted(isic31ToNaics),
 	naicsTitles,
 	naicsToSic: sorted(naicsToSic),
 	sicTitles,
+	sicAlias,
 	damodaran
 };
 

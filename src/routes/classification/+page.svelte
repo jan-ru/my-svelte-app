@@ -4,9 +4,10 @@
 
 	let { data }: PageProps = $props();
 
-	const steps: { key: 'nace21' | 'nace2' | 'isic31' | 'naics' | 'sic'; label: string; note: string }[] = [
+	const steps: { key: 'nace21' | 'nace2' | 'isic4' | 'isic31' | 'naics' | 'sic'; label: string; note: string }[] = [
 		{ key: 'nace21', label: 'NACE Rev. 2.1', note: 'The first four digits of SBI 2025 are NACE Rev. 2.1.' },
-		{ key: 'nace2', label: 'NACE Rev. 2 (= SBI 2008 = ISIC Rev. 4)', note: 'Via the CBS conversion table SBI 2025 to SBI 2008.' },
+		{ key: 'nace2', label: 'NACE Rev. 2 (= SBI 2008)', note: 'Via the CBS conversion table SBI 2025 to SBI 2008.' },
+		{ key: 'isic4', label: 'ISIC Rev. 4', note: 'A NACE Rev. 2 class is an ISIC Rev. 4 class or a subdivision of one.' },
 		{ key: 'isic31', label: 'ISIC Rev. 3.1', note: 'Via the UN correspondence table ISIC Rev. 4 to Rev. 3.1.' },
 		{ key: 'naics', label: 'NAICS 2002 (US)', note: 'Via the UN correspondence table ISIC Rev. 3.1 to NAICS 2002.' },
 		{ key: 'sic', label: 'SIC 1987 (US)', note: 'Via the US Census table NAICS 2002 to SIC 1987.' }
@@ -96,6 +97,54 @@
 		</section>
 	{/if}
 
+	<h2 id="reverse">From a Damodaran industry to SBI 2025</h2>
+	<p>
+		Pick an industry to see which SBI 2025 classes match it. The match runs the chain above backwards from the SIC
+		codes of the industry's companies. At each step where one code leads to several, its weight is split evenly, so
+		the shares add up to 100% of the companies that could be followed, and show where the industry most likely sits.
+	</p>
+	<form method="get" aria-labelledby="reverse">
+		<label for="industry">Industry</label>
+		<select id="industry" name="industry">
+			<option value="">Choose an industry</option>
+			{#each data.industries as name (name)}
+				<option value={name} selected={name === data.industry}>{name}</option>
+			{/each}
+		</select>
+		<button type="submit">Show SBI codes</button>
+	</form>
+
+	{#if data.industry !== '' && !data.reverse}
+		<p role="status">Unknown industry “{data.industry}”.</p>
+	{:else if data.reverse}
+		{@const r = data.reverse}
+		<h3>{r.industry}</h3>
+		<p class="note">
+			{r.companies.toLocaleString('en')} companies in {r.sic.length} SIC codes. Showing the {Math.min(r.sbi25.length, data.maxReverse)}
+			best of {r.sbi25.length} SBI 2025 classes. {percent(r.followed)} of the companies could be followed through every step; the rest have SIC codes missing from one of the correspondence tables.
+		</p>
+		<table>
+			<thead><tr><th scope="col">SBI 2025</th><th scope="col">Title</th><th scope="col" class="num">Share</th></tr></thead>
+			<tbody>
+				{#each r.sbi25.slice(0, data.maxReverse) as c (c.code)}
+					<tr>
+						<th scope="row"><a href={`/classification?code=${encodeURIComponent(c.code)}#start`}><code>{c.code}</code></a></th>
+						<td>{c.title}</td>
+						<td class="num">{percent(c.share)}</td>
+					</tr>
+				{/each}
+			</tbody>
+		</table>
+		<details>
+			<summary>SIC codes of this industry <span class="count">({r.sic.length})</span></summary>
+			<ul>
+				{#each r.sic as s (s.code)}
+					<li><code>{s.code}</code> {s.title} <span class="count">({s.companies.toLocaleString('en')} companies)</span></li>
+				{/each}
+			</ul>
+		</details>
+	{/if}
+
 	<h2>Sources</h2>
 	<ul class="sources">
 		<li><a href="https://www.cbs.nl/nl-nl/onze-diensten/methoden/classificaties/activiteiten/standaard-bedrijfsindeling--sbi--" rel="noreferrer">CBS: Standaard Bedrijfsindeling 2025</a> (structure and conversion table to SBI 2008)</li>
@@ -120,5 +169,6 @@
 	table { border-collapse: collapse; width: 100%; }
 	th, td { text-align: left; padding: 0.3rem 0.6rem; border-bottom: 1px solid #ddd; }
 	.num { text-align: right; font-variant-numeric: tabular-nums; }
+	select { padding: 0.4rem 0.5rem; max-width: 100%; }
 	code { font-size: 0.9em; }
 </style>

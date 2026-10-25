@@ -14,12 +14,14 @@ const data: Crosswalk = {
 	},
 	sbi25ToNace2: { '1011': ['1010'], '1012': ['1010'], '5811': ['5811'] },
 	nace2Titles: {},
+	nace2ToIsic4: { '1010': '1010', '5811': '5811' },
 	isic4ToIsic31: { '1010': ['1511'], '5811': ['2211', '2212'] },
 	isic31Titles: { '1511': 'Meat', '2211': 'Books', '2212': 'Newspapers' },
 	isic31ToNaics: { '1511': ['311611'], '2211': ['511130'], '2212': ['511110'] },
 	naicsTitles: { '311611': 'Animal slaughtering' },
 	naicsToSic: { '311611': ['2011', '2015'], '511130': ['2731'], '511110': ['2711'] },
-	sicTitles: { '2011': 'Meat packing plants' },
+	sicTitles: { '2011': 'Meat packing plants', '2015': 'Poultry', '2731': 'Books', '2711': 'Newspapers' },
+	sicAlias: {},
 	damodaran: {
 		'2011': [['Food Processing', 3]],
 		'2015': [['Food Processing', 1], ['Farming/Agriculture', 1]],
@@ -67,5 +69,61 @@ describe('trace', () => {
 		expect(t.nace21.map((i) => i.code)).toEqual(['5811']);
 		expect(t.damodaran.map((m) => m.industry)).toEqual(['Publshing & Newspapers', 'Entertainment']);
 		expect(t.damodaran.reduce((s, m) => s + m.share, 0)).toBeCloseTo(1);
+	});
+});
+
+import { industries, reverseTrace } from './crosswalk';
+
+describe('industries', () => {
+	it('lists each Damodaran industry once, sorted', () => {
+		expect(industries(data)).toEqual(['Entertainment', 'Farming/Agriculture', 'Food Processing', 'Publshing & Newspapers']);
+	});
+});
+
+describe('reverseTrace', () => {
+	it('returns null for an unknown industry', () => {
+		expect(reverseTrace(data, 'Nope')).toBeNull();
+	});
+	it('lists the industry SIC codes with company counts', () => {
+		const r = reverseTrace(data, 'Food Processing')!;
+		expect(r.companies).toBe(4);
+		expect(r.sic.map((s) => [s.code, s.companies])).toEqual([['2011', 3], ['2015', 1]]);
+	});
+	it('ranks SBI 2025 classes by share, splitting evenly at one-to-many hops', () => {
+		const r = reverseTrace(data, 'Food Processing')!;
+		// Both SIC codes lead to NAICS 311611 -> ISIC 1511 -> ISIC 1010 -> SBI 1011 and 1012, half each.
+		expect(r.sbi25.map((s) => s.code)).toEqual(['1011', '1012']);
+		expect(r.sbi25[0].share).toBeCloseTo(0.5);
+		expect(r.sbi25.reduce((s, x) => s + x.share, 0)).toBeCloseTo(1);
+		expect(r.followed).toBeCloseTo(1);
+	});
+	it('reports the fraction that could not be followed and rescales the shares', () => {
+		const partial: Crosswalk = { ...data, naicsToSic: { '311611': ['2011'] } }; // SIC 2015 now has no NAICS
+		const r = reverseTrace(partial, 'Food Processing')!;
+		expect(r.followed).toBeCloseTo(0.75);
+		expect(r.sbi25.reduce((s, x) => s + x.share, 0)).toBeCloseTo(1);
+	});
+	it('drops weight that cannot be followed to an SBI class', () => {
+		const r = reverseTrace(data, 'Entertainment')!;
+		// SIC 2711 -> NAICS 511110 -> ISIC 2212 -> ISIC 4 5811 -> SBI 5811
+		expect(r.sbi25.map((s) => s.code)).toEqual(['5811']);
+	});
+});
+
+describe('SIC group codes', () => {
+	const grouped: Crosswalk = {
+		...data,
+		sicAlias: { '2010': ['2011', '2015'] },
+		damodaran: { ...data.damodaran, '2010': [['Food Processing', 4]] }
+	};
+	it('counts a group code for the real codes it stands for, going forward', () => {
+		const t = trace(grouped, '1011')!;
+		// 2011 and 2015 each get half of the 4 group-code companies: 3 + 1 + 2 + 2 Food Processing
+		expect(t.damodaran.find((m) => m.industry === 'Food Processing')!.companies).toBeCloseTo(8);
+	});
+	it('follows a group code through its real codes, going backwards', () => {
+		const r = reverseTrace({ ...grouped, damodaran: { '2010': [['Grouped', 4]] } }, 'Grouped')!;
+		expect(r.followed).toBeCloseTo(1);
+		expect(r.sbi25.map((x) => x.code)).toEqual(['1011', '1012']);
 	});
 });
