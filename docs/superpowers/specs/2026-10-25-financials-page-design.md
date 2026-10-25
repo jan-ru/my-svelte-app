@@ -33,16 +33,17 @@ A new page, `/financials`, shows the annual income statement, balance sheet and 
 | `src/lib/server/fmp.ts` | `getStatements(symbol)`: three fetches in parallel, 10 s timeout, 5 MB cap, response parsing, error mapping; key never in messages |
 | `src/lib/statements.ts` | Pure functions that turn parsed statements into table rows (line items by year), money formatting |
 | `src/lib/symbol.ts` | Ticker pattern and normalisation, shared by server and client |
-| `src/hooks.server.ts` | Existing security headers plus the gate: any request under `/financials` without a valid session gets the login form (status 401) |
+| `src/env.ts` | Declares the private environment variables with `defineEnvVars` from `@sveltejs/kit/env` |
+| `src/hooks.server.ts` | Existing security headers; sets `locals.authed` from the session cookie; `no-store` for `/financials`. The page's `load` enforces the gate. |
 | `src/routes/financials/+page.server.ts` | `load` (statements for `?symbol=`), `login` and `logout` form actions |
 | `src/routes/financials/+page.svelte` | Login form, ticker form, three statement tables |
 | `src/routes/+layout.svelte` | Add a `financials` link to the navigation |
 
-The `$env/dynamic/private` module is used for the three variables, so they are read at run time on Vercel and never reach the client bundle. The app must fail closed: if `SITE_PASSWORD` or `SESSION_SECRET` is unset, nobody can log in and the page says it is not configured.
+The three variables are declared in `src/env.ts` and read with named imports from `$app/env/private`, so they are read at run time on Vercel and never reach the client bundle. The app must fail closed: if `SITE_PASSWORD` or `SESSION_SECRET` is unset, nobody can log in and the page says it is not configured.
 
 ## Access gate
 
-1. A visitor without a valid cookie who requests anything under `/financials` gets a login form and no data. No FMP call is made.
+1. A visitor without a valid cookie who requests anything under `/financials` gets the login form (HTTP 200, `no-store`; SvelteKit's `load` cannot return another status) and no data. No FMP call is made.
 2. Logging in is a form action (POST; SvelteKit's origin check applies). The password is compared in constant time against `SITE_PASSWORD`.
 3. On success the server sets one cookie holding `expiry.signature`, with `HttpOnly`, `Secure`, `SameSite=Lax`, `Path=/financials` and a 7-day lifetime. The expiry is part of the signed value, so the server decides when it ends.
 4. Changing `SESSION_SECRET` logs everyone out; changing `SITE_PASSWORD` stops new logins. Revoking one person means changing the shared password for everyone.
@@ -61,7 +62,7 @@ The `$env/dynamic/private` module is used for the three variables, so they are r
 
 | Case | Behaviour |
 |---|---|
-| No or wrong password | Login form with a short message; 401 for the gated page, 429 when limited |
+| No or wrong password | Login form with a short message; HTTP 200 for the gated page (see Access gate), 429 when limited |
 | `SITE_PASSWORD`, `SESSION_SECRET` or `FMP_API_KEY` not set | "Not configured" message; no data; the missing name is logged, never shown |
 | Invalid ticker text | Message under the input; no FMP call |
 | Unknown ticker or empty result | "No annual statements found for X" |
@@ -80,7 +81,7 @@ Vitest, no network.
 - `symbol.ts`: accepted and rejected tickers.
 - `fmp.ts`: parsing from recorded real responses, error and empty-result mapping, key never present in any error message (fetch mocked).
 - `statements.ts`: row building across years, missing years, formatting.
-- The gate: a request without a session gets the login form and `getStatements` is not called; with a session it is.
+- `loadFinancials`: without a session or key, or with a bad ticker, the FMP fetcher is never called.
 
 ## Delivery
 
@@ -98,5 +99,5 @@ Charts, ratios, quarterly statements, CSV export, per-person accounts, searching
 
 ## Open items
 
-- Confirm FMP field names, empty-result and error shapes with the real key (before the plan).
+- FMP field names, empty-result and error shapes: the parser is generic (it does not depend on fixed field names), and the real response shape is checked on the Vercel preview.
 - Confirm which markets the owner's tier covers.
