@@ -75,7 +75,7 @@ The dev server runs at <http://localhost:5173>.
 | `npm run build:crosswalk` / `build:companies` | Regenerate the data files (see `docs/crosswalk.md`) |
 | `npm run check:data` | Fetch the real NYU files and confirm every multiple still resolves |
 
-Run `npm run check:data` each January after NYU publishes new data. If NYU renames a column, update the matching entry in `src/lib/catalog.ts`.
+`npm run check:data` also runs monthly in GitHub Actions (`.github/workflows/check-data.yml`); a failed run emails the repo owner. Run it by hand after NYU publishes new data (each January). If NYU renames a column, update the matching entry in `src/lib/catalog.ts`.
 
 ## Project structure
 

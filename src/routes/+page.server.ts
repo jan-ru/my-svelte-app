@@ -12,7 +12,8 @@ export const load: PageServerLoad = async ({ url, setHeaders }) => {
 	let loadError: string | null = null;
 	try {
 		industries = await getIndustries();
-	} catch {
+	} catch (error) {
+		console.error('could not load the NYU industry list', error);
 		loadError = 'The NYU data could not be loaded right now.';
 	}
 

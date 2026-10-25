@@ -40,6 +40,7 @@ export async function getComparison(
 			try {
 				loaded.set(key, await load(family, regionId));
 			} catch (error) {
+				console.error(`could not load NYU workbook ${key}`, error);
 				loaded.set(key, error instanceof Error ? error : new Error(String(error)));
 			}
 		})

@@ -1,0 +1,23 @@
+name: Check NYU data
+
+# Fetches the real NYU workbooks and confirms every catalog column still resolves.
+# A failed run emails the repo owner, which is the signal to update src/lib/catalog.ts.
+on:
+  schedule:
+    - cron: '0 6 1 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check-data:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run check:data
