@@ -1,6 +1,6 @@
-import { buildLayout } from '$lib/layout';
-import { parseParams } from '$lib/params';
-import { getComparison, getIndustries } from '$lib/server/compare';
+import { buildLayout } from '#lib/layout';
+import { parseParams } from '#lib/params';
+import { getComparison, getIndustries } from '#lib/server/compare';
 import type { PageServerLoad } from './$types';
 
 export const config = { maxDuration: 30 };

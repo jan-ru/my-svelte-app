@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { MAX_SELECTION, MULTIPLES, REGIONS, type Role } from '$lib/catalog';
-	import { LOW_FIRMS_THRESHOLD, PALETTE, formatMultiple } from '$lib/chart';
-	import GroupedBarChart from '$lib/components/GroupedBarChart.svelte';
-	import { applyRole } from '$lib/params';
+	import { MAX_SELECTION, MULTIPLES, REGIONS, type Role } from '#lib/catalog';
+	import { LOW_FIRMS_THRESHOLD, PALETTE, formatMultiple } from '#lib/chart';
+	import GroupedBarChart from '#lib/components/GroupedBarChart.svelte';
+	import { applyRole } from '#lib/params';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -65,6 +65,7 @@
 <nav>
 	<a href="/" aria-current="page">home</a>
 	<a href="/classification">classification</a>
+	<a href="/companies">companies</a>
 	<a href="/about">about</a>
 </nav>
 

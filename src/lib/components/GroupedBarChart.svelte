@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { LOW_FIRMS_THRESHOLD, formatMultiple, niceTicks } from '$lib/chart';
-	import type { PanelModel } from '$lib/layout';
+	import { LOW_FIRMS_THRESHOLD, formatMultiple, niceTicks } from '#lib/chart';
+	import type { PanelModel } from '#lib/layout';
 
 	let {
 		panel,
