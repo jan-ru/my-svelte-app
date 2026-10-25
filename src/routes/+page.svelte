@@ -62,13 +62,6 @@
 	<meta name="description" content="Compare NYU Stern industry valuation multiples across regions." />
 </svelte:head>
 
-<nav>
-	<a href="/" aria-current="page">home</a>
-	<a href="/classification">classification</a>
-	<a href="/companies">companies</a>
-	<a href="/about">about</a>
-</nav>
-
 <main>
 	<h1>Valuation multiples by industry</h1>
 	<p class="source">
@@ -217,15 +210,6 @@
 </main>
 
 <style>
-	nav {
-		display: flex;
-		gap: 1rem;
-		padding: 1rem;
-	}
-	nav a[aria-current='page'] {
-		font-weight: 600;
-		text-decoration: none;
-	}
 	main {
 		max-width: 80rem;
 		margin: 0 auto;

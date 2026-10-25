@@ -1,4 +1,6 @@
 const RETRY_MS = 10 * 60 * 1000;
+/** How long a failed first load is remembered, so an outage doesn't make every request pay the timeout. */
+const FAILURE_MS = 60 * 1000;
 
 export interface Cache<T> {
 	get(key: string, load: () => Promise<T>): Promise<T>;
@@ -8,11 +10,15 @@ export function createCache<T>(options: { ttlMs: number; now?: () => number }): 
 	const now = options.now ?? Date.now;
 	const store = new Map<string, { value: T; expires: number }>();
 	const inflight = new Map<string, Promise<T>>();
+	const failures = new Map<string, { error: unknown; until: number }>();
 
 	return {
 		async get(key, load) {
 			const hit = store.get(key);
 			if (hit && hit.expires > now()) return hit.value;
+
+			const failure = failures.get(key);
+			if (!hit && failure && failure.until > now()) throw failure.error;
 
 			const pending = inflight.get(key);
 			if (pending) return pending;
@@ -20,6 +26,7 @@ export function createCache<T>(options: { ttlMs: number; now?: () => number }): 
 			const promise = load()
 				.then((value) => {
 					store.set(key, { value, expires: now() + options.ttlMs });
+					failures.delete(key);
 					return value;
 				})
 				.catch((error: unknown) => {
@@ -29,6 +36,7 @@ export function createCache<T>(options: { ttlMs: number; now?: () => number }): 
 						store.set(key, { value: hit.value, expires: now() + RETRY_MS });
 						return hit.value;
 					}
+					failures.set(key, { error, until: now() + FAILURE_MS });
 					throw error;
 				})
 				.finally(() => inflight.delete(key));

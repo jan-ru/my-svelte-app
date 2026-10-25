@@ -18,13 +18,6 @@
 	<meta name="description" content="Listed companies in the NYU Stern (Damodaran) industry data, by industry, SIC code and country." />
 </svelte:head>
 
-<nav>
-	<a href="/">home</a>
-	<a href="/classification">classification</a>
-	<a href="/companies" aria-current="page">companies</a>
-	<a href="/about">about</a>
-</nav>
-
 <main>
 	<h1>Companies</h1>
 	<p class="lede">
@@ -115,7 +108,6 @@
 
 <style>
 	.src { color: #666; font-size: 0.75rem; margin-left: 0.3rem; }
-	nav { display: flex; gap: 1rem; padding: 1rem; }
 	main { max-width: 64rem; margin: 0 auto; padding: 0 1rem 3rem; }
 	form { display: flex; gap: 0.5rem 1rem; align-items: center; flex-wrap: wrap; margin: 1rem 0; }
 	select, input[type='search'] { padding: 0.4rem 0.5rem; max-width: 100%; }

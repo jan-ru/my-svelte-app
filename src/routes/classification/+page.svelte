@@ -21,13 +21,6 @@
 	<meta name="description" content="From an SBI 2025 code to NACE, ISIC, NAICS, SIC and NYU Stern (Damodaran) industries." />
 </svelte:head>
 
-<nav>
-	<a href="/">home</a>
-	<a href="/classification" aria-current="page">classification</a>
-	<a href="/companies">companies</a>
-	<a href="/about">about</a>
-</nav>
-
 <main>
 	<h1>Industry classification</h1>
 	<p class="lede">
@@ -186,7 +179,6 @@
 </main>
 
 <style>
-	nav { display: flex; gap: 1rem; padding: 1rem; }
 	main { max-width: 56rem; margin: 0 auto; padding: 0 1rem 3rem; }
 	.lede { font-size: 1.05rem; }
 	.caveat { background: #fff7e0; border-left: 4px solid #e69f00; padding: 0.6rem 0.9rem; }

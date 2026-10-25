@@ -69,13 +69,18 @@ describe('createCache', () => {
 		expect(failing).toHaveBeenCalledTimes(2);
 	});
 
-	it('rejects when there is nothing to fall back on, and retries next time', async () => {
-		const cache = createCache<string>({ ttlMs: 1000 });
-		await expect(
-			cache.get('k', async () => {
-				throw new Error('down');
-			})
-		).rejects.toThrow('down');
+	it('rejects when there is nothing to fall back on, then retries after the failure expires', async () => {
+		let t = 0;
+		const cache = createCache<string>({ ttlMs: 1000, now: () => t });
+		const failing = vi.fn().mockRejectedValue(new Error('down'));
+		await expect(cache.get('k', failing)).rejects.toThrow('down');
+
+		// within the failure window the load is not attempted again
+		t = 59_999;
+		await expect(cache.get('k', failing)).rejects.toThrow('down');
+		expect(failing).toHaveBeenCalledTimes(1);
+
+		t = 60_001;
 		await expect(cache.get('k', async () => 'ok')).resolves.toBe('ok');
 	});
 });
