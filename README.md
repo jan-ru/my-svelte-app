@@ -65,8 +65,10 @@ src/
   routes/
     +page.server.ts     Load function
     +page.svelte        Home page
+    classification/     SBI 2025 to Damodaran industry lookup
     about/+page.svelte  About page
-docs/superpowers/       Design spec and implementation plan
+scripts/                Builds the classification data (see docs/crosswalk.md)
+docs/                   Crosswalk notes, design spec and implementation plan
 ```
 
 ## Deployment
