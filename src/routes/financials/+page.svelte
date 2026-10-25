@@ -52,7 +52,7 @@
 							<thead>
 								<tr>
 									<th scope="col">Line item</th>
-									{#each t.table.columns as c (c.date)}
+									{#each t.table.columns as c, i (i)}
 										<th scope="col" class="num">{c.year}<br /><small>{c.date}</small></th>
 									{/each}
 								</tr>
