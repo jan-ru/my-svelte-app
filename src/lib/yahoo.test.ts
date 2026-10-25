@@ -15,6 +15,17 @@ describe('yahooUrl', () => {
 	it('pads Hong Kong codes to four digits', () => {
 		expect(yahooUrl('SEHK:700')).toBe(quote('0700.HK'));
 	});
+	it('drops the leading A from Korean codes', () => {
+		expect(yahooUrl('KOSDAQ:A366030')).toBe(quote('366030.KQ'));
+		expect(yahooUrl('KOSE:A078520')).toBe(quote('078520.KS'));
+	});
+	it('drops spaces and asterisks from Mexican share classes', () => {
+		expect(yahooUrl('BMV:AMX B')).toBe(quote('AMXB.MX'));
+		expect(yahooUrl('BMV:ALSEA *')).toBe(quote('ALSEA.MX'));
+	});
+	it('has no Yahoo listing for the Philippines', () => {
+		expect(yahooUrl('PSE:AEV')).toBe('https://finance.yahoo.com/lookup?s=AEV');
+	});
 	it('falls back to a Yahoo lookup for unknown exchanges or odd symbols', () => {
 		expect(yahooUrl('XSAT:ABC')).toBe('https://finance.yahoo.com/lookup?s=ABC');
 		expect(yahooUrl('KOSE:A B')).toBe('https://finance.yahoo.com/lookup?s=A%20B');

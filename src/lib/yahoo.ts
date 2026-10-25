@@ -8,7 +8,7 @@ const SUFFIX: Record<string, string> = {
 	ENXTLS: '.LS', IBSE: '.IS', AIM: '.L', LSE: '.L', TASE: '.TA', BIT: '.MI',
 	XTRA: '.DE', DB: '.F', SGX: '.SI', Catalist: '.SI', OB: '.OL', BOVESPA: '.SA',
 	SWX: '.SW', JSE: '.JO', BME: '.MC', HLSE: '.HE', CPSE: '.CO', ATSE: '.AT',
-	NZSE: '.NZ', BMV: '.MX', WBAG: '.VI', SASE: '.SR', MUN: '.MU', PSE: '.PS'
+	NZSE: '.NZ', BMV: '.MX', WBAG: '.VI', SASE: '.SR', MUN: '.MU'
 };
 
 const SYMBOL = /^[A-Za-z0-9.&-]+$/;
@@ -23,10 +23,13 @@ export function yahooUrl(ticker: string, name = ''): string | null {
 		return `https://finance.yahoo.com/lookup?s=${encodeURIComponent(company)}`;
 	}
 	const suffix = SUFFIX[exchange];
-	if (suffix === undefined || !SYMBOL.test(symbol)) {
+	let s = symbol;
+	// Korean codes carry a leading A (A005930); Mexican ones a share class (AMX B, ALSEA *)
+	if (exchange === 'KOSDAQ' || exchange === 'KOSE') s = s.replace(/^A(?=\d{6}$)/, '');
+	if (exchange === 'BMV') s = s.replace(/[ *]/g, '');
+	if (suffix === undefined || !SYMBOL.test(s)) {
 		return `https://finance.yahoo.com/lookup?s=${encodeURIComponent(symbol)}`;
 	}
-	let s = symbol;
 	if (exchange === 'SEHK' && /^\d+$/.test(s)) s = s.padStart(4, '0');
 	if (suffix === '') s = s.replace('.', '-');
 	return `https://finance.yahoo.com/quote/${encodeURIComponent(s + suffix)}`;
