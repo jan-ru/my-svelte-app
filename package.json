@@ -7,13 +7,19 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "check:data": "vitest run --config vitest.live.config.ts"
+    "check:data": "vitest run --config vitest.live.config.ts",
+    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+    "build:crosswalk": "node scripts/build-crosswalk.ts",
+    "build:companies": "node scripts/build-companies.ts",
+    "check:ts-only": "node scripts/check-no-js.ts"
   },
   "devDependencies": {
     "@sveltejs/adapter-vercel": "^7.0.1",
     "@sveltejs/kit": "^3.1.0",
     "@sveltejs/vite-plugin-svelte": "^7.3.1",
+    "@types/node": "^24.19.2",
     "svelte": "^5.55.7",
+    "svelte-check": "^4.7.7",
     "typescript": "^6.0.3",
     "vite": "^8.3.5",
     "vitest": "^5.0.5"
@@ -26,8 +32,13 @@
     "node": "24.x"
   },
   "imports": {
-    "#lib": "./src/lib/index.js",
-    "#lib/*": "./src/lib/*"
+    "#lib": "./src/lib/index.ts",
+    "#lib/*.svelte": "./src/lib/*.svelte",
+    "#lib/*.json": "./src/lib/*.json",
+    "#lib/*": {
+      "types": "./src/lib/*.ts",
+      "default": "./src/lib/*"
+    }
   },
   "keywords": [],
   "author": "JRM",

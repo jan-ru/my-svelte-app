@@ -15,7 +15,7 @@ export interface FixtureOptions {
 }
 
 /** Build a small legacy .xls workbook shaped like the NYU files. */
-export function makeWorkbook(o: FixtureOptions): Uint8Array {
+export function makeWorkbook(o: FixtureOptions): Uint8Array<ArrayBuffer> {
 	const meta: (string | number | null)[][] = [
 		['Date updated:', o.updatedSerial ?? 46027],
 		['Created by:', 'test'],
@@ -28,5 +28,5 @@ export function makeWorkbook(o: FixtureOptions): Uint8Array {
 	const wb = XLSX.utils.book_new();
 	XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([['Variables']]), 'Variables & FAQ');
 	XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(aoa), o.sheetName ?? 'Industry Averages');
-	return XLSX.write(wb, { type: 'buffer', bookType: 'biff8' }) as Uint8Array;
+	return new Uint8Array(XLSX.write(wb, { type: 'buffer', bookType: 'biff8' }) as Uint8Array);
 }

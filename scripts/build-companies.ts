@@ -1,28 +1,33 @@
 // Builds src/lib/data/companies.json from the NYU Stern company list (indname.xls).
-// Usage: node scripts/build-companies.mjs <path-to-indname.xls>
+// Usage: node scripts/build-companies.ts <path-to-indname.xls>
 import * as XLSX from 'xlsx';
 import fs from 'node:fs';
 import path from 'node:path';
 
 const input = process.argv[2];
 if (!input) {
-	console.error('Usage: node scripts/build-companies.mjs <path-to-indname.xls>');
+	console.error('Usage: node scripts/build-companies.ts <path-to-indname.xls>');
 	process.exit(1);
 }
 
-const clean = (v) => String(v ?? '').replace(/\s+/g, ' ').trim();
+const clean = (v: unknown): string => String(v ?? '').replace(/\s+/g, ' ').trim();
 const wb = XLSX.read(fs.readFileSync(input), { type: 'buffer', sheets: 'By industry' });
-const rows = XLSX.utils.sheet_to_json(wb.Sheets['By industry'], { header: 1, defval: null }).slice(1);
+const rows = XLSX.utils.sheet_to_json<unknown[]>(wb.Sheets['By industry'], { header: 1, defval: null }).slice(1);
 
 // Dictionary-code the repeated text to keep the file small.
 const dict = () => {
-	const values = [];
-	const index = new Map();
+	const values: string[] = [];
+	const index = new Map<string, number>();
 	return {
 		values,
-		id(value) {
-			if (!index.has(value)) (index.set(value, values.length), values.push(value));
-			return index.get(value);
+		id(value: string): number {
+			let id = index.get(value);
+			if (id === undefined) {
+				id = values.length;
+				index.set(value, id);
+				values.push(value);
+			}
+			return id;
 		}
 	};
 };
@@ -30,7 +35,8 @@ const industries = dict();
 const countries = dict();
 const groups = dict();
 
-const companies = [];
+type Company = [name: string, ticker: string, sic: string, industry: number, country: number, region: number];
+const companies: Company[] = [];
 for (const r of rows) {
 	const name = clean(r[0]);
 	const industry = clean(r[2]);
