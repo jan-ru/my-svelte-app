@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { MissingColumnError, fetchWorkbook, parseWorkbook, pickColumn } from './nyu';
+import { MAX_WORKBOOK_BYTES, MissingColumnError, fetchWorkbook, parseWorkbook, pickColumn } from './nyu';
 import { makeWorkbook } from './testing/make-workbook';
 
 const PE_HEADER = ['Industry Name', 'Number of firms', 'Current PE', 'Trailing PE', 'Forward PE'];
@@ -138,5 +138,20 @@ describe('fetchWorkbook', () => {
 	it('rejects on a non-200 response and says which status', async () => {
 		const fakeFetch = (async () => new Response('nope', { status: 404 })) as typeof fetch;
 		await expect(fetchWorkbook('pe', 'us', fakeFetch)).rejects.toThrow(/404/);
+	});
+
+	it('rejects a file whose declared size is over the limit', async () => {
+		const fakeFetch = (async () =>
+			new Response(bytes, {
+				status: 200,
+				headers: { 'content-length': String(MAX_WORKBOOK_BYTES + 1) }
+			})) as typeof fetch;
+		await expect(fetchWorkbook('pe', 'us', fakeFetch)).rejects.toThrow(/too large/);
+	});
+
+	it('rejects a body over the limit even without a content-length header', async () => {
+		const big = new Uint8Array(MAX_WORKBOOK_BYTES + 1);
+		const fakeFetch = (async () => new Response(big, { status: 200 })) as typeof fetch;
+		await expect(fetchWorkbook('pe', 'us', fakeFetch)).rejects.toThrow(/too large/);
 	});
 });

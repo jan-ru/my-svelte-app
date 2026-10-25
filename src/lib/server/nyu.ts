@@ -3,6 +3,7 @@ import { workbookUrl, type Family } from '../catalog';
 
 const SHEET = 'Industry Averages';
 export const FETCH_TIMEOUT_MS = 10_000;
+export const MAX_WORKBOOK_BYTES = 5 * 1024 * 1024;
 
 export interface Cell {
 	value: number | null;
@@ -97,5 +98,9 @@ export async function fetchWorkbook(
 	const url = workbookUrl(family, regionId);
 	const response = await fetchFn(url, { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) });
 	if (!response.ok) throw new Error(`NYU returned ${response.status} for ${url}`);
-	return parseWorkbook(new Uint8Array(await response.arrayBuffer()));
+	const declared = Number(response.headers.get('content-length'));
+	if (declared > MAX_WORKBOOK_BYTES) throw new Error(`NYU file too large (${declared} bytes): ${url}`);
+	const bytes = new Uint8Array(await response.arrayBuffer());
+	if (bytes.byteLength > MAX_WORKBOOK_BYTES) throw new Error(`NYU file too large (${bytes.byteLength} bytes): ${url}`);
+	return parseWorkbook(bytes);
 }
