@@ -87,7 +87,7 @@
 						{#each t.damodaran as m (m.industry)}
 							<tr>
 								<th scope="row"><a href={`/?i=${encodeURIComponent(m.industry)}`}>{m.industry}</a></th>
-								<td class="num">{m.companies.toLocaleString('en')}</td>
+								<td class="num">{Math.round(m.companies).toLocaleString('en')}</td>
 								<td class="num">{percent(m.share)}</td>
 							</tr>
 						{/each}
