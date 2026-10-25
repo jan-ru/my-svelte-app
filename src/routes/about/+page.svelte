@@ -3,13 +3,6 @@
 	<meta name="description" content="What this app does and where its valuation multiples come from." />
 </svelte:head>
 
-<nav>
-	<a href="/">home</a>
-	<a href="/classification">classification</a>
-	<a href="/companies">companies</a>
-	<a href="/about" aria-current="page">about</a>
-</nav>
-
 <main>
 	<h1>About</h1>
 
@@ -35,17 +28,6 @@
 </main>
 
 <style>
-	nav {
-		display: flex;
-		gap: 1rem;
-		padding: 1rem;
-	}
-
-	nav a[aria-current='page'] {
-		font-weight: 600;
-		text-decoration: none;
-	}
-
 	main {
 		max-width: 40rem;
 		margin: 0 auto;
