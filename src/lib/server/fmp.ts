@@ -43,9 +43,14 @@ export interface Statement {
 /** Remove anything that looks like the API key from text that may reach a log or a visitor. */
 const clean = (text: string): string => text.replace(/apikey=[^&\s"']+/gi, 'apikey=***').slice(0, 200);
 
+function redactKey(text: string, apiKey: string): string {
+	if (!apiKey) return text;
+	return [apiKey, encodeURIComponent(apiKey)].reduce((out, k) => out.split(k).join('***'), text);
+}
+
 function fromMessage(message: string): FmpError {
 	if (/invalid api key/i.test(message)) return new FmpError('config', 'FMP rejected the API key');
-	if (/limit/i.test(message)) return new FmpError('limit', 'FMP rate limit reached');
+	if (/limit reach/i.test(message)) return new FmpError('limit', 'FMP rate limit reached');
 	return new FmpError('plan', clean(message));
 }
 
@@ -98,8 +103,16 @@ export async function fetchStatement(
 
 	const declared = Number(response.headers.get('content-length'));
 	if (declared > MAX_BYTES) throw new FmpError('unavailable', 'FMP response too large');
-	const text = await response.text();
+	let text: string;
+	try {
+		text = await response.text();
+	} catch {
+		// a timeout or reset mid-body; the raw error can carry the request URL
+		throw new FmpError('unavailable', 'FMP response could not be read');
+	}
 	if (text.length > MAX_BYTES) throw new FmpError('unavailable', 'FMP response too large');
+	// FMP may echo the key in an error message, bare or encoded; remove it before anything is parsed
+	text = redactKey(text, apiKey);
 
 	let body: unknown;
 	try {

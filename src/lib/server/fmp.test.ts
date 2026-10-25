@@ -48,6 +48,7 @@ describe('parseStatement', () => {
 		};
 		expect(kind('Invalid API KEY.')).toBe('config');
 		expect(kind('Limit Reach. Please upgrade')).toBe('limit');
+		expect(kind('Premium Query Parameter: limit is not available')).toBe('plan');
 		expect(kind('Special Endpoint : This endpoint is not available under your current subscription')).toBe('plan');
 	});
 	it('rejects an unexpected shape', () => {
@@ -108,6 +109,33 @@ describe('fetchStatement', () => {
 			expect(error).toBeInstanceOf(FmpError);
 			expect((error as Error).message).not.toContain(secret);
 		}
+	});
+	it('redacts a bare key echoed in a plan error message', async () => {
+		const secret = 'AbC123+/key';
+		const message = `Key ${secret} (${encodeURIComponent(secret)}) is not entitled to this endpoint`;
+		const fetchFn = vi.fn().mockResolvedValue(json({ 'Error Message': message }));
+		const error = await fetchStatement('income', 'AAPL', secret, fetchFn).catch((e: unknown) => e);
+		expect(error).toBeInstanceOf(FmpError);
+		expect((error as FmpError).kind).toBe('plan');
+		expect((error as Error).message).not.toContain(secret);
+		expect((error as Error).message).not.toContain(encodeURIComponent(secret));
+		expect((error as Error).message).toContain('***');
+	});
+	it('maps a body that cannot be read to a clean unavailable error', async () => {
+		const secret = 'SUPERSECRETKEY';
+		const response = {
+			ok: true,
+			status: 200,
+			headers: new Headers(),
+			text: () => Promise.reject(new Error(`aborted https://financialmodelingprep.com/stable/x?apikey=${secret}`))
+		} as unknown as Response;
+		const error = await fetchStatement('income', 'AAPL', secret, vi.fn().mockResolvedValue(response)).catch(
+			(e: unknown) => e
+		);
+		expect(error).toBeInstanceOf(FmpError);
+		expect((error as FmpError).kind).toBe('unavailable');
+		expect((error as Error).message).not.toContain(secret);
+		expect((error as Error).message).not.toContain('financialmodelingprep');
 	});
 	it('rejects a response that is too large', async () => {
 		const fetchFn = vi.fn().mockResolvedValue(json([], 200, { 'content-length': String(6 * 1024 * 1024) }));
