@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { PageProps } from './$types';
-	import type { Item } from '$lib/crosswalk';
+	import type { Item } from '#lib/crosswalk';
 
 	let { data }: PageProps = $props();
 

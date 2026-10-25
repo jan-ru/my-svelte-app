@@ -97,7 +97,7 @@ docs/                   Crosswalk notes, design spec and implementation plan
 
 ## Deployment
 
-The app builds with `adapter-vercel`, configured in `vite.config.ts` (SvelteKit 3 no longer reads `svelte.config.js`, and the `$lib` alias is set there too). Vercel uses the Node version from `engines` in `package.json` and the settings in `vercel.json`. CI (`.github/workflows/ci.yml`) runs the tests and a build on every pull request and push to `main`. Dependabot keeps dependencies up to date.
+The app builds with `adapter-vercel`, configured in `vite.config.ts` (SvelteKit 3 no longer reads `svelte.config.js`). Internal imports use the `#lib/...` subpath alias declared under `imports` in `package.json`, which replaces the old `$lib` alias. Vercel uses the Node version from `engines` in `package.json` and the settings in `vercel.json`. CI (`.github/workflows/ci.yml`) runs the tests and a build on every pull request and push to `main`. Dependabot keeps dependencies up to date.
 
 ## License
 

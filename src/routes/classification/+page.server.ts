@@ -1,5 +1,5 @@
-import crosswalk from '$lib/data/crosswalk.json';
-import { MAX_REVERSE, industries, reverseTrace, searchSbi, trace, type Crosswalk } from '$lib/crosswalk';
+import crosswalk from '#lib/data/crosswalk.json';
+import { MAX_REVERSE, industries, reverseTrace, searchSbi, trace, type Crosswalk } from '#lib/crosswalk';
 import type { PageServerLoad } from './$types';
 
 const data = crosswalk as unknown as Crosswalk;

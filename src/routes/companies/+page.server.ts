@@ -1,6 +1,6 @@
-import companies from '$lib/data/companies.json';
-import crosswalk from '$lib/data/crosswalk.json';
-import { queryCompanies, type CompanyData } from '$lib/companies';
+import companies from '#lib/data/companies.json';
+import crosswalk from '#lib/data/crosswalk.json';
+import { queryCompanies, type CompanyData } from '#lib/companies';
 import type { PageServerLoad } from './$types';
 
 const data = companies as unknown as CompanyData;

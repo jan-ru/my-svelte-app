@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { MAX_SELECTION, MULTIPLES, REGIONS, type Role } from '$lib/catalog';
-	import { LOW_FIRMS_THRESHOLD, PALETTE, formatMultiple } from '$lib/chart';
-	import GroupedBarChart from '$lib/components/GroupedBarChart.svelte';
-	import { applyRole } from '$lib/params';
+	import { MAX_SELECTION, MULTIPLES, REGIONS, type Role } from '#lib/catalog';
+	import { LOW_FIRMS_THRESHOLD, PALETTE, formatMultiple } from '#lib/chart';
+	import GroupedBarChart from '#lib/components/GroupedBarChart.svelte';
+	import { applyRole } from '#lib/params';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
