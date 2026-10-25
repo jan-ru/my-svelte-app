@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { PageProps } from './$types';
-	import { yahooUrl } from '#lib/yahoo';
+	import { quoteLink } from '#lib/quote';
 
 	let { data }: PageProps = $props();
 
@@ -83,7 +83,13 @@
 					{#each data.result.rows as c (c.ticker + c.name)}
 						<tr>
 							<th scope="row">{c.name}</th>
-							<td>{#if yahooUrl(c.ticker, c.name)}<a href={yahooUrl(c.ticker, c.name)} target="_blank" rel="noopener noreferrer">{c.ticker}</a>{:else}{c.ticker}{/if}</td>
+							<td>
+								{#if quoteLink(c.ticker, c.name)}
+									{@const q = quoteLink(c.ticker, c.name)!}
+									<a href={q.url} target="_blank" rel="noopener noreferrer">{c.ticker}</a>
+									<small class="src" title={`${q.source === 'YF' ? 'Yahoo' : 'Google'} Finance${q.search ? ' search' : ''}`}>{q.source}{q.search ? ' search' : ''}</small>
+								{:else}{c.ticker}{/if}
+							</td>
 							<td>{#if c.sic}<a href={`/companies?sic=${c.sic}`}><code>{c.sic}</code></a>{/if}</td>
 							<td><a href={`/companies?industry=${encodeURIComponent(c.industry)}`}>{c.industry}</a></td>
 							<td>{c.country}</td>
@@ -108,6 +114,7 @@
 </main>
 
 <style>
+	.src { color: #666; font-size: 0.75rem; margin-left: 0.3rem; }
 	nav { display: flex; gap: 1rem; padding: 1rem; }
 	main { max-width: 64rem; margin: 0 auto; padding: 0 1rem 3rem; }
 	form { display: flex; gap: 0.5rem 1rem; align-items: center; flex-wrap: wrap; margin: 1rem 0; }
