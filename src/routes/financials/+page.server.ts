@@ -1,8 +1,10 @@
 import { FMP_API_KEY, SESSION_SECRET, SITE_PASSWORD } from '$app/env/private';
 import { fail, redirect } from '@sveltejs/kit';
 import { SESSION_COOKIE, SESSION_MS, createSession, passwordMatches } from '#lib/server/auth';
+import { parseNav } from '#lib/financials-nav';
 import { loadFinancials } from '#lib/server/financials';
 import { checkLogin, createRateLimiter } from '#lib/server/ratelimit';
+import { parseSymbol } from '#lib/symbol';
 import type { Actions, PageServerLoad } from './$types';
 
 const limiter = createRateLimiter({ max: 5, windowMs: 15 * 60 * 1000 });
@@ -10,13 +12,13 @@ const COOKIE_PATH = '/financials';
 
 export const load: PageServerLoad = async ({ locals, url, setHeaders }) => {
 	setHeaders({ 'cache-control': 'private, no-store' });
+	const nav = parseNav(url.searchParams);
+	const rawSymbol = url.searchParams.get('symbol');
 	return {
 		configured: Boolean(SITE_PASSWORD && SESSION_SECRET),
-		view: await loadFinancials({
-			authed: locals.authed,
-			rawSymbol: url.searchParams.get('symbol'),
-			apiKey: FMP_API_KEY
-		})
+		nav,
+		symbol: (rawSymbol && parseSymbol(rawSymbol)) || '',
+		view: await loadFinancials({ authed: locals.authed, nav, rawSymbol, apiKey: FMP_API_KEY })
 	};
 };
 
