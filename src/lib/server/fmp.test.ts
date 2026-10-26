@@ -60,7 +60,7 @@ describe('parseStatement', () => {
 describe('fetchStatement', () => {
 	it('requests the stable endpoint with the ticker, period and limit', async () => {
 		const fetchFn = vi.fn().mockResolvedValue(json([record(2024)]));
-		await fetchStatement('balance', 'ABN.AS', 'KEY123', fetchFn);
+		await fetchStatement('balance', 'ABN.AS', 'KEY123', 'annual', fetchFn);
 		const url = new URL(fetchFn.mock.calls[0][0] as string);
 		expect(url.origin + url.pathname).toBe('https://financialmodelingprep.com/stable/balance-sheet-statement');
 		expect(url.searchParams.get('symbol')).toBe('ABN.AS');
@@ -70,7 +70,7 @@ describe('fetchStatement', () => {
 	});
 	it('uses the three statement endpoints', async () => {
 		const fetchFn = vi.fn().mockImplementation(async () => json([]));
-		for (const kind of ['income', 'balance', 'cashflow'] as const) await fetchStatement(kind, 'AAPL', 'K', fetchFn);
+		for (const kind of ['income', 'balance', 'cashflow'] as const) await fetchStatement(kind, 'AAPL', 'K', 'annual', fetchFn);
 		const paths = fetchFn.mock.calls.map((c) => new URL(c[0] as string).pathname);
 		expect(paths).toEqual([
 			'/stable/income-statement',
@@ -82,7 +82,7 @@ describe('fetchStatement', () => {
 		const kindFor = async (status: number) => {
 			const fetchFn = vi.fn().mockResolvedValue(json({}, status));
 			try {
-				await fetchStatement('income', 'AAPL', 'K', fetchFn);
+				await fetchStatement('income', 'AAPL', 'K', 'annual', fetchFn);
 			} catch (error) {
 				return (error as FmpError).kind;
 			}
@@ -105,7 +105,7 @@ describe('fetchStatement', () => {
 		];
 		for (const make of cases) {
 			const fetchFn = vi.fn().mockImplementation(make);
-			const error = await fetchStatement('income', 'AAPL', secret, fetchFn).catch((e: unknown) => e);
+			const error = await fetchStatement('income', 'AAPL', secret, 'annual', fetchFn).catch((e: unknown) => e);
 			expect(error).toBeInstanceOf(FmpError);
 			expect((error as Error).message).not.toContain(secret);
 		}
@@ -114,7 +114,7 @@ describe('fetchStatement', () => {
 		const secret = 'AbC123+/key';
 		const message = `Key ${secret} (${encodeURIComponent(secret)}) is not entitled to this endpoint`;
 		const fetchFn = vi.fn().mockResolvedValue(json({ 'Error Message': message }));
-		const error = await fetchStatement('income', 'AAPL', secret, fetchFn).catch((e: unknown) => e);
+		const error = await fetchStatement('income', 'AAPL', secret, 'annual', fetchFn).catch((e: unknown) => e);
 		expect(error).toBeInstanceOf(FmpError);
 		expect((error as FmpError).kind).toBe('plan');
 		expect((error as Error).message).not.toContain(secret);
@@ -129,7 +129,7 @@ describe('fetchStatement', () => {
 			headers: new Headers(),
 			text: () => Promise.reject(new Error(`aborted https://financialmodelingprep.com/stable/x?apikey=${secret}`))
 		} as unknown as Response;
-		const error = await fetchStatement('income', 'AAPL', secret, vi.fn().mockResolvedValue(response)).catch(
+		const error = await fetchStatement('income', 'AAPL', secret, 'annual', vi.fn().mockResolvedValue(response)).catch(
 			(e: unknown) => e
 		);
 		expect(error).toBeInstanceOf(FmpError);
@@ -139,6 +139,29 @@ describe('fetchStatement', () => {
 	});
 	it('rejects a response that is too large', async () => {
 		const fetchFn = vi.fn().mockResolvedValue(json([], 200, { 'content-length': String(6 * 1024 * 1024) }));
-		await expect(fetchStatement('income', 'AAPL', 'K', fetchFn)).rejects.toMatchObject({ kind: 'unavailable' });
+		await expect(fetchStatement('income', 'AAPL', 'K', 'annual', fetchFn)).rejects.toMatchObject({ kind: 'unavailable' });
+	});
+	it('uses the -ttm endpoint with limit 1 and no period for TTM', async () => {
+		const fetchFn = vi.fn().mockImplementation(async () => new Response('[]'));
+		for (const [kind, path] of [
+			['income', 'income-statement-ttm'],
+			['balance', 'balance-sheet-statement-ttm'],
+			['cashflow', 'cash-flow-statement-ttm']
+		] as const) {
+			await fetchStatement(kind, 'AAPL', 'K', 'ttm', fetchFn);
+			const url = String(fetchFn.mock.calls.at(-1)![0]);
+			expect(url).toContain(`/stable/${path}?`);
+			expect(url).toContain('symbol=AAPL');
+			expect(url).toContain('limit=1');
+			expect(url).not.toContain('period=');
+		}
+	});
+	it('keeps the annual URL unchanged', async () => {
+		const fetchFn = vi.fn().mockResolvedValue(new Response('[]'));
+		await fetchStatement('income', 'AAPL', 'K', 'annual', fetchFn);
+		const url = String(fetchFn.mock.calls[0][0]);
+		expect(url).toContain('/stable/income-statement?');
+		expect(url).toContain('period=annual');
+		expect(url).toContain('limit=5');
 	});
 });
