@@ -102,7 +102,9 @@
 									<h3>
 										{#if item.url}<a href={item.url} target="_blank" rel="noopener noreferrer">{item.title}</a>{:else}{item.title}{/if}
 									</h3>
-									<p class="meta">{[item.publisher, formatNewsDate(item.date)].filter(Boolean).join(' · ')}</p>
+									{#if item.publisher || item.date}
+										<p class="meta">{[item.publisher, formatNewsDate(item.date)].filter(Boolean).join(' · ')}</p>
+									{/if}
 									{#if item.text}<p>{item.text}</p>{/if}
 								</li>
 							{/each}

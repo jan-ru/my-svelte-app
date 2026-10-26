@@ -47,6 +47,10 @@ describe('parseProfile', () => {
 		expect(parseProfile([])).toBeNull();
 		expect(parseProfile([null])).toBeNull();
 	});
+	it('returns null when no field has a usable value, but keeps a record with one', () => {
+		expect(parseProfile([{ symbol: 'X' }])).toBeNull();
+		expect(parseProfile([{ companyName: 'Y' }])?.name).toBe('Y');
+	});
 	it('drops missing, empty and wrongly typed fields', () => {
 		const p = parseProfile([{ companyName: 'X', sector: '  ', ceo: 5, price: 'abc', marketCap: null }])!;
 		expect(p.name).toBe('X');

@@ -8,6 +8,10 @@ const empty: Profile = {
 };
 
 describe('profileFields', () => {
+	it('falls back to the raw string when the website is not a URL', () => {
+		const fields = profileFields({ ...empty, website: 'not a url' });
+		expect(fields.find((f) => f.label === 'Website')?.value).toBe('not a url');
+	});
 	it('lists the fields in display order with formatting', () => {
 		const fields = profileFields({
 			...empty,

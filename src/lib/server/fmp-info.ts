@@ -47,7 +47,7 @@ export function parseProfile(body: unknown): Profile | null {
 	const r = body[0];
 	if (!r || typeof r !== 'object') return null;
 	const rec = r as Record<string, unknown>;
-	return {
+	const profile: Profile = {
 		name: str(rec.companyName),
 		exchange: str(rec.exchangeFullName) ?? str(rec.exchange),
 		sector: str(rec.sector),
@@ -63,6 +63,7 @@ export function parseProfile(body: unknown): Profile | null {
 		marketCap: num(rec.marketCap),
 		beta: num(rec.beta)
 	};
+	return Object.values(profile).every((v) => v === null) ? null : profile;
 }
 
 export function parseNews(body: unknown): NewsItem[] {

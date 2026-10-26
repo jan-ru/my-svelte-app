@@ -13,20 +13,21 @@ Replace the "Coming soon" placeholders for **Company Data** and **News** on `/fi
 |---|---|
 | Company Data | One profile card from FMP `profile?symbol=`: name, exchange, sector, industry, country, CEO, employees, website, IPO date, currency, price, market cap, beta; then the business description as plain text. Empty fields are skipped. |
 | News | Latest 20 articles for the ticker (FMP stock news endpoint, `limit=20`): headline, publisher, date, short snippet. One call. |
-| News endpoint | Expected `news/stock?symbols=SYMBOL&limit=20`; confirmed only from third-party sources, so it is verified on the preview (open item). The path is one constant in `fmp.ts`. |
+| News endpoint | Expected `news/stock?symbols=SYMBOL&limit=20`; confirmed only from third-party sources, so it is verified on the preview (open item). The path is one constant in `fmp-info.ts`. |
 | Links | Article and website links open in a new tab with `rel="noopener noreferrer"`. Only `http:` and `https:` URLs become links; anything else is shown as plain text. |
 | Images | None loaded (no remote images from API data). |
 | Cache | Profile 24 h, news 15 min, per symbol. Failures never cached as a result (existing cache behaviour). |
 | URL state | Existing `tab=company` and `tab=news`; no new parameters. |
 | Auth / headers | Unchanged: enforcement inside `loadFinancials`, `private, no-store`. |
-| Shared FMP code | One request helper in `fmp.ts` does timeout, size limit, key redaction and status mapping; statements, profile and news all use it. |
+| Shared FMP code | One request helper (`fmpGet`) in `fmp.ts` does timeout, size limit, key redaction and status mapping; statements, profile and news all use it. |
 
 ## Components
 
-- `src/lib/server/fmp.ts`: extract `fmpGet(path, params, apiKey, fetchFn)` from `fetchStatement` (same behaviour: 10 s timeout, 5 MB cap, key redaction, `FmpError` kinds). `fetchStatement` calls it. New:
-  - `parseProfile(body): Profile | null` and `fetchProfile(symbol, apiKey, fetchFn?)`. Takes the first array element; strings trimmed, numbers finite, others dropped; `website` kept only if it passes `safeUrl`.
+- `src/lib/server/fmp.ts`: extract `fmpGet(path, params, apiKey, fetchFn)` from `fetchStatement` (same behaviour: 10 s timeout, 5 MB cap, key redaction, `FmpError` kinds). `fetchStatement` calls it. `fmp.ts` also holds the shared `throwIfErrorBody`.
+- `src/lib/server/fmp-info.ts` (new): profile and news parsers and fetchers, built on `fmpGet`. The news path is one constant here.
+  - `parseProfile(body): Profile | null` and `fetchProfile(symbol, apiKey, fetchFn?)`. Takes the first array element; strings trimmed, numbers finite, others dropped; `website` kept only if it passes `safeUrl`. Returns `null` if no field has a usable value.
   - `parseNews(body): NewsItem[]` and `fetchNews(symbol, apiKey, fetchFn?)`. Each item `{title, publisher, date, text, url}`; items without a title are dropped; `url` kept only if it passes `safeUrl`; `text` cut to 300 characters.
-  - `safeUrl(value): string | null`: returns the URL string only if it parses and its protocol is `http:` or `https:`.
+  - Uses `safeUrl(value): string | null` (from `src/lib/safe-url.ts`): returns the URL string only if it parses and its protocol is `http:` or `https:`.
 - `src/lib/company.ts` (new, pure): `profileFields(profile)` returns `{label, value}[]` in display order with formatting (market cap in millions or billions, price with currency, dates as given); skips missing values. `formatNewsDate`.
 - `src/lib/server/financials.ts`: `FinancialsView` gains `{state:'profile', symbol, profile | null, message}` and `{state:'news', symbol, items, message}`. `loadFinancials` branches on `nav.tab`: `financials` as today; `company` -> profile; `news` -> news; `price` -> `soon`. The order of checks stays: locked, (price: soon), unconfigured, idle, invalid, fetch. Two new caches (24 h, 15 min). `messageFor` is reused.
 - `src/routes/financials/+page.svelte`: card (definition list) and article list; links built only from values `safeUrl` accepted; description rendered as text (Svelte escapes).

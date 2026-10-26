@@ -15,7 +15,13 @@ function scaled(value: number): string {
 
 export function profileFields(p: Profile): Field[] {
 	const cur = p.currency ? ` ${p.currency}` : '';
-	const host = (url: string) => new URL(url).host;
+	const host = (url: string) => {
+		try {
+			return new URL(url).host;
+		} catch {
+			return url;
+		}
+	};
 	const candidates: Array<Field | null> = [
 		p.name ? { label: 'Company', value: p.name } : null,
 		p.exchange ? { label: 'Exchange', value: p.exchange } : null,
