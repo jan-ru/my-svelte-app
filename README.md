@@ -45,7 +45,7 @@ Login sets a signed, HTTP-only cookie that lasts 7 days. Logging out only clears
 
 The page is never cached publicly (`Cache-Control: private, no-store`). Limits: one shared password cannot tell users apart or revoke one person; which tickers work depends on your FMP plan (unsupported ones get a message); and FMP's terms may restrict sharing its data, so check them before giving anyone the password.
 
-The page has vertical tabs (Financials, News, Stock Price, Company Data) and, under Financials, tabs for the income statement, balance sheet and cash flow statement plus a Latest 5 years / TTM toggle. The choices live in the URL (`tab`, `statement`, `period`, next to `symbol`), so a view can be bookmarked or shared. News, Stock Price and Company Data are placeholders for now. TTM uses FMP's `-ttm` endpoints; the TTM balance sheet is the latest balance sheet.
+The page has vertical tabs (Financials, News, Stock Price, Company Data) and, under Financials, tabs for the income statement, balance sheet and cash flow statement plus a Latest 5 years / TTM toggle. The choices live in the URL (`tab`, `statement`, `period`, next to `symbol`), so a view can be bookmarked or shared. Company Data shows the FMP company profile (cached 24 h) and News the latest 20 articles for the ticker (cached 15 min); links to articles and websites open in a new tab and only http(s) URLs are linked. Stock Price is a placeholder for now. TTM uses FMP's `-ttm` endpoints; the TTM balance sheet is the latest balance sheet.
 
 ## How it works
 
