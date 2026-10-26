@@ -1,4 +1,6 @@
 // src/lib/server/fmp.ts
+import type { Period } from '../financials-nav';
+
 export type Kind = 'income' | 'balance' | 'cashflow';
 
 export const FETCH_TIMEOUT_MS = 10_000;
@@ -88,12 +90,18 @@ export async function fetchStatement(
 	kind: Kind,
 	symbol: string,
 	apiKey: string,
+	period: Period = 'annual',
 	fetchFn: typeof fetch = fetch
 ): Promise<Statement> {
-	const query = new URLSearchParams({ symbol, period: 'annual', limit: '5', apikey: apiKey });
+	const query = new URLSearchParams(
+		period === 'ttm'
+			? { symbol, limit: '1', apikey: apiKey }
+			: { symbol, period: 'annual', limit: '5', apikey: apiKey }
+	);
+	const path = period === 'ttm' ? `${ENDPOINTS[kind]}-ttm` : ENDPOINTS[kind];
 	let response: Response;
 	try {
-		response = await fetchFn(`${BASE}/${ENDPOINTS[kind]}?${query}`, {
+		response = await fetchFn(`${BASE}/${path}?${query}`, {
 			signal: AbortSignal.timeout(FETCH_TIMEOUT_MS)
 		});
 	} catch {
@@ -130,5 +138,7 @@ export async function fetchStatement(
 		if (response.status === 429) throw new FmpError('limit', 'FMP rate limit reached');
 		throw new FmpError('unavailable', `FMP returned ${response.status}`);
 	}
-	return parseStatement(body);
+	const statement = parseStatement(body);
+	// a TTM figure is a single column; keep the newest row even if FMP ignores limit=1
+	return period === 'ttm' ? { ...statement, years: statement.years.slice(0, 1) } : statement;
 }

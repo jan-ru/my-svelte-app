@@ -1,18 +1,29 @@
 // src/lib/server/financials.test.ts
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import type { Nav } from '../financials-nav';
 import { FmpError, type Statement } from './fmp';
-import { loadFinancials, type StatementFetcher } from './financials';
+import { loadFinancials, statementTitle, type StatementFetcher } from './financials';
 
 const statement: Statement = {
 	lines: ['revenue'],
 	years: [{ fiscalYear: '2024', date: '2024-12-31', currency: 'USD', values: { revenue: 5_000_000 } }]
 };
+const nav: Nav = { tab: 'financials', statement: 'income', period: 'annual' };
+const base = { authed: true, nav, rawSymbol: 'aapl', apiKey: 'KEY' };
 
 afterEach(() => {
 	vi.restoreAllMocks();
 });
 
-const base = { authed: true, rawSymbol: 'aapl', apiKey: 'KEY' };
+describe('statementTitle', () => {
+	it('names each statement, and the TTM balance sheet as the latest one', () => {
+		expect(statementTitle('income', 'annual')).toBe('Income statement');
+		expect(statementTitle('income', 'ttm')).toBe('Income statement (trailing twelve months)');
+		expect(statementTitle('cashflow', 'ttm')).toBe('Cash flow statement (trailing twelve months)');
+		expect(statementTitle('balance', 'annual')).toBe('Balance sheet');
+		expect(statementTitle('balance', 'ttm')).toBe('Latest balance sheet');
+	});
+});
 
 describe('loadFinancials', () => {
 	it('does not call FMP without a session', async () => {
@@ -33,39 +44,58 @@ describe('loadFinancials', () => {
 		expect(await loadFinancials({ ...base, rawSymbol: 'A&B', fetcher })).toEqual({ state: 'invalid' });
 		expect(fetcher).not.toHaveBeenCalled();
 	});
-	it('loads the three statements for the normalised ticker', async () => {
+	it('fetches nothing on the placeholder tabs', async () => {
+		const fetcher = vi.fn<StatementFetcher>();
+		for (const tab of ['news', 'price', 'company'] as const) {
+			expect(await loadFinancials({ ...base, nav: { ...nav, tab }, fetcher })).toEqual({ state: 'soon' });
+		}
+		expect(fetcher).not.toHaveBeenCalled();
+	});
+	it('still requires a session on the placeholder tabs', async () => {
+		const fetcher = vi.fn<StatementFetcher>();
+		const view = await loadFinancials({ ...base, authed: false, nav: { ...nav, tab: 'news' }, fetcher });
+		expect(view).toEqual({ state: 'locked' });
+	});
+	it('fetches only the selected statement, with the period', async () => {
+		const fetcher = vi.fn<StatementFetcher>().mockResolvedValue(statement);
+		const view = await loadFinancials({ ...base, nav: { ...nav, statement: 'balance', period: 'ttm' }, fetcher });
+		expect(fetcher).toHaveBeenCalledTimes(1);
+		expect(fetcher).toHaveBeenCalledWith('balance', 'AAPL', 'KEY', 'ttm');
+		if (view.state !== 'ready') throw new Error('expected ready');
+		expect(view.symbol).toBe('AAPL');
+		expect(view.title).toBe('Latest balance sheet');
+		expect(view.table?.columns[0].year).toBe('TTM');
+		expect(view.message).toBeNull();
+	});
+	it('shows the annual income statement by default', async () => {
 		const fetcher = vi.fn<StatementFetcher>().mockResolvedValue(statement);
 		const view = await loadFinancials({ ...base, fetcher });
-		expect(view.state).toBe('ready');
-		if (view.state !== 'ready') return;
-		expect(view.symbol).toBe('AAPL');
-		expect(view.tables.map((t) => [t.kind, t.title])).toEqual([
-			['income', 'Income statement'],
-			['balance', 'Balance sheet'],
-			['cashflow', 'Cash flow statement']
-		]);
-		expect(view.tables.every((t) => t.table && t.message === null)).toBe(true);
-		expect(fetcher).toHaveBeenCalledTimes(3);
-		expect(fetcher).toHaveBeenCalledWith('income', 'AAPL', 'KEY');
+		if (view.state !== 'ready') throw new Error('expected ready');
+		expect(view.title).toBe('Income statement');
+		expect(view.table?.columns[0].year).toBe('2024');
 	});
-	it('still shows the other statements when one fails', async () => {
+	it('reports a failure for the selected statement only', async () => {
 		vi.spyOn(console, 'error').mockImplementation(() => {});
-		const fetcher: StatementFetcher = async (kind) => {
-			if (kind === 'balance') throw new FmpError('limit', 'FMP rate limit reached');
-			return statement;
+		const fetcher: StatementFetcher = async () => {
+			throw new FmpError('limit', 'FMP rate limit reached');
 		};
 		const view = await loadFinancials({ ...base, fetcher });
 		if (view.state !== 'ready') throw new Error('expected ready');
-		const balance = view.tables.find((t) => t.kind === 'balance')!;
-		expect(balance.table).toBeNull();
-		expect(balance.message).toMatch(/rate limit/i);
-		expect(view.tables.filter((t) => t.table)).toHaveLength(2);
+		expect(view.table).toBeNull();
+		expect(view.message).toMatch(/rate limit/i);
 	});
-	it('says so when there are no annual statements', async () => {
-		const fetcher: StatementFetcher = async () => ({ lines: [], years: [] });
-		const view = await loadFinancials({ ...base, fetcher });
-		if (view.state !== 'ready') throw new Error('expected ready');
-		expect(view.tables.every((t) => t.table === null && /no annual statements/i.test(t.message ?? ''))).toBe(true);
+	it('says so when there are no figures', async () => {
+		const annual = await loadFinancials({ ...base, fetcher: async () => ({ lines: [], years: [] }) });
+		if (annual.state !== 'ready') throw new Error('expected ready');
+		expect(annual.table).toBeNull();
+		expect(annual.message).toMatch(/no annual statements/i);
+		const ttm = await loadFinancials({
+			...base,
+			nav: { ...nav, period: 'ttm' },
+			fetcher: async () => ({ lines: [], years: [] })
+		});
+		if (ttm.state !== 'ready') throw new Error('expected ready');
+		expect(ttm.message).toMatch(/trailing-twelve-month/i);
 	});
 	it('logs failures without the key and without a URL', async () => {
 		const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
@@ -82,19 +112,14 @@ describe('loadFinancials', () => {
 		const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
 		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
 		const log = vi.spyOn(console, 'log').mockImplementation(() => {});
-		const fetcher: StatementFetcher = async (kind) => {
-			if (kind === 'cashflow') {
-				throw new Error('boom https://financialmodelingprep.com/stable/x?apikey=TOPSECRET');
-			}
-			return statement;
+		const fetcher: StatementFetcher = async () => {
+			throw new Error('boom https://financialmodelingprep.com/stable/x?apikey=TOPSECRET');
 		};
 		const view = await loadFinancials({ ...base, apiKey: 'TOPSECRET', fetcher });
 		if (view.state !== 'ready') throw new Error('expected ready');
-		const failed = view.tables.find((t) => t.kind === 'cashflow')!;
-		expect(failed.table).toBeNull();
-		expect(failed.message).toMatch(/FMP is unavailable/);
-		expect(failed.message).not.toContain('TOPSECRET');
-		expect(view.tables.filter((t) => t.table)).toHaveLength(2);
+		expect(view.table).toBeNull();
+		expect(view.message).toMatch(/FMP is unavailable/);
+		expect(view.message).not.toContain('TOPSECRET');
 		const logged = JSON.stringify([spy.mock.calls, warn.mock.calls, log.mock.calls]);
 		expect(logged).not.toContain('TOPSECRET');
 		expect(logged).not.toContain('financialmodelingprep');

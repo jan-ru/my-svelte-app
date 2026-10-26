@@ -45,6 +45,8 @@ Login sets a signed, HTTP-only cookie that lasts 7 days. Logging out only clears
 
 The page is never cached publicly (`Cache-Control: private, no-store`). Limits: one shared password cannot tell users apart or revoke one person; which tickers work depends on your FMP plan (unsupported ones get a message); and FMP's terms may restrict sharing its data, so check them before giving anyone the password.
 
+The page has vertical tabs (Financials, News, Stock Price, Company Data) and, under Financials, tabs for the income statement, balance sheet and cash flow statement plus a Latest 5 years / TTM toggle. The choices live in the URL (`tab`, `statement`, `period`, next to `symbol`), so a view can be bookmarked or shared. News, Stock Price and Company Data are placeholders for now. TTM uses FMP's `-ttm` endpoints; the TTM balance sheet is the latest balance sheet.
+
 ## How it works
 
 NYU publishes the data as legacy `.xls` workbooks, one per multiple family and region (32 files, updated about once a year). The server downloads only the files a view needs, parses them with [SheetJS](https://sheetjs.com), and keeps them in memory for 24 hours. Responses are cacheable by Vercel's CDN. If NYU is unreachable, a previously cached copy is served. A January update can take up to about three days to show on already-cached URLs (24 h in-memory + 24 h CDN `s-maxage` + 24 h `stale-while-revalidate`).

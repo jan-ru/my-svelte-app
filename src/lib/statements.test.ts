@@ -52,3 +52,17 @@ describe('buildTable', () => {
 		expect(buildTable({ lines: [], years: [] })).toEqual({ currency: null, columns: [], rows: [] });
 	});
 });
+
+describe('buildTable period', () => {
+	const statement: Statement = {
+		lines: ['revenue'],
+		years: [{ fiscalYear: '', date: '2025-06-30', currency: 'USD', values: { revenue: 3_000_000 } }]
+	};
+	it('labels the column TTM for trailing twelve months', () => {
+		expect(buildTable(statement, 'ttm').columns).toEqual([{ year: 'TTM', date: '2025-06-30' }]);
+	});
+	it('keeps the fiscal year for annual', () => {
+		const annual = { ...statement, years: [{ ...statement.years[0], fiscalYear: '2024' }] };
+		expect(buildTable(annual).columns[0].year).toBe('2024');
+	});
+});
