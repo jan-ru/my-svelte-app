@@ -56,11 +56,16 @@ function fromMessage(message: string): FmpError {
 	return new FmpError('plan', clean(message));
 }
 
-export function parseStatement(body: unknown): Statement {
+/** Throw the mapped error when FMP answered with an `Error Message` body; otherwise do nothing. */
+export function throwIfErrorBody(body: unknown): void {
 	if (body && typeof body === 'object' && !Array.isArray(body)) {
 		const message = (body as Record<string, unknown>)['Error Message'];
 		if (typeof message === 'string') throw fromMessage(message);
 	}
+}
+
+export function parseStatement(body: unknown): Statement {
+	throwIfErrorBody(body);
 	if (!Array.isArray(body)) throw new FmpError('unavailable', 'Unexpected response from FMP');
 
 	const lines: string[] = [];
@@ -86,19 +91,14 @@ export function parseStatement(body: unknown): Statement {
 	return { lines: lines.filter((key) => years.some((y) => key in y.values)), years: years.slice(0, 5) };
 }
 
-export async function fetchStatement(
-	kind: Kind,
-	symbol: string,
+/** GET an FMP stable endpoint and return the parsed JSON body (undefined when it is not JSON). */
+export async function fmpGet(
+	path: string,
+	params: Record<string, string>,
 	apiKey: string,
-	period: Period = 'annual',
 	fetchFn: typeof fetch = fetch
-): Promise<Statement> {
-	const query = new URLSearchParams(
-		period === 'ttm'
-			? { symbol, limit: '1', apikey: apiKey }
-			: { symbol, period: 'annual', limit: '5', apikey: apiKey }
-	);
-	const path = period === 'ttm' ? `${ENDPOINTS[kind]}-ttm` : ENDPOINTS[kind];
+): Promise<unknown> {
+	const query = new URLSearchParams({ ...params, apikey: apiKey });
 	let response: Response;
 	try {
 		response = await fetchFn(`${BASE}/${path}?${query}`, {
@@ -130,7 +130,7 @@ export async function fetchStatement(
 	}
 
 	if (!response.ok) {
-		if (body && typeof body === 'object' && 'Error Message' in body) return parseStatement(body);
+		throwIfErrorBody(body);
 		if (response.status === 401) throw new FmpError('config', 'FMP rejected the API key');
 		if (response.status === 402 || response.status === 403) {
 			throw new FmpError('plan', 'Not available on this FMP plan');
@@ -138,7 +138,20 @@ export async function fetchStatement(
 		if (response.status === 429) throw new FmpError('limit', 'FMP rate limit reached');
 		throw new FmpError('unavailable', `FMP returned ${response.status}`);
 	}
-	const statement = parseStatement(body);
+	return body;
+}
+
+export async function fetchStatement(
+	kind: Kind,
+	symbol: string,
+	apiKey: string,
+	period: Period = 'annual',
+	fetchFn: typeof fetch = fetch
+): Promise<Statement> {
+	const params: Record<string, string> =
+		period === 'ttm' ? { symbol, limit: '1' } : { symbol, period: 'annual', limit: '5' };
+	const path = period === 'ttm' ? `${ENDPOINTS[kind]}-ttm` : ENDPOINTS[kind];
+	const statement = parseStatement(await fmpGet(path, params, apiKey, fetchFn));
 	// a TTM figure is a single column; keep the newest row even if FMP ignores limit=1
 	return period === 'ttm' ? { ...statement, years: statement.years.slice(0, 1) } : statement;
 }

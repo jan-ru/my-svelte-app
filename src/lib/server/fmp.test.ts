@@ -187,4 +187,11 @@ describe('fetchStatement', () => {
 		expect(url).toContain('period=annual');
 		expect(url).toContain('limit=5');
 	});
+
+	it('maps an Error Message body on a non-ok response, and reports a non-JSON ok body as unavailable', async () => {
+		const plan = vi.fn().mockResolvedValue(json({ 'Error Message': 'Special Endpoint : not on your plan' }, 402));
+		await expect(fetchStatement('income', 'AAPL', 'K', 'annual', plan)).rejects.toMatchObject({ kind: 'plan' });
+		const html = vi.fn().mockResolvedValue(new Response('<html>', { status: 200 }));
+		await expect(fetchStatement('income', 'AAPL', 'K', 'annual', html)).rejects.toMatchObject({ kind: 'unavailable' });
+	});
 });

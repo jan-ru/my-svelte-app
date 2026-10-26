@@ -1,6 +1,7 @@
 <!-- src/routes/financials/+page.svelte -->
 <script lang="ts">
 	import type { PageProps } from './$types';
+	import { formatNewsDate, profileFields } from '#lib/company';
 	import { PERIODS, STATEMENTS, TABS, navHref } from '#lib/financials-nav';
 
 	let { data, form }: PageProps = $props();
@@ -73,7 +74,44 @@
 				{:else if view.state === 'invalid'}
 					<p class="error" role="alert">That is not a valid ticker. Use letters, digits, dots and dashes, for example BRK-B.</p>
 				{:else if view.state === 'idle'}
-					<p>Enter an FMP ticker to see its financial statements.</p>
+					<p>Enter an FMP ticker to see its data.</p>
+				{:else if view.state === 'profile'}
+					<h2 class="symbol">{view.symbol}</h2>
+					{#if view.profile}
+						<dl class="facts">
+							{#each profileFields(view.profile) as f (f.label)}
+								<dt>{f.label}</dt>
+								<dd>
+									{#if f.href}<a href={f.href} target="_blank" rel="noopener noreferrer">{f.value}</a>{:else}{f.value}{/if}
+								</dd>
+							{/each}
+						</dl>
+						{#if view.profile.description}
+							<h3>About</h3>
+							<p class="desc">{view.profile.description}</p>
+						{/if}
+					{:else}
+						<p>{view.message}</p>
+					{/if}
+				{:else if view.state === 'news'}
+					<h2 class="symbol">{view.symbol}</h2>
+					{#if view.items.length > 0}
+						<ul class="news">
+							{#each view.items as item, i (i)}
+								<li>
+									<h3>
+										{#if item.url}<a href={item.url} target="_blank" rel="noopener noreferrer">{item.title}</a>{:else}{item.title}{/if}
+									</h3>
+									{#if item.publisher || item.date}
+										<p class="meta">{[item.publisher, formatNewsDate(item.date)].filter(Boolean).join(' · ')}</p>
+									{/if}
+									{#if item.text}<p>{item.text}</p>{/if}
+								</li>
+							{/each}
+						</ul>
+					{:else}
+						<p>{view.message}</p>
+					{/if}
 				{:else if view.state === 'ready'}
 					<h2 class="symbol">{view.symbol}</h2>
 					<section>
@@ -132,6 +170,14 @@
 	.period a[aria-current='page'] { background: #3730a3; color: #fff; }
 	.content { min-width: 0; }
 	.scroll { overflow-x: auto; }
+	.facts { display: grid; grid-template-columns: max-content 1fr; gap: 0.3rem 1rem; margin: 1rem 0; }
+	.facts dt { font-weight: 600; }
+	.facts dd { margin: 0; }
+	.desc { max-width: 60rem; line-height: 1.5; }
+	.news { list-style: none; margin: 0; padding: 0; }
+	.news li { padding: 0.8rem 0; border-bottom: 1px solid #ddd; }
+	.news h3 { margin: 0 0 0.2rem; font-size: 1rem; }
+	.meta { margin: 0 0 0.3rem; color: #555; font-size: 0.85rem; }
 	@media (max-width: 40rem) {
 		.layout { grid-template-columns: 1fr; }
 		.side ul { flex-direction: row; flex-wrap: wrap; }
