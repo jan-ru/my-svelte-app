@@ -1,5 +1,6 @@
 // src/lib/statements.ts
 import type { Statement } from './server/fmp';
+import type { Period } from './financials-nav';
 
 export interface StatementTable {
 	currency: string | null;
@@ -23,11 +24,11 @@ export function formatValue(key: string, value: number | null): string {
 	return millions.format(value / 1_000_000);
 }
 
-export function buildTable(statement: Statement): StatementTable {
+export function buildTable(statement: Statement, period: Period = 'annual'): StatementTable {
 	if (statement.years.length === 0) return { currency: null, columns: [], rows: [] };
 	return {
 		currency: statement.years[0].currency,
-		columns: statement.years.map((y) => ({ year: y.fiscalYear, date: y.date })),
+		columns: statement.years.map((y) => ({ year: period === 'ttm' ? 'TTM' : y.fiscalYear, date: y.date })),
 		rows: statement.lines.map((key) => ({
 			key,
 			label: humanise(key),
