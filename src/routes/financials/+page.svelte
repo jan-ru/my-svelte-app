@@ -79,24 +79,26 @@
 					<section>
 						<h3>{view.title}{#if view.table?.currency} <small>(millions of {view.table.currency}; per-share figures as reported)</small>{/if}</h3>
 						{#if view.table}
-							<table>
-								<thead>
-									<tr>
-										<th scope="col">Line item</th>
-										{#each view.table.columns as c, i (i)}
-											<th scope="col" class="num">{c.year}<br /><small>{c.date}</small></th>
-										{/each}
-									</tr>
-								</thead>
-								<tbody>
-									{#each view.table.rows as row (row.key)}
+							<div class="scroll">
+								<table>
+									<thead>
 										<tr>
-											<th scope="row">{row.label}</th>
-											{#each row.cells as cell, i (i)}<td class="num">{cell}</td>{/each}
+											<th scope="col">Line item</th>
+											{#each view.table.columns as c, i (i)}
+												<th scope="col" class="num">{c.year}<br /><small>{c.date}</small></th>
+											{/each}
 										</tr>
-									{/each}
-								</tbody>
-							</table>
+									</thead>
+									<tbody>
+										{#each view.table.rows as row (row.key)}
+											<tr>
+												<th scope="row">{row.label}</th>
+												{#each row.cells as cell, i (i)}<td class="num">{cell}</td>{/each}
+											</tr>
+										{/each}
+									</tbody>
+								</table>
+							</div>
 						{:else}
 							<p>{view.message}</p>
 						{/if}
@@ -122,12 +124,14 @@
 	.layout { display: grid; grid-template-columns: 11rem 1fr; gap: 1.5rem; align-items: start; }
 	.side ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
 	.side a, .tabs a, .period a { padding: 0.45rem 0.8rem; text-decoration: none; color: inherit; border: 1px solid transparent; }
+	.side a { display: block; }
 	.side a[aria-current='page'] { font-weight: 600; background: #eef2ff; border-left: 3px solid #3730a3; }
 	.tabs { display: flex; flex-wrap: wrap; border-bottom: 1px solid #ddd; }
 	.tabs a[aria-current='page'] { font-weight: 600; border: 1px solid #ddd; border-bottom-color: #fff; margin-bottom: -1px; }
 	.period { display: inline-flex; margin: 0.8rem 0; border: 1px solid #ddd; border-radius: 0.3rem; overflow: hidden; }
 	.period a[aria-current='page'] { background: #3730a3; color: #fff; }
-	.content { min-width: 0; overflow-x: auto; }
+	.content { min-width: 0; }
+	.scroll { overflow-x: auto; }
 	@media (max-width: 40rem) {
 		.layout { grid-template-columns: 1fr; }
 		.side ul { flex-direction: row; flex-wrap: wrap; }

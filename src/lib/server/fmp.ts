@@ -138,5 +138,7 @@ export async function fetchStatement(
 		if (response.status === 429) throw new FmpError('limit', 'FMP rate limit reached');
 		throw new FmpError('unavailable', `FMP returned ${response.status}`);
 	}
-	return parseStatement(body);
+	const statement = parseStatement(body);
+	// a TTM figure is a single column; keep the newest row even if FMP ignores limit=1
+	return period === 'ttm' ? { ...statement, years: statement.years.slice(0, 1) } : statement;
 }

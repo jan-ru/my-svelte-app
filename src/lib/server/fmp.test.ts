@@ -110,6 +110,29 @@ describe('fetchStatement', () => {
 			expect((error as Error).message).not.toContain(secret);
 		}
 	});
+	it('never leaks the key in a TTM error message', async () => {
+		const secret = 'SUPERSECRETKEY';
+		const cases: Array<() => Promise<Response>> = [
+			async () => json({ 'Error Message': `bad request https://x/y?apikey=${secret}&symbol=A` }, 400),
+			async () => json({ 'Error Message': `Limit Reach for ${secret}` }),
+			async () => {
+				throw new Error(`connect failed for https://financialmodelingprep.com/stable/x-ttm?apikey=${secret}`);
+			},
+			async () => new Response('not json at all', { status: 200 })
+		];
+		for (const make of cases) {
+			const fetchFn = vi.fn().mockImplementation(make);
+			const error = await fetchStatement('income', 'AAPL', secret, 'ttm', fetchFn).catch((e: unknown) => e);
+			expect(error).toBeInstanceOf(FmpError);
+			expect((error as Error).message).not.toContain(secret);
+		}
+	});
+	it('keeps only the newest row of a TTM response', async () => {
+		const fetchFn = vi.fn().mockResolvedValue(json([record(2023), record(2025), record(2024)]));
+		const statement = await fetchStatement('income', 'AAPL', 'K', 'ttm', fetchFn);
+		expect(statement.years).toHaveLength(1);
+		expect(statement.years[0].date).toBe('2025-12-31');
+	});
 	it('redacts a bare key echoed in a plan error message', async () => {
 		const secret = 'AbC123+/key';
 		const message = `Key ${secret} (${encodeURIComponent(secret)}) is not entitled to this endpoint`;
