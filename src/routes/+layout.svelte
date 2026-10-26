@@ -8,6 +8,7 @@
 		{ href: '/', label: 'home' },
 		{ href: '/classification', label: 'classification' },
 		{ href: '/companies', label: 'companies' },
+		{ href: '/financials', label: 'financials' },
 		{ href: '/about', label: 'about' }
 	];
 </script>
