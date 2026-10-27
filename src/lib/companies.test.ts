@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { PAGE_SIZE, queryCompanies, type CompanyData } from './companies';
+import { PAGE_SIZE, fmpSymbol, queryCompanies, type CompanyData } from './companies';
 
 const data: CompanyData = {
 	generated: '2026-10-25',
@@ -56,5 +56,34 @@ describe('queryCompanies', () => {
 		expect(queryCompanies(many, { page: 99 }).page).toBe(2);
 		expect(queryCompanies(many, { page: -3 }).page).toBe(1);
 		expect(queryCompanies(many, { page: Number.NaN }).page).toBe(1);
+	});
+});
+
+describe('fmpSymbol', () => {
+	const us = (ticker: string) => ({ ticker, country: 'United States' });
+	it('returns the FMP ticker for US exchange listings', () => {
+		expect(fmpSymbol(us('NasdaqGS:FLWS'))).toBe('FLWS');
+		expect(fmpSymbol(us('NasdaqGM:ONCH'))).toBe('ONCH');
+		expect(fmpSymbol(us('NasdaqCM:ABCD'))).toBe('ABCD');
+		expect(fmpSymbol(us('NYSE:IBM'))).toBe('IBM');
+		expect(fmpSymbol(us('NYSEAM:XYZ'))).toBe('XYZ');
+	});
+	it('writes share classes the FMP way (dash, not dot)', () => {
+		expect(fmpSymbol(us('NYSE:BRK.B'))).toBe('BRK-B');
+		expect(fmpSymbol(us('NasdaqGS:FWON.K'))).toBe('FWON-K');
+	});
+	it('has no symbol for OTC and for non-US exchanges, even when the country is the United States', () => {
+		expect(fmpSymbol(us('OTCPK:CBDW'))).toBeNull();
+		expect(fmpSymbol(us('ASX:AHE'))).toBeNull();
+		expect(fmpSymbol(us('TSXV:WAM'))).toBeNull();
+		expect(fmpSymbol(us('MutualFund:ABCDX'))).toBeNull();
+	});
+	it('has no symbol outside the United States', () => {
+		expect(fmpSymbol({ ticker: 'NYSE:TM', country: 'Japan' })).toBeNull();
+	});
+	it('has no symbol for malformed tickers', () => {
+		for (const ticker of ['', '-', 'NYSE', 'NYSE:', 'NYSE:A B', 'NYSE:A&B']) {
+			expect(fmpSymbol(us(ticker)), ticker).toBeNull();
+		}
 	});
 });

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { PageProps } from './$types';
+	import { fmpSymbol } from '#lib/companies';
 	import { quoteLink } from '#lib/quote';
 
 	let { data }: PageProps = $props();
@@ -69,7 +70,7 @@
 				<thead>
 					<tr>
 						<th scope="col">Company</th><th scope="col">Ticker</th><th scope="col">SIC</th>
-						<th scope="col">Industry</th><th scope="col">Country</th>
+						<th scope="col">Industry</th><th scope="col">Country</th><th scope="col">Financials</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -86,6 +87,12 @@
 							<td>{#if c.sic}<a href={`/companies?sic=${c.sic}`}><code>{c.sic}</code></a>{/if}</td>
 							<td><a href={`/companies?industry=${encodeURIComponent(c.industry)}`}>{c.industry}</a></td>
 							<td>{c.country}</td>
+							<td>
+								{#if fmpSymbol(c)}
+									{@const symbol = fmpSymbol(c)!}
+									<a class="button" href={`/financials?symbol=${encodeURIComponent(symbol)}`} aria-label={`Financials for ${c.name}`}>Financials</a>
+								{/if}
+							</td>
 						</tr>
 					{/each}
 				</tbody>
@@ -116,4 +123,6 @@
 	.note { color: #595959; }
 	.pager { display: flex; gap: 1rem; padding: 1rem 0; }
 	code { font-size: 0.9em; }
+	.button { display: inline-block; padding: 0.15rem 0.6rem; border: 1px solid #3730a3; border-radius: 0.3rem; color: #3730a3; text-decoration: none; font-size: 0.85rem; }
+	.button:hover, .button:focus-visible { background: #3730a3; color: #fff; }
 </style>
