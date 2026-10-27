@@ -7,16 +7,31 @@
 	<h1>About</h1>
 
 	<p>
-		This app fetches valuation multiples, such as EV/EBITDA and P/E, from the NYU Stern
-		database, so they can be used when valuing a company against its industry peers.
+		This app helps value a company against its industry peers. It brings together valuation multiples, industry
+		classifications, a company list and company financials.
 	</p>
 
-	<h2>Data source</h2>
+	<h2>Pages</h2>
+	<dl>
+		<dt><a href="/">Multiples</a></dt>
+		<dd>Valuation multiples, such as EV/EBITDA and P/E, by industry and region.</dd>
+		<dt><a href="/classification">Find industry</a></dt>
+		<dd>From a Dutch SBI 2025 code to the matching NYU Stern industries, and back.</dd>
+		<dt><a href="/companies">Companies</a></dt>
+		<dd>The listed companies in each industry, with their SIC code and country.</dd>
+		<dt><a href="/financials">Financials</a></dt>
+		<dd>Profile, news, prices and financial statements of one company. Password protected.</dd>
+	</dl>
+
+	<h2>Data sources</h2>
+	<ul>
+		<li><a href="https://pages.stern.nyu.edu/~adamodar/" rel="noreferrer">NYU Stern School of Business</a> (Aswath Damodaran): industry multiples and the company list.</li>
+		<li>CBS, UN Statistics Division and US Census Bureau: the classification tables.</li>
+		<li>Financial Modeling Prep and Yahoo Finance: company financials and prices.</li>
+	</ul>
 	<p>
-		The multiples are published by the
-		<a href="https://pages.stern.nyu.edu/~adamodar/" rel="noreferrer">NYU Stern School of Business</a>.
-		The app only reads this data and does not change it. Check the source for the date and
-		methodology of each dataset before relying on a figure.
+		The app only reads this data and does not change it. Check each source for the date, methodology and licence
+		terms before relying on a figure.
 	</p>
 	<img class="logo" src="/nyu_stern.svg" alt="NYU Stern School of Business" />
 
@@ -30,5 +45,8 @@
 <style>
 	main { max-width: 40rem; margin: 0 auto; padding: 0 var(--space-4) var(--space-8); line-height: 1.6; }
 	h2 { margin-top: var(--space-8); font-size: var(--text-lg); }
+	dl { display: grid; grid-template-columns: max-content 1fr; gap: var(--space-2) var(--space-4); }
+	dt { font-weight: var(--weight-semibold); }
+	dd { margin: 0; }
 	.logo { display: block; height: 2.5rem; width: auto; margin-top: var(--space-4); }
 </style>

@@ -30,7 +30,7 @@
 		<abbr title="North American Industry Classification System">NAICS</abbr> and
 		<abbr title="Standard Industrial Classification">SIC</abbr> to the industries in the NYU Stern (Damodaran) data.
 	</p>
-	<details class="glossary" open>
+	<details class="glossary">
 		<summary>What the abbreviations mean</summary>
 		<dl>
 			<dt>SBI</dt>
@@ -54,13 +54,14 @@
 		</dl>
 	</details>
 
+	<h2 id="forward">From SBI 2025 to a Damodaran industry</h2>
 	<p class="caveat" role="note">
 		Every step maps one code to several, so the result is a rough guide, not a rule. The last step counts how the
 		{data.companies.toLocaleString('en')} listed companies in the NYU Stern company list, each with a SIC code and an
 		industry, are spread over the SIC codes reached.
 	</p>
 
-	<form method="get">
+	<form method="get" aria-labelledby="forward">
 		<label for="q">Search by code or words</label>
 		<input id="q" name="q" type="search" value={data.q} placeholder="e.g. 6419, software, retail" maxlength="100" />
 		<button type="submit">Search</button>

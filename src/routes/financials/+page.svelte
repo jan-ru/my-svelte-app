@@ -12,15 +12,20 @@
 	const nav = $derived(data.nav);
 	const source = $derived(resolveSource(nav.source, data.symbol));
 	const period = $derived(effectivePeriod(source, nav.period));
+	// The ticker becomes the page heading once a company is shown.
+	const heading = $derived('symbol' in view && view.symbol ? view.symbol : 'Company financials');
 </script>
 
 <svelte:head>
-	<title>Company financials</title>
+	<title>{heading} – Fetch valuation multiples</title>
 	<meta name="robots" content="noindex" />
 </svelte:head>
 
 <main>
-	<h1>Company financials</h1>
+	<div class="head">
+		<h1>{heading}</h1>
+		{#if view.state !== 'locked'}<form method="POST" action="?/logout"><button type="submit">Log out</button></form>{/if}
+	</div>
 
 	{#if view.state === 'locked'}
 		<p>This page is password protected.</p>
@@ -45,7 +50,6 @@
 				<input id="symbol" name="symbol" value={data.symbol} placeholder="AAPL or ABN.AS" maxlength="15" autocomplete="off" />
 				<button type="submit">Show</button>
 			</form>
-			<form method="POST" action="?/logout"><button type="submit">Log out</button></form>
 		</div>
 
 		<div class="layout">
@@ -70,6 +74,7 @@
 						<p class="source-note">Source: {sourceLabel(source)}</p>
 					{/if}
 					{#if source === 'yahoo'}<p class="meta">Yahoo Finance data is unofficial and may be delayed.</p>{/if}
+					<p class="meta"><a href={`/companies?q=${encodeURIComponent(data.symbol)}`}>Find this company's industry and peers</a></p>
 				{/if}
 				{#if nav.tab === 'financials'}
 					<nav class="tabs" aria-label="Statements">
@@ -95,7 +100,6 @@
 				{:else if view.state === 'idle'}
 					<p>Enter a ticker to see its data. US tickers work with FMP or Yahoo Finance; others, such as ABN.AS, use Yahoo Finance.</p>
 				{:else if view.state === 'profile'}
-					<h2 class="symbol">{view.symbol}</h2>
 					{#if view.profile}
 						<dl class="facts">
 							{#each profileFields(view.profile) as f (f.label)}
@@ -106,22 +110,21 @@
 							{/each}
 						</dl>
 						{#if view.profile.description}
-							<h3>About</h3>
+							<h2>About</h2>
 							<p class="desc">{view.profile.description}</p>
 						{/if}
 					{:else}
 						<p>{view.message}</p>
 					{/if}
 				{:else if view.state === 'news'}
-					<h2 class="symbol">{view.symbol}</h2>
 					{#if source === 'yahoo'}<p class="meta">Matched by company name, so some headlines may be only loosely related.</p>{/if}
 					{#if view.items.length > 0}
 						<ul class="news">
 							{#each view.items as item, i (i)}
 								<li>
-									<h3>
+									<h2>
 										{#if item.url}<a href={item.url} target="_blank" rel="noopener noreferrer">{item.title}</a>{:else}{item.title}{/if}
-									</h3>
+									</h2>
 									{#if item.publisher || item.date}
 										<p class="meta">{[item.publisher, formatNewsDate(item.date)].filter(Boolean).join(' · ')}</p>
 									{/if}
@@ -133,7 +136,6 @@
 						<p>{view.message}</p>
 					{/if}
 				{:else if view.state === 'price'}
-					<h2 class="symbol">{view.symbol}</h2>
 					{#if view.points.length > 0}
 						{@const s = summarise(view.points)!}
 						<p class="meta">Last close, {s.date}. End-of-day prices, not live.</p>
@@ -175,9 +177,8 @@
 						<p>{view.message}</p>
 					{/if}
 				{:else if view.state === 'ready'}
-					<h2 class="symbol">{view.symbol}</h2>
 					<section>
-						<h3>{view.title}{#if view.table?.currency} <small>(millions of {view.table.currency}; per-share figures as reported)</small>{/if}</h3>
+						<h2>{view.title}{#if view.table?.currency} <small>(millions of {view.table.currency}; per-share figures as reported)</small>{/if}</h2>
 						{#if view.table}
 							<div class="scroll">
 								<table>
@@ -219,7 +220,8 @@
 	.num { text-align: right; font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
 	small { font-weight: var(--weight-regular); }
 	.error { padding: var(--space-2) var(--space-3); color: var(--negative); background: var(--negative-bg); border-left: 4px solid var(--negative); border-radius: var(--radius-sm); }
-	.symbol { margin-bottom: 0; }
+	.head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); flex-wrap: wrap; }
+	.head form { margin: var(--space-6) 0 var(--space-2); }
 	.layout { display: grid; grid-template-columns: 11rem 1fr; gap: var(--space-6); align-items: start; }
 	.side { padding: var(--space-2) 0; background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
 	.side ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
@@ -236,6 +238,7 @@
 	.period a[aria-current='page'] { color: var(--text-on-primary); background: var(--color-primary); }
 	.period .disabled { padding: 6px 14px; color: var(--text-disabled); background: var(--grey-02); cursor: not-allowed; }
 	.content { min-width: 0; }
+	.content h2 { font-size: var(--text-lg); margin: var(--space-4) 0 var(--space-2); }
 	.scroll { overflow-x: auto; background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
 	.facts { display: grid; grid-template-columns: max-content 1fr; gap: var(--space-1) var(--space-4); margin: var(--space-4) 0; }
 	.facts dt { font-weight: var(--weight-semibold); color: var(--text-secondary); }
@@ -243,7 +246,7 @@
 	.desc { max-width: 60rem; line-height: var(--leading-normal); }
 	.news { list-style: none; margin: 0; padding: 0; }
 	.news li { padding: var(--space-3) 0; border-bottom: 1px solid var(--border-subtle); }
-	.news h3 { margin: 0 0 var(--space-1); font-size: var(--text-md); }
+	.news h2 { margin: 0 0 var(--space-1); font-size: var(--text-md); }
 	.meta { margin: 0 0 var(--space-1); color: var(--text-secondary); font-size: var(--text-sm); }
 	.quote { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-8); margin: var(--space-3) 0 var(--space-4); }
 	.quote div { display: flex; flex-direction: column; }
