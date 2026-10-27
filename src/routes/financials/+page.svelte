@@ -3,7 +3,7 @@
 	import type { PageProps } from './$types';
 	import LineChart from '#lib/components/LineChart.svelte';
 	import { formatNewsDate, profileFields } from '#lib/company';
-	import { PERIODS, STATEMENTS, TABS, navHref } from '#lib/financials-nav';
+	import { PERIODS, STATEMENTS, TABS, loginAction, navHref } from '#lib/financials-nav';
 	import { formatPrice, formatSigned, formatVolume, summarise } from '#lib/prices';
 
 	let { data, form }: PageProps = $props();
@@ -24,7 +24,7 @@
 		{#if !data.configured}
 			<p class="error" role="alert">This page is not configured on this deployment.</p>
 		{:else}
-			<form method="POST" action="?/login">
+			<form method="POST" action={loginAction(nav, data.symbol)}>
 				<label for="password">Password</label>
 				<input id="password" name="password" type="password" autocomplete="current-password" required />
 				<button type="submit">Log in</button>

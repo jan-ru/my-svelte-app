@@ -1,3 +1,5 @@
+import { parseSymbol } from './symbol';
+
 export interface CompanyData {
 	generated: string;
 	industries: string[];
@@ -67,4 +69,15 @@ export function queryCompanies(data: CompanyData, query: CompanyQuery): CompanyP
 		region: data.groups[c[5]]
 	}));
 	return { total: matches.length, page, pages, rows, countries };
+}
+
+/** Capital IQ exchange codes of the US exchange listings FMP covers (OTC is left out). */
+const US_EXCHANGES = new Set(['NasdaqGS', 'NasdaqGM', 'NasdaqCM', 'NYSE', 'NYSEAM']);
+
+/** The FMP ticker for a US exchange listing (`NYSE:BRK.B` -> `BRK-B`); null for anything else. */
+export function fmpSymbol(company: Pick<Company, 'ticker' | 'country'>): string | null {
+	if (company.country !== 'United States') return null;
+	const colon = company.ticker.indexOf(':');
+	if (colon < 0 || !US_EXCHANGES.has(company.ticker.slice(0, colon))) return null;
+	return parseSymbol(company.ticker.slice(colon + 1).replaceAll('.', '-'));
 }

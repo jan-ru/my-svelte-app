@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { navHref, parseNav } from './financials-nav';
+import { afterLogin, loginAction, navHref, parseNav } from './financials-nav';
 
 const q = (s: string) => new URLSearchParams(s);
 
@@ -38,5 +38,26 @@ describe('navHref', () => {
 		const url = new URL(navHref(nav, 'BRK-B'), 'http://x');
 		expect(parseNav(url.searchParams)).toEqual(nav);
 		expect(url.searchParams.get('symbol')).toBe('BRK-B');
+	});
+});
+
+describe('login round trip', () => {
+	const nav = { tab: 'price', statement: 'balance', period: 'ttm' } as const;
+	it('puts the page state on the login action, after the action name', () => {
+		expect(loginAction(nav, 'AAPL')).toBe('?/login&symbol=AAPL&tab=price&statement=balance&period=ttm');
+	});
+	it('keeps the plain action when there is no ticker', () => {
+		expect(loginAction(nav, '')).toBe('?/login');
+	});
+	it('sends the visitor back to the ticker they asked for', () => {
+		expect(afterLogin(q('symbol=aapl&tab=news'))).toBe('/financials?symbol=AAPL&tab=news&statement=income&period=annual');
+	});
+	it('goes to the plain page without a usable ticker', () => {
+		expect(afterLogin(q(''))).toBe('/financials');
+		expect(afterLogin(q('symbol=A%26B&tab=news'))).toBe('/financials');
+	});
+	it('only ever redirects to a local /financials path', () => {
+		expect(afterLogin(q('symbol=//evil.com&next=https://evil.com'))).toBe('/financials');
+		expect(afterLogin(q('symbol=X&tab=//evil.com')).startsWith('/financials?')).toBe(true);
 	});
 });

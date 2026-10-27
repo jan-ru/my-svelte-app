@@ -1,7 +1,7 @@
 import { FMP_API_KEY, SESSION_SECRET, SITE_PASSWORD } from '$app/env/private';
 import { fail, redirect } from '@sveltejs/kit';
 import { SESSION_COOKIE, SESSION_MS, createSession, passwordMatches } from '#lib/server/auth';
-import { parseNav } from '#lib/financials-nav';
+import { afterLogin, parseNav } from '#lib/financials-nav';
 import { loadFinancials } from '#lib/server/financials';
 import { checkLogin, createRateLimiter } from '#lib/server/ratelimit';
 import { parseSymbol } from '#lib/symbol';
@@ -23,7 +23,7 @@ export const load: PageServerLoad = async ({ locals, url, setHeaders }) => {
 };
 
 export const actions: Actions = {
-	login: async ({ request, cookies, getClientAddress }) => {
+	login: async ({ request, cookies, getClientAddress, url }) => {
 		const password = SITE_PASSWORD ?? '';
 		const secret = SESSION_SECRET ?? '';
 		if (!password || !secret) {
@@ -48,7 +48,7 @@ export const actions: Actions = {
 			sameSite: 'lax',
 			maxAge: Math.floor(SESSION_MS / 1000)
 		});
-		redirect(303, '/financials');
+		redirect(303, afterLogin(url.searchParams));
 	},
 
 	logout: async ({ cookies }) => {
