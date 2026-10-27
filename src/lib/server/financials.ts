@@ -185,7 +185,7 @@ export async function loadFinancials(input: {
 		const table = buildTable(await fetchers.statement(kind, symbol, apiKey, period), period);
 		if (table.columns.length === 0) {
 			const what = period === 'ttm' ? 'trailing-twelve-month figures' : 'annual statements';
-			return { state: 'ready', symbol, title, table: null, message: `No ${what} found for ${symbol}.` };
+			return { state: 'ready', symbol, title, table: null, message: `${sourceLabel(source)} has no ${what} for ${symbol}. Price, news and company data may still be available in the other tabs.` };
 		}
 		return { state: 'ready', symbol, title, table, message: null };
 	} catch (error) {

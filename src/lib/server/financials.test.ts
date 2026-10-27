@@ -129,6 +129,17 @@ describe('loadFinancials', () => {
 		expect(view.table).toBeNull();
 		expect(view.message).toMatch(/rate limit/i);
 	});
+	it('points to the other tabs when a source has no statements', async () => {
+		const view = await loadFinancials({
+			...base,
+			rawSymbol: 'ABVN',
+			nav: { ...nav, source: 'yahoo' },
+			yahoo: { statement: async () => ({ lines: [], years: [] }) }
+		});
+		if (view.state !== 'ready') throw new Error('expected ready');
+		expect(view.table).toBeNull();
+		expect(view.message).toBe('Yahoo Finance has no annual statements for ABVN. Price, news and company data may still be available in the other tabs.');
+	});
 	it('says so when there are no figures', async () => {
 		const annual = await loadFinancials({ ...base, fetcher: async () => ({ lines: [], years: [] }) });
 		if (annual.state !== 'ready') throw new Error('expected ready');
