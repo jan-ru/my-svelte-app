@@ -20,7 +20,7 @@ The site gets many bot visits. Anonymous visitors (and bots) get a cheap, cached
 | Bypass | A second cookie `__prerender_bypass=<token>` makes Vercel skip the cache for that browser. Set at login, cleared at logout. |
 | robots.txt | `Disallow: /` (polite crawlers only; the cache and login are the real protection). |
 | `/financials` | Unchanged: still locked, `private, no-store`, login form for anonymous visitors. |
-| Lighthouse CI | Keeps auditing the public static versions (`/`, `/classification`, `/companies`, `/about`); it needs no login. |
+| Lighthouse CI | Keeps auditing the public static versions (`/`, `/classification`, `/companies`, `/about`); it needs no login. The `is-crawlable` audit is skipped because `robots.txt` disallows everything. |
 
 ## How it works
 
@@ -30,13 +30,15 @@ A request is **interactive** only when it carries a valid session cookie **and**
 
 Why both: the ISR cache is filled by whichever request arrives first after expiry. If a logged-in browser without the bypass cookie filled it, the interactive page would be cached for everyone. Requiring the bypass cookie means a request that can fill the cache is anonymous by construction. Vercel's `passQuery` also hands the first requester's query string to the function, so the anonymous loaders must not read `url.searchParams` at all. The one exception is SvelteKit's own `x-sveltekit-invalidated` and `x-sveltekit-trailing-slash` parameters on `__data.json` requests, which SvelteKit reads itself before hooks; they are part of the cache key (see Query strings), so each value is cached separately.
 
-If `ISR_BYPASS_TOKEN` is not set, ISR is off (`isr: false`), pages are dynamic and `interactive` equals `authed`. Access is still controlled by the session; the cache is only an optimisation. This is the fail-safe.
+If `ISR_BYPASS_TOKEN` is not set (or shorter than 32 characters), ISR is off (`isr: false`) and `interactive` equals `authed`. Hooks then send `Cache-Control: private, no-store` on every response: the loaders' public header would otherwise let Vercel's CDN cache by URL and show the anonymous copy to logged-in users. The pages are therefore truly dynamic and uncached. Access is still controlled by the session; the cache is only an optimisation. This is the fail-safe.
+
+A request with an `x-prerender-revalidate` header is never interactive. Vercel treats `x-prerender-revalidate: <bypassToken>` on a GET/HEAD as "regenerate and store this route", and every logged-in browser holds that token in its bypass cookie, so without this rule a logged-in user could make the interactive page the cached public copy. Hooks force `interactive = false` whenever the header is present (`isRevalidation` in `src/lib/server/access.ts`).
 
 ### Components
 
-- `vite.config.ts`: adapter `isr` config from `process.env.ISR_BYPASS_TOKEN` (build time), applied through route `config` in the four routes' `+page.server.ts` (or `+layout.server.ts`) via one shared constant in `src/lib/server/isr.ts`. Token shorter than 32 characters or absent: ISR off.
-- `src/lib/server/auth.ts`: `isInteractive(session, bypassCookie, token)` pure function, unit tested.
-- `src/hooks.server.ts`: sets `locals.authed` (as now) and `locals.interactive`. Interactive responses get `Cache-Control: private, no-store`; anonymous responses keep the public cache header.
+- `src/lib/server/access.ts`: the pure helpers, unit tested: `bypassToken` (token shorter than 32 characters or absent: unusable), `isrConfig` (the `isr` fragment: one day, `allowQuery` from `ISR_ALLOW_QUERY`, or `isr: false`), `isInteractive(authed, bypassCookie, token)`, `isRevalidation(headers)`, `pageParams`, and `sessionCookieOptions`. The four routes (Home, Classification, Companies, About) apply it in their `+page.server.ts` route `config` with `isrConfig(process.env.ISR_BYPASS_TOKEN)`; these are the only `process.env` reads, because route config is evaluated at build time. The session helpers stay in `src/lib/server/auth.ts`.
+- `src/hooks.server.ts`: sets `locals.authed` (as now) and `locals.interactive` (false for revalidation requests). Interactive responses, `/financials`, and every response when no usable token exists get `Cache-Control: private, no-store`; anonymous responses with a usable token keep the loader's public cache header. Hooks never set cookies.
+- `/financials` load: when the visitor is logged in, a usable token exists and the request is not interactive (bypass cookie missing or stale), it sets the bypass cookie and, if `from` is an allow-listed path, redirects there (303). Safe because `/financials` is never cached.
 - Session cookie path changes from `/financials` to `/` (needed so every page can see it). Login and logout also delete the old `/financials`-path cookie.
 - Login (`/financials?/login`) sets the bypass cookie next to the session cookie (`httpOnly`, `secure`, `sameSite: lax`, path `/`, same lifetime). Logout deletes both. A `from` query value (an allow-listed local path: `/`, `/classification`, `/companies`, `/about`, `/financials`) lets "Log in" links return to the page the visitor came from.
 - `src/routes/+layout.server.ts` (new): passes `interactive` to every page. The nav shows "Log in" or "Log out".
@@ -62,15 +64,22 @@ If `ISR_BYPASS_TOKEN` is not set, ISR is off (`isr: false`), pages are dynamic a
 Vitest, no network:
 - `isInteractive`: session and token present, either missing, wrong token, expired session, ISR off.
 - Loaders: anonymous requests ignore query parameters (same output with and without them); Companies returns exactly 20 rows; interactive requests keep today's behaviour.
-- Login action sets both cookies; logout deletes both and the old-path cookie; `from` accepts only the allow-listed paths.
-- `isr.ts`: token absent or too short turns ISR off.
+- Login action sets both cookies; logout deletes both and the old-path cookie; `from` accepts only the allow-listed paths; the `/financials` load restores a missing bypass cookie.
+- `access.ts`: token absent or too short turns ISR off; `allowQuery` is the two SvelteKit parameters; `isRevalidation`.
+- `hooks.server.ts` (`handle` with `$app/env/private` mocked): every branch above, including the revalidation header, the forged bypass cookie, and the no-token cache header.
 - Existing suites, `svelte-check`, build, `check:ts-only` and coverage stay green.
 
-Cannot be tested locally (ISR exists only on Vercel). Checks on production after the deploy, with the owner's token set:
-- A request with no cookie returns the anonymous view and `x-vercel-cache` shows `HIT` on the second call.
-- A request with `?industry=Steel` and no cookie returns the default view.
-- A request with a made-up `__prerender_bypass` cookie and no session returns the anonymous view.
-- After a real login, the pages are interactive and `x-vercel-cache` is not `HIT`.
+Cannot be tested locally (ISR exists only on Vercel). Checks on production after the deploy, with the owner's token set (`T` is the token):
+1. A real session cookie without `__prerender_bypass` returns the anonymous view, and `x-vercel-cache` shows `HIT` on the second call.
+2. `curl -H 'x-prerender-revalidate: T' -b '<session>; __prerender_bypass=T' '/companies?country=Japan'`, then an anonymous `/companies`: no Log out, no `<form method="get">`, 20 rows.
+3. `/companies/__data.json?x-sveltekit-invalidated=00`, then `=11` twice: the second `=11` is a `HIT`, both nodes have `type:"data"` and `"interactive":false`.
+4. No `Set-Cookie` on an anonymous `/` or `/companies/__data.json`.
+5. `/financials` stays `private, no-store`.
+6. A Preview deploy without the token: after login `/companies` is interactive.
+7. After logout `/companies` is anonymous and the browser has no `__prerender_bypass` cookie.
+8. The `bypassToken` inside `.vercel/output/functions/companies.prerender-config.json` equals the runtime variable.
+9. If NYU is down, the Home error page is not served as a `HIT` afterwards.
+Also still: a request with `?industry=Steel` and no cookie returns the default view; a made-up `__prerender_bypass` cookie without a session returns the anonymous view; after a real login the pages are interactive and `x-vercel-cache` is not `HIT`.
 
 ## Owner steps
 
