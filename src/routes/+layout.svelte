@@ -8,7 +8,7 @@
 	import { page } from '$app/state';
 	import type { Snippet } from 'svelte';
 
-	let { children }: { children: Snippet } = $props();
+	let { children, data }: { children: Snippet; data: { interactive: boolean } } = $props();
 
 	const APP_NAME = 'Fetch valuation multiples';
 
@@ -27,6 +27,14 @@
 	{#each links as link (link.href)}
 		<a href={link.href} aria-current={page.url.pathname === link.href ? 'page' : undefined}>{link.label}</a>
 	{/each}
+	<span class="spacer"></span>
+	{#if data.interactive}
+		<form method="POST" action={`/financials?/logout&from=${encodeURIComponent(page.url.pathname)}`}>
+			<button type="submit" class="link">Log out</button>
+		</form>
+	{:else if page.url.pathname !== '/financials'}
+		<a href={`/financials?from=${encodeURIComponent(page.url.pathname)}`}>Log in</a>
+	{/if}
 </nav>
 
 {@render children()}
@@ -37,4 +45,8 @@
 	.brand { margin-right: var(--space-4); padding-left: 0; font-weight: var(--weight-bold); color: var(--grey-08); letter-spacing: var(--tracking-tight); }
 	nav a:hover { color: var(--color-primary); background: var(--surface-group); }
 	nav a[aria-current='page'] { font-weight: var(--weight-semibold); color: var(--color-primary); border-bottom-color: var(--color-primary); }
+	.spacer { margin-left: auto; }
+	nav form { display: flex; align-items: center; }
+	button.link { padding: 0 var(--space-3); font: inherit; color: var(--text-primary); background: none; border: 0; cursor: pointer; }
+	button.link:hover { color: var(--color-primary); }
 </style>

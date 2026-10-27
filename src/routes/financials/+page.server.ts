@@ -1,14 +1,15 @@
-import { FMP_API_KEY, SESSION_SECRET, SITE_PASSWORD } from '$app/env/private';
+import { FMP_API_KEY, ISR_BYPASS_TOKEN, SESSION_SECRET, SITE_PASSWORD } from '$app/env/private';
 import { fail, redirect } from '@sveltejs/kit';
-import { SESSION_COOKIE, SESSION_MS, createSession, passwordMatches } from '#lib/server/auth';
+import { SESSION_COOKIE, createSession, passwordMatches } from '#lib/server/auth';
 import { afterLogin, parseNav } from '#lib/financials-nav';
+import { returnPath } from '#lib/return-path';
+import { BYPASS_COOKIE, LEGACY_COOKIE_PATH, bypassToken, sessionCookieOptions } from '#lib/server/access';
 import { loadFinancials } from '#lib/server/financials';
 import { checkLogin, createRateLimiter } from '#lib/server/ratelimit';
 import { parseSymbol } from '#lib/symbol';
 import type { Actions, PageServerLoad } from './$types';
 
 const limiter = createRateLimiter({ max: 5, windowMs: 15 * 60 * 1000 });
-const COOKIE_PATH = '/financials';
 
 export const load: PageServerLoad = async ({ locals, url, setHeaders }) => {
 	setHeaders({ 'cache-control': 'private, no-store' });
@@ -17,6 +18,7 @@ export const load: PageServerLoad = async ({ locals, url, setHeaders }) => {
 	return {
 		configured: Boolean(SITE_PASSWORD && SESSION_SECRET),
 		nav,
+		from: returnPath(url.searchParams.get('from')),
 		symbol: (rawSymbol && parseSymbol(rawSymbol)) || '',
 		view: await loadFinancials({ authed: locals.authed, nav, rawSymbol, apiKey: FMP_API_KEY })
 	};
@@ -42,17 +44,17 @@ export const actions: Actions = {
 		if (result === 'limited') return fail(429, { message: 'Too many attempts. Try again later.' });
 		if (result === 'wrong') return fail(401, { message: 'Wrong password.' });
 
-		cookies.set(SESSION_COOKIE, createSession(secret), {
-			path: COOKIE_PATH,
-			httpOnly: true,
-			sameSite: 'lax',
-			maxAge: Math.floor(SESSION_MS / 1000)
-		});
+		cookies.set(SESSION_COOKIE, createSession(secret), sessionCookieOptions());
+		cookies.delete(SESSION_COOKIE, { path: LEGACY_COOKIE_PATH });
+		const token = bypassToken(ISR_BYPASS_TOKEN);
+		if (token) cookies.set(BYPASS_COOKIE, token, sessionCookieOptions());
 		redirect(303, afterLogin(url.searchParams));
 	},
 
-	logout: async ({ cookies }) => {
-		cookies.delete(SESSION_COOKIE, { path: COOKIE_PATH });
-		redirect(303, '/financials');
+	logout: async ({ cookies, url }) => {
+		cookies.delete(SESSION_COOKIE, { path: '/' });
+		cookies.delete(SESSION_COOKIE, { path: LEGACY_COOKIE_PATH });
+		cookies.delete(BYPASS_COOKIE, { path: '/' });
+		redirect(303, returnPath(url.searchParams.get('from')) ?? '/financials');
 	}
 };
