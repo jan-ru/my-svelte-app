@@ -2,7 +2,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { Nav } from '../financials-nav';
 import { FmpError, type Statement } from './fmp';
-import type { NewsItem, Profile } from './fmp-info';
+import type { NewsItem, PricePoint, Profile } from './fmp-info';
 import { loadFinancials, statementTitle, type StatementFetcher } from './financials';
 
 const statement: Statement = {
@@ -45,14 +45,50 @@ describe('loadFinancials', () => {
 		expect(await loadFinancials({ ...base, rawSymbol: 'A&B', fetcher })).toEqual({ state: 'invalid' });
 		expect(fetcher).not.toHaveBeenCalled();
 	});
-	it('fetches nothing on the Stock Price placeholder', async () => {
-		const fetcher = vi.fn<StatementFetcher>();
-		const profileFetcher = vi.fn();
-		const newsFetcher = vi.fn();
-		expect(await loadFinancials({ ...base, nav: { ...nav, tab: 'price' }, fetcher, profileFetcher, newsFetcher })).toEqual({ state: 'soon' });
-		expect(fetcher).not.toHaveBeenCalled();
-		expect(profileFetcher).not.toHaveBeenCalled();
-		expect(newsFetcher).not.toHaveBeenCalled();
+	describe('price tab', () => {
+		const priceNav: Nav = { ...nav, tab: 'price' };
+		const points: PricePoint[] = [
+			{ date: '2026-10-22', close: 100, volume: 10 },
+			{ date: '2026-10-23', close: 101, volume: 11 }
+		];
+		const others = () => ({
+			fetcher: vi.fn<StatementFetcher>(),
+			profileFetcher: vi.fn(),
+			newsFetcher: vi.fn()
+		});
+
+		it('fetches only prices, for the upper-cased ticker', async () => {
+			const pricesFetcher = vi.fn().mockResolvedValue(points);
+			const o = others();
+			const view = await loadFinancials({ ...base, nav: priceNav, pricesFetcher, ...o });
+			expect(view).toEqual({ state: 'price', symbol: 'AAPL', points, message: null });
+			expect(pricesFetcher).toHaveBeenCalledWith('AAPL', 'KEY');
+			expect(o.fetcher).not.toHaveBeenCalled();
+			expect(o.profileFetcher).not.toHaveBeenCalled();
+			expect(o.newsFetcher).not.toHaveBeenCalled();
+		});
+		it('requires a session, a key and a valid ticker before calling FMP', async () => {
+			const pricesFetcher = vi.fn();
+			expect(await loadFinancials({ ...base, nav: priceNav, authed: false, pricesFetcher })).toEqual({ state: 'locked' });
+			expect(await loadFinancials({ ...base, nav: priceNav, apiKey: undefined, pricesFetcher })).toEqual({ state: 'unconfigured' });
+			expect(await loadFinancials({ ...base, nav: priceNav, rawSymbol: '', pricesFetcher })).toEqual({ state: 'idle' });
+			expect(await loadFinancials({ ...base, nav: priceNav, rawSymbol: 'A&B', pricesFetcher })).toEqual({ state: 'invalid' });
+			expect(pricesFetcher).not.toHaveBeenCalled();
+		});
+		it('says so when there is no history', async () => {
+			const pricesFetcher = vi.fn().mockResolvedValue([]);
+			const view = await loadFinancials({ ...base, nav: priceNav, pricesFetcher });
+			expect(view).toEqual({ state: 'price', symbol: 'AAPL', points: [], message: 'No price history found for AAPL.' });
+		});
+		it('maps FMP failures to messages without leaking details', async () => {
+			vi.spyOn(console, 'error').mockImplementation(() => {});
+			const pricesFetcher = vi.fn().mockRejectedValue(new FmpError('limit', 'secret detail'));
+			const view = await loadFinancials({ ...base, nav: priceNav, pricesFetcher });
+			if (view.state !== 'price') throw new Error('expected price');
+			expect(view.points).toEqual([]);
+			expect(view.message).toBe('FMP rate limit reached. Try again in a minute.');
+			expect(JSON.stringify(view)).not.toContain('secret detail');
+		});
 	});
 	it('still requires a session on the placeholder tabs', async () => {
 		const fetcher = vi.fn<StatementFetcher>();

@@ -3,26 +3,28 @@ import { parseSymbol } from '../symbol';
 import { buildTable } from '../statements';
 import type { StatementTable } from '../statements';
 import type { Nav, Period } from '../financials-nav';
+import { oneYearWindow } from '../prices';
 import { createCache } from './cache';
 import { FmpError, fetchStatement } from './fmp';
 import type { Kind, Statement } from './fmp';
-import { fetchNews, fetchProfile } from './fmp-info';
-import type { NewsItem, Profile } from './fmp-info';
+import { fetchNews, fetchPrices, fetchProfile } from './fmp-info';
+import type { NewsItem, PricePoint, Profile } from './fmp-info';
 
 export type StatementFetcher = (kind: Kind, symbol: string, apiKey: string, period: Period) => Promise<Statement>;
 
 export type ProfileFetcher = (symbol: string, apiKey: string) => Promise<Profile | null>;
 export type NewsFetcher = (symbol: string, apiKey: string) => Promise<NewsItem[]>;
+export type PricesFetcher = (symbol: string, apiKey: string) => Promise<PricePoint[]>;
 
 export type FinancialsView =
 	| { state: 'locked' }
 	| { state: 'unconfigured' }
 	| { state: 'idle' }
 	| { state: 'invalid' }
-	| { state: 'soon' }
 	| { state: 'ready'; symbol: string; title: string; table: StatementTable | null; message: string | null }
 	| { state: 'profile'; symbol: string; profile: Profile | null; message: string | null }
-	| { state: 'news'; symbol: string; items: NewsItem[]; message: string | null };
+	| { state: 'news'; symbol: string; items: NewsItem[]; message: string | null }
+	| { state: 'price'; symbol: string; points: PricePoint[]; message: string | null };
 
 const TITLES: Record<Kind, string> = {
 	income: 'Income statement',
@@ -46,12 +48,19 @@ export const cachedFetcher: StatementFetcher = (kind, symbol, apiKey, period) =>
 
 export const PROFILE_TTL_MS = 24 * 60 * 60 * 1000;
 export const NEWS_TTL_MS = 15 * 60 * 1000;
+export const PRICES_TTL_MS = 60 * 60 * 1000;
 const profileCache = createCache<Profile | null>({ ttlMs: PROFILE_TTL_MS, now: () => Date.now() });
 const newsCache = createCache<NewsItem[]>({ ttlMs: NEWS_TTL_MS, now: () => Date.now() });
+const pricesCache = createCache<PricePoint[]>({ ttlMs: PRICES_TTL_MS, now: () => Date.now() });
 export const cachedProfile: ProfileFetcher = (symbol, apiKey) =>
 	profileCache.get(symbol, () => fetchProfile(symbol, apiKey));
 export const cachedNews: NewsFetcher = (symbol, apiKey) =>
 	newsCache.get(symbol, () => fetchNews(symbol, apiKey));
+export const cachedPrices: PricesFetcher = (symbol, apiKey) =>
+	pricesCache.get(symbol, () => {
+		const { from, to } = oneYearWindow(new Date());
+		return fetchPrices(symbol, apiKey, from, to);
+	});
 
 function messageFor(error: unknown, symbol: string): string {
 	if (error instanceof FmpError) {
@@ -95,6 +104,15 @@ async function loadNews(symbol: string, apiKey: string, fetcher: NewsFetcher): P
 	}
 }
 
+async function loadPrices(symbol: string, apiKey: string, fetcher: PricesFetcher): Promise<FinancialsView> {
+	try {
+		const points = await fetcher(symbol, apiKey);
+		return { state: 'price', symbol, points, message: points.length ? null : `No price history found for ${symbol}.` };
+	} catch (error) {
+		return { state: 'price', symbol, points: [], message: failure('price history', symbol, error) };
+	}
+}
+
 export async function loadFinancials(input: {
 	authed: boolean;
 	nav: Nav;
@@ -103,15 +121,16 @@ export async function loadFinancials(input: {
 	fetcher?: StatementFetcher;
 	profileFetcher?: ProfileFetcher;
 	newsFetcher?: NewsFetcher;
+	pricesFetcher?: PricesFetcher;
 }): Promise<FinancialsView> {
 	if (!input.authed) return { state: 'locked' };
-	if (input.nav.tab === 'price') return { state: 'soon' };
 	if (!input.apiKey) return { state: 'unconfigured' };
 	if (!input.rawSymbol?.trim()) return { state: 'idle' };
 	const symbol = parseSymbol(input.rawSymbol);
 	if (!symbol) return { state: 'invalid' };
 	if (input.nav.tab === 'company') return loadProfile(symbol, input.apiKey, input.profileFetcher ?? cachedProfile);
 	if (input.nav.tab === 'news') return loadNews(symbol, input.apiKey, input.newsFetcher ?? cachedNews);
+	if (input.nav.tab === 'price') return loadPrices(symbol, input.apiKey, input.pricesFetcher ?? cachedPrices);
 
 	const { statement: kind, period } = input.nav;
 	const title = statementTitle(kind, period);
