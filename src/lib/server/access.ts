@@ -4,6 +4,12 @@ import { SESSION_MS } from './auth';
 /** The cookie name Vercel checks to skip the ISR cache for one browser. */
 export const BYPASS_COOKIE = '__prerender_bypass';
 export const ISR_EXPIRATION_SECONDS = 86400;
+/**
+ * The only query parameters that reach a cached route (the adapter adds `__pathname`). SvelteKit reads these two
+ * before hooks run for `__data.json` requests, so each value needs its own cache entry or the first requester
+ * decides what everyone gets. Everything else is ignored by the cache key and by the anonymous loaders.
+ */
+export const ISR_ALLOW_QUERY = ['x-sveltekit-invalidated', 'x-sveltekit-trailing-slash'] as const;
 export const MIN_BYPASS_TOKEN_LENGTH = 32;
 /** The session cookie used to be scoped to /financials; login and logout also clear that one. */
 export const LEGACY_COOKIE_PATH = '/financials';
@@ -17,7 +23,7 @@ export function bypassToken(raw: string | undefined): string | undefined {
 export function isrConfig(raw: string | undefined) {
 	const token = bypassToken(raw);
 	return token
-		? { isr: { expiration: ISR_EXPIRATION_SECONDS, bypassToken: token, allowQuery: [] as string[] } }
+		? { isr: { expiration: ISR_EXPIRATION_SECONDS, bypassToken: token, allowQuery: [...ISR_ALLOW_QUERY] } }
 		: { isr: false as const };
 }
 

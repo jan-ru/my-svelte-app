@@ -13,7 +13,7 @@ The site gets many bot visits. Anonymous visitors (and bots) get a cheap, cached
 |---|---|
 | Mechanism | Vercel Incremental Static Regeneration (ISR) through `@sveltejs/adapter-vercel` 7.0.1 (`isr` route config), on Home, Classification, Companies and About. |
 | Cache lifetime | `expiration: 86400` (one day), as the pages are cached today. |
-| Query strings | `allowQuery: []`: the cache ignores them, so all variants of a URL share one cached copy. |
+| Query strings | `allowQuery: ['x-sveltekit-invalidated', 'x-sveltekit-trailing-slash']` (the adapter adds `__pathname`): every other parameter is ignored by the cache key, so all variants of a URL share one cached copy. The two listed parameters are SvelteKit's own `__data.json` request parameters; each value gets its own, correctly rendered anonymous entry. This deviates from the earlier `allowQuery: []` because SvelteKit reads `x-sveltekit-invalidated` before hooks and skips nodes whose bit is 0, so with `[]` the first requester would decide what the cached `__data.json` contains and anyone could break anonymous client-side navigation for a day. Tradeoff: a bot can create extra anonymous cache entries, but only through these two parameter names and their few valid values. |
 | Who gets what | Anonymous: the default view, no controls. Logged in: the live, interactive page. |
 | Password | The same shared password as `/financials` (`SITE_PASSWORD`). No new login system. |
 | Companies, anonymous | The first 20 rows of the unfiltered list and the counts line; no filters, no paging. |
@@ -28,7 +28,7 @@ The site gets many bot visits. Anonymous visitors (and bots) get a cheap, cached
 
 A request is **interactive** only when it carries a valid session cookie **and** (when ISR is enabled) the bypass cookie equal to the token. Everything else renders the anonymous view.
 
-Why both: the ISR cache is filled by whichever request arrives first after expiry. If a logged-in browser without the bypass cookie filled it, the interactive page would be cached for everyone. Requiring the bypass cookie means a request that can fill the cache is anonymous by construction. Vercel's `passQuery` also hands the first requester's query string to the function, so the anonymous code path must not read `url.searchParams` at all.
+Why both: the ISR cache is filled by whichever request arrives first after expiry. If a logged-in browser without the bypass cookie filled it, the interactive page would be cached for everyone. Requiring the bypass cookie means a request that can fill the cache is anonymous by construction. Vercel's `passQuery` also hands the first requester's query string to the function, so the anonymous loaders must not read `url.searchParams` at all. The one exception is SvelteKit's own `x-sveltekit-invalidated` and `x-sveltekit-trailing-slash` parameters on `__data.json` requests, which SvelteKit reads itself before hooks; they are part of the cache key (see Query strings), so each value is cached separately.
 
 If `ISR_BYPASS_TOKEN` is not set, ISR is off (`isr: false`), pages are dynamic and `interactive` equals `authed`. Access is still controlled by the session; the cache is only an optimisation. This is the fail-safe.
 
