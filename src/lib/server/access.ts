@@ -34,6 +34,14 @@ export function isInteractive(authed: boolean, bypassCookie: string | undefined,
 	return bypassCookie !== undefined && timingSafeEqual(digest(bypassCookie), digest(token));
 }
 
+/**
+ * Vercel treats `x-prerender-revalidate: <bypassToken>` as "regenerate this route and store the result". Every
+ * logged-in browser holds that token in its bypass cookie, so such a request must never render the interactive view.
+ */
+export function isRevalidation(headers: Headers): boolean {
+	return headers.has('x-prerender-revalidate');
+}
+
 /** Anonymous requests never read the real query string, so a bot's first request cannot change what is cached. */
 export function pageParams(interactive: boolean, url: URL): URLSearchParams {
 	return interactive ? url.searchParams : new URLSearchParams();

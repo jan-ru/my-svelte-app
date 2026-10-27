@@ -5,6 +5,7 @@ import {
 	LEGACY_COOKIE_PATH,
 	bypassToken,
 	isInteractive,
+	isRevalidation,
 	isrConfig,
 	pageParams,
 	sessionCookieOptions
@@ -46,6 +47,13 @@ describe('isInteractive', () => {
 	it('follows the session alone when the cache is off', () => {
 		expect(isInteractive(true, undefined, undefined)).toBe(true);
 		expect(isInteractive(true, undefined, 'short')).toBe(true);
+	});
+});
+
+describe('isRevalidation', () => {
+	it('detects the Vercel revalidation header', () => {
+		expect(isRevalidation(new Headers({ 'x-prerender-revalidate': TOKEN }))).toBe(true);
+		expect(isRevalidation(new Headers())).toBe(false);
 	});
 });
 
