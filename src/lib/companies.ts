@@ -29,6 +29,15 @@ export interface CompanyQuery {
 	page?: number;
 }
 
+/** How many distinct values occur among the matching companies. */
+export interface DistinctCounts {
+	industries: number;
+	sectors: number;
+	regions: number;
+	subGroups: number;
+	exchanges: number;
+}
+
 export interface CompanyPage {
 	total: number;
 	page: number;
@@ -36,7 +45,12 @@ export interface CompanyPage {
 	rows: Company[];
 	/** Countries present in the matches before the country filter, with counts, largest first. */
 	countries: [string, number][];
+	/** Distinct industries, sectors, regions, sub groups and exchanges among all matches (country filter included). */
+	distinct: DistinctCounts;
 }
+
+/** The Capital IQ exchange code of a `EXCHANGE:SYMBOL` ticker; '' when there is none. */
+const exchangeOf = (ticker: string): string => (ticker.includes(':') ? ticker.slice(0, ticker.indexOf(':')) : '');
 
 export const PAGE_SIZE = 50;
 
@@ -71,7 +85,16 @@ export function queryCompanies(data: CompanyData, query: CompanyQuery): CompanyP
 		country: data.countries[c[4]],
 		region: data.groups[c[5]]
 	}));
-	return { total: matches.length, page, pages, rows, countries };
+	const exchanges = new Set(matches.map((c) => exchangeOf(c[1])));
+	exchanges.delete('');
+	const distinct: DistinctCounts = {
+		industries: new Set(matches.map((c) => c[3])).size,
+		sectors: new Set(matches.map((c) => c[6])).size,
+		regions: new Set(matches.map((c) => c[5])).size,
+		subGroups: new Set(matches.map((c) => c[7])).size,
+		exchanges: exchanges.size
+	};
+	return { total: matches.length, page, pages, rows, countries, distinct };
 }
 
 /** Capital IQ exchange codes of the US exchange listings FMP covers (OTC is left out). */
