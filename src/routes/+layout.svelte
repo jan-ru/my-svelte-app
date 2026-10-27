@@ -28,11 +28,11 @@
 		<a href={link.href} aria-current={page.url.pathname === link.href ? 'page' : undefined}>{link.label}</a>
 	{/each}
 	<span class="spacer"></span>
-	{#if data.interactive}
+	{#if data.interactive && page.url.pathname !== '/financials'}
 		<form method="POST" action={`/financials?/logout&from=${encodeURIComponent(page.url.pathname)}`}>
 			<button type="submit" class="link">Log out</button>
 		</form>
-	{:else if page.url.pathname !== '/financials'}
+	{:else if !data.interactive && page.url.pathname !== '/financials'}
 		<a href={`/financials?from=${encodeURIComponent(page.url.pathname)}`}>Log in</a>
 	{/if}
 </nav>

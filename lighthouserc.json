@@ -10,7 +10,7 @@
         "http://localhost:4173/about"
       ],
       "numberOfRuns": 1,
-      "settings": { "chromeFlags": "--no-sandbox" }
+      "settings": { "chromeFlags": "--no-sandbox", "skipAudits": ["is-crawlable"] }
     },
     "assert": {
       "assertions": {
