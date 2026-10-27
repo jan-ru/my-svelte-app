@@ -178,6 +178,20 @@ describe('parsePrices', () => {
 		]);
 		expect(points.map((p) => p.date)).toEqual(['2026-10-23']);
 	});
+	it('keeps one point per date, the later record wins, and stays sorted oldest first', () => {
+		const points = parsePrices([
+			{ ...row, date: '2026-10-23', close: 190, volume: 100 },
+			{ ...row, date: '2026-10-22', close: 189, volume: 200 },
+			{ ...row, date: '2026-10-23', close: 191, volume: 300 },
+			{ ...row, date: '2026-10-21', close: 188, volume: 400 },
+			{ ...row, date: '2026-10-22', close: 189.5, volume: null }
+		]);
+		expect(points).toEqual([
+			{ date: '2026-10-21', close: 188, volume: 400 },
+			{ date: '2026-10-22', close: 189.5, volume: null },
+			{ date: '2026-10-23', close: 191, volume: 300 }
+		]);
+	});
 	it('treats a non-numeric volume as null', () => {
 		expect(parsePrices([{ ...row, volume: 'many' }])[0].volume).toBeNull();
 	});

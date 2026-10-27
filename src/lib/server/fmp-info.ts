@@ -98,16 +98,17 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 export function parsePrices(body: unknown): PricePoint[] {
 	throwIfErrorBody(body);
 	if (!Array.isArray(body)) throw unexpected();
-	const points: PricePoint[] = [];
+	// One point per date: a repeated date keeps the last record in the response.
+	const byDate = new Map<string, PricePoint>();
 	for (const entry of body) {
 		if (!entry || typeof entry !== 'object') continue;
 		const rec = entry as Record<string, unknown>;
 		const date = str(rec.date);
 		const close = num(rec.close);
 		if (!date || !ISO_DATE.test(date) || close === null) continue;
-		points.push({ date, close, volume: num(rec.volume) });
+		byDate.set(date, { date, close, volume: num(rec.volume) });
 	}
-	return points.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+	return [...byDate.values()].sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
 }
 
 export async function fetchProfile(
