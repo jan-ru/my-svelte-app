@@ -1,6 +1,6 @@
 # Financials page: Yahoo Finance as a second data source
 
-Date: 2026-10-27. Status: design approved in conversation, pending written-spec review.
+Date: 2026-10-27. Status: design and spec approved by the owner.
 Builds on `2026-10-26-financials-tabs-design.md` (tabs, URL state), `2026-10-26-company-and-news-tabs-design.md` and `2026-10-26-price-tab-design.md` (view states, caches, `fmpGet` pattern) and `2026-10-25-financials-page-design.md` (auth and key rules).
 
 ## Goal

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { PageProps } from './$types';
-	import { fmpSymbol } from '#lib/companies';
+	import { financialsLink } from '#lib/companies';
 	import { quoteLink } from '#lib/quote';
 
 	let { data }: PageProps = $props();
@@ -88,9 +88,8 @@
 							<td><a href={`/companies?industry=${encodeURIComponent(c.industry)}`}>{c.industry}</a></td>
 							<td>{c.country}</td>
 							<td>
-								{#if fmpSymbol(c)}
-									{@const symbol = fmpSymbol(c)!}
-									<a class="button" href={`/financials?symbol=${encodeURIComponent(symbol)}`} aria-label={`Financials for ${c.name}`}>Financials</a>
+								{#if financialsLink(c)}
+									<a class="button" href={financialsLink(c)} aria-label={`Financials for ${c.name}`}>Financials</a>
 								{/if}
 							</td>
 						</tr>
