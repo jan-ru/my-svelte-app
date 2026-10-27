@@ -11,14 +11,24 @@ import type { Actions, PageServerLoad } from './$types';
 
 const limiter = createRateLimiter({ max: 5, windowMs: 15 * 60 * 1000 });
 
-export const load: PageServerLoad = async ({ locals, url, setHeaders }) => {
+export const load: PageServerLoad = async ({ locals, url, setHeaders, cookies }) => {
 	setHeaders({ 'cache-control': 'private, no-store' });
 	const nav = parseNav(url.searchParams);
 	const rawSymbol = url.searchParams.get('symbol');
+	const from = returnPath(url.searchParams.get('from'));
+
+	// Logged in but without the bypass cookie (cleared, or the token was rotated): give it back here, where
+	// nothing is cached, and return to the page the visitor came from. Hooks never set cookies.
+	const token = bypassToken(ISR_BYPASS_TOKEN);
+	if (locals.authed && token && !locals.interactive) {
+		cookies.set(BYPASS_COOKIE, token, sessionCookieOptions());
+		if (from) redirect(303, from);
+	}
+
 	return {
 		configured: Boolean(SITE_PASSWORD && SESSION_SECRET),
 		nav,
-		from: returnPath(url.searchParams.get('from')),
+		from,
 		symbol: (rawSymbol && parseSymbol(rawSymbol)) || '',
 		view: await loadFinancials({ authed: locals.authed, nav, rawSymbol, apiKey: FMP_API_KEY })
 	};
