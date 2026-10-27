@@ -1,4 +1,5 @@
 import { parseSymbol } from './symbol';
+import { yahooSymbol } from './yahoo';
 
 export interface CompanyData {
 	generated: string;
@@ -80,4 +81,14 @@ export function fmpSymbol(company: Pick<Company, 'ticker' | 'country'>): string 
 	const colon = company.ticker.indexOf(':');
 	if (colon < 0 || !US_EXCHANGES.has(company.ticker.slice(0, colon))) return null;
 	return parseSymbol(company.ticker.slice(colon + 1).replaceAll('.', '-'));
+}
+
+/** Where the Financials button leads: FMP for US exchange listings, Yahoo Finance for other mappable rows, nothing otherwise. */
+export function financialsLink(company: Pick<Company, 'ticker' | 'country'>): string | null {
+	const fmp = fmpSymbol(company);
+	if (fmp) return `/financials?symbol=${encodeURIComponent(fmp)}`;
+	// US rows without an FMP symbol are OTC and the like: no button
+	if (company.country === 'United States') return null;
+	const yahoo = parseSymbol(yahooSymbol(company.ticker) ?? '');
+	return yahoo ? `/financials?symbol=${encodeURIComponent(yahoo)}&source=yahoo` : null;
 }

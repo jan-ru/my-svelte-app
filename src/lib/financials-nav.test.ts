@@ -61,3 +61,25 @@ describe('login round trip', () => {
 		expect(afterLogin(q('symbol=X&tab=//evil.com')).startsWith('/financials?')).toBe(true);
 	});
 });
+
+describe('source parameter', () => {
+	it('is absent from the nav unless a valid source is given', () => {
+		expect(parseNav(q(''))).toEqual({ tab: 'financials', statement: 'income', period: 'annual' });
+		expect('source' in parseNav(q('source=bloomberg'))).toBe(false);
+		expect(parseNav(q('source=yahoo')).source).toBe('yahoo');
+	});
+	it('is written to the href only when present, after the period', () => {
+		const nav = { tab: 'price', statement: 'income', period: 'annual' } as const;
+		expect(navHref(nav, 'AAPL')).toBe('/financials?symbol=AAPL&tab=price&statement=income&period=annual');
+		expect(navHref({ ...nav, source: 'yahoo' }, 'AAPL')).toBe(
+			'/financials?symbol=AAPL&tab=price&statement=income&period=annual&source=yahoo'
+		);
+	});
+	it('survives the login round trip', () => {
+		const nav = { tab: 'news', statement: 'income', period: 'annual', source: 'yahoo' } as const;
+		expect(loginAction(nav, 'AAPL')).toBe('?/login&symbol=AAPL&tab=news&statement=income&period=annual&source=yahoo');
+		expect(afterLogin(q('symbol=aapl&tab=news&source=yahoo'))).toBe(
+			'/financials?symbol=AAPL&tab=news&statement=income&period=annual&source=yahoo'
+		);
+	});
+});

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { PAGE_SIZE, fmpSymbol, queryCompanies, type CompanyData } from './companies';
+import { PAGE_SIZE, financialsLink, fmpSymbol, queryCompanies, type CompanyData } from './companies';
 
 const data: CompanyData = {
 	generated: '2026-10-25',
@@ -85,5 +85,28 @@ describe('fmpSymbol', () => {
 		for (const ticker of ['', '-', 'NYSE', 'NYSE:', 'NYSE:A B', 'NYSE:A&B']) {
 			expect(fmpSymbol(us(ticker)), ticker).toBeNull();
 		}
+	});
+});
+
+describe('financialsLink', () => {
+	const row = (ticker: string, country: string) => ({ ticker, country });
+	it('links US exchange listings to FMP', () => {
+		expect(financialsLink(row('NasdaqGS:AAPL', 'United States'))).toBe('/financials?symbol=AAPL');
+		expect(financialsLink(row('NYSE:BRK.B', 'United States'))).toBe('/financials?symbol=BRK-B');
+	});
+	it('links mappable non-US rows to Yahoo', () => {
+		expect(financialsLink(row('ENXTAM:ABN', 'Netherlands'))).toBe('/financials?symbol=ABN.AS&source=yahoo');
+		expect(financialsLink(row('TSE:7203', 'Japan'))).toBe('/financials?symbol=7203.T&source=yahoo');
+	});
+	it('gives US OTC and other unmappable rows no link', () => {
+		expect(financialsLink(row('OTCPK:CBDW', 'United States'))).toBeNull();
+		expect(financialsLink(row('MARS:XYZ', 'Netherlands'))).toBeNull();
+		expect(financialsLink(row('', 'Netherlands'))).toBeNull();
+	});
+	it('gives no link when the symbol would not pass the financials page (for example an ampersand)', () => {
+		expect(financialsLink(row('NSEI:M&M', 'India'))).toBeNull();
+	});
+	it('keeps a US-style symbol with a request for Yahoo for foreign companies listed on a US exchange', () => {
+		expect(financialsLink(row('NYSE:TM', 'Japan'))).toBe('/financials?symbol=TM&source=yahoo');
 	});
 });

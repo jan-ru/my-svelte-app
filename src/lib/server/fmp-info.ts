@@ -37,10 +37,10 @@ export const NEWS_LIMIT = 20;
 const NEWS_PATH = 'news/stock';
 const SNIPPET_MAX = 300;
 
-const str = (value: unknown): string | null =>
+export const str = (value: unknown): string | null =>
 	typeof value === 'string' && value.trim() !== '' ? value.trim() : null;
 
-const num = (value: unknown): number | null => {
+export const num = (value: unknown): number | null => {
 	const n = typeof value === 'string' && value.trim() !== '' ? Number(value) : value;
 	return typeof n === 'number' && Number.isFinite(n) ? n : null;
 };

@@ -20,7 +20,7 @@ const millions = new Intl.NumberFormat('en-US', { minimumFractionDigits: 1, maxi
 
 export function formatValue(key: string, value: number | null): string {
 	if (value === null) return 'n/a';
-	if (/^eps/i.test(key)) return value.toFixed(2);
+	if (/^eps|eps$/i.test(key)) return value.toFixed(2);
 	return millions.format(value / 1_000_000);
 }
 

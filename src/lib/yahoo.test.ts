@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { yahooQuote, yahooSearch } from './yahoo';
+import { yahooQuote, yahooSearch, yahooSymbol } from './yahoo';
 
 const quote = (s: string) => `https://finance.yahoo.com/quote/${s}`;
 
@@ -43,5 +43,29 @@ describe('yahooSearch', () => {
 	});
 	it('returns null without a symbol', () => {
 		expect(yahooSearch('-')).toBeNull();
+	});
+});
+
+describe('yahooSymbol', () => {
+	it('adds the Yahoo suffix for the exchange', () => {
+		expect(yahooSymbol('ENXTAM:ABN')).toBe('ABN.AS');
+		expect(yahooSymbol('XTRA:SAP')).toBe('SAP.DE');
+		expect(yahooSymbol('TSE:7203')).toBe('7203.T');
+	});
+	it('writes US share classes with a dash and adds no suffix', () => {
+		expect(yahooSymbol('NYSE:BRK.B')).toBe('BRK-B');
+		expect(yahooSymbol('NasdaqGS:AAPL')).toBe('AAPL');
+	});
+	it('applies the Korean and Hong Kong fixes', () => {
+		expect(yahooSymbol('KOSE:A005930')).toBe('005930.KS');
+		expect(yahooSymbol('SEHK:5')).toBe('0005.HK');
+	});
+	it('returns null for unknown exchanges and malformed tickers', () => {
+		expect(yahooSymbol('MARS:XYZ')).toBeNull();
+		expect(yahooSymbol('NYSE')).toBeNull();
+		expect(yahooSymbol('NYSE:A B')).toBeNull();
+	});
+	it('agrees with yahooQuote', () => {
+		expect(yahooQuote('ENXTAM:ABN')).toBe('https://finance.yahoo.com/quote/ABN.AS');
 	});
 });

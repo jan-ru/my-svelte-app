@@ -1,4 +1,5 @@
 import { parseSymbol } from './symbol';
+import { parseSource, type Source } from './source';
 
 export const TABS = [
 	{ id: 'financials', label: 'Financials' },
@@ -23,16 +24,20 @@ export interface Nav {
 	tab: Tab;
 	statement: StatementId;
 	period: Period;
+	/** The source the visitor asked for; the effective one also depends on the ticker (see `resolveSource`). */
+	source?: Source;
 }
 
 const pick = <T extends string>(options: readonly { id: T }[], value: string | null, fallback: T): T =>
 	options.find((o) => o.id === value)?.id ?? fallback;
 
 export function parseNav(params: URLSearchParams): Nav {
+	const source = parseSource(params.get('source'));
 	return {
 		tab: pick(TABS, params.get('tab'), 'financials'),
 		statement: pick(STATEMENTS, params.get('statement'), 'income'),
-		period: pick(PERIODS, params.get('period'), 'annual')
+		period: pick(PERIODS, params.get('period'), 'annual'),
+		...(source ? { source } : {})
 	};
 }
 
@@ -42,6 +47,7 @@ export function navHref(nav: Nav, symbol: string): string {
 	sp.set('tab', nav.tab);
 	sp.set('statement', nav.statement);
 	sp.set('period', nav.period);
+	if (nav.source) sp.set('source', nav.source);
 	return `/financials?${sp}`;
 }
 

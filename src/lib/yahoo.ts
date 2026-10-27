@@ -13,8 +13,8 @@ const SUFFIX: Record<string, string> = {
 
 const SYMBOL = /^[A-Za-z0-9.&-]+$/;
 
-/** Yahoo Finance quote page for a Capital IQ style ticker such as `ENXTAM:ABN`; null when Yahoo has no such listing. */
-export function yahooQuote(ticker: string): string | null {
+/** Yahoo Finance symbol for a Capital IQ style ticker such as `ENXTAM:ABN` (`ABN.AS`); null when Yahoo has no such listing. */
+export function yahooSymbol(ticker: string): string | null {
 	const [exchange, symbol] = ticker.split(':', 2);
 	if (!symbol) return null;
 	const suffix = SUFFIX[exchange];
@@ -25,7 +25,13 @@ export function yahooQuote(ticker: string): string | null {
 	if (suffix === undefined || !SYMBOL.test(s)) return null;
 	if (exchange === 'SEHK' && /^\d+$/.test(s)) s = s.padStart(4, '0');
 	if (suffix === '') s = s.replace('.', '-');
-	return `https://finance.yahoo.com/quote/${encodeURIComponent(s + suffix)}`;
+	return s + suffix;
+}
+
+/** Yahoo Finance quote page for a Capital IQ style ticker such as `ENXTAM:ABN`; null when Yahoo has no such listing. */
+export function yahooQuote(ticker: string): string | null {
+	const symbol = yahooSymbol(ticker);
+	return symbol ? `https://finance.yahoo.com/quote/${encodeURIComponent(symbol)}` : null;
 }
 
 /** Yahoo Finance search for a ticker that has no quote page; null without a ticker. */

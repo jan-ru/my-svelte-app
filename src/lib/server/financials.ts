@@ -4,17 +4,28 @@ import { buildTable } from '../statements';
 import type { StatementTable } from '../statements';
 import type { Nav, Period } from '../financials-nav';
 import { oneYearWindow } from '../prices';
+import { effectivePeriod, resolveSource, sourceLabel } from '../source';
+import type { Source } from '../source';
 import { createCache } from './cache';
 import { FmpError, fetchStatement } from './fmp';
 import type { Kind, Statement } from './fmp';
 import { fetchNews, fetchPrices, fetchProfile } from './fmp-info';
 import type { NewsItem, PricePoint, Profile } from './fmp-info';
+import { fetchYahooNews, fetchYahooPrices, fetchYahooProfile, fetchYahooStatement } from './yahoo';
 
 export type StatementFetcher = (kind: Kind, symbol: string, apiKey: string, period: Period) => Promise<Statement>;
 
 export type ProfileFetcher = (symbol: string, apiKey: string) => Promise<Profile | null>;
 export type NewsFetcher = (symbol: string, apiKey: string) => Promise<NewsItem[]>;
 export type PricesFetcher = (symbol: string, apiKey: string) => Promise<PricePoint[]>;
+
+/** One complete set of fetchers per source; a view uses exactly one set. */
+export interface SourceFetchers {
+	statement: StatementFetcher;
+	profile: ProfileFetcher;
+	news: NewsFetcher;
+	prices: PricesFetcher;
+}
 
 export type FinancialsView =
 	| { state: 'locked' }
@@ -62,26 +73,44 @@ export const cachedPrices: PricesFetcher = (symbol, apiKey) =>
 		return fetchPrices(symbol, apiKey, from, to);
 	});
 
-function messageFor(error: unknown, symbol: string): string {
+const yahooStatementCache = createCache<Statement>({ ttlMs: 24 * 60 * 60 * 1000, now: () => Date.now() });
+const yahooProfileCache = createCache<Profile | null>({ ttlMs: PROFILE_TTL_MS, now: () => Date.now() });
+const yahooNewsCache = createCache<NewsItem[]>({ ttlMs: NEWS_TTL_MS, now: () => Date.now() });
+const yahooPricesCache = createCache<PricePoint[]>({ ttlMs: PRICES_TTL_MS, now: () => Date.now() });
+
+export const yahooFetchers: SourceFetchers = {
+	statement: (kind, symbol, _apiKey, period) =>
+		yahooStatementCache.get(`${kind}:${symbol}:${period}`, () => fetchYahooStatement(kind, symbol, period)),
+	profile: (symbol) => yahooProfileCache.get(symbol, () => fetchYahooProfile(symbol)),
+	news: (symbol) => yahooNewsCache.get(symbol, () => fetchYahooNews(symbol)),
+	prices: (symbol) =>
+		yahooPricesCache.get(symbol, () => {
+			const { from, to } = oneYearWindow(new Date());
+			return fetchYahooPrices(symbol, from, to);
+		})
+};
+
+function messageFor(error: unknown, symbol: string, source: Source): string {
+	const label = sourceLabel(source);
 	if (error instanceof FmpError) {
 		switch (error.kind) {
 			case 'config':
 				return 'The FMP key was not accepted. Check FMP_API_KEY.';
 			case 'plan':
-				return `FMP does not provide this for ${symbol} on your plan (${error.message}).`;
+				return `${label} does not provide this for ${symbol} on your plan (${error.message}).`;
 			case 'limit':
-				return 'FMP rate limit reached. Try again in a minute.';
+				return `${label} rate limit reached. Try again in a minute.`;
 		}
 	}
-	return 'FMP is unavailable right now. Try again shortly.';
+	return `${label} is unavailable right now. Try again shortly.`;
 }
 
-function failure(what: string, symbol: string, error: unknown): string {
-	console.error(`FMP ${what} for ${symbol} failed (${error instanceof FmpError ? error.kind : 'error'})`);
-	return messageFor(error, symbol);
+function failure(what: string, symbol: string, error: unknown, source: Source): string {
+	console.error(`${sourceLabel(source)} ${what} for ${symbol} failed (${error instanceof FmpError ? error.kind : 'error'})`);
+	return messageFor(error, symbol, source);
 }
 
-async function loadProfile(symbol: string, apiKey: string, fetcher: ProfileFetcher): Promise<FinancialsView> {
+async function loadProfile(symbol: string, apiKey: string, fetcher: ProfileFetcher, source: Source): Promise<FinancialsView> {
 	try {
 		const profile = await fetcher(symbol, apiKey);
 		return {
@@ -91,25 +120,25 @@ async function loadProfile(symbol: string, apiKey: string, fetcher: ProfileFetch
 			message: profile ? null : `No company profile found for ${symbol}.`
 		};
 	} catch (error) {
-		return { state: 'profile', symbol, profile: null, message: failure('profile', symbol, error) };
+		return { state: 'profile', symbol, profile: null, message: failure('profile', symbol, error, source) };
 	}
 }
 
-async function loadNews(symbol: string, apiKey: string, fetcher: NewsFetcher): Promise<FinancialsView> {
+async function loadNews(symbol: string, apiKey: string, fetcher: NewsFetcher, source: Source): Promise<FinancialsView> {
 	try {
 		const items = await fetcher(symbol, apiKey);
 		return { state: 'news', symbol, items, message: items.length ? null : `No recent news found for ${symbol}.` };
 	} catch (error) {
-		return { state: 'news', symbol, items: [], message: failure('news', symbol, error) };
+		return { state: 'news', symbol, items: [], message: failure('news', symbol, error, source) };
 	}
 }
 
-async function loadPrices(symbol: string, apiKey: string, fetcher: PricesFetcher): Promise<FinancialsView> {
+async function loadPrices(symbol: string, apiKey: string, fetcher: PricesFetcher, source: Source): Promise<FinancialsView> {
 	try {
 		const points = await fetcher(symbol, apiKey);
 		return { state: 'price', symbol, points, message: points.length ? null : `No price history found for ${symbol}.` };
 	} catch (error) {
-		return { state: 'price', symbol, points: [], message: failure('price history', symbol, error) };
+		return { state: 'price', symbol, points: [], message: failure('price history', symbol, error, source) };
 	}
 }
 
@@ -118,33 +147,48 @@ export async function loadFinancials(input: {
 	nav: Nav;
 	rawSymbol: string | null;
 	apiKey: string | undefined;
+	/** FMP fetchers (tests inject these). */
 	fetcher?: StatementFetcher;
 	profileFetcher?: ProfileFetcher;
 	newsFetcher?: NewsFetcher;
 	pricesFetcher?: PricesFetcher;
+	/** Yahoo fetchers (tests inject these). */
+	yahoo?: Partial<SourceFetchers>;
 }): Promise<FinancialsView> {
 	if (!input.authed) return { state: 'locked' };
-	if (!input.apiKey) return { state: 'unconfigured' };
-	if (!input.rawSymbol?.trim()) return { state: 'idle' };
 	const symbol = parseSymbol(input.rawSymbol);
+	const source = resolveSource(input.nav.source, symbol ?? '');
+	// only FMP needs the key; Yahoo works without one
+	if (source === 'fmp' && !input.apiKey) return { state: 'unconfigured' };
+	if (!input.rawSymbol?.trim()) return { state: 'idle' };
 	if (!symbol) return { state: 'invalid' };
-	if (input.nav.tab === 'company') return loadProfile(symbol, input.apiKey, input.profileFetcher ?? cachedProfile);
-	if (input.nav.tab === 'news') return loadNews(symbol, input.apiKey, input.newsFetcher ?? cachedNews);
-	if (input.nav.tab === 'price') return loadPrices(symbol, input.apiKey, input.pricesFetcher ?? cachedPrices);
 
-	const { statement: kind, period } = input.nav;
+	const apiKey = source === 'fmp' ? input.apiKey! : '';
+	const fetchers: SourceFetchers =
+		source === 'fmp'
+			? {
+					statement: input.fetcher ?? cachedFetcher,
+					profile: input.profileFetcher ?? cachedProfile,
+					news: input.newsFetcher ?? cachedNews,
+					prices: input.pricesFetcher ?? cachedPrices
+				}
+			: { ...yahooFetchers, ...input.yahoo };
+	if (input.nav.tab === 'company') return loadProfile(symbol, apiKey, fetchers.profile, source);
+	if (input.nav.tab === 'news') return loadNews(symbol, apiKey, fetchers.news, source);
+	if (input.nav.tab === 'price') return loadPrices(symbol, apiKey, fetchers.prices, source);
+
+	const { statement: kind } = input.nav;
+	// a source that cannot serve the period gets the annual view instead (FMP has no TTM on this plan)
+	const period = effectivePeriod(source, input.nav.period);
 	const title = statementTitle(kind, period);
-	const fetcher = input.fetcher ?? cachedFetcher;
 	try {
-		const table = buildTable(await fetcher(kind, symbol, input.apiKey, period), period);
+		const table = buildTable(await fetchers.statement(kind, symbol, apiKey, period), period);
 		if (table.columns.length === 0) {
 			const what = period === 'ttm' ? 'trailing-twelve-month figures' : 'annual statements';
 			return { state: 'ready', symbol, title, table: null, message: `No ${what} found for ${symbol}.` };
 		}
 		return { state: 'ready', symbol, title, table, message: null };
 	} catch (error) {
-		const detail = error instanceof FmpError ? error.kind : 'error';
-		console.error(`FMP ${kind} ${period} statement for ${symbol} failed (${detail})`);
-		return { state: 'ready', symbol, title, table: null, message: messageFor(error, symbol) };
+		return { state: 'ready', symbol, title, table: null, message: failure(`${kind} ${period} statement`, symbol, error, source) };
 	}
 }

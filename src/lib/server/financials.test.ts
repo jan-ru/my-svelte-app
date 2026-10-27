@@ -4,6 +4,7 @@ import type { Nav } from '../financials-nav';
 import { FmpError, type Statement } from './fmp';
 import type { NewsItem, PricePoint, Profile } from './fmp-info';
 import { loadFinancials, statementTitle, type StatementFetcher } from './financials';
+import type { SourceFetchers } from './financials';
 
 const statement: Statement = {
 	lines: ['revenue'],
@@ -97,9 +98,14 @@ describe('loadFinancials', () => {
 	});
 	it('fetches only the selected statement, with the period', async () => {
 		const fetcher = vi.fn<StatementFetcher>().mockResolvedValue(statement);
-		const view = await loadFinancials({ ...base, nav: { ...nav, statement: 'balance', period: 'ttm' }, fetcher });
+		// TTM is only available from Yahoo (FMP is forced to annual), so route the view there
+		const view = await loadFinancials({
+			...base,
+			nav: { ...nav, statement: 'balance', period: 'ttm', source: 'yahoo' },
+			yahoo: { statement: fetcher }
+		});
 		expect(fetcher).toHaveBeenCalledTimes(1);
-		expect(fetcher).toHaveBeenCalledWith('balance', 'AAPL', 'KEY', 'ttm');
+		expect(fetcher).toHaveBeenCalledWith('balance', 'AAPL', '', 'ttm');
 		if (view.state !== 'ready') throw new Error('expected ready');
 		expect(view.symbol).toBe('AAPL');
 		expect(view.title).toBe('Latest balance sheet');
@@ -130,8 +136,8 @@ describe('loadFinancials', () => {
 		expect(annual.message).toMatch(/no annual statements/i);
 		const ttm = await loadFinancials({
 			...base,
-			nav: { ...nav, period: 'ttm' },
-			fetcher: async () => ({ lines: [], years: [] })
+			nav: { ...nav, period: 'ttm', source: 'yahoo' },
+			yahoo: { statement: async () => ({ lines: [], years: [] }) }
 		});
 		if (ttm.state !== 'ready') throw new Error('expected ready');
 		expect(ttm.message).toMatch(/trailing-twelve-month/i);
@@ -223,5 +229,91 @@ describe('company and news tabs', () => {
 		expect(logged).toContain('AAPL');
 		expect(logged).not.toContain('TOPSECRET');
 		expect(logged).not.toContain('apikey');
+	});
+});
+
+describe('sources', () => {
+	const yahooStatement: Statement = {
+		lines: ['totalRevenue'],
+		years: [{ fiscalYear: '2025', date: '2025-12-31', currency: 'EUR', values: { totalRevenue: 9_000_000_000 } }]
+	};
+	const yahooPoints: PricePoint[] = [{ date: '2026-10-23', close: 39.5, volume: 10 }];
+	const fakes = () => ({
+		fmp: {
+			fetcher: vi.fn<StatementFetcher>().mockResolvedValue(statement),
+			profileFetcher: vi.fn(),
+			newsFetcher: vi.fn(),
+			pricesFetcher: vi.fn()
+		},
+		yahoo: {
+			statement: vi.fn<StatementFetcher>().mockResolvedValue(yahooStatement),
+			profile: vi.fn().mockResolvedValue({ name: 'ABN AMRO' } as Profile),
+			news: vi.fn().mockResolvedValue([] as NewsItem[]),
+			prices: vi.fn().mockResolvedValue(yahooPoints)
+		} satisfies SourceFetchers
+	});
+
+	it('serves a non-US ticker from Yahoo only, without an FMP key', async () => {
+		const { fmp, yahoo } = fakes();
+		const view = await loadFinancials({ ...base, rawSymbol: 'abn.as', apiKey: undefined, nav: { ...nav, tab: 'price' }, ...fmp, yahoo });
+		expect(view).toEqual({ state: 'price', symbol: 'ABN.AS', points: yahooPoints, message: null });
+		expect(yahoo.prices).toHaveBeenCalledWith('ABN.AS', '');
+		expect(fmp.pricesFetcher).not.toHaveBeenCalled();
+	});
+	it('ignores source=fmp for a non-US ticker', async () => {
+		const { fmp, yahoo } = fakes();
+		await loadFinancials({ ...base, rawSymbol: 'ABN.AS', nav: { ...nav, tab: 'company', source: 'fmp' }, ...fmp, yahoo });
+		expect(yahoo.profile).toHaveBeenCalled();
+		expect(fmp.profileFetcher).not.toHaveBeenCalled();
+	});
+	it('serves a US ticker from FMP by default and from Yahoo on request', async () => {
+		const { fmp, yahoo } = fakes();
+		await loadFinancials({ ...base, ...fmp, yahoo });
+		expect(fmp.fetcher).toHaveBeenCalledTimes(1);
+		expect(yahoo.statement).not.toHaveBeenCalled();
+		await loadFinancials({ ...base, nav: { ...nav, source: 'yahoo' }, ...fmp, yahoo });
+		expect(yahoo.statement).toHaveBeenCalledTimes(1);
+		expect(fmp.fetcher).toHaveBeenCalledTimes(1);
+	});
+	it('needs the FMP key only for FMP views', async () => {
+		const { fmp, yahoo } = fakes();
+		expect(await loadFinancials({ ...base, apiKey: undefined, ...fmp, yahoo })).toEqual({ state: 'unconfigured' });
+		const view = await loadFinancials({ ...base, apiKey: undefined, nav: { ...nav, source: 'yahoo' }, ...fmp, yahoo });
+		expect(view.state).toBe('ready');
+	});
+	it('never asks FMP for TTM: the period becomes annual', async () => {
+		const { fmp, yahoo } = fakes();
+		const view = await loadFinancials({ ...base, nav: { ...nav, period: 'ttm' }, ...fmp, yahoo });
+		expect(fmp.fetcher).toHaveBeenCalledWith('income', 'AAPL', 'KEY', 'annual');
+		if (view.state !== 'ready') throw new Error('expected ready');
+		expect(view.title).toBe('Income statement');
+		expect(view.table?.columns[0].year).toBe('2024');
+	});
+	it('asks Yahoo for TTM when it is the source', async () => {
+		const { fmp, yahoo } = fakes();
+		const view = await loadFinancials({ ...base, rawSymbol: 'ABN.AS', nav: { ...nav, period: 'ttm' }, ...fmp, yahoo });
+		expect(yahoo.statement).toHaveBeenCalledWith('income', 'ABN.AS', '', 'ttm');
+		if (view.state !== 'ready') throw new Error('expected ready');
+		expect(view.table?.columns[0].year).toBe('TTM');
+		expect(view.table?.currency).toBe('EUR');
+	});
+	it('still requires a session first, and a valid ticker', async () => {
+		const { fmp, yahoo } = fakes();
+		expect(await loadFinancials({ ...base, authed: false, rawSymbol: 'ABN.AS', ...fmp, yahoo })).toEqual({ state: 'locked' });
+		expect(await loadFinancials({ ...base, rawSymbol: 'A.B&C', ...fmp, yahoo })).toEqual({ state: 'invalid' });
+		expect(await loadFinancials({ ...base, rawSymbol: '', nav: { ...nav, source: 'yahoo' }, apiKey: undefined, ...fmp, yahoo })).toEqual({ state: 'idle' });
+		expect(yahoo.statement).not.toHaveBeenCalled();
+	});
+	it('names the effective source in failure messages', async () => {
+		vi.spyOn(console, 'error').mockImplementation(() => {});
+		const { fmp, yahoo } = fakes();
+		yahoo.statement.mockRejectedValue(new FmpError('limit', 'x'));
+		const view = await loadFinancials({ ...base, rawSymbol: 'ABN.AS', ...fmp, yahoo });
+		if (view.state !== 'ready') throw new Error('expected ready');
+		expect(view.message).toBe('Yahoo Finance rate limit reached. Try again in a minute.');
+		yahoo.profile.mockRejectedValue(new FmpError('unavailable', 'x'));
+		const profile = await loadFinancials({ ...base, rawSymbol: 'ABN.AS', nav: { ...nav, tab: 'company' }, ...fmp, yahoo });
+		if (profile.state !== 'profile') throw new Error('expected profile');
+		expect(profile.message).toBe('Yahoo Finance is unavailable right now. Try again shortly.');
 	});
 });
