@@ -66,3 +66,12 @@ describe('buildTable period', () => {
 		expect(buildTable(annual).columns[0].year).toBe('2024');
 	});
 });
+
+describe('formatValue for Yahoo per-share keys', () => {
+	it('shows EPS in whole currency units, whatever the key spelling', () => {
+		expect(formatValue('dilutedEPS', 2.451)).toBe('2.45');
+		expect(formatValue('basicEPS', 1)).toBe('1.00');
+		expect(formatValue('epsdiluted', 2.45)).toBe('2.45');
+		expect(formatValue('totalRevenue', 8_732_000_000)).toBe('8,732.0');
+	});
+});

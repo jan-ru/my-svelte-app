@@ -3,12 +3,15 @@
 	import type { PageProps } from './$types';
 	import LineChart from '#lib/components/LineChart.svelte';
 	import { formatNewsDate, profileFields } from '#lib/company';
+	import { SOURCES, effectivePeriod, isUsListing, periodAvailable, resolveSource, sourceLabel } from '#lib/source';
 	import { PERIODS, STATEMENTS, TABS, loginAction, navHref } from '#lib/financials-nav';
 	import { formatPrice, formatSigned, formatVolume, summarise } from '#lib/prices';
 
 	let { data, form }: PageProps = $props();
 	const view = $derived(data.view);
 	const nav = $derived(data.nav);
+	const source = $derived(resolveSource(nav.source, data.symbol));
+	const period = $derived(effectivePeriod(source, nav.period));
 </script>
 
 <svelte:head>
@@ -36,7 +39,8 @@
 			<form method="GET">
 				<input type="hidden" name="tab" value={nav.tab} />
 				<input type="hidden" name="statement" value={nav.statement} />
-				<input type="hidden" name="period" value={nav.period} />
+				<input type="hidden" name="period" value={period} />
+				{#if nav.source}<input type="hidden" name="source" value={nav.source} />{/if}
 				<label for="symbol">Ticker</label>
 				<input id="symbol" name="symbol" value={data.symbol} placeholder="AAPL or ABN.AS" maxlength="15" autocomplete="off" />
 				<button type="submit">Show</button>
@@ -48,21 +52,38 @@
 			<nav class="side" aria-label="Sections">
 				<ul>
 					{#each TABS as t (t.id)}
-						<li><a href={navHref({ ...nav, tab: t.id }, data.symbol)} aria-current={nav.tab === t.id ? 'page' : undefined}>{t.label}</a></li>
+						<li><a href={navHref({ ...nav, period, tab: t.id }, data.symbol)} aria-current={nav.tab === t.id ? 'page' : undefined}>{t.label}</a></li>
 					{/each}
 				</ul>
 			</nav>
 
 			<div class="content">
+				{#if data.symbol}
+					{#if isUsListing(data.symbol)}
+						<nav class="source" aria-label="Data source">
+							<span>Source</span>
+							{#each SOURCES as s (s.id)}
+								<a href={navHref({ ...nav, period, source: s.id }, data.symbol)} aria-current={source === s.id ? 'page' : undefined}>{s.label}</a>
+							{/each}
+						</nav>
+					{:else}
+						<p class="source-note">Source: {sourceLabel(source)}</p>
+					{/if}
+					{#if source === 'yahoo'}<p class="meta">Yahoo Finance data is unofficial and may be delayed.</p>{/if}
+				{/if}
 				{#if nav.tab === 'financials'}
 					<nav class="tabs" aria-label="Statements">
 						{#each STATEMENTS as s (s.id)}
-							<a href={navHref({ ...nav, statement: s.id }, data.symbol)} aria-current={nav.statement === s.id ? 'page' : undefined}>{s.label}</a>
+							<a href={navHref({ ...nav, period, statement: s.id }, data.symbol)} aria-current={nav.statement === s.id ? 'page' : undefined}>{s.label}</a>
 						{/each}
 					</nav>
 					<nav class="period" aria-label="Period">
 						{#each PERIODS as p (p.id)}
-							<a href={navHref({ ...nav, period: p.id }, data.symbol)} aria-current={nav.period === p.id ? 'page' : undefined}>{p.label}</a>
+							{#if periodAvailable(source, p.id)}
+								<a href={navHref({ ...nav, period: p.id }, data.symbol)} aria-current={period === p.id ? 'page' : undefined}>{p.label}</a>
+							{:else}
+								<span class="disabled" aria-disabled="true" title="Trailing twelve months is not available from {sourceLabel(source)}. Choose Yahoo Finance.">{p.label}</span>
+							{/if}
 						{/each}
 					</nav>
 				{/if}
@@ -72,7 +93,7 @@
 				{:else if view.state === 'invalid'}
 					<p class="error" role="alert">That is not a valid ticker. Use letters, digits, dots and dashes, for example BRK-B.</p>
 				{:else if view.state === 'idle'}
-					<p>Enter an FMP ticker to see its data.</p>
+					<p>Enter a ticker to see its data. US tickers work with FMP or Yahoo Finance; others, such as ABN.AS, use Yahoo Finance.</p>
 				{:else if view.state === 'profile'}
 					<h2 class="symbol">{view.symbol}</h2>
 					{#if view.profile}
@@ -93,6 +114,7 @@
 					{/if}
 				{:else if view.state === 'news'}
 					<h2 class="symbol">{view.symbol}</h2>
+					{#if source === 'yahoo'}<p class="meta">Matched by company name, so some headlines may be only loosely related.</p>{/if}
 					{#if view.items.length > 0}
 						<ul class="news">
 							{#each view.items as item, i (i)}
@@ -226,6 +248,12 @@
 	.down { color: #b00020; }
 	.tall { max-height: 24rem; overflow-y: auto; }
 	details { margin-top: 1rem; }
+	.source { display: flex; gap: 0.4rem; align-items: center; margin: 0 0 0.6rem; }
+	.source a { padding: 0.25rem 0.7rem; border: 1px solid #ddd; border-radius: 0.3rem; text-decoration: none; color: inherit; }
+	.source a[aria-current='page'] { background: #3730a3; border-color: #3730a3; color: #fff; }
+	.source-note { margin: 0 0 0.6rem; font-weight: 600; }
+	.period .disabled { padding: 0.45rem 0.8rem; color: #8a8a8a; background: #f3f3f3; cursor: not-allowed; }
+
 	@media (max-width: 40rem) {
 		.layout { grid-template-columns: 1fr; }
 		.side ul { flex-direction: row; flex-wrap: wrap; }
