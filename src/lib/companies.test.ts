@@ -43,6 +43,16 @@ describe('queryCompanies', () => {
 		expect(r.rows.map((c) => c.name)).toEqual(['Mizuho Financial Group']);
 		expect(r.countries).toEqual([['Netherlands', 2], ['Japan', 1]]);
 	});
+	it('counts the distinct industries, sectors, regions, sub groups and exchanges among the matches', () => {
+		expect(queryCompanies(data, {}).distinct).toEqual({ industries: 2, sectors: 2, regions: 2, subGroups: 2, exchanges: 3 });
+		// the country filter narrows the counts, like the company total
+		expect(queryCompanies(data, { country: 'Japan' }).distinct).toEqual({ industries: 2, sectors: 2, regions: 1, subGroups: 1, exchanges: 1 });
+		expect(queryCompanies(data, { industry: 'Nope' }).distinct).toEqual({ industries: 0, sectors: 0, regions: 0, subGroups: 0, exchanges: 0 });
+	});
+	it('does not count a ticker without an exchange as one', () => {
+		const bare: CompanyData = { ...data, companies: [['No Exchange Ltd', 'NOCODE', '', 0, 0, 0, 0, 0]] };
+		expect(queryCompanies(bare, {}).distinct.exchanges).toBe(0);
+	});
 	it('matches nothing for an unknown industry or country', () => {
 		expect(queryCompanies(data, { industry: 'Nope' }).total).toBe(0);
 		expect(queryCompanies(data, { country: 'Nope' }).total).toBe(0);

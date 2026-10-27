@@ -5,6 +5,8 @@
 
 	let { data }: PageProps = $props();
 
+	const plural = (n: number, one: string, many: string) => `${n.toLocaleString('en')} ${n === 1 ? one : many}`;
+
 	const href = (page: number, without?: string) => {
 		const sp = new URLSearchParams();
 		for (const [key, value] of Object.entries(data.filters)) if (value && key !== without) sp.set(key, value);
@@ -61,7 +63,12 @@
 		<p role="status">Unknown industry “{data.filters.industry}”.</p>
 	{:else}
 		<p role="status" class="note">
-			{data.result.total.toLocaleString('en')} {data.result.total === 1 ? 'company' : 'companies'}.
+			{data.result.total.toLocaleString('en')} {data.result.total === 1 ? 'company' : 'companies'}{#if data.result.total > 0}
+				in {plural(data.result.distinct.industries, 'industry', 'industries')},
+				{plural(data.result.distinct.sectors, 'sector', 'sectors')},
+				{plural(data.result.distinct.regions, 'region', 'regions')},
+				{plural(data.result.distinct.subGroups, 'sub group', 'sub groups')} and
+				{plural(data.result.distinct.exchanges, 'exchange', 'exchanges')}{/if}.
 			{#if data.result.pages > 1}Page {data.result.page} of {data.result.pages}.{/if}
 		</p>
 
