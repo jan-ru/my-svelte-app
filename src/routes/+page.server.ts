@@ -1,13 +1,14 @@
 import { buildLayout } from '#lib/layout';
 import { parseParams } from '#lib/params';
 import { getComparison, getIndustries } from '#lib/server/compare';
+import { isrConfig, pageParams } from '#lib/server/access';
 import type { PageServerLoad } from './$types';
 
-export const config = { maxDuration: 30 };
+export const config = { maxDuration: 30, ...isrConfig(process.env.ISR_BYPASS_TOKEN) };
 
 const CACHEABLE = 'public, s-maxage=86400, stale-while-revalidate=86400';
 
-export const load: PageServerLoad = async ({ url, setHeaders }) => {
+export const load: PageServerLoad = async ({ url, locals, setHeaders }) => {
 	let industries: string[] = [];
 	let loadError: string | null = null;
 	try {
@@ -19,7 +20,7 @@ export const load: PageServerLoad = async ({ url, setHeaders }) => {
 
 	// parseParams filters against the known list before the cap, but its fallback defaults are not
 	// filtered, so drop any default the data does not know.
-	const view = parseParams(url.searchParams, industries.length > 0 ? industries : undefined);
+	const view = parseParams(pageParams(locals.interactive, url), industries.length > 0 ? industries : undefined);
 	if (industries.length > 0) {
 		view.selection.industries = view.selection.industries.filter((name) =>
 			industries.includes(name)

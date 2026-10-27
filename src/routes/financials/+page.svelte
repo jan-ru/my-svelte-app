@@ -32,7 +32,7 @@
 		{#if !data.configured}
 			<p class="error" role="alert">This page is not configured on this deployment.</p>
 		{:else}
-			<form method="POST" action={loginAction(nav, data.symbol)}>
+			<form method="POST" action={loginAction(nav, data.symbol, data.from)}>
 				<label for="password">Password</label>
 				<input id="password" name="password" type="password" autocomplete="current-password" required />
 				<button type="submit">Log in</button>

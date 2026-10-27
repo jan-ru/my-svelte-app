@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { PageProps } from './$types';
+	import LoginPrompt from '#lib/components/LoginPrompt.svelte';
 	import type { Item } from '#lib/crosswalk';
 
 	let { data }: PageProps = $props();
@@ -61,11 +62,15 @@
 		industry, are spread over the SIC codes reached.
 	</p>
 
-	<form method="get" aria-labelledby="forward">
-		<label for="q">Search by code or words</label>
-		<input id="q" name="q" type="search" value={data.q} placeholder="e.g. 6419, software, retail" maxlength="100" />
-		<button type="submit">Search</button>
-	</form>
+	{#if data.interactive}
+		<form method="get" aria-labelledby="forward">
+			<label for="q">Search by code or words</label>
+			<input id="q" name="q" type="search" value={data.q} placeholder="e.g. 6419, software, retail" maxlength="100" />
+			<button type="submit">Search</button>
+		</form>
+	{:else}
+		<LoginPrompt from="/classification">to search the classification.</LoginPrompt>
+	{/if}
 
 	{#if data.q !== '' && data.results.length === 0}
 		<p role="status">No SBI 2025 code matches “{data.q}”.</p>
@@ -127,16 +132,20 @@
 		codes of the industry's companies. At each step where one code leads to several, its weight is split evenly, so
 		the shares add up to 100% of the companies that could be followed, and show where the industry most likely sits.
 	</p>
-	<form method="get" aria-labelledby="reverse">
-		<label for="industry">Industry</label>
-		<select id="industry" name="industry">
-			<option value="">Choose an industry</option>
-			{#each data.industries as name (name)}
-				<option value={name} selected={name === data.industry}>{name}</option>
-			{/each}
-		</select>
-		<button type="submit">Show SBI codes</button>
-	</form>
+	{#if data.interactive}
+		<form method="get" aria-labelledby="reverse">
+			<label for="industry">Industry</label>
+			<select id="industry" name="industry">
+				<option value="">Choose an industry</option>
+				{#each data.industries as name (name)}
+					<option value={name} selected={name === data.industry}>{name}</option>
+				{/each}
+			</select>
+			<button type="submit">Show SBI codes</button>
+		</form>
+	{:else}
+		<LoginPrompt from="/classification">to search the classification.</LoginPrompt>
+	{/if}
 
 	{#if data.industry !== '' && !data.reverse}
 		<p role="status">Unknown industry “{data.industry}”.</p>

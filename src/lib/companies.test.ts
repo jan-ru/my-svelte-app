@@ -1,5 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { PAGE_SIZE, displayName, financialsLink, fmpSymbol, queryCompanies, type CompanyData } from './companies';
+import {
+	PAGE_SIZE,
+	PREVIEW_ROWS,
+	displayName,
+	financialsLink,
+	fmpSymbol,
+	previewOf,
+	queryCompanies,
+	type CompanyData
+} from './companies';
 
 const data: CompanyData = {
 	generated: '2026-10-25',
@@ -140,5 +149,21 @@ describe('displayName', () => {
 	it('is applied to the rows', () => {
 		const d: CompanyData = { ...data, companies: [['ING Groep N.V. (ENXTAM:INGA)', 'ENXTAM:INGA', '6022', 0, 0, 0, 0, 0]] };
 		expect(queryCompanies(d, {}).rows[0].name).toBe('ING Groep N.V.');
+	});
+});
+
+describe('previewOf', () => {
+	it('keeps the first 20 rows as a single page and the total', () => {
+		const many: CompanyData = {
+			...data,
+			companies: Array.from({ length: PAGE_SIZE + 5 }, (_, i) => [`Co ${String(i).padStart(3, '0')}`, '', '', 0, 0, 0, 0, 0])
+		};
+		const full = queryCompanies(many, {});
+		const preview = previewOf(full);
+		expect(PREVIEW_ROWS).toBe(20);
+		expect(preview.rows).toHaveLength(20);
+		expect(preview.rows[0].name).toBe('Co 000');
+		expect(preview.total).toBe(PAGE_SIZE + 5);
+		expect([preview.page, preview.pages]).toEqual([1, 1]);
 	});
 });

@@ -57,6 +57,13 @@ const exchangeOf = (ticker: string): string => (ticker.includes(':') ? ticker.sl
 
 export const PAGE_SIZE = 50;
 
+/** What anonymous visitors see of the list: the first rows of the unfiltered list, as one page. */
+export const PREVIEW_ROWS = 20;
+
+export function previewOf(result: CompanyPage): CompanyPage {
+	return { ...result, rows: result.rows.slice(0, PREVIEW_ROWS), page: 1, pages: 1 };
+}
+
 /** NYU's names end with the ticker (`ABN Amro Bank N.V. (ENXTAM:ABN)`); the table has its own ticker column, so drop the repeat. */
 export const displayName = (name: string, ticker: string): string =>
 	ticker && name.endsWith(` (${ticker})`) ? name.slice(0, -(ticker.length + 3)) : name;
