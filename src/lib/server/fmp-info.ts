@@ -27,6 +27,12 @@ export interface NewsItem {
 	url: string | null;
 }
 
+export interface PricePoint {
+	date: string;
+	close: number;
+	volume: number | null;
+}
+
 export const NEWS_LIMIT = 20;
 const NEWS_PATH = 'news/stock';
 const SNIPPET_MAX = 300;
@@ -87,6 +93,23 @@ export function parseNews(body: unknown): NewsItem[] {
 	return items;
 }
 
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+export function parsePrices(body: unknown): PricePoint[] {
+	throwIfErrorBody(body);
+	if (!Array.isArray(body)) throw unexpected();
+	const points: PricePoint[] = [];
+	for (const entry of body) {
+		if (!entry || typeof entry !== 'object') continue;
+		const rec = entry as Record<string, unknown>;
+		const date = str(rec.date);
+		const close = num(rec.close);
+		if (!date || !ISO_DATE.test(date) || close === null) continue;
+		points.push({ date, close, volume: num(rec.volume) });
+	}
+	return points.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+}
+
 export async function fetchProfile(
 	symbol: string,
 	apiKey: string,
@@ -101,4 +124,14 @@ export async function fetchNews(
 	fetchFn: typeof fetch = fetch
 ): Promise<NewsItem[]> {
 	return parseNews(await fmpGet(NEWS_PATH, { symbols: symbol, limit: String(NEWS_LIMIT) }, apiKey, fetchFn));
+}
+
+export async function fetchPrices(
+	symbol: string,
+	apiKey: string,
+	from: string,
+	to: string,
+	fetchFn: typeof fetch = fetch
+): Promise<PricePoint[]> {
+	return parsePrices(await fmpGet('historical-price-eod/full', { symbol, from, to }, apiKey, fetchFn));
 }

@@ -1,7 +1,7 @@
 // src/lib/server/fmp-info.test.ts
 import { describe, expect, it, vi } from 'vitest';
 import { FmpError } from './fmp';
-import { fetchNews, fetchProfile, parseNews, parseProfile } from './fmp-info';
+import { fetchNews, fetchPrices, fetchProfile, parseNews, parsePrices, parseProfile } from './fmp-info';
 
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status });
 
@@ -149,5 +149,71 @@ describe('fetchProfile / fetchNews', () => {
 		expect(await kind(402)).toBe('plan');
 		expect(await kind(429)).toBe('limit');
 		expect(await kind(500)).toBe('unavailable');
+	});
+});
+
+describe('parsePrices', () => {
+	const row = { symbol: 'AAPL', date: '2026-10-23', open: 1, high: 2, low: 0.5, close: 189.5, volume: 1_234_567 };
+	it('maps records and sorts oldest first', () => {
+		const points = parsePrices([
+			{ ...row, date: '2026-10-23', close: 190 },
+			{ ...row, date: '2026-10-21', close: 188 },
+			{ ...row, date: '2026-10-22', close: '189.25', volume: null }
+		]);
+		expect(points).toEqual([
+			{ date: '2026-10-21', close: 188, volume: 1_234_567 },
+			{ date: '2026-10-22', close: 189.25, volume: null },
+			{ date: '2026-10-23', close: 190, volume: 1_234_567 }
+		]);
+	});
+	it('drops records without an ISO date or a numeric close', () => {
+		const points = parsePrices([
+			row,
+			{ ...row, date: '23/10/2026' },
+			{ ...row, date: undefined },
+			{ ...row, date: '2026-10-22', close: 'abc' },
+			{ ...row, date: '2026-10-21', close: null },
+			null,
+			'x'
+		]);
+		expect(points.map((p) => p.date)).toEqual(['2026-10-23']);
+	});
+	it('treats a non-numeric volume as null', () => {
+		expect(parsePrices([{ ...row, volume: 'many' }])[0].volume).toBeNull();
+	});
+	it('returns [] for an empty list, maps an FMP error body and rejects other shapes', () => {
+		expect(parsePrices([])).toEqual([]);
+		expect(() => parsePrices({ 'Error Message': 'Invalid API KEY.' })).toThrowError(FmpError);
+		expect(() => parsePrices({ nope: 1 })).toThrowError(/Unexpected response/);
+	});
+});
+
+describe('fetchPrices', () => {
+	it('requests the history endpoint with symbol and date range', async () => {
+		const fetchFn = vi.fn().mockImplementation(async () => json([]));
+		await fetchPrices('AAPL', 'KEY', '2025-10-26', '2026-10-26', fetchFn);
+		const url = new URL(fetchFn.mock.calls[0][0] as string);
+		expect(url.pathname).toBe('/stable/historical-price-eod/full');
+		expect(url.searchParams.get('symbol')).toBe('AAPL');
+		expect(url.searchParams.get('from')).toBe('2025-10-26');
+		expect(url.searchParams.get('to')).toBe('2026-10-26');
+		expect(url.searchParams.get('apikey')).toBe('KEY');
+	});
+	it('never leaks the key in an error message', async () => {
+		const secret = 'SUPERSECRETKEY';
+		const cases: Array<() => Promise<Response>> = [
+			async () => json({ 'Error Message': `bad request https://x/y?apikey=${secret}` }, 400),
+			async () => {
+				throw new Error(`connect failed https://financialmodelingprep.com/stable/x?apikey=${secret}`);
+			},
+			async () => new Response('not json', { status: 200 })
+		];
+		for (const make of cases) {
+			const error = await fetchPrices('AAPL', secret, '2025-10-26', '2026-10-26', vi.fn().mockImplementation(make)).catch(
+				(e: unknown) => e
+			);
+			expect(error).toBeInstanceOf(FmpError);
+			expect((error as Error).message).not.toContain(secret);
+		}
 	});
 });
