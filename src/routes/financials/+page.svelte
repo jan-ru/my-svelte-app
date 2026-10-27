@@ -82,7 +82,7 @@
 							{#if periodAvailable(source, p.id)}
 								<a href={navHref({ ...nav, period: p.id }, data.symbol)} aria-current={period === p.id ? 'page' : undefined}>{p.label}</a>
 							{:else}
-								<span class="disabled" aria-disabled="true" title="Trailing twelve months is not available from {sourceLabel(source)}. Choose Yahoo Finance.">{p.label}</span>
+								<span class="disabled" aria-disabled="true" title="Trailing twelve months is not available from {sourceLabel(source)}. Choose Yahoo.">{p.label}</span>
 							{/if}
 						{/each}
 					</nav>
