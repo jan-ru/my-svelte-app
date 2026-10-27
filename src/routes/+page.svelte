@@ -167,7 +167,7 @@
 	{#if data.loadError}
 		<p class="notice" role="alert">
 			{data.loadError}
-			<a href="{page.url.pathname}{page.url.search}" data-sveltekit-reload>Try again</a>
+			<a href={data.interactive ? `${page.url.pathname}${page.url.search}` : '/'} data-sveltekit-reload>Try again</a>
 		</p>
 	{:else if !ready}
 		<p class="notice">Pick at least one multiple, region and industry.</p>
@@ -180,7 +180,7 @@
 
 		<p class="peers">
 			Companies in
-			{#each selection.industries as name, i (name)}{i > 0 ? ', ' : ''}<a href={`/companies?industry=${encodeURIComponent(name)}`}>{name}</a>{/each}
+			{#each selection.industries as name, i (name)}{i > 0 ? ', ' : ''}{#if data.interactive}<a href={`/companies?industry=${encodeURIComponent(name)}`}>{name}</a>{:else}{name}{/if}{/each}
 		</p>
 
 		<div class="panels" class:single={data.model.panels.length === 1}>

@@ -130,7 +130,9 @@
 							<td>{#if c.sic}{#if data.interactive}<a href={narrow('sic', c.sic)}><code>{c.sic}</code></a>{:else}<code>{c.sic}</code>{/if}{/if}</td>
 							<td>
 								{@render cell('industry', c.industry)}
-								<a class="src" href={`/?i=${encodeURIComponent(c.industry)}`} aria-label={`Multiples for ${c.industry}`} title="Valuation multiples for this industry">multiples</a>
+								{#if data.interactive}
+									<a class="src" href={`/?i=${encodeURIComponent(c.industry)}`} aria-label={`Multiples for ${c.industry}`} title="Valuation multiples for this industry">multiples</a>
+								{/if}
 							</td>
 							<td>{@render cell('sector', c.sector)}</td>
 							<td>{@render cell('region', c.region)}</td>
