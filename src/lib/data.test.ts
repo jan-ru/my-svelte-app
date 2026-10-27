@@ -14,18 +14,20 @@ describe('companies.json', () => {
 	});
 
 	it('has well-formed rows with indices that exist', () => {
-		for (const [name, ticker, sic, industry, country, region] of people.companies) {
+		for (const [name, ticker, sic, industry, country, region, sector, subGroup] of people.companies) {
 			expect(name).not.toBe('');
 			expect(typeof ticker).toBe('string');
 			expect(sic).toMatch(/^(\d{4})?$/);
 			expect(people.industries[industry]).toBeDefined();
 			expect(people.countries[country]).toBeDefined();
 			expect(people.groups[region]).toBeDefined();
+			expect(people.sectors[sector]).toBeDefined();
+			expect(people.subGroups[subGroup]).toBeDefined();
 		}
 	});
 
 	it('has no duplicate dictionary entries', () => {
-		for (const list of [people.industries, people.countries, people.groups]) {
+		for (const list of [people.industries, people.countries, people.groups, people.sectors, people.subGroups]) {
 			expect(new Set(list).size).toBe(list.length);
 		}
 	});

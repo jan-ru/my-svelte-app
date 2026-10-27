@@ -6,8 +6,10 @@ export interface CompanyData {
 	industries: string[];
 	countries: string[];
 	groups: string[];
-	/** [name, ticker, sic, industry index, country index, region index] */
-	companies: [string, string, string, number, number, number][];
+	sectors: string[];
+	subGroups: string[];
+	/** [name, ticker, sic, industry index, country index, region index, sector index, sub group index] */
+	companies: [string, string, string, number, number, number, number, number][];
 }
 
 export interface Company {
