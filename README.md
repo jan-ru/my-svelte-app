@@ -38,14 +38,19 @@ It needs three environment variables:
 - `FMP_API_KEY`: your FMP key.
 - `SITE_PASSWORD`: the shared password you give to the people who may use the page.
 - `SESSION_SECRET`: signs the login cookie. Generate one with `openssl rand -base64 32`.
+- `ISR_BYPASS_TOKEN`: random string of at least 32 characters (`openssl rand -hex 32`). It makes the public pages (Multiples, Find industry, Companies, About) a cached static copy for anonymous visitors; logging in sets a cookie that skips the cache. Unset or shorter than 32 characters turns the cache off (the site still works). Set it for Production and Preview and redeploy after changing it, because the token is read at build time and at runtime.
 
 On Vercel, add them as shared (team-level) variables and link them to the project for Production and Preview. Locally, put them in a `.env` file (see `.env.example`; `.env` is gitignored). They are declared in `src/env.ts` and read on the server only through `$app/env/private`, so a new variable must be added to `src/env.ts` first. If `SITE_PASSWORD` or `SESSION_SECRET` is unset, nobody can log in.
 
-Login sets a signed, HTTP-only cookie that lasts 7 days. Logging out only clears the cookie in that browser; a copied cookie stays valid until it expires. To log everyone out, change `SESSION_SECRET`; to stop new logins with the old password, change `SITE_PASSWORD`. Failed logins are rate limited per IP, best effort only, because the counter lives in each serverless instance. When testing the login with `curl`, send `Accept: text/html`, or SvelteKit answers form actions with JSON.
+Login sets a signed, HTTP-only cookie that lasts 7 days and applies to the whole site (path `/`); when `ISR_BYPASS_TOKEN` is usable, a second cookie, `__prerender_bypass`, is set with it. Logging out only clears the cookie in that browser; a copied cookie stays valid until it expires. To log everyone out, change `SESSION_SECRET`; to stop new logins with the old password, change `SITE_PASSWORD`. Failed logins are rate limited per IP, best effort only, because the counter lives in each serverless instance. When testing the login with `curl`, send `Accept: text/html`, or SvelteKit answers form actions with JSON.
 
 The page is never cached publicly (`Cache-Control: private, no-store`). Limits: one shared password cannot tell users apart or revoke one person; which tickers work depends on your FMP plan (unsupported ones get a message); FMP's terms may restrict sharing its data; and Yahoo's terms target personal use, so check both before giving anyone the password and do not redistribute the data.
 
 The page has vertical tabs (Financials, News, Stock Price, Company Data) and, under Financials, tabs for the income statement, balance sheet and cash flow statement plus a Latest 5 years / TTM toggle. The choices live in the URL (`tab`, `statement`, `period`, next to `symbol`), so a view can be bookmarked or shared. Company Data shows the company profile from the active source (cached 24 h) and News the latest 20 articles for the ticker (cached 15 min); links to articles and websites open in a new tab and only http(s) URLs are linked. Stock Price shows the last close, day change, 52-week high and low and volume (end-of-day, not live) with a line chart of the last year of daily closes, from one call to the active source, cached for 1 h. TTM is only available with Yahoo (grayed out with FMP); the TTM balance sheet is the latest annual balance sheet. News on Yahoo is matched by company name and is looser than FMP's.
+
+### Public and logged-in
+
+Anonymous visitors see the default view of Multiples, Find industry, Companies (the first 20 companies) and About, cached for a day. They cannot use filters, search or paging; the URL parameters are ignored. The same shared password unlocks interactive versions of every page. `/financials` is unchanged. `robots.txt` disallows crawlers.
 
 ## How it works
 

@@ -1,6 +1,6 @@
 # Public static site, interactive after login
 
-Date: 2026-10-27. Status: draft, pending owner review.
+Date: 2026-10-27. Status: approved; implemented (see PR).
 Builds on `2026-10-25-financials-page-design.md` (shared password, HMAC session cookie, fail-closed rules).
 
 ## Goal
