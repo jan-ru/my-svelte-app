@@ -3,6 +3,7 @@
 	import { MAX_SELECTION, MULTIPLES, REGIONS, type Role } from '#lib/catalog';
 	import { LOW_FIRMS_THRESHOLD, PALETTE, formatMultiple } from '#lib/chart';
 	import GroupedBarChart from '#lib/components/GroupedBarChart.svelte';
+	import LoginPrompt from '#lib/components/LoginPrompt.svelte';
 	import { applyRole } from '#lib/params';
 	import type { PageProps } from './$types';
 
@@ -70,94 +71,98 @@
 			data updated {updatedLabel}{/if}.
 	</p>
 
-	<form method="GET" data-sveltekit-replacestate data-sveltekit-keepfocus data-sveltekit-noscroll {onchange}>
-		<div class="controls">
-			<fieldset class="industries">
-				<legend>Industries <span class="count">{selection.industries.length} of {MAX_SELECTION}</span></legend>
-				<input type="hidden" name="i" value="" />
-				<div class="chips">
-					{#each selection.industries as name (name)}
-						<label class="chip">
-							<input type="checkbox" name="i" value={name} checked />
-							{name} <span aria-hidden="true">✕</span><span class="sr-only">remove</span>
-						</label>
-					{/each}
-				</div>
-				<input
-					type="search"
-					placeholder="Search industries…"
-					aria-label="Search industries"
-					data-nosubmit
-					bind:value={filter}
-				/>
-				<div class="list">
-					{#each visible as name (name)}
-						<label>
-							<input type="checkbox" name="i" value={name} disabled={isFull(selection.industries)} />
-							{name}
-						</label>
-					{:else}
-						<p class="hint">No matching industries.</p>
-					{/each}
-				</div>
-				<p class="hint"><a href="/classification">Don't know the industry? Find it from an SBI code.</a></p>
-			</fieldset>
-			<fieldset>
-				<legend>Multiples <span class="count">{selection.multiples.length} of {MAX_SELECTION}</span></legend>
-				<input type="hidden" name="m" value="" />
-				{#each MULTIPLES as multiple (multiple.id)}
-					{@const checked = selection.multiples.includes(multiple.id)}
-					<label>
-						<input
-							type="checkbox"
-							name="m"
-							value={multiple.id}
-							{checked}
-							disabled={!checked && isFull(selection.multiples)}
-						/>
-						{multiple.label}
-					</label>
-				{/each}
-			</fieldset>
-
-			<fieldset>
-				<legend>Regions <span class="count">{selection.regions.length} of {MAX_SELECTION}</span></legend>
-				<input type="hidden" name="r" value="" />
-				{#each REGIONS as region (region.id)}
-					{@const checked = selection.regions.includes(region.id)}
-					<label>
-						<input
-							type="checkbox"
-							name="r"
-							value={region.id}
-							{checked}
-							disabled={!checked && isFull(selection.regions)}
-						/>
-						{region.label}
-					</label>
-				{/each}
-			</fieldset>
-
-		</div>
-
-		<details class="pivot">
-			<summary>Chart options</summary>
-			<div class="pivot-controls">
-			{#each layoutControls as control (control.name)}
-				<label>
-					{control.label}
-					<select name={control.name}>
-						{#each roles as role (role.id)}
-							<option value={role.id} selected={layout[control.key] === role.id}>{role.label}</option>
+	{#if data.interactive}
+		<form method="GET" data-sveltekit-replacestate data-sveltekit-keepfocus data-sveltekit-noscroll {onchange}>
+			<div class="controls">
+				<fieldset class="industries">
+					<legend>Industries <span class="count">{selection.industries.length} of {MAX_SELECTION}</span></legend>
+					<input type="hidden" name="i" value="" />
+					<div class="chips">
+						{#each selection.industries as name (name)}
+							<label class="chip">
+								<input type="checkbox" name="i" value={name} checked />
+								{name} <span aria-hidden="true">✕</span><span class="sr-only">remove</span>
+							</label>
 						{/each}
-					</select>
-				</label>
-			{/each}
-			</div>
-		</details>
+					</div>
+					<input
+						type="search"
+						placeholder="Search industries…"
+						aria-label="Search industries"
+						data-nosubmit
+						bind:value={filter}
+					/>
+					<div class="list">
+						{#each visible as name (name)}
+							<label>
+								<input type="checkbox" name="i" value={name} disabled={isFull(selection.industries)} />
+								{name}
+							</label>
+						{:else}
+							<p class="hint">No matching industries.</p>
+						{/each}
+					</div>
+					<p class="hint"><a href="/classification">Don't know the industry? Find it from an SBI code.</a></p>
+				</fieldset>
+				<fieldset>
+					<legend>Multiples <span class="count">{selection.multiples.length} of {MAX_SELECTION}</span></legend>
+					<input type="hidden" name="m" value="" />
+					{#each MULTIPLES as multiple (multiple.id)}
+						{@const checked = selection.multiples.includes(multiple.id)}
+						<label>
+							<input
+								type="checkbox"
+								name="m"
+								value={multiple.id}
+								{checked}
+								disabled={!checked && isFull(selection.multiples)}
+							/>
+							{multiple.label}
+						</label>
+					{/each}
+				</fieldset>
 
-		<noscript><button type="submit">Update</button></noscript>
-	</form>
+				<fieldset>
+					<legend>Regions <span class="count">{selection.regions.length} of {MAX_SELECTION}</span></legend>
+					<input type="hidden" name="r" value="" />
+					{#each REGIONS as region (region.id)}
+						{@const checked = selection.regions.includes(region.id)}
+						<label>
+							<input
+								type="checkbox"
+								name="r"
+								value={region.id}
+								{checked}
+								disabled={!checked && isFull(selection.regions)}
+							/>
+							{region.label}
+						</label>
+					{/each}
+				</fieldset>
+
+			</div>
+
+			<details class="pivot">
+				<summary>Chart options</summary>
+				<div class="pivot-controls">
+				{#each layoutControls as control (control.name)}
+					<label>
+						{control.label}
+						<select name={control.name}>
+							{#each roles as role (role.id)}
+								<option value={role.id} selected={layout[control.key] === role.id}>{role.label}</option>
+							{/each}
+						</select>
+					</label>
+				{/each}
+				</div>
+			</details>
+
+			<noscript><button type="submit">Update</button></noscript>
+		</form>
+	{:else}
+		<LoginPrompt from="/">to change the selection and the chart options.</LoginPrompt>
+	{/if}
 
 	{#if data.loadError}
 		<p class="notice" role="alert">
