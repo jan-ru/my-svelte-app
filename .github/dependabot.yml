@@ -5,3 +5,7 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
+    ignore:
+      # Stay on the Node 24 (LTS) type definitions until the Node pin in package.json and CI is moved on purpose.
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
