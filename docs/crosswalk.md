@@ -28,4 +28,4 @@ The same page also goes from a Damodaran industry to SBI 2025 classes. It starts
 
 ## Company list
 
-`npm run build:companies -- <path-to-indname.xls>` writes `src/lib/data/companies.json` (about 3.4 MB, 1 MB gzipped): name, ticker, SIC code, industry, country and region for each of the 48,156 companies, with the repeated text stored once in lookup lists. The `/companies` page reads it on the server only. Rebuild it, together with the crosswalk, when NYU publishes a new `indname.xls`. NYU states no licence terms on the pages consulted; check them before redistributing the file beyond this repository.
+`npm run build:companies -- <path-to-indname.xls>` writes `src/lib/data/companies.json` (about 3.6 MB): name, ticker, SIC code, industry, country, region, primary sector and sub group for each of the 48,156 companies, with the repeated text stored once in lookup lists. The `/companies` page reads it on the server only. Rebuild it, together with the crosswalk, when NYU publishes a new `indname.xls`. NYU states no licence terms on the pages consulted; check them before redistributing the file beyond this repository.
