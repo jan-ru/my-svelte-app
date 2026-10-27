@@ -1,13 +1,14 @@
 <!-- src/routes/financials/+page.svelte -->
 <script lang="ts">
 	import type { PageProps } from './$types';
+	import LineChart from '#lib/components/LineChart.svelte';
 	import { formatNewsDate, profileFields } from '#lib/company';
 	import { PERIODS, STATEMENTS, TABS, navHref } from '#lib/financials-nav';
+	import { formatPrice, formatSigned, formatVolume, summarise } from '#lib/prices';
 
 	let { data, form }: PageProps = $props();
 	const view = $derived(data.view);
 	const nav = $derived(data.nav);
-	const tabLabel = $derived(TABS.find((t) => t.id === nav.tab)?.label ?? '');
 </script>
 
 <svelte:head>
@@ -66,10 +67,7 @@
 					</nav>
 				{/if}
 
-				{#if view.state === 'soon'}
-					<h2>{tabLabel}</h2>
-					<p>Coming soon.</p>
-				{:else if view.state === 'unconfigured'}
+				{#if view.state === 'unconfigured'}
 					<p class="error" role="alert">The FMP key is not configured on this deployment.</p>
 				{:else if view.state === 'invalid'}
 					<p class="error" role="alert">That is not a valid ticker. Use letters, digits, dots and dashes, for example BRK-B.</p>
@@ -109,6 +107,48 @@
 								</li>
 							{/each}
 						</ul>
+					{:else}
+						<p>{view.message}</p>
+					{/if}
+				{:else if view.state === 'price'}
+					<h2 class="symbol">{view.symbol}</h2>
+					{#if view.points.length > 0}
+						{@const s = summarise(view.points)!}
+						<p class="meta">Last close, {s.date}. End-of-day prices, not live.</p>
+						<dl class="quote">
+							<div><dt>Close</dt><dd>{formatPrice(s.close)}</dd></div>
+							{#if s.change !== null}
+								<div>
+									<dt>Day change</dt>
+									<dd class:up={s.change > 0} class:down={s.change < 0}>
+										{formatSigned(s.change)}{#if s.changePct !== null} ({formatSigned(s.changePct)}%){/if}
+									</dd>
+								</div>
+							{/if}
+							<div><dt>52-week high</dt><dd>{formatPrice(s.high)}</dd></div>
+							<div><dt>52-week low</dt><dd>{formatPrice(s.low)}</dd></div>
+							{#if s.volume !== null}<div><dt>Volume</dt><dd>{formatVolume(s.volume)}</dd></div>{/if}
+						</dl>
+						<LineChart points={view.points} />
+						<details>
+							<summary>Show data</summary>
+							<div class="scroll tall">
+								<table>
+									<thead>
+										<tr><th scope="col">Date</th><th scope="col" class="num">Close</th><th scope="col" class="num">Volume</th></tr>
+									</thead>
+									<tbody>
+										{#each [...view.points].reverse() as p (p.date)}
+											<tr>
+												<th scope="row">{p.date}</th>
+												<td class="num">{formatPrice(p.close)}</td>
+												<td class="num">{p.volume === null ? '' : formatVolume(p.volume)}</td>
+											</tr>
+										{/each}
+									</tbody>
+								</table>
+							</div>
+						</details>
 					{:else}
 						<p>{view.message}</p>
 					{/if}
@@ -178,6 +218,14 @@
 	.news li { padding: 0.8rem 0; border-bottom: 1px solid #ddd; }
 	.news h3 { margin: 0 0 0.2rem; font-size: 1rem; }
 	.meta { margin: 0 0 0.3rem; color: #555; font-size: 0.85rem; }
+	.quote { display: flex; flex-wrap: wrap; gap: 0.5rem 2rem; margin: 0.8rem 0 1rem; }
+	.quote div { display: flex; flex-direction: column; }
+	.quote dt { color: #555; font-size: 0.85rem; }
+	.quote dd { margin: 0; font-size: 1.15rem; font-variant-numeric: tabular-nums; }
+	.up { color: #0a6b3a; }
+	.down { color: #b00020; }
+	.tall { max-height: 24rem; overflow-y: auto; }
+	details { margin-top: 1rem; }
 	@media (max-width: 40rem) {
 		.layout { grid-template-columns: 1fr; }
 		.side ul { flex-direction: row; flex-wrap: wrap; }

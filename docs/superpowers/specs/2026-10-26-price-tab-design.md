@@ -1,6 +1,6 @@
 # Financials page: Stock Price tab
 
-Date: 2026-10-26. Status: design approved in conversation, pending written-spec review.
+Date: 2026-10-26. Status: design and spec approved by the owner.
 Builds on `2026-10-26-financials-tabs-design.md` (tabs, URL state), `2026-10-26-company-and-news-tabs-design.md` (shared `fmpGet`, `fmp-info.ts` pattern) and `2026-10-25-financials-page-design.md` (auth and key rules).
 
 ## Goal
