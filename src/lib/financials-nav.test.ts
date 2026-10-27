@@ -60,6 +60,18 @@ describe('login round trip', () => {
 		expect(afterLogin(q('symbol=//evil.com&next=https://evil.com'))).toBe('/financials');
 		expect(afterLogin(q('symbol=X&tab=//evil.com')).startsWith('/financials?')).toBe(true);
 	});
+	it('carries the page to come back to on the login action', () => {
+		expect(loginAction(nav, '', '/companies')).toBe('?/login&from=%2Fcompanies');
+		expect(loginAction(nav, 'AAPL', '/about')).toBe('?/login&symbol=AAPL&tab=price&statement=balance&period=ttm&from=%2Fabout');
+		expect(loginAction(nav, '', null)).toBe('?/login');
+	});
+	it('goes back to an allowed page without a ticker, never to an unlisted one', () => {
+		expect(afterLogin(q('from=%2Fcompanies'))).toBe('/companies');
+		expect(afterLogin(q('from=//evil.com'))).toBe('/financials');
+		expect(afterLogin(q('from=https://evil.com'))).toBe('/financials');
+		// the ticker still wins when both are present
+		expect(afterLogin(q('symbol=aapl&from=%2Fcompanies'))).toBe('/financials?symbol=AAPL&tab=financials&statement=income&period=annual');
+	});
 });
 
 describe('source parameter', () => {
