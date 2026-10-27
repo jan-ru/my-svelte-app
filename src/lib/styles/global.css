@@ -1,0 +1,51 @@
+/* Base element styles on top of tokens.css. Pages keep their own scoped <style> for layout. */
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; font-family: var(--font-sans); font-size: var(--text-base); line-height: var(--leading-normal); color: var(--text-primary); background: var(--surface-page); }
+h1 { font-size: var(--text-2xl); font-weight: var(--weight-semibold); line-height: var(--leading-tight); letter-spacing: var(--tracking-tight); color: var(--text-primary); margin: var(--space-6) 0 var(--space-2); }
+h2 { font-size: var(--text-xl); font-weight: var(--weight-semibold); line-height: var(--leading-snug); margin: var(--space-6) 0 var(--space-2); }
+h3 { font-size: var(--text-lg); font-weight: var(--weight-semibold); line-height: var(--leading-snug); margin: var(--space-4) 0 var(--space-2); }
+a { color: var(--text-link); text-underline-offset: 2px; }
+a:hover { color: var(--color-primary-hover); }
+:focus-visible { outline: var(--focus-ring) solid var(--border-focus); outline-offset: 2px; }
+code { font-family: var(--font-mono); font-size: 0.9em; }
+small { color: var(--text-secondary); }
+abbr[title] { text-decoration: underline dotted; text-underline-offset: 2px; }
+
+button, input, select, textarea { font: inherit; color: inherit; }
+input:not([type='checkbox']):not([type='radio']):not([type='hidden']), select {
+	min-height: 32px; padding: 5px 10px; background: var(--white);
+	border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
+	transition: border-color var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-standard);
+}
+input:not([type='checkbox']):not([type='radio']):focus-visible, select:focus-visible { outline: none; border-color: var(--border-focus); box-shadow: var(--shadow-focus); }
+input:disabled, select:disabled { background: var(--grey-02); color: var(--text-disabled); cursor: not-allowed; }
+input[type='checkbox'], input[type='radio'] { accent-color: var(--color-primary); }
+label:has(> input:disabled) { color: var(--text-disabled); }
+
+/* Default button: white with blue text. Submit buttons are the emphasized (blue) action. */
+button {
+	display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+	min-height: 32px; padding: 5px 14px; font-weight: var(--weight-semibold); line-height: 1;
+	color: var(--color-primary); background: var(--white);
+	border: 1px solid var(--border-strong); border-radius: var(--radius-sm); cursor: pointer;
+	transition: background var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard);
+}
+button:hover { background: var(--blue-05); border-color: var(--color-primary); }
+button[type='submit'] { color: var(--text-on-primary); background: var(--color-primary); border-color: var(--color-primary); }
+button[type='submit']:hover { background: var(--color-primary-hover); border-color: var(--color-primary-hover); }
+button[type='submit']:active { background: var(--color-primary-active); }
+button:disabled { color: var(--text-disabled); background: var(--grey-03); border-color: var(--grey-04); cursor: not-allowed; }
+
+fieldset { margin: 0; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); background: var(--surface-card); }
+legend { padding: 0 var(--space-1); font-weight: var(--weight-semibold); }
+
+table { border-collapse: collapse; font-variant-numeric: tabular-nums; }
+th, td { padding: 5px 10px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--border-subtle); }
+thead th { font-weight: var(--weight-semibold); background: var(--surface-group); border-bottom: 2px solid var(--border-strong); white-space: nowrap; }
+tbody th { font-weight: var(--weight-medium); }
+tbody tr:hover { background: var(--surface-hover); }
+
+summary { cursor: pointer; color: var(--text-link); font-weight: var(--weight-medium); }
+summary:hover { color: var(--color-primary-hover); }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }

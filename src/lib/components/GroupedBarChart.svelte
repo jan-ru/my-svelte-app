@@ -93,28 +93,10 @@
 </svg>
 
 <style>
-	svg {
-		width: 100%;
-		height: auto;
-		display: block;
-	}
-	.gridline {
-		stroke: #ddd;
-		stroke-width: 1;
-	}
-	.gridline.zero {
-		stroke: #666;
-	}
-	.tick {
-		font-size: 11px;
-		fill: #555;
-	}
-	.category {
-		font-size: 11px;
-		fill: #222;
-	}
-	.na {
-		font-size: 9px;
-		fill: #888;
-	}
+	svg { width: 100%; height: auto; display: block; font-family: var(--font-sans); }
+	.gridline { stroke: var(--border-subtle); stroke-width: 1; }
+	.gridline.zero { stroke: var(--grey-07); }
+	.tick { font-size: 11px; fill: var(--text-secondary); font-variant-numeric: tabular-nums; }
+	.category { font-size: 11px; fill: var(--text-primary); }
+	.na { font-size: 9px; fill: var(--text-disabled); }
 </style>

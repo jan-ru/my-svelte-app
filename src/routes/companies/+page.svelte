@@ -113,15 +113,15 @@
 </main>
 
 <style>
-	.src { color: #666; font-size: 0.75rem; margin-left: 0.3rem; }
-	main { max-width: 64rem; margin: 0 auto; padding: 0 1rem 3rem; }
-	form { display: flex; gap: 0.5rem 1rem; align-items: center; flex-wrap: wrap; margin: 1rem 0; }
-	select, input[type='search'] { padding: 0.4rem 0.5rem; max-width: 100%; }
-	table { border-collapse: collapse; width: 100%; }
-	th, td { text-align: left; padding: 0.3rem 0.6rem; border-bottom: 1px solid #ddd; }
-	.note { color: #595959; }
-	.pager { display: flex; gap: 1rem; padding: 1rem 0; }
-	code { font-size: 0.9em; }
-	.button { display: inline-block; padding: 0.15rem 0.6rem; border: 1px solid #3730a3; border-radius: 0.3rem; color: #3730a3; text-decoration: none; font-size: 0.85rem; }
-	.button:hover, .button:focus-visible { background: #3730a3; color: #fff; }
+	.src { margin-left: var(--space-1); color: var(--text-secondary); font-size: var(--text-xs); }
+	main { max-width: 64rem; margin: 0 auto; padding: 0 var(--space-4) var(--space-12); }
+	form { display: flex; gap: var(--space-2) var(--space-4); align-items: center; flex-wrap: wrap; margin: var(--space-4) 0; padding: var(--space-3) var(--space-4); background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
+	select, input[type='search'] { max-width: 100%; }
+	table { width: 100%; font-size: var(--text-sm); background: var(--surface-card); }
+	.note { color: var(--text-secondary); }
+	.pager { display: flex; gap: var(--space-2); padding: var(--space-4) 0; }
+	.pager a { padding: 5px 14px; font-weight: var(--weight-semibold); text-decoration: none; background: var(--white); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); }
+	.pager a:hover { background: var(--blue-05); border-color: var(--color-primary); }
+	.button { display: inline-block; padding: 2px 10px; font-size: var(--text-sm); font-weight: var(--weight-semibold); color: var(--color-primary); text-decoration: none; background: var(--white); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); }
+	.button:hover, .button:focus-visible { color: var(--text-on-primary); background: var(--color-primary); border-color: var(--color-primary); }
 </style>

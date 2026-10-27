@@ -210,144 +210,36 @@
 </main>
 
 <style>
-	main {
-		max-width: 80rem;
-		margin: 0 auto;
-		padding: 0 1rem 3rem;
-	}
-	h1 {
-		color: #ff3e00;
-		font-weight: 300;
-		margin-bottom: 0.25rem;
-	}
-	.source {
-		margin-top: 0;
-		color: #555;
-	}
-	.controls {
-		display: grid;
-		grid-template-columns: 1fr 1fr 1.4fr;
-		gap: 1rem;
-		align-items: start;
-	}
-	fieldset {
-		border: 1px solid #ccc;
-		border-radius: 6px;
-		padding: 0.5rem 0.75rem 0.75rem;
-	}
-	fieldset > label {
-		display: block;
-		line-height: 1.6;
-	}
-	.count,
-	.hint {
-		color: #777;
-		font-size: 0.85em;
-	}
-	.chips {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.4rem;
-		margin-bottom: 0.5rem;
-	}
-	.sr-only {
-		position: absolute;
-		width: 1px;
-		height: 1px;
-		overflow: hidden;
-		clip-path: inset(50%);
-		white-space: nowrap;
-	}
-	.chip {
-		position: relative;
-		background: #e8f0fe;
-		border-radius: 1rem;
-		padding: 0.1rem 0.6rem;
-		cursor: pointer;
-	}
-	.chip:focus-within {
-		outline: 2px solid #1a56db;
-		outline-offset: 2px;
-	}
-	.chip input {
-		position: absolute;
-		opacity: 0;
-		pointer-events: none;
-	}
-	.industries input[type='search'] {
-		width: 100%;
-		box-sizing: border-box;
-		margin-bottom: 0.4rem;
-	}
-	.list {
-		max-height: 11rem;
-		overflow-y: auto;
-		border-top: 1px solid #eee;
-	}
-	.list label {
-		display: block;
-		line-height: 1.5;
-	}
-	.pivot {
-		display: flex;
-		align-items: center;
-		gap: 1rem;
-		margin: 1rem 0;
-	}
-	.label {
-		font-weight: 600;
-	}
-	.legend {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 1.25rem;
-		list-style: none;
-		padding: 0;
-	}
-	.swatch {
-		display: inline-block;
-		width: 0.9rem;
-		height: 0.9rem;
-		margin-right: 0.4rem;
-		vertical-align: -0.1rem;
-	}
-	.panels {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: 1.5rem;
-	}
-	.panels.single {
-		grid-template-columns: minmax(0, 40rem);
-	}
-	h2 {
-		font-size: 1.1rem;
-		margin: 0 0 0.25rem;
-	}
-	details {
-		margin-top: 0.5rem;
-	}
-	table {
-		border-collapse: collapse;
-		margin-top: 0.5rem;
-		font-size: 0.9rem;
-	}
-	th,
-	td {
-		padding: 0.2rem 0.6rem;
-		text-align: right;
-		border-bottom: 1px solid #eee;
-	}
-	th:first-child {
-		text-align: left;
-	}
-	.notice {
-		padding: 1rem;
-		border: 1px solid #ccc;
-		border-radius: 6px;
-		background: #fafafa;
-	}
-	.footnote {
-		color: #555;
-		font-size: 0.9rem;
-	}
+	main { max-width: 80rem; margin: 0 auto; padding: 0 var(--space-4) var(--space-12); }
+	h1 { margin-bottom: var(--space-1); }
+	.source { margin-top: 0; color: var(--text-secondary); }
+	.controls { display: grid; grid-template-columns: 1fr 1fr 1.4fr; gap: var(--space-4); align-items: start; }
+	fieldset { padding: var(--space-2) var(--space-3) var(--space-3); }
+	fieldset > label { display: block; line-height: 1.8; }
+	.count, .hint { color: var(--text-secondary); font-size: var(--text-sm); font-weight: var(--weight-regular); }
+	.chips { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-2); }
+	.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+	.chip { position: relative; display: inline-flex; align-items: center; gap: var(--space-1); padding: 2px 10px; font-size: var(--text-sm); color: var(--blue-80); background: var(--information-bg); border: 1px solid var(--information-border); border-radius: var(--radius-pill); cursor: pointer; }
+	.chip:hover { background: var(--blue-10); }
+	.chip:focus-within { outline: var(--focus-ring) solid var(--border-focus); outline-offset: 2px; }
+	.chip input { position: absolute; opacity: 0; pointer-events: none; }
+	.industries input[type='search'] { width: 100%; margin-bottom: var(--space-2); }
+	.list { max-height: 11rem; overflow-y: auto; border-top: 1px solid var(--border-subtle); }
+	.list label { display: block; line-height: 1.7; }
+	.pivot { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-4); margin: var(--space-4) 0; padding: var(--space-2) var(--space-4); background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
+	.pivot label { display: inline-flex; align-items: center; gap: var(--space-2); font-size: var(--text-sm); }
+	.label { font-weight: var(--weight-semibold); }
+	.legend { display: flex; flex-wrap: wrap; gap: var(--space-5); list-style: none; padding: 0; font-size: var(--text-sm); }
+	.swatch { display: inline-block; width: 0.9rem; height: 0.9rem; margin-right: 0.4rem; vertical-align: -0.1rem; border-radius: var(--radius-xs); }
+	.panels { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-6); }
+	.panels.single { grid-template-columns: minmax(0, 40rem); }
+	section { padding: var(--space-4); background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); box-shadow: var(--shadow-1); }
+	h2 { font-size: var(--text-md); margin: 0 0 var(--space-1); }
+	details { margin-top: var(--space-2); }
+	table { margin-top: var(--space-2); font-size: var(--text-sm); }
+	th, td { text-align: right; }
+	th:first-child { text-align: left; }
+	.notice { padding: var(--space-3) var(--space-4); background: var(--information-bg); border: 1px solid var(--information-border); border-left: 4px solid var(--information); border-radius: var(--radius-sm); }
+	.notice[role='alert'] { background: var(--negative-bg); border-color: var(--negative-border); border-left-color: var(--negative); }
+	.footnote { color: var(--text-secondary); font-size: var(--text-sm); }
 </style>

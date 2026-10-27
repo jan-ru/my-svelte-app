@@ -179,22 +179,20 @@
 </main>
 
 <style>
-	main { max-width: 56rem; margin: 0 auto; padding: 0 1rem 3rem; }
-	.lede { font-size: 1.05rem; }
-	.caveat { background: #fff7e0; border-left: 4px solid #e69f00; padding: 0.6rem 0.9rem; }
-	form { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; margin: 1rem 0; }
-	input[type='search'] { flex: 1 1 18rem; padding: 0.4rem 0.5rem; }
+	main { max-width: 56rem; margin: 0 auto; padding: 0 var(--space-4) var(--space-12); }
+	.lede { font-size: var(--text-md); }
+	.caveat { padding: var(--space-3) var(--space-4); background: var(--critical-bg); border-left: 4px solid var(--critical); border-radius: var(--radius-sm); }
+	form { display: flex; gap: var(--space-2); align-items: center; flex-wrap: wrap; margin: var(--space-4) 0; }
+	input[type='search'] { flex: 1 1 18rem; }
 	.results { padding-left: 1.2rem; }
-	details { margin: 0.5rem 0; }
-	summary { cursor: pointer; font-weight: 600; }
-	.count, .note { color: #595959; font-weight: 400; }
-	table { border-collapse: collapse; width: 100%; }
-	th, td { text-align: left; padding: 0.3rem 0.6rem; border-bottom: 1px solid #ddd; }
-	.num { text-align: right; font-variant-numeric: tabular-nums; }
-	select { padding: 0.4rem 0.5rem; max-width: 100%; }
-	.glossary { margin: 1rem 0; }
-	dl { display: grid; grid-template-columns: max-content 1fr; gap: 0.3rem 1rem; margin: 0.5rem 0 0; }
-	dt { font-weight: 600; }
+	details { margin: var(--space-2) 0; }
+	summary { font-weight: var(--weight-semibold); color: var(--text-primary); }
+	.count, .note { color: var(--text-secondary); font-weight: var(--weight-regular); }
+	table { width: 100%; font-size: var(--text-sm); background: var(--surface-card); }
+	.num { text-align: right; font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+	select { max-width: 100%; }
+	.glossary { margin: var(--space-4) 0; padding: var(--space-3) var(--space-4); background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
+	dl { display: grid; grid-template-columns: max-content 1fr; gap: var(--space-1) var(--space-4); margin: var(--space-2) 0 0; }
+	dt { font-weight: var(--weight-semibold); }
 	dd { margin: 0; }
-	code { font-size: 0.9em; }
 </style>
