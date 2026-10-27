@@ -6,12 +6,14 @@ const data: CompanyData = {
 	industries: ['Banks', 'Steel'],
 	countries: ['Netherlands', 'Japan'],
 	groups: ['Developed Europe', 'Japan'],
+	sectors: ['Financials', 'Materials'],
+	subGroups: ['EU & Environs', 'Japan'],
 	companies: [
-		['ABN Amro Bank N.V.', 'ENXTAM:ABN', '6021', 0, 0, 0],
-		['ING Groep N.V.', 'ENXTAM:INGA', '6022', 0, 0, 0],
-		['Mizuho Financial Group', 'TSE:8411', '6020', 0, 1, 1],
-		['Tata Steel Nederland', 'X:TATA', '3312', 1, 0, 0],
-		['Nippon Steel', 'TSE:5401', '3312', 1, 1, 1]
+		['ABN Amro Bank N.V.', 'ENXTAM:ABN', '6021', 0, 0, 0, 0, 0],
+		['ING Groep N.V.', 'ENXTAM:INGA', '6022', 0, 0, 0, 0, 0],
+		['Mizuho Financial Group', 'TSE:8411', '6020', 0, 1, 1, 0, 1],
+		['Tata Steel Nederland', 'X:TATA', '3312', 1, 0, 0, 1, 0],
+		['Nippon Steel', 'TSE:5401', '3312', 1, 1, 1, 1, 1]
 	]
 };
 
@@ -48,7 +50,7 @@ describe('queryCompanies', () => {
 	it('pages the results and clamps the page number', () => {
 		const many: CompanyData = {
 			...data,
-			companies: Array.from({ length: PAGE_SIZE + 5 }, (_, i) => [`Co ${String(i).padStart(3, '0')}`, '', '', 0, 0, 0])
+			companies: Array.from({ length: PAGE_SIZE + 5 }, (_, i) => [`Co ${String(i).padStart(3, '0')}`, '', '', 0, 0, 0, 0, 0])
 		};
 		const second = queryCompanies(many, { page: 2 });
 		expect(second.pages).toBe(2);
