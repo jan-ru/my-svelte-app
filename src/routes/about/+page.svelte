@@ -28,27 +28,7 @@
 </main>
 
 <style>
-	main {
-		max-width: 40rem;
-		margin: 0 auto;
-		padding: 0 1rem 2rem;
-		line-height: 1.6;
-	}
-
-	h1 {
-		color: #ff3e00;
-		font-weight: 300;
-	}
-
-	h2 {
-		margin-top: 2rem;
-		font-size: 1.2rem;
-	}
-
-	.logo {
-		display: block;
-		height: 2.5rem;
-		width: auto;
-		margin-top: 1rem;
-	}
+	main { max-width: 40rem; margin: 0 auto; padding: 0 var(--space-4) var(--space-8); line-height: 1.6; }
+	h2 { margin-top: var(--space-8); font-size: var(--text-lg); }
+	.logo { display: block; height: 2.5rem; width: auto; margin-top: var(--space-4); }
 </style>
