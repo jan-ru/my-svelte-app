@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { PAGE_SIZE, financialsLink, fmpSymbol, queryCompanies, type CompanyData } from './companies';
+import { PAGE_SIZE, displayName, financialsLink, fmpSymbol, queryCompanies, type CompanyData } from './companies';
 
 const data: CompanyData = {
 	generated: '2026-10-25',
@@ -27,7 +27,8 @@ describe('queryCompanies', () => {
 			sic: '6021',
 			industry: 'Banks',
 			country: 'Netherlands',
-			region: 'Developed Europe'
+			region: 'Developed Europe',
+			sector: 'Financials'
 		});
 	});
 	it('filters by industry and by SIC code', () => {
@@ -52,6 +53,13 @@ describe('queryCompanies', () => {
 	it('does not count a ticker without an exchange as one', () => {
 		const bare: CompanyData = { ...data, companies: [['No Exchange Ltd', 'NOCODE', '', 0, 0, 0, 0, 0]] };
 		expect(queryCompanies(bare, {}).distinct.exchanges).toBe(0);
+	});
+	it('filters by region and by sector, alone and together with the other filters', () => {
+		expect(queryCompanies(data, { region: 'Japan' }).rows.map((c) => c.name)).toEqual(['Mizuho Financial Group', 'Nippon Steel']);
+		expect(queryCompanies(data, { sector: 'Materials' }).rows.map((c) => c.name)).toEqual(['Tata Steel Nederland', 'Nippon Steel']);
+		expect(queryCompanies(data, { region: 'Japan', sector: 'Materials' }).rows.map((c) => c.name)).toEqual(['Nippon Steel']);
+		expect(queryCompanies(data, { region: 'Nope' }).total).toBe(0);
+		expect(queryCompanies(data, { sector: 'Nope' }).total).toBe(0);
 	});
 	it('matches nothing for an unknown industry or country', () => {
 		expect(queryCompanies(data, { industry: 'Nope' }).total).toBe(0);
@@ -120,5 +128,17 @@ describe('financialsLink', () => {
 	});
 	it('keeps a US-style symbol with a request for Yahoo for foreign companies listed on a US exchange', () => {
 		expect(financialsLink(row('NYSE:TM', 'Japan'))).toBe('/financials?symbol=TM&source=yahoo');
+	});
+});
+
+describe('displayName', () => {
+	it('drops the ticker NYU appends to the name, only when it matches', () => {
+		expect(displayName('ABN Amro Bank N.V. (ENXTAM:ABN)', 'ENXTAM:ABN')).toBe('ABN Amro Bank N.V.');
+		expect(displayName('ABN Amro Bank N.V. (ENXTAM:ABN)', 'TSE:1')).toBe('ABN Amro Bank N.V. (ENXTAM:ABN)');
+		expect(displayName('Everlert, Inc.', '')).toBe('Everlert, Inc.');
+	});
+	it('is applied to the rows', () => {
+		const d: CompanyData = { ...data, companies: [['ING Groep N.V. (ENXTAM:INGA)', 'ENXTAM:INGA', '6022', 0, 0, 0, 0, 0]] };
+		expect(queryCompanies(d, {}).rows[0].name).toBe('ING Groep N.V.');
 	});
 });

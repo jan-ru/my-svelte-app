@@ -5,6 +5,14 @@
 
 	let { data }: PageProps = $props();
 
+	/** The current filters with one more (or changed) value, back on page 1: clicking a cell narrows the list. */
+	const narrow = (key: string, value: string) => {
+		const sp = new URLSearchParams();
+		for (const [k, v] of Object.entries({ ...data.filters, [key]: value })) if (v) sp.set(k, v);
+		return `/companies?${sp}`;
+	};
+	const filtered = $derived(Object.values(data.filters).some(Boolean));
+
 	const plural = (n: number, one: string, many: string) => `${n.toLocaleString('en')} ${n === 1 ? one : many}`;
 
 	const href = (page: number, without?: string) => {
@@ -37,6 +45,22 @@
 			{/each}
 		</select>
 
+		<label for="sector">Sector</label>
+		<select id="sector" name="sector">
+			<option value="">All sectors</option>
+			{#each data.sectors as name (name)}
+				<option value={name} selected={name === data.filters.sector}>{name}</option>
+			{/each}
+		</select>
+
+		<label for="region">Region</label>
+		<select id="region" name="region">
+			<option value="">All regions</option>
+			{#each data.regions as name (name)}
+				<option value={name} selected={name === data.filters.region}>{name}</option>
+			{/each}
+		</select>
+
 		<label for="country">Country</label>
 		<select id="country" name="country">
 			<option value="">All countries</option>
@@ -50,6 +74,7 @@
 
 		{#if data.filters.sic}<input type="hidden" name="sic" value={data.filters.sic} />{/if}
 		<button type="submit">Show</button>
+		{#if filtered}<a class="button" href="/companies">Reset filters</a>{/if}
 	</form>
 
 	{#if data.filters.sic}
@@ -77,7 +102,8 @@
 				<thead>
 					<tr>
 						<th scope="col">Company</th><th scope="col">Ticker</th><th scope="col">SIC</th>
-						<th scope="col">Industry</th><th scope="col">Country</th><th scope="col">Financials</th>
+						<th scope="col">Industry</th><th scope="col">Sector</th><th scope="col">Region</th>
+						<th scope="col">Country</th><th scope="col">Financials</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -91,9 +117,14 @@
 									<small class="src" title={`${q.source === 'YF' ? 'Yahoo' : 'Google'} Finance${q.search ? ' search' : ''}`}>{q.source}{q.search ? ' search' : ''}</small>
 								{:else}{c.ticker}{/if}
 							</td>
-							<td>{#if c.sic}<a href={`/companies?sic=${c.sic}`}><code>{c.sic}</code></a>{/if}</td>
-							<td><a href={`/companies?industry=${encodeURIComponent(c.industry)}`}>{c.industry}</a></td>
-							<td>{c.country}</td>
+							<td>{#if c.sic}<a href={narrow('sic', c.sic)}><code>{c.sic}</code></a>{/if}</td>
+							<td>
+								<a href={narrow('industry', c.industry)}>{c.industry}</a>
+								<a class="src" href={`/?i=${encodeURIComponent(c.industry)}`} aria-label={`Multiples for ${c.industry}`}>multiples</a>
+							</td>
+							<td><a href={narrow('sector', c.sector)}>{c.sector}</a></td>
+							<td><a href={narrow('region', c.region)}>{c.region}</a></td>
+							<td><a href={narrow('country', c.country)}>{c.country}</a></td>
 							<td>
 								{#if financialsLink(c)}
 									<a class="button" href={financialsLink(c)} aria-label={`Financials for ${c.name}`}>Financials</a>
