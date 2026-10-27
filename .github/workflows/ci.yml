@@ -20,5 +20,21 @@ jobs:
       - run: npm ci
       - run: npm run check
       - run: npm run check:ts-only
-      - run: npm test
+      - run: npm run test:coverage
       - run: npm run build
+      # runtime dependencies only; dev tooling advisories don't ship to users
+      - run: npm audit --omit=dev --audit-level=high
+
+  # Not part of the required `test` check: Lighthouse scores wobble on shared runners, so it reports without blocking merges.
+  lighthouse:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      # serves the production build with `vite preview` and audits the public pages (see lighthouserc.json)
+      - run: npx --yes @lhci/cli@0.15.1 autorun

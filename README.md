@@ -67,6 +67,8 @@ Pages are served with a Content-Security-Policy (script hashes, no framing, same
 
 The code is TypeScript only (`.ts` files and `<script lang="ts">`), type-checked in strict mode. `npm run check` and `npm run check:ts-only` run in CI. The same rules for contributors and agents are in `CLAUDE.md`.
 
+CI also enforces a coverage floor on `src/lib` (`npm run test:coverage`) and runs `npm audit --omit=dev --audit-level=high` on runtime dependencies. A separate, non-required `lighthouse` job audits the public pages (home, classification, companies, about) on the production build with Lighthouse CI (`lighthouserc.json`): accessibility, best practices and SEO must score at least 0.9 for the job to pass, performance at least 0.8 as a warning.
+
 ## Getting started
 
 Prerequisites: [Node.js](https://nodejs.org) 24.x (pinned in `package.json` under `engines`) and npm.
@@ -88,6 +90,7 @@ The dev server runs at <http://localhost:5173>.
 | `npm run build`      | Create a production build                                          |
 | `npm run preview`    | Preview the production build locally                               |
 | `npm test`           | Run the unit tests (no network)                                    |
+| `npm run test:coverage` | Run the tests with a coverage report; fails below the floor in `vitest.config.ts` |
 | `npm run check`      | Type-check the code with svelte-check (strict)                     |
 | `npm run check:ts-only` | Fail if the repository contains JavaScript source               |
 | `npm run build:crosswalk` / `build:companies` | Regenerate the data files (see `docs/crosswalk.md`) |
