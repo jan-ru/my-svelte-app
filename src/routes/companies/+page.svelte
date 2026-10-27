@@ -85,7 +85,10 @@
 								{:else}{c.ticker}{/if}
 							</td>
 							<td>{#if c.sic}<a href={`/companies?sic=${c.sic}`}><code>{c.sic}</code></a>{/if}</td>
-							<td><a href={`/companies?industry=${encodeURIComponent(c.industry)}`}>{c.industry}</a></td>
+							<td>
+								<a href={`/companies?industry=${encodeURIComponent(c.industry)}`}>{c.industry}</a>
+								<a class="src" href={`/?i=${encodeURIComponent(c.industry)}`} title="Valuation multiples for this industry">multiples</a>
+							</td>
 							<td>{c.country}</td>
 							<td>
 								{#if financialsLink(c)}
@@ -100,6 +103,7 @@
 			{#if data.result.pages > 1}
 				<nav class="pager" aria-label="Pages">
 					{#if data.result.page > 1}<a href={href(data.result.page - 1)} rel="prev">Previous</a>{/if}
+					<span class="note">Page {data.result.page} of {data.result.pages}</span>
 					{#if data.result.page < data.result.pages}<a href={href(data.result.page + 1)} rel="next">Next</a>{/if}
 				</nav>
 			{/if}
@@ -119,7 +123,7 @@
 	select, input[type='search'] { max-width: 100%; }
 	table { width: 100%; font-size: var(--text-sm); background: var(--surface-card); }
 	.note { color: var(--text-secondary); }
-	.pager { display: flex; gap: var(--space-2); padding: var(--space-4) 0; }
+	.pager { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-4) 0; }
 	.pager a { padding: 5px 14px; font-weight: var(--weight-semibold); text-decoration: none; background: var(--white); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); }
 	.pager a:hover { background: var(--blue-05); border-color: var(--color-primary); }
 	.button { display: inline-block; padding: 2px 10px; font-size: var(--text-sm); font-weight: var(--weight-semibold); color: var(--color-primary); text-decoration: none; background: var(--white); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); }

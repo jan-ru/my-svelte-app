@@ -58,7 +58,7 @@
 </script>
 
 <svelte:head>
-	<title>Fetch valuation multiples</title>
+	<title>Valuation multiples by industry – Fetch valuation multiples</title>
 	<meta name="description" content="Compare NYU Stern industry valuation multiples across regions." />
 </svelte:head>
 
@@ -72,6 +72,36 @@
 
 	<form method="GET" data-sveltekit-replacestate data-sveltekit-keepfocus data-sveltekit-noscroll {onchange}>
 		<div class="controls">
+			<fieldset class="industries">
+				<legend>Industries <span class="count">{selection.industries.length} of {MAX_SELECTION}</span></legend>
+				<input type="hidden" name="i" value="" />
+				<div class="chips">
+					{#each selection.industries as name (name)}
+						<label class="chip">
+							<input type="checkbox" name="i" value={name} checked />
+							{name} <span aria-hidden="true">✕</span><span class="sr-only">remove</span>
+						</label>
+					{/each}
+				</div>
+				<input
+					type="search"
+					placeholder="Search industries…"
+					aria-label="Search industries"
+					data-nosubmit
+					bind:value={filter}
+				/>
+				<div class="list">
+					{#each visible as name (name)}
+						<label>
+							<input type="checkbox" name="i" value={name} disabled={isFull(selection.industries)} />
+							{name}
+						</label>
+					{:else}
+						<p class="hint">No matching industries.</p>
+					{/each}
+				</div>
+				<p class="hint"><a href="/classification">Don't know the industry? Find it from an SBI code.</a></p>
+			</fieldset>
 			<fieldset>
 				<legend>Multiples <span class="count">{selection.multiples.length} of {MAX_SELECTION}</span></legend>
 				<input type="hidden" name="m" value="" />
@@ -108,39 +138,11 @@
 				{/each}
 			</fieldset>
 
-			<fieldset class="industries">
-				<legend>Industries <span class="count">{selection.industries.length} of {MAX_SELECTION}</span></legend>
-				<input type="hidden" name="i" value="" />
-				<div class="chips">
-					{#each selection.industries as name (name)}
-						<label class="chip">
-							<input type="checkbox" name="i" value={name} checked />
-							{name} <span aria-hidden="true">✕</span><span class="sr-only">remove</span>
-						</label>
-					{/each}
-				</div>
-				<input
-					type="search"
-					placeholder="Search industries…"
-					aria-label="Search industries"
-					data-nosubmit
-					bind:value={filter}
-				/>
-				<div class="list">
-					{#each visible as name (name)}
-						<label>
-							<input type="checkbox" name="i" value={name} disabled={isFull(selection.industries)} />
-							{name}
-						</label>
-					{:else}
-						<p class="hint">No matching industries.</p>
-					{/each}
-				</div>
-			</fieldset>
 		</div>
 
-		<div class="pivot">
-			<span class="label">Chart layout</span>
+		<details class="pivot">
+			<summary>Chart options</summary>
+			<div class="pivot-controls">
 			{#each layoutControls as control (control.name)}
 				<label>
 					{control.label}
@@ -151,7 +153,8 @@
 					</select>
 				</label>
 			{/each}
-		</div>
+			</div>
+		</details>
 
 		<noscript><button type="submit">Update</button></noscript>
 	</form>
@@ -169,6 +172,11 @@
 				<li><span class="swatch" style:background={PALETTE[i]}></span>{name}</li>
 			{/each}
 		</ul>
+
+		<p class="peers">
+			Companies in
+			{#each selection.industries as name, i (name)}{i > 0 ? ', ' : ''}<a href={`/companies?industry=${encodeURIComponent(name)}`}>{name}</a>{/each}
+		</p>
 
 		<div class="panels" class:single={data.model.panels.length === 1}>
 			{#each data.model.panels as panel, index (panel.key)}
@@ -213,7 +221,7 @@
 	main { max-width: 80rem; margin: 0 auto; padding: 0 var(--space-4) var(--space-12); }
 	h1 { margin-bottom: var(--space-1); }
 	.source { margin-top: 0; color: var(--text-secondary); }
-	.controls { display: grid; grid-template-columns: 1fr 1fr 1.4fr; gap: var(--space-4); align-items: start; }
+	.controls { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: var(--space-4); align-items: start; }
 	fieldset { padding: var(--space-2) var(--space-3) var(--space-3); }
 	fieldset > label { display: block; line-height: 1.8; }
 	.count, .hint { color: var(--text-secondary); font-size: var(--text-sm); font-weight: var(--weight-regular); }
@@ -226,9 +234,10 @@
 	.industries input[type='search'] { width: 100%; margin-bottom: var(--space-2); }
 	.list { max-height: 11rem; overflow-y: auto; border-top: 1px solid var(--border-subtle); }
 	.list label { display: block; line-height: 1.7; }
-	.pivot { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-4); margin: var(--space-4) 0; padding: var(--space-2) var(--space-4); background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
+	.pivot { margin: var(--space-4) 0; padding: var(--space-2) var(--space-4); background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
+	.pivot-controls { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-4); padding-top: var(--space-2); }
 	.pivot label { display: inline-flex; align-items: center; gap: var(--space-2); font-size: var(--text-sm); }
-	.label { font-weight: var(--weight-semibold); }
+	.peers { margin: 0 0 var(--space-3); font-size: var(--text-sm); color: var(--text-secondary); }
 	.legend { display: flex; flex-wrap: wrap; gap: var(--space-5); list-style: none; padding: 0; font-size: var(--text-sm); }
 	.swatch { display: inline-block; width: 0.9rem; height: 0.9rem; margin-right: 0.4rem; vertical-align: -0.1rem; border-radius: var(--radius-xs); }
 	.panels { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-6); }
