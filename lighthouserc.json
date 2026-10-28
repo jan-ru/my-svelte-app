@@ -8,6 +8,7 @@
         "http://localhost:4173/classification",
         "http://localhost:4173/companies",
         "http://localhost:4173/countries",
+        "http://localhost:4173/industries",
         "http://localhost:4173/about"
       ],
       "numberOfRuns": 1,
