@@ -16,6 +16,8 @@ export const ISR_ALLOW_QUERY = [
 	'm', 'r', 'i', 'p', 'x', 'c',
 	// Find industry and Companies
 	'q', 'code', 'industry', 'sic', 'country', 'region', 'sector', 'page',
+	// Countries and Industries
+	'measure',
 	// SvelteKit data requests
 	'x-sveltekit-invalidated', 'x-sveltekit-trailing-slash'
 ] as const;
