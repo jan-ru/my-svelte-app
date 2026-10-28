@@ -52,7 +52,5 @@
 <style>
 	form { display: flex; gap: var(--space-2) var(--space-4); align-items: flex-start; flex-wrap: wrap; margin: var(--space-4) 0; padding: var(--space-3) var(--space-4); background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
 	select { max-width: 100%; }
-	.button { display: inline-block; padding: 2px 10px; font-size: var(--text-sm); font-weight: var(--weight-semibold); color: var(--color-primary); text-decoration: none; background: var(--white); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); }
-	.button:hover, .button:focus-visible { color: var(--text-on-primary); background: var(--color-primary); border-color: var(--color-primary); }
 	.hint { flex-basis: 100%; margin: 0; color: var(--text-secondary); font-size: var(--text-sm); }
 </style>
