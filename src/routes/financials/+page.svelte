@@ -2,6 +2,8 @@
 <script lang="ts">
 	import type { PageProps } from './$types';
 	import LineChart from '#lib/components/LineChart.svelte';
+	import SideLayout from '#lib/components/SideLayout.svelte';
+	import SideMenu from '#lib/components/SideMenu.svelte';
 	import { formatNewsDate, profileFields } from '#lib/company';
 	import { SOURCES, effectivePeriod, isUsListing, periodAvailable, resolveSource, sourceLabel } from '#lib/source';
 	import { PERIODS, STATEMENTS, TABS, loginAction, navHref } from '#lib/financials-nav';
@@ -21,21 +23,26 @@
 	<meta name="robots" content="noindex" />
 </svelte:head>
 
+<SideLayout>
+	{#snippet menu()}
+		<SideMenu label="Sections" items={TABS.map((t) => ({ href: navHref({ ...nav, period, tab: t.id }, data.symbol), label: t.label, current: nav.tab === t.id }))} />
+	{/snippet}
 <main>
-	<div class="head">
-		<h1>{heading}</h1>
-		{#if view.state !== 'locked'}<form method="POST" action="?/logout"><button type="submit">Log out</button></form>{/if}
-	</div>
+	<h1>{heading}</h1>
 
 	{#if view.state === 'locked'}
-		<p>This page is password protected.</p>
+		<p class="note">
+			Profile, news, stock prices and the financial statements of one company, from Financial Modeling Prep and Yahoo Finance.
+			Enter a ticker such as AAPL, or ABN.AS for a listing outside the US.
+		</p>
 		{#if !data.configured}
 			<p class="error" role="alert">This page is not configured on this deployment.</p>
 		{:else}
-			<form method="POST" action={loginAction(nav, data.symbol, data.from)}>
+			<form id="login" class="login" method="POST" action={loginAction(nav, data.symbol, data.from)}>
 				<label for="password">Password</label>
 				<input id="password" name="password" type="password" autocomplete="current-password" required />
 				<button type="submit">Log in</button>
+				<span class="hint">to look up a company; the other pages show their data without a login.</span>
 			</form>
 		{/if}
 		{#if form?.message}<p class="error" role="alert">{form.message}</p>{/if}
@@ -52,16 +59,6 @@
 			</form>
 		</div>
 
-		<div class="layout">
-			<nav class="side" aria-label="Sections">
-				<ul>
-					{#each TABS as t (t.id)}
-						<li><a href={navHref({ ...nav, period, tab: t.id }, data.symbol)} aria-current={nav.tab === t.id ? 'page' : undefined}>{t.label}</a></li>
-					{/each}
-				</ul>
-			</nav>
-
-			<div class="content">
 				{#if data.symbol}
 					{#if isUsListing(data.symbol)}
 						<nav class="source" aria-label="Data source">
@@ -205,30 +202,21 @@
 						{/if}
 					</section>
 				{/if}
-			</div>
-		</div>
 	{/if}
 </main>
+</SideLayout>
 
 <style>
-	main { max-width: 72rem; margin: 0 auto; padding: 0 var(--space-4) var(--space-12); }
+	main { min-width: 0; padding: 0 0 var(--space-12); }
+	.note, .hint { color: var(--text-secondary); }
+	.login { margin: var(--space-4) 0; padding: var(--space-3) var(--space-4); background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
 	.bar { display: flex; gap: var(--space-4); justify-content: space-between; flex-wrap: wrap; align-items: center; }
 	form { display: flex; gap: var(--space-2); align-items: center; flex-wrap: wrap; margin: var(--space-4) 0; }
-	form[action='?/logout'] button { color: var(--color-primary); background: var(--white); border-color: var(--border-strong); }
-	form[action='?/logout'] button:hover { background: var(--blue-05); border-color: var(--color-primary); }
 	table { width: 100%; font-size: var(--text-sm); }
 	.num { text-align: right; font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
 	small { font-weight: var(--weight-regular); }
 	.error { padding: var(--space-2) var(--space-3); color: var(--negative); background: var(--negative-bg); border-left: 4px solid var(--negative); border-radius: var(--radius-sm); }
-	.head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); flex-wrap: wrap; }
-	.head form { margin: var(--space-6) 0 var(--space-2); }
-	.layout { display: grid; grid-template-columns: 11rem 1fr; gap: var(--space-6); align-items: start; }
-	.side { padding: var(--space-2) 0; background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
-	.side ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
-	.side a, .tabs a, .period a { padding: 6px 14px; text-decoration: none; color: inherit; }
-	.side a { display: block; border-left: 3px solid transparent; }
-	.side a:hover { background: var(--surface-hover); }
-	.side a[aria-current='page'] { font-weight: var(--weight-semibold); color: var(--blue-80); background: var(--blue-05); border-left-color: var(--color-primary); }
+	.tabs a, .period a { padding: 6px 14px; text-decoration: none; color: inherit; }
 	.tabs { display: flex; flex-wrap: wrap; gap: var(--space-1); border-bottom: 1px solid var(--border-subtle); }
 	.tabs a { border-bottom: 3px solid transparent; margin-bottom: -1px; }
 	.tabs a:hover { color: var(--color-primary); }
@@ -237,8 +225,7 @@
 	.period a:hover { background: var(--blue-05); }
 	.period a[aria-current='page'] { color: var(--text-on-primary); background: var(--color-primary); }
 	.period .disabled { padding: 6px 14px; color: var(--text-disabled); background: var(--grey-02); cursor: not-allowed; }
-	.content { min-width: 0; }
-	.content h2 { font-size: var(--text-lg); margin: var(--space-4) 0 var(--space-2); }
+	main h2 { font-size: var(--text-lg); margin: var(--space-4) 0 var(--space-2); }
 	.scroll { overflow-x: auto; background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
 	.facts { display: grid; grid-template-columns: max-content 1fr; gap: var(--space-1) var(--space-4); margin: var(--space-4) 0; }
 	.facts dt { font-weight: var(--weight-semibold); color: var(--text-secondary); }
@@ -261,8 +248,4 @@
 	.source a:hover { background: var(--blue-05); }
 	.source a[aria-current='page'] { color: var(--text-on-primary); background: var(--color-primary); border-color: var(--color-primary); }
 	.source-note { margin: 0 0 var(--space-3); font-weight: var(--weight-semibold); }
-	@media (max-width: 40rem) {
-	.layout { grid-template-columns: 1fr; }
-	.side ul { flex-direction: row; flex-wrap: wrap; }
-	}
 </style>
