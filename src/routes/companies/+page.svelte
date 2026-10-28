@@ -175,6 +175,4 @@
 	.pager { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-4) 0; }
 	.pager a { padding: 5px 14px; font-weight: var(--weight-semibold); text-decoration: none; background: var(--white); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); }
 	.pager a:hover { background: var(--blue-05); border-color: var(--color-primary); }
-	.button { display: inline-block; padding: 2px 10px; font-size: var(--text-sm); font-weight: var(--weight-semibold); color: var(--color-primary); text-decoration: none; background: var(--white); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); }
-	.button:hover, .button:focus-visible { color: var(--text-on-primary); background: var(--color-primary); border-color: var(--color-primary); }
 </style>
