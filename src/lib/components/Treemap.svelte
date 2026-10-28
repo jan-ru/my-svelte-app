@@ -37,6 +37,7 @@
 	);
 	const percent = (value: number) => formatPercent(total > 0 ? (100 * value) / total : 0);
 	// role="img" would hide the links from assistive technology, so linked treemaps are a labelled group instead
+
 	const linked = $derived(items.some((i) => i.href));
 
 	// the tile under the pointer, in focus or touched: its full name and share are shown under the map
@@ -45,7 +46,7 @@
 	const readout = $derived(
 		activeItem
 			? `${activeItem.label}: ${format(activeItem.value)} ${measureLabel} (${percent(activeItem.value)} of global)`
-			: 'Hover over, focus or tap a tile for its name and share.'
+			: (linked ? 'Click a tile to select it, or a selected tile to remove it. Hover or focus a tile for its name and share.' : 'Hover over, focus or tap a tile for its name and share.')
 	);
 	const LINE = 12;
 </script>
@@ -62,6 +63,7 @@
 		width={r.w}
 		height={r.h}
 		fill={item.fill ?? '#B3D6FF'}
+		fill-opacity={selected.length > 0 && !on ? 0.45 : 1}
 		stroke={on ? '#1D2D3E' : '#FFFFFF'}
 		stroke-width={on ? 3 : 2}
 	/>
