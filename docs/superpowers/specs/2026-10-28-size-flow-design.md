@@ -1,4 +1,4 @@
-# Macro / meso / micro size flow (countries, industries, companies versus global)
+# Macro / meso size flow (countries and industries versus global)
 
 Date: 2026-10-28. Status: draft, pending owner review.
 Source: the owner's handover `handover-macro-meso-micro-v2.md` (reduced scope), refined in conversation. Builds on `2026-10-27-static-public-site-design.md` (anonymous static, interactive after login) and on `companies.json`, which already has regions, sectors and sub groups (#38).
@@ -12,7 +12,7 @@ Show the absolute number and the percentage of one, several or all countries and
 | Topic | Decision |
 |---|---|
 | Data | Only what we have: the NYU company list (`companies.json`, 48,156 companies) plus World Bank GDP. No FMP, no Yahoo, no market cap, no Damodaran aggregates. |
-| Who sees what | Anonymous visitors see the default view of each page (cached, as the other public pages). The drill-down (selection, measure toggle, company level) needs the login. Same rule as the rest of the site: `locals.interactive`, `pageParams`, ISR. |
+| Who sees what | Anonymous visitors see the default view of each page (cached, as the other public pages). The drill-down (selection and measure toggle) needs the login. Same rule as the rest of the site: `locals.interactive`, `pageParams`, ISR. |
 | Links | Rows and tiles link to other pages with query strings (`/companies?country=...&industry=...`) only when interactive; the list of companies behind a tile is the existing Companies page. Anonymous pages contain no link to a query variant. |
 | Treemap | Hand-drawn SVG with a squarified layout in a pure, tested function. No `d3` dependency. |
 | Measures | Country: companies or GDP (toggle). Sector, industry, region: companies only. The measure is labelled on every chart; industries never show dollars. |
