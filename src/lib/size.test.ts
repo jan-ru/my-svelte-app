@@ -4,6 +4,8 @@ import type { CompanyData } from './companies';
 import {
 	COUNTRY_FILL,
 	SECTOR_FILLS,
+	SECTOR_STRONG,
+	readableOn,
 	countBy,
 	crossCell,
 	dominantSector,
@@ -88,6 +90,22 @@ describe('sector colours', () => {
 	});
 	it('uses distinct colours for the sectors', () => {
 		expect(new Set(Object.values(SECTOR_FILLS)).size).toBe(Object.keys(SECTOR_FILLS).length);
+	});
+	it('keeps every pair of strong sector colours well apart, and the header text readable on each', () => {
+		const rgb = (hex: string) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+		const colours = Object.values(SECTOR_STRONG);
+		for (let i = 0; i < colours.length; i++) {
+			for (let j = i + 1; j < colours.length; j++) {
+				const [a, b] = [rgb(colours[i]), rgb(colours[j])];
+				expect(Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2])).toBeGreaterThanOrEqual(45);
+			}
+			const text = readableOn(colours[i]);
+			const [hi, lo] = [Math.max(luminance(text), luminance(colours[i])), Math.min(luminance(text), luminance(colours[i]))];
+			expect((hi + 0.05) / (lo + 0.05)).toBeGreaterThanOrEqual(4.5);
+		}
+	});
+	it('has a strong colour for every real sector', () => {
+		for (const s of (real as unknown as CompanyData).sectors) expect(SECTOR_STRONG).toHaveProperty(s);
 	});
 });
 

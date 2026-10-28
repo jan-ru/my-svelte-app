@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { fit, squarify, wrap } from './size-treemap';
+import { fit, nest, squarify, wrap } from './size-treemap';
 
 const area = (r: { w: number; h: number }) => r.w * r.h;
 const items = [
@@ -67,5 +67,43 @@ describe('wrap', () => {
 		expect(wrap('Electronics', 40, 2).every((l) => l.length <= 5)).toBe(true);
 		expect(wrap('Japan', 20, 2)).toEqual([]);
 		expect(wrap('Japan', 100, 0)).toEqual([]);
+	});
+});
+
+describe('nest', () => {
+	const items = [
+		{ id: 'a', value: 30, group: 'X' },
+		{ id: 'b', value: 10, group: 'X' },
+		{ id: 'c', value: 40, group: 'Y' },
+		{ id: 'd', value: 20, group: 'Y' }
+	];
+	const { groups, tiles } = nest(items, 400, 200, 18, 2);
+	it('sizes the groups by their totals and covers the canvas', () => {
+		expect(groups).toHaveLength(2);
+		const area = (g: { w: number; h: number }) => g.w * g.h;
+		const x = groups.find((g) => g.id === 'X')!;
+		const y = groups.find((g) => g.id === 'Y')!;
+		expect(area(y) / area(x)).toBeCloseTo(60 / 40, 6);
+		expect(x.value).toBe(40);
+		expect(area(x) + area(y)).toBeCloseTo(400 * 200, 6);
+	});
+	it('puts every tile inside its group, below the header strip', () => {
+		expect(tiles).toHaveLength(4);
+		for (const t of tiles) {
+			const g = groups.find((gr) => gr.id === items.find((i) => i.id === t.id)!.group)!;
+			expect(t.x).toBeGreaterThanOrEqual(g.x - 1e-9);
+			expect(t.y).toBeGreaterThanOrEqual(g.y + 18 - 1e-9);
+			expect(t.x + t.w).toBeLessThanOrEqual(g.x + g.w + 1e-9);
+			expect(t.y + t.h).toBeLessThanOrEqual(g.y + g.h + 1e-9);
+		}
+	});
+	it('keeps the tile areas in proportion to the values inside a group', () => {
+		const area = (id: string) => tiles.find((t) => t.id === id)!.w * tiles.find((t) => t.id === id)!.h;
+		expect(area('a') / area('b')).toBeCloseTo(3, 6);
+	});
+	it('drops the tiles of a group that is too small for them but keeps its block', () => {
+		const r = nest([{ id: 'a', value: 1000, group: 'X' }, { id: 'b', value: 1, group: 'Y' }], 100, 100, 18, 2);
+		expect(r.groups).toHaveLength(2);
+		expect(r.tiles.map((t) => t.id)).toEqual(['a']);
 	});
 });

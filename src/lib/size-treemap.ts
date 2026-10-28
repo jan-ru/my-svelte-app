@@ -5,6 +5,8 @@ export interface TreemapItem {
 	fill?: string;
 	/** Only set for interactive visitors: anonymous pages link to no query variant. */
 	href?: string;
+	/** Id of the group (for example a sector) the tile sits in; used with `nest`. */
+	group?: string;
 }
 
 export interface Rect {
@@ -103,4 +105,25 @@ export function wrap(label: string, width: number, maxLines: number, charWidth =
 	const last = kept[maxLines - 1];
 	kept[maxLines - 1] = `${last.length >= max ? last.slice(0, max - 1) : last}…`;
 	return kept;
+}
+
+export interface NestedLayout {
+	/** One block per group, sized by the sum of its tiles. */
+	groups: (Rect & { value: number })[];
+	tiles: Rect[];
+}
+
+/** Two levels: groups laid out by their totals, each group's items squarified inside it below a header strip. */
+export function nest<T extends { id: string; value: number; group: string }>(items: readonly T[], width: number, height: number, header = 18, pad = 2): NestedLayout {
+	const sums = new Map<string, number>();
+	for (const i of items) if (Number.isFinite(i.value) && i.value > 0) sums.set(i.group, (sums.get(i.group) ?? 0) + i.value);
+	const blocks = squarify([...sums].map(([id, value]) => ({ id, value })), width, height);
+	const groups = blocks.map((b) => ({ ...b, value: sums.get(b.id)! }));
+	const tiles: Rect[] = [];
+	for (const g of groups) {
+		const inner = { x: g.x + pad, y: g.y + header, w: g.w - 2 * pad, h: g.h - header - pad };
+		const members = items.filter((i) => i.group === g.id);
+		for (const t of squarify(members, inner.w, inner.h)) tiles.push({ ...t, x: t.x + inner.x, y: t.y + inner.y });
+	}
+	return { groups, tiles };
 }
