@@ -23,9 +23,11 @@
 	const byId = $derived(new Map(items.map((i) => [i.id, i])));
 	const sorted = $derived([...items].filter((i) => i.value > 0).sort((a, b) => b.value - a.value));
 	const summary = $derived(
-		`Treemap of ${sorted.length} items by ${measureLabel}. The largest are ` +
-			sorted.slice(0, 3).map((i) => `${i.label} (${format(i.value)})`).join(', ') +
-			'.'
+		sorted.length === 0
+			? `No ${measureLabel} data for this selection.`
+			: `Treemap of ${sorted.length} items by ${measureLabel}. The largest are ` +
+					sorted.slice(0, 3).map((i) => `${i.label} (${format(i.value)})`).join(', ') +
+					'.'
 	);
 	const percent = (value: number) => formatPercent(total > 0 ? (100 * value) / total : 0);
 	// role="img" would hide the links from assistive technology, so linked treemaps are a labelled group instead
@@ -53,6 +55,7 @@
 {/snippet}
 
 <figure>
+	<figcaption>Area shows {measureLabel}. Percentages are of the global total.</figcaption>
 	<svg viewBox="0 0 {W} {H}" role={linked ? 'group' : 'img'} aria-label={summary}>
 		{#each rects as r (r.id)}
 			{@const item = byId.get(r.id)!}
@@ -74,7 +77,6 @@
 			</tbody>
 		</table>
 	</details>
-	<figcaption>Area shows {measureLabel}. Percentages are of the global total.</figcaption>
 </figure>
 
 <style>
@@ -82,7 +84,7 @@
 	svg { width: 100%; height: auto; display: block; background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
 	.tile:focus-visible rect { stroke: var(--border-focus); stroke-width: 3; }
 	.tile:hover rect { opacity: 0.85; }
-	figcaption { color: var(--text-secondary); font-size: var(--text-sm); }
+	figcaption { margin-bottom: var(--space-2); color: var(--text-secondary); font-size: var(--text-sm); }
 	details { margin: var(--space-2) 0; }
 	table { width: 100%; font-size: var(--text-sm); background: var(--surface-card); }
 	th[scope='row'] { text-align: left; font-weight: var(--weight-regular); }

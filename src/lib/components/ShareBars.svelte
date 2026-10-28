@@ -15,7 +15,7 @@
 </script>
 
 {#if rows.length > 0}
-	<ul class="bars" aria-label={`Share of the global total, by ${measureLabel}`}>
+	<ul class="bars" role="list" aria-label={`Share of the global total, by ${measureLabel}`}>
 		{#each rows as r (r.id)}
 			<li>
 				<span class="label">{r.label}</span>
