@@ -6,28 +6,26 @@
 	import '../lib/styles/tokens.css';
 	import '../lib/styles/global.css';
 	import { page } from '$app/state';
+	import { EXPLORE_HOME, inExplore } from '#lib/nav';
 	import type { Snippet } from 'svelte';
 
 	let { children, data }: { children: Snippet; data: { interactive: boolean } } = $props();
 
 	const APP_NAME = 'Fetch valuation multiples';
 
-	// Workflow order: result first, then find the industry, its peers, one company in detail.
+	// Result first, then the reference data (NYU Stern and World Bank), then the company data from FMP and Yahoo Finance.
 	const links = [
-		{ href: '/', label: 'Multiples' },
-		{ href: '/classification', label: 'Find industry' },
-		{ href: '/companies', label: 'Companies' },
-		{ href: '/countries', label: 'Countries' },
-		{ href: '/industries', label: 'Industries' },
-		{ href: '/financials', label: 'Financials' },
-		{ href: '/about', label: 'About' }
+		{ href: '/', label: 'Multiples', current: () => page.url.pathname === '/' },
+		{ href: EXPLORE_HOME, label: 'Explore', current: () => inExplore(page.url.pathname) },
+		{ href: '/financials', label: 'Financials', current: () => page.url.pathname === '/financials' },
+		{ href: '/about', label: 'About', current: () => page.url.pathname === '/about' }
 	];
 </script>
 
 <nav aria-label="Main">
 	<a class="brand" href="/">{APP_NAME}</a>
 	{#each links as link (link.href)}
-		<a href={link.href} aria-current={page.url.pathname === link.href ? 'page' : undefined}>{link.label}</a>
+		<a href={link.href} aria-current={link.current() ? 'page' : undefined}>{link.label}</a>
 	{/each}
 	<span class="spacer"></span>
 	{#if data.interactive && page.url.pathname !== '/financials'}
