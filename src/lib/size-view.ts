@@ -74,3 +74,35 @@ export function countriesView(data: CompanyData, gdp: GdpData, nav: SizeNav): Co
 		gdpNote
 	};
 }
+
+export interface IndustriesView {
+	measureLabel: string;
+	/** All companies: the global total the percentages refer to. */
+	total: number;
+	/** Every industry with companies, coloured by its sector. */
+	tiles: TreemapItem[];
+	/** The sectors present in `tiles`, with their colour and company count: the legend, and the drill-down links. */
+	legend: { sector: string; fill: string; value: number }[];
+	/** The selected industries (or the largest ten) against the global total. */
+	shares: Shares;
+	/** The countries of the selected industries, by company count; null when no industry is selected. */
+	breakdown: TreemapItem[] | null;
+	cross: CrossCell | null;
+}
+
+export function industriesView(data: CompanyData, nav: SizeNav): IndustriesView {
+	const values = countBy(data, 'industry', { countries: nav.countries, sectors: nav.sectors });
+	const total = data.companies.length;
+	const sectorOf = dominantSector(data);
+	const tiles = tilesOf(values, (industry) => sectorFill(sectorOf[industry]));
+	const legendCounts = new Map<string, number>();
+	for (const t of tiles) legendCounts.set(sectorOf[t.id], (legendCounts.get(sectorOf[t.id]) ?? 0) + t.value);
+	const legend = [...legendCounts]
+		.map(([sector, value]) => ({ sector, fill: sectorFill(sector), value }))
+		.sort((a, b) => b.value - a.value || a.sector.localeCompare(b.sector));
+	const selected = nav.industries.length > 0 ? nav.industries : topIds(values, TOP_N);
+	const breakdown =
+		nav.industries.length > 0 ? tilesOf(countBy(data, 'country', { industries: nav.industries, sectors: nav.sectors }), () => COUNTRY_FILL) : null;
+	const cross = nav.countries.length === 1 && nav.industries.length === 1 ? crossCell(data, nav.countries[0], nav.industries[0]) : null;
+	return { measureLabel: 'companies', total, tiles, legend, shares: shareOfGlobal(values, selected, total), breakdown, cross };
+}

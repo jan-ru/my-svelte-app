@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { CompanyData } from './companies';
 import type { GdpData } from './gdp';
-import { countriesView } from './size-view';
+import { countriesView, industriesView } from './size-view';
 import type { SizeNav } from './size-nav';
 
 const data: CompanyData = {
@@ -78,5 +78,36 @@ describe('countriesView', () => {
 		const banks = v.breakdown!.find((t) => t.id === 'Banks')!;
 		const steel = v.breakdown!.find((t) => t.id === 'Steel')!;
 		expect(banks.fill).not.toBe(steel.fill);
+	});
+});
+
+describe('industriesView', () => {
+	it('defaults to every industry by company count, coloured by sector, with a legend', () => {
+		const v = industriesView(data, nav());
+		expect(v.total).toBe(6);
+		expect(v.tiles.map((t) => [t.id, t.value])).toEqual([['Banks', 3], ['Steel', 3]]);
+		expect(v.tiles[0].fill).not.toBe(v.tiles[1].fill);
+		expect(v.legend.map((l) => [l.sector, l.value])).toEqual([['Financials', 3], ['Materials', 3]]);
+		expect(v.shares.items.map((i) => i.id)).toEqual(['Banks', 'Steel']);
+		expect(v.shares.rest).toBeNull();
+		expect(v.breakdown).toBeNull();
+		expect(v.cross).toBeNull();
+	});
+	it('drills from a sector to its industries (by the companies own sector)', () => {
+		const v = industriesView(data, nav({ sectors: ['Materials'] }));
+		expect(v.tiles.map((t) => [t.id, t.value])).toEqual([['Steel', 3]]);
+		expect(v.total).toBe(6);
+	});
+	it('shows the countries of the selected industries, and restricts by country', () => {
+		const v = industriesView(data, nav({ industries: ['Steel'] }));
+		expect(v.breakdown?.map((t) => [t.id, t.value])).toEqual([['Japan', 1], ['Netherlands', 1], ['Taiwan', 1]]);
+		expect(v.shares.items).toEqual([{ id: 'Steel', value: 3, percent: 50 }]);
+		expect(v.shares.rest?.value).toBe(3);
+		const jp = industriesView(data, nav({ countries: ['Japan'] }));
+		expect(jp.tiles.map((t) => [t.id, t.value])).toEqual([['Banks', 1], ['Steel', 1]]);
+	});
+	it('gives the cross cell for one country and one industry', () => {
+		const v = industriesView(data, nav({ countries: ['Japan'], industries: ['Banks'] }));
+		expect(v.cross?.count).toBe(1);
 	});
 });
