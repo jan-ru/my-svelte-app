@@ -7,6 +7,7 @@
 	import '../lib/styles/global.css';
 	import { page } from '$app/state';
 	import { EXPLORE_HOME, inExplore } from '#lib/nav';
+	import SiteFooter from '#lib/components/SiteFooter.svelte';
 	import type { Snippet } from 'svelte';
 
 	let { children, data }: { children: Snippet; data: { interactive: boolean } } = $props();
@@ -38,6 +39,8 @@
 </nav>
 
 {@render children()}
+
+<SiteFooter />
 
 <style>
 	nav { display: flex; align-items: stretch; gap: var(--space-1); height: var(--shell-header-height); padding: 0 var(--space-4); background: var(--surface-shell); border-bottom: 1px solid var(--border-subtle); box-shadow: var(--shadow-1); }
