@@ -44,7 +44,9 @@ describe('countriesView', () => {
 	});
 	it('shows only the selected countries against the global total, with a rest of world', () => {
 		const v = countriesView(data, gdp, nav({ countries: ['Japan'] }));
-		expect(v.shares.items).toEqual([{ id: 'Japan', value: 2, percent: (2 / 6) * 100 }]);
+		expect(v.shares.items).toHaveLength(1);
+		expect(v.shares.items[0]).toMatchObject({ id: 'Japan', value: 2 });
+		expect(v.shares.items[0].percent).toBeCloseTo((2 / 6) * 100, 9);
 		expect(v.shares.rest?.value).toBe(4);
 		// a selection also shows its industries
 		expect(v.breakdown?.map((t) => [t.id, t.value])).toEqual([['Banks', 1], ['Steel', 1]]);

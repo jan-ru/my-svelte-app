@@ -17,6 +17,7 @@
 		{ href: '/', label: 'Multiples' },
 		{ href: '/classification', label: 'Find industry' },
 		{ href: '/companies', label: 'Companies' },
+		{ href: '/countries', label: 'Countries' },
 		{ href: '/financials', label: 'Financials' },
 		{ href: '/about', label: 'About' }
 	];
