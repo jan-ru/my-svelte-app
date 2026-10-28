@@ -1,0 +1,1216 @@
+{
+ "generated": "2026-10-28",
+ "source": "World Bank, GDP (current US$), indicator NY.GDP.MKTP.CD, most recent non-empty value",
+ "world": {
+  "value": 118350166039396,
+  "year": 2025
+ },
+ "countries": {
+  "AFG": {
+   "name": "Afghanistan",
+   "value": 17778508875.7396,
+   "year": 2024
+  },
+  "ALB": {
+   "name": "Albania",
+   "value": 30540188271.3421,
+   "year": 2025
+  },
+  "DZA": {
+   "name": "Algeria",
+   "value": 287031225987.736,
+   "year": 2025
+  },
+  "ASM": {
+   "name": "American Samoa",
+   "value": 871000000,
+   "year": 2022
+  },
+  "AND": {
+   "name": "Andorra",
+   "value": 4500982731.80784,
+   "year": 2025
+  },
+  "AGO": {
+   "name": "Angola",
+   "value": 122174889423.635,
+   "year": 2025
+  },
+  "ATG": {
+   "name": "Antigua and Barbuda",
+   "value": 2338196296.2963,
+   "year": 2025
+  },
+  "ARG": {
+   "name": "Argentina",
+   "value": 683097891618.597,
+   "year": 2025
+  },
+  "ARM": {
+   "name": "Armenia",
+   "value": 29243452882.3545,
+   "year": 2025
+  },
+  "ABW": {
+   "name": "Aruba",
+   "value": 4167588070.29217,
+   "year": 2024
+  },
+  "AUS": {
+   "name": "Australia",
+   "value": 1798518933689.21,
+   "year": 2025
+  },
+  "AUT": {
+   "name": "Austria",
+   "value": 579470021095.418,
+   "year": 2025
+  },
+  "AZE": {
+   "name": "Azerbaijan",
+   "value": 75937647058.8235,
+   "year": 2025
+  },
+  "BHS": {
+   "name": "Bahamas, The",
+   "value": 15832800000,
+   "year": 2024
+  },
+  "BHR": {
+   "name": "Bahrain",
+   "value": 48965725531.9149,
+   "year": 2025
+  },
+  "BGD": {
+   "name": "Bangladesh",
+   "value": 456319229255.578,
+   "year": 2025
+  },
+  "BRB": {
+   "name": "Barbados",
+   "value": 8016550000,
+   "year": 2025
+  },
+  "BLR": {
+   "name": "Belarus",
+   "value": 93397215864.198,
+   "year": 2025
+  },
+  "BEL": {
+   "name": "Belgium",
+   "value": 725466462859.646,
+   "year": 2025
+  },
+  "BLZ": {
+   "name": "Belize",
+   "value": 3326500000,
+   "year": 2025
+  },
+  "BEN": {
+   "name": "Benin",
+   "value": 24566420903.5337,
+   "year": 2025
+  },
+  "BMU": {
+   "name": "Bermuda",
+   "value": 9194499000,
+   "year": 2024
+  },
+  "BTN": {
+   "name": "Bhutan",
+   "value": 3579320145.13077,
+   "year": 2025
+  },
+  "BOL": {
+   "name": "Bolivia",
+   "value": 64768947525.3256,
+   "year": 2025
+  },
+  "BIH": {
+   "name": "Bosnia and Herzegovina",
+   "value": 32599982936.3931,
+   "year": 2025
+  },
+  "BWA": {
+   "name": "Botswana",
+   "value": 19928479839.4476,
+   "year": 2025
+  },
+  "BRA": {
+   "name": "Brazil",
+   "value": 2279920092492.13,
+   "year": 2025
+  },
+  "BRN": {
+   "name": "Brunei Darussalam",
+   "value": 15031980994.1121,
+   "year": 2025
+  },
+  "BGR": {
+   "name": "Bulgaria",
+   "value": 130777235529.606,
+   "year": 2025
+  },
+  "BFA": {
+   "name": "Burkina Faso",
+   "value": 27627297461.3181,
+   "year": 2025
+  },
+  "BDI": {
+   "name": "Burundi",
+   "value": 3364713864.08488,
+   "year": 2025
+  },
+  "CPV": {
+   "name": "Cabo Verde",
+   "value": 3056630435.32463,
+   "year": 2025
+  },
+  "KHM": {
+   "name": "Cambodia",
+   "value": 51267065842.9641,
+   "year": 2025
+  },
+  "CMR": {
+   "name": "Cameroon",
+   "value": 58933453923.761,
+   "year": 2025
+  },
+  "CAN": {
+   "name": "Canada",
+   "value": 2319899772425.92,
+   "year": 2025
+  },
+  "CYM": {
+   "name": "Cayman Islands",
+   "value": 7765336505.34319,
+   "year": 2024
+  },
+  "CAF": {
+   "name": "Central African Republic",
+   "value": 3066109226.40165,
+   "year": 2025
+  },
+  "TCD": {
+   "name": "Chad",
+   "value": 21472835225.4338,
+   "year": 2025
+  },
+  "CHI": {
+   "name": "Channel Islands",
+   "value": 12507320838.3932,
+   "year": 2023
+  },
+  "CHL": {
+   "name": "Chile",
+   "value": 357371159574.862,
+   "year": 2025
+  },
+  "CHN": {
+   "name": "China",
+   "value": 19498039388042.6,
+   "year": 2025
+  },
+  "COL": {
+   "name": "Colombia",
+   "value": 457410034202.523,
+   "year": 2025
+  },
+  "COM": {
+   "name": "Comoros",
+   "value": 1814920856.27026,
+   "year": 2025
+  },
+  "COD": {
+   "name": "Congo, Dem. Rep.",
+   "value": 91030531316.9936,
+   "year": 2025
+  },
+  "COG": {
+   "name": "Congo, Rep.",
+   "value": 16306633778.765,
+   "year": 2025
+  },
+  "CRI": {
+   "name": "Costa Rica",
+   "value": 102904921157.478,
+   "year": 2025
+  },
+  "CIV": {
+   "name": "Cote d'Ivoire",
+   "value": 99773555666.1988,
+   "year": 2025
+  },
+  "HRV": {
+   "name": "Croatia",
+   "value": 105060182186.274,
+   "year": 2025
+  },
+  "CUB": {
+   "name": "Cuba",
+   "value": 107352000000,
+   "year": 2020
+  },
+  "CUW": {
+   "name": "Curacao",
+   "value": 3561178212.2905,
+   "year": 2024
+  },
+  "CYP": {
+   "name": "Cyprus",
+   "value": 41225787247.3309,
+   "year": 2025
+  },
+  "CZE": {
+   "name": "Czechia",
+   "value": 391026962800.475,
+   "year": 2025
+  },
+  "DNK": {
+   "name": "Denmark",
+   "value": 462526660468.393,
+   "year": 2025
+  },
+  "DJI": {
+   "name": "Djibouti",
+   "value": 4624533092.31886,
+   "year": 2025
+  },
+  "DMA": {
+   "name": "Dominica",
+   "value": 723859259.259259,
+   "year": 2025
+  },
+  "DOM": {
+   "name": "Dominican Republic",
+   "value": 127407463759.043,
+   "year": 2025
+  },
+  "ECU": {
+   "name": "Ecuador",
+   "value": 130320560400,
+   "year": 2025
+  },
+  "EGY": {
+   "name": "Egypt, Arab Rep.",
+   "value": 365254630179.737,
+   "year": 2025
+  },
+  "SLV": {
+   "name": "El Salvador",
+   "value": 36708110000,
+   "year": 2025
+  },
+  "GNQ": {
+   "name": "Equatorial Guinea",
+   "value": 12823210425.9217,
+   "year": 2025
+  },
+  "ERI": {
+   "name": "Eritrea",
+   "value": 2065001626.01626,
+   "year": 2011
+  },
+  "EST": {
+   "name": "Estonia",
+   "value": 47030833798.5866,
+   "year": 2025
+  },
+  "SWZ": {
+   "name": "Eswatini",
+   "value": 5160679612.81734,
+   "year": 2025
+  },
+  "ETH": {
+   "name": "Ethiopia",
+   "value": 126358758448.356,
+   "year": 2025
+  },
+  "FRO": {
+   "name": "Faroe Islands",
+   "value": 4052937169.76536,
+   "year": 2024
+  },
+  "FJI": {
+   "name": "Fiji",
+   "value": 6198013062.06553,
+   "year": 2025
+  },
+  "FIN": {
+   "name": "Finland",
+   "value": 317039368819.607,
+   "year": 2025
+  },
+  "FRA": {
+   "name": "France",
+   "value": 3366315927447.33,
+   "year": 2025
+  },
+  "PYF": {
+   "name": "French Polynesia",
+   "value": 6323716355.05009,
+   "year": 2024
+  },
+  "GAB": {
+   "name": "Gabon",
+   "value": 21427119323.2764,
+   "year": 2025
+  },
+  "GMB": {
+   "name": "Gambia, The",
+   "value": 2593673987.53306,
+   "year": 2025
+  },
+  "GEO": {
+   "name": "Georgia",
+   "value": 38143612855.1367,
+   "year": 2025
+  },
+  "DEU": {
+   "name": "Germany",
+   "value": 5050922925047.05,
+   "year": 2025
+  },
+  "GHA": {
+   "name": "Ghana",
+   "value": 114209905278.717,
+   "year": 2025
+  },
+  "GRC": {
+   "name": "Greece",
+   "value": 280635521324.441,
+   "year": 2025
+  },
+  "GRL": {
+   "name": "Greenland",
+   "value": 3326543974.39193,
+   "year": 2023
+  },
+  "GRD": {
+   "name": "Grenada",
+   "value": 1420173228.56948,
+   "year": 2025
+  },
+  "GUM": {
+   "name": "Guam",
+   "value": 6910000000,
+   "year": 2022
+  },
+  "GTM": {
+   "name": "Guatemala",
+   "value": 123306008821.471,
+   "year": 2025
+  },
+  "GIN": {
+   "name": "Guinea",
+   "value": 28346024753.2924,
+   "year": 2025
+  },
+  "GNB": {
+   "name": "Guinea-Bissau",
+   "value": 2527930272.92988,
+   "year": 2025
+  },
+  "GUY": {
+   "name": "Guyana",
+   "value": 27097477218.2254,
+   "year": 2025
+  },
+  "HTI": {
+   "name": "Haiti",
+   "value": 32077278409.2339,
+   "year": 2025
+  },
+  "HND": {
+   "name": "Honduras",
+   "value": 39601409103.3005,
+   "year": 2025
+  },
+  "HKG": {
+   "name": "Hong Kong SAR, China",
+   "value": 427310315921.993,
+   "year": 2025
+  },
+  "HUN": {
+   "name": "Hungary",
+   "value": 246490213513.054,
+   "year": 2025
+  },
+  "ISL": {
+   "name": "Iceland",
+   "value": 38582528789.0033,
+   "year": 2025
+  },
+  "IND": {
+   "name": "India",
+   "value": 3956067115771.63,
+   "year": 2025
+  },
+  "IDN": {
+   "name": "Indonesia",
+   "value": 1445642584163.81,
+   "year": 2025
+  },
+  "IRN": {
+   "name": "Iran, Islamic Rep.",
+   "value": 362682115433.364,
+   "year": 2025
+  },
+  "IRQ": {
+   "name": "Iraq",
+   "value": 254367293538.462,
+   "year": 2025
+  },
+  "IRL": {
+   "name": "Ireland",
+   "value": 721701359046.313,
+   "year": 2025
+  },
+  "IMN": {
+   "name": "Isle of Man",
+   "value": 7576129932.79381,
+   "year": 2023
+  },
+  "ISR": {
+   "name": "Israel",
+   "value": 610777842873.595,
+   "year": 2025
+  },
+  "ITA": {
+   "name": "Italy",
+   "value": 2551556954100.35,
+   "year": 2025
+  },
+  "JAM": {
+   "name": "Jamaica",
+   "value": 22704903217.5631,
+   "year": 2025
+  },
+  "JPN": {
+   "name": "Japan",
+   "value": 4435162999976.94,
+   "year": 2025
+  },
+  "JOR": {
+   "name": "Jordan",
+   "value": 61610052535.2113,
+   "year": 2025
+  },
+  "KAZ": {
+   "name": "Kazakhstan",
+   "value": 306239209650.024,
+   "year": 2025
+  },
+  "KEN": {
+   "name": "Kenya",
+   "value": 135941278878.815,
+   "year": 2025
+  },
+  "KIR": {
+   "name": "Kiribati",
+   "value": 349227254.158833,
+   "year": 2025
+  },
+  "KOR": {
+   "name": "Korea, Rep.",
+   "value": 1872374961553.15,
+   "year": 2025
+  },
+  "XKX": {
+   "name": "Kosovo",
+   "value": 12456403306.8191,
+   "year": 2025
+  },
+  "KWT": {
+   "name": "Kuwait",
+   "value": 157209026926.418,
+   "year": 2025
+  },
+  "KGZ": {
+   "name": "Kyrgyz Republic",
+   "value": 22623752095.4613,
+   "year": 2025
+  },
+  "LAO": {
+   "name": "Lao PDR",
+   "value": 18302970218.5902,
+   "year": 2025
+  },
+  "LVA": {
+   "name": "Latvia",
+   "value": 48618869160.3254,
+   "year": 2025
+  },
+  "LBN": {
+   "name": "Lebanon",
+   "value": 25971643441.3408,
+   "year": 2024
+  },
+  "LSO": {
+   "name": "Lesotho",
+   "value": 2573572920.05159,
+   "year": 2025
+  },
+  "LBR": {
+   "name": "Liberia",
+   "value": 5245938900,
+   "year": 2025
+  },
+  "LBY": {
+   "name": "Libya",
+   "value": 48098909613.6316,
+   "year": 2025
+  },
+  "LIE": {
+   "name": "Liechtenstein",
+   "value": 8905764270.4054,
+   "year": 2024
+  },
+  "LTU": {
+   "name": "Lithuania",
+   "value": 95210150818.3512,
+   "year": 2025
+  },
+  "LUX": {
+   "name": "Luxembourg",
+   "value": 101157829491.107,
+   "year": 2025
+  },
+  "MAC": {
+   "name": "Macao SAR, China",
+   "value": 52061007670.169,
+   "year": 2025
+  },
+  "MDG": {
+   "name": "Madagascar",
+   "value": 19620352035.7899,
+   "year": 2025
+  },
+  "MWI": {
+   "name": "Malawi",
+   "value": 14918276698.303,
+   "year": 2025
+  },
+  "MYS": {
+   "name": "Malaysia",
+   "value": 472193128644.597,
+   "year": 2025
+  },
+  "MDV": {
+   "name": "Maldives",
+   "value": 7741066860.6337,
+   "year": 2025
+  },
+  "MLI": {
+   "name": "Mali",
+   "value": 30069148580.7688,
+   "year": 2025
+  },
+  "MLT": {
+   "name": "Malta",
+   "value": 27771821560.9411,
+   "year": 2025
+  },
+  "MHL": {
+   "name": "Marshall Islands",
+   "value": 308000000,
+   "year": 2025
+  },
+  "MRT": {
+   "name": "Mauritania",
+   "value": 11679910946.4371,
+   "year": 2025
+  },
+  "MUS": {
+   "name": "Mauritius",
+   "value": 16157804491.7614,
+   "year": 2025
+  },
+  "MEX": {
+   "name": "Mexico",
+   "value": 1832641364775.52,
+   "year": 2025
+  },
+  "FSM": {
+   "name": "Micronesia, Fed. Sts.",
+   "value": 501797600,
+   "year": 2025
+  },
+  "MDA": {
+   "name": "Moldova",
+   "value": 20351796275.2943,
+   "year": 2025
+  },
+  "MCO": {
+   "name": "Monaco",
+   "value": 11125788838.2812,
+   "year": 2024
+  },
+  "MNG": {
+   "name": "Mongolia",
+   "value": 25369107325.4549,
+   "year": 2025
+  },
+  "MNE": {
+   "name": "Montenegro",
+   "value": 9232801464.79257,
+   "year": 2025
+  },
+  "MAR": {
+   "name": "Morocco",
+   "value": 182374250612.28,
+   "year": 2025
+  },
+  "MOZ": {
+   "name": "Mozambique",
+   "value": 22337997046.1913,
+   "year": 2025
+  },
+  "MMR": {
+   "name": "Myanmar",
+   "value": 81665773809.5238,
+   "year": 2025
+  },
+  "NAM": {
+   "name": "Namibia",
+   "value": 15080340653.5276,
+   "year": 2025
+  },
+  "NRU": {
+   "name": "Naoero",
+   "value": 176040043.932346,
+   "year": 2025
+  },
+  "NPL": {
+   "name": "Nepal",
+   "value": 45489810283.1132,
+   "year": 2025
+  },
+  "NLD": {
+   "name": "Netherlands",
+   "value": 1332767651100.39,
+   "year": 2025
+  },
+  "NCL": {
+   "name": "New Caledonia",
+   "value": 8548919387.12607,
+   "year": 2024
+  },
+  "NZL": {
+   "name": "New Zealand",
+   "value": 264057413739.965,
+   "year": 2025
+  },
+  "NIC": {
+   "name": "Nicaragua",
+   "value": 22237167113.0916,
+   "year": 2025
+  },
+  "NER": {
+   "name": "Niger",
+   "value": 21646191388.2507,
+   "year": 2025
+  },
+  "NGA": {
+   "name": "Nigeria",
+   "value": 290794361542.112,
+   "year": 2025
+  },
+  "MKD": {
+   "name": "North Macedonia",
+   "value": 19101199817.0174,
+   "year": 2025
+  },
+  "MNP": {
+   "name": "Northern Mariana Islands",
+   "value": 1096000000,
+   "year": 2022
+  },
+  "NOR": {
+   "name": "Norway",
+   "value": 530755719438.879,
+   "year": 2025
+  },
+  "OMN": {
+   "name": "Oman",
+   "value": 109604780696.23,
+   "year": 2025
+  },
+  "PAK": {
+   "name": "Pakistan",
+   "value": 407307214476.222,
+   "year": 2025
+  },
+  "PLW": {
+   "name": "Palau",
+   "value": 345000000,
+   "year": 2025
+  },
+  "PAN": {
+   "name": "Panama",
+   "value": 90462600000,
+   "year": 2025
+  },
+  "PNG": {
+   "name": "Papua New Guinea",
+   "value": 32498658653.8415,
+   "year": 2025
+  },
+  "PRY": {
+   "name": "Paraguay",
+   "value": 49278227554.3339,
+   "year": 2025
+  },
+  "PER": {
+   "name": "Peru",
+   "value": 334854659181.893,
+   "year": 2025
+  },
+  "PHL": {
+   "name": "Philippines",
+   "value": 487086123720.417,
+   "year": 2025
+  },
+  "POL": {
+   "name": "Poland",
+   "value": 1035491784197.44,
+   "year": 2025
+  },
+  "PRT": {
+   "name": "Portugal",
+   "value": 346639825141.821,
+   "year": 2025
+  },
+  "PRI": {
+   "name": "Puerto Rico (US)",
+   "value": 129368484000,
+   "year": 2025
+  },
+  "QAT": {
+   "name": "Qatar",
+   "value": 215559615384.615,
+   "year": 2025
+  },
+  "ROU": {
+   "name": "Romania",
+   "value": 428677977854.826,
+   "year": 2025
+  },
+  "RUS": {
+   "name": "Russian Federation",
+   "value": 2561310169358.74,
+   "year": 2025
+  },
+  "RWA": {
+   "name": "Rwanda",
+   "value": 16372132990.2271,
+   "year": 2025
+  },
+  "WSM": {
+   "name": "Samoa",
+   "value": 1287936621.64619,
+   "year": 2025
+  },
+  "SMR": {
+   "name": "San Marino",
+   "value": 2027243193.5116,
+   "year": 2023
+  },
+  "STP": {
+   "name": "Sao Tome and Principe",
+   "value": 981293586.906408,
+   "year": 2025
+  },
+  "SAU": {
+   "name": "Saudi Arabia",
+   "value": 1276942933333.33,
+   "year": 2025
+  },
+  "SEN": {
+   "name": "Senegal",
+   "value": 37006536238.3731,
+   "year": 2025
+  },
+  "SRB": {
+   "name": "Serbia",
+   "value": 99953324472.9042,
+   "year": 2025
+  },
+  "SYC": {
+   "name": "Seychelles",
+   "value": 2387022853.48583,
+   "year": 2025
+  },
+  "SLE": {
+   "name": "Sierra Leone",
+   "value": 7464157904.43509,
+   "year": 2025
+  },
+  "SGP": {
+   "name": "Singapore",
+   "value": 603869516998.738,
+   "year": 2025
+  },
+  "SXM": {
+   "name": "Sint Maarten (Dutch part)",
+   "value": 1887728480.44693,
+   "year": 2025
+  },
+  "SVK": {
+   "name": "Slovak Republic",
+   "value": 154530066506.895,
+   "year": 2025
+  },
+  "SVN": {
+   "name": "Slovenia",
+   "value": 79648204979.3618,
+   "year": 2025
+  },
+  "SLB": {
+   "name": "Solomon Islands",
+   "value": 1749572442.95016,
+   "year": 2025
+  },
+  "SOM": {
+   "name": "Somalia, Fed. Rep.",
+   "value": 12995200000.2658,
+   "year": 2025
+  },
+  "ZAF": {
+   "name": "South Africa",
+   "value": 427184325997.307,
+   "year": 2025
+  },
+  "SSD": {
+   "name": "South Sudan",
+   "value": 11997800760.2242,
+   "year": 2015
+  },
+  "ESP": {
+   "name": "Spain",
+   "value": 1906453309985.88,
+   "year": 2025
+  },
+  "LKA": {
+   "name": "Sri Lanka",
+   "value": 108825231671.196,
+   "year": 2025
+  },
+  "KNA": {
+   "name": "St. Kitts and Nevis",
+   "value": 1183514814.81481,
+   "year": 2025
+  },
+  "LCA": {
+   "name": "St. Lucia",
+   "value": 2656444444.44444,
+   "year": 2025
+  },
+  "MAF": {
+   "name": "St. Martin (French part)",
+   "value": 649206262.847519,
+   "year": 2021
+  },
+  "VCT": {
+   "name": "St. Vincent and the Grenadines",
+   "value": 1255222222.22222,
+   "year": 2025
+  },
+  "SDN": {
+   "name": "Sudan",
+   "value": 60162634574.4689,
+   "year": 2025
+  },
+  "SUR": {
+   "name": "Suriname",
+   "value": 4523657796.86421,
+   "year": 2025
+  },
+  "SWE": {
+   "name": "Sweden",
+   "value": 668998664082.081,
+   "year": 2025
+  },
+  "CHE": {
+   "name": "Switzerland",
+   "value": 1043529899250.92,
+   "year": 2025
+  },
+  "SYR": {
+   "name": "Syrian Arab Republic",
+   "value": 23737634644.3994,
+   "year": 2022
+  },
+  "TJK": {
+   "name": "Tajikistan",
+   "value": 17660626562.4832,
+   "year": 2025
+  },
+  "TZA": {
+   "name": "Tanzania",
+   "value": 90143496090.4411,
+   "year": 2025
+  },
+  "THA": {
+   "name": "Thailand",
+   "value": 577009981112.015,
+   "year": 2025
+  },
+  "TLS": {
+   "name": "Timor-Leste",
+   "value": 1902180257.82737,
+   "year": 2025
+  },
+  "TGO": {
+   "name": "Togo",
+   "value": 11889949067.4697,
+   "year": 2025
+  },
+  "TON": {
+   "name": "Tonga",
+   "value": 679218218.578017,
+   "year": 2025
+  },
+  "TTO": {
+   "name": "Trinidad and Tobago",
+   "value": 25942749718.4685,
+   "year": 2025
+  },
+  "TUN": {
+   "name": "Tunisia",
+   "value": 57502836548.0878,
+   "year": 2025
+  },
+  "TUR": {
+   "name": "Turkiye",
+   "value": 1597293229287,
+   "year": 2025
+  },
+  "TKM": {
+   "name": "Turkmenistan",
+   "value": 49828621355.6516,
+   "year": 2025
+  },
+  "TCA": {
+   "name": "Turks and Caicos Islands",
+   "value": 1745378000,
+   "year": 2024
+  },
+  "TUV": {
+   "name": "Tuvalu",
+   "value": 57345434.7234984,
+   "year": 2025
+  },
+  "UGA": {
+   "name": "Uganda",
+   "value": 61985829288.1496,
+   "year": 2025
+  },
+  "UKR": {
+   "name": "Ukraine",
+   "value": 214233312784.397,
+   "year": 2025
+  },
+  "ARE": {
+   "name": "United Arab Emirates",
+   "value": 552324919095.872,
+   "year": 2024
+  },
+  "GBR": {
+   "name": "United Kingdom",
+   "value": 4002587541846.01,
+   "year": 2025
+  },
+  "USA": {
+   "name": "United States",
+   "value": 30769700000000,
+   "year": 2025
+  },
+  "URY": {
+   "name": "Uruguay",
+   "value": 85347696277.6859,
+   "year": 2025
+  },
+  "UZB": {
+   "name": "Uzbekistan",
+   "value": 147038081129.405,
+   "year": 2025
+  },
+  "VUT": {
+   "name": "Vanuatu",
+   "value": 1353658840.63993,
+   "year": 2025
+  },
+  "VEN": {
+   "name": "Venezuela, RB",
+   "value": 99661244155.6306,
+   "year": 2025
+  },
+  "VNM": {
+   "name": "Viet Nam",
+   "value": 514697215165.065,
+   "year": 2025
+  },
+  "VIR": {
+   "name": "Virgin Islands (U.S.)",
+   "value": 4672000000,
+   "year": 2022
+  },
+  "PSE": {
+   "name": "West Bank and Gaza",
+   "value": 17167100000,
+   "year": 2025
+  },
+  "YEM": {
+   "name": "Yemen, Rep.",
+   "value": 21606160663.0318,
+   "year": 2018
+  },
+  "ZMB": {
+   "name": "Zambia",
+   "value": 28879806220.1264,
+   "year": 2025
+  },
+  "ZWE": {
+   "name": "Zimbabwe",
+   "value": 51215643905.5886,
+   "year": 2025
+  }
+ },
+ "nyu": {
+  "Romania": "ROU",
+  "United Kingdom": "GBR",
+  "China": "CHN",
+  "Japan": "JPN",
+  "Germany": "DEU",
+  "India": "IND",
+  "South Korea": "KOR",
+  "France": "FRA",
+  "Sweden": "SWE",
+  "United States": "USA",
+  "Canada": "CAN",
+  "Hong Kong": "HKG",
+  "United Arab Emirates": "ARE",
+  "Switzerland": "CHE",
+  "Thailand": "THA",
+  "Saudi Arabia": "SAU",
+  "Malaysia": "MYS",
+  "Italy": "ITA",
+  "Bulgaria": "BGR",
+  "Turkey": "TUR",
+  "Vietnam": "VNM",
+  "Singapore": "SGP",
+  "Poland": "POL",
+  "Australia": "AUS",
+  "Israel": "ISR",
+  "Netherlands": "NLD",
+  "Belgium": "BEL",
+  "Spain": "ESP",
+  "Jamaica": "JAM",
+  "Indonesia": "IDN",
+  "Cayman Islands": "CYM",
+  "Kenya": "KEN",
+  "Czech Republic": "CZE",
+  "Denmark": "DNK",
+  "Brazil": "BRA",
+  "Austria": "AUT",
+  "Norway": "NOR",
+  "Cyprus": "CYP",
+  "Greece": "GRC",
+  "Serbia": "SRB",
+  "Kazakhstan": "KAZ",
+  "New Zealand": "NZL",
+  "Philippines": "PHL",
+  "Mexico": "MEX",
+  "Panama": "PAN",
+  "Luxembourg": "LUX",
+  "Finland": "FIN",
+  "Iceland": "ISL",
+  "Kuwait": "KWT",
+  "Chile": "CHL",
+  "Malta": "MLT",
+  "Nigeria": "NGA",
+  "Tanzania": "TZA",
+  "Ireland": "IRL",
+  "Ivory Coast": "CIV",
+  "Tunisia": "TUN",
+  "Hungary": "HUN",
+  "Pakistan": "PAK",
+  "Egypt": "EGY",
+  "Bangladesh": "BGD",
+  "Sri Lanka": "LKA",
+  "Croatia": "HRV",
+  "Mauritius": "MUS",
+  "Colombia": "COL",
+  "Venezuela": "VEN",
+  "Cambodia": "KHM",
+  "Oman": "OMN",
+  "Jordan": "JOR",
+  "Lithuania": "LTU",
+  "Portugal": "PRT",
+  "South Africa": "ZAF",
+  "Botswana": "BWA",
+  "Ghana": "GHA",
+  "Qatar": "QAT",
+  "Sudan": "SDN",
+  "Bahrain": "BHR",
+  "Estonia": "EST",
+  "Morocco": "MAR",
+  "Argentina": "ARG",
+  "Peru": "PER",
+  "Ecuador": "ECU",
+  "Benin": "BEN",
+  "Burkina Faso": "BFA",
+  "Mali": "MLI",
+  "Niger": "NER",
+  "Senegal": "SEN",
+  "Uganda": "UGA",
+  "Palestinian Authority": "PSE",
+  "Rwanda": "RWA",
+  "Papua New Guinea": "PNG",
+  "Namibia": "NAM",
+  "Monaco": "MCO",
+  "Togo": "TGO",
+  "Malawi": "MWI",
+  "Trinidad & Tobago": "TTO",
+  "Liechtenstein": "LIE",
+  "Slovenia": "SVN",
+  "Ukraine": "UKR",
+  "Zambia": "ZMB",
+  "Bermuda": "BMU",
+  "Greenland": "GRL",
+  "Latvia": "LVA",
+  "Zimbabwe": "ZWE",
+  "Moldova": "MDA",
+  "Saint Lucia": "LCA",
+  "Curaçao": "CUW",
+  "Bahamas": "BHS",
+  "Macau": "MAC",
+  "Barbados": "BRB",
+  "Slovakia": "SVK",
+  "British Virgin Islands": "VGB",
+  "Uruguay": "URY",
+  "Gibraltar": "GIB",
+  "El Salvador": "SLV",
+  "Isle of Man": "IMN",
+  "Costa Rica": "CRI",
+  "Montenegro": "MNE",
+  "Georgia": "GEO",
+  "Azerbaijan": "AZE",
+  "Macedonia": "MKD",
+  "Dominican Republic": "DOM",
+  "Russia": "RUS",
+  "Gabon": "GAB",
+  "Marshall Islands": "MHL",
+  "Liberia": "LBR",
+  "Mongolia": "MNG",
+  "Myanmar": "MMR",
+  "Turks & Caicos Islands": "TCA"
+ },
+ "unmatched": [
+  "Taiwan",
+  "Jersey",
+  "Guernsey",
+  "Martinique"
+ ]
+}
