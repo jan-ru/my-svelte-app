@@ -13,6 +13,7 @@
 
 	const view = $derived(data.view);
 	const gdp = $derived(view.measureLabel === 'GDP');
+	const measureTitle = $derived(gdp ? 'GDP' : 'number of companies');
 	const format = $derived(gdp ? formatUsd : formatCount);
 	// Tiles link to a narrower view only for logged-in visitors; anonymous pages link to no query variant.
 	const tiles = $derived(
@@ -43,9 +44,18 @@
 <main>
 	<h1>Countries</h1>
 	<p class="note">
-		How large each country is as a share of the global total. Measure: <strong>{view.measureLabel}</strong>.
+		How large each country is as a share of the global total. Measure: <strong>{measureTitle}</strong>.
 		{#if gdp}GDP is the World Bank's gross domestic product in current US$.{:else}Companies are the companies in the NYU Stern list, not an economic size.{/if}
 	</p>
+
+	<details class="explain">
+		<summary>What does this measure mean?</summary>
+		<p>
+			The number of companies is the count of companies in the NYU Stern list, so a country with many small listings looks large.
+			GDP is the World Bank's latest value per country, in current US$; the year differs per country.
+			Percentages are always of the global total (all companies in the list, or world GDP), with "rest of world" as the remainder.
+		</p>
+	</details>
 
 	{#if data.interactive}
 		<SizeSelector action="/countries" nav={data.nav} countries={data.countries} industries={gdp ? [] : data.industries} showMeasure />
@@ -55,7 +65,7 @@
 
 	{#if data.interactive}<SelectionBar {chips} {clearHref} />{/if}
 
-	<h2>All countries by {view.measureLabel}</h2>
+	<h2>All countries by {measureTitle}</h2>
 	<Treemap items={tiles} selected={data.nav.countries} {format} tileFormat={gdp ? formatUsdCompact : format} note={gdp ? USD_COMPACT_NOTE : ''} measureLabel={view.measureLabel} total={view.total} />
 
 	{#if summary}
@@ -93,5 +103,7 @@
 	main { max-width: 64rem; margin: 0 auto; padding: 0 var(--space-4) var(--space-12); }
 	h2 { margin-top: var(--space-8); font-size: var(--text-lg); }
 	.note { color: var(--text-secondary); }
+	.explain { margin: var(--space-2) 0; color: var(--text-secondary); font-size: var(--text-sm); }
+	.explain summary { cursor: pointer; }
 	.summary { margin: var(--space-4) 0 0; font-weight: var(--weight-medium, 500); }
 </style>

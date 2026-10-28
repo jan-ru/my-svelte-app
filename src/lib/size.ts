@@ -1,7 +1,7 @@
 import type { CompanyData } from './companies';
 
 export const MEASURES = [
-	{ id: 'companies', label: 'Companies' },
+	{ id: 'companies', label: 'Number of companies' },
 	{ id: 'gdp', label: 'GDP' }
 ] as const;
 export type Measure = (typeof MEASURES)[number]['id'];
