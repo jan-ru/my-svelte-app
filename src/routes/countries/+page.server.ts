@@ -24,7 +24,6 @@ export const load: PageServerLoad = ({ url, locals, setHeaders }) => {
 		// the selector lists are only needed (and only shown) for logged-in visitors
 		countries: locals.interactive ? data.countries : [],
 		industries: locals.interactive ? data.industries : [],
-		generated: data.generated,
-		gdpGenerated: gdpData.generated
+		generated: data.generated
 	};
 };

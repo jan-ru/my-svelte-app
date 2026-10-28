@@ -59,8 +59,8 @@ export function countriesView(data: CompanyData, gdp: GdpData, nav: SizeNav): Co
 	const [from, to] = gdpYearRange(gdp);
 	const missing = data.countries.filter((c) => !(c in values));
 	const gdpNote = gdpMeasure
-		? `GDP in current US$, the latest value per country (${from === to ? from : `${from} to ${to}`}). Source: World Bank, indicator NY.GDP.MKTP.CD, CC BY 4.0. ` +
-			(missing.length > 0 ? `No GDP for: ${missing.join(', ')}.` : '')
+		? `GDP in current US$, the latest value per country (${from === to ? from : `${from} to ${to}`}). Source: World Bank, indicator NY.GDP.MKTP.CD, CC BY 4.0.` +
+			(missing.length > 0 ? ` No GDP for: ${missing.join(', ')}.` : '')
 		: null;
 
 	return {
