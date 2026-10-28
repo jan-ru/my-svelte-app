@@ -1,6 +1,6 @@
 # Macro / meso size flow (countries and industries versus global)
 
-Date: 2026-10-28. Status: draft, pending owner review.
+Date: 2026-10-28. Status: approved; implemented (see PRs).
 Source: the owner's handover `handover-macro-meso-micro-v2.md` (reduced scope), refined in conversation. Builds on `2026-10-27-static-public-site-design.md` (anonymous static, interactive after login) and on `companies.json`, which already has regions, sectors and sub groups (#38).
 
 ## Goal
