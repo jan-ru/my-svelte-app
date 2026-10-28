@@ -43,7 +43,7 @@
 	<h1>Countries</h1>
 	<p class="note">
 		How large each country is as a share of the global total. Measure: <strong>{view.measureLabel}</strong>.
-		Companies are the companies in the NYU Stern list, not an economic size.
+		{#if gdp}GDP is the World Bank's gross domestic product in current US$.{:else}Companies are the companies in the NYU Stern list, not an economic size.{/if}
 	</p>
 
 	{#if data.interactive}
@@ -60,7 +60,7 @@
 	{#if summary}
 		<p class="summary">
 			{data.nav.countries.join(' + ')}: {format(summary.value)} {view.measureLabel}, {formatPercent(summary.percent)} of the global total{data.nav.industries.length > 0 && !gdp ? `, counting only ${data.nav.industries.join(' and ')}` : ''}.
-			The industries of these countries are shown further down.
+			{#if breakdown}The industries of these countries are shown further down.{/if}
 		</p>
 	{/if}
 
