@@ -10,6 +10,7 @@ import {
 	formatCount,
 	formatPercent,
 	formatUsd,
+	formatUsdCompact,
 	sectorFill,
 	shareOfGlobal,
 	topIds
@@ -154,5 +155,15 @@ describe('formatters', () => {
 		expect(formatPercent(5.04)).toBe('5.0%');
 		expect(formatPercent(0.04)).toBe('<0.1%');
 		expect(formatPercent(0)).toBe('0%');
+	});
+});
+
+describe('formatUsdCompact', () => {
+	it('uses T, B and M without currency and keeps one decimal below 100', () => {
+		expect(formatUsdCompact(118350166039396)).toBe('118T');
+		expect(formatUsdCompact(4.2e12)).toBe('4.2T');
+		expect(formatUsdCompact(540e9)).toBe('540B');
+		expect(formatUsdCompact(35.4e6)).toBe('35.4M');
+		expect(formatUsdCompact(12345)).toBe('12,345');
 	});
 });

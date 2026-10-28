@@ -80,3 +80,27 @@ export function fit(label: string, width: number, charWidth = 6.5): string {
 	if (max < 3) return '';
 	return label.length <= max ? label : `${label.slice(0, max - 1)}…`;
 }
+
+/** A label wrapped on spaces into at most `maxLines` lines that fit a tile of the given width; the last line ends in '…' when words are left over; [] when there is no room. */
+export function wrap(label: string, width: number, maxLines: number, charWidth = 5.8): string[] {
+	const max = Math.floor((width - 8) / charWidth);
+	if (max < 3 || maxLines < 1) return [];
+	const lines: string[] = [];
+	let cur = '';
+	for (const word of label.split(/\s+/).filter(Boolean)) {
+		// a word that is wider than the tile is cut with an ellipsis rather than broken mid-word
+		const w = word.length > max ? `${word.slice(0, max - 1)}…` : word;
+		if (!cur) cur = w;
+		else if (cur.length + 1 + w.length <= max) cur += ` ${w}`;
+		else {
+			lines.push(cur);
+			cur = w;
+		}
+	}
+	if (cur) lines.push(cur);
+	if (lines.length <= maxLines) return lines;
+	const kept = lines.slice(0, maxLines);
+	const last = kept[maxLines - 1];
+	kept[maxLines - 1] = `${last.length >= max ? last.slice(0, max - 1) : last}…`;
+	return kept;
+}

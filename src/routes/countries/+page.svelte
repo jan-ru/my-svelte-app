@@ -4,13 +4,14 @@
 	import ShareBars from '#lib/components/ShareBars.svelte';
 	import SizeSelector from '#lib/components/SizeSelector.svelte';
 	import Treemap from '#lib/components/Treemap.svelte';
-	import { formatCount, formatPercent, formatUsd } from '#lib/size';
+	import { formatCount, formatPercent, formatUsd, formatUsdCompact, USD_COMPACT_NOTE } from '#lib/size';
 	import { sizeHref, toggle } from '#lib/size-nav';
 
 	let { data }: PageProps = $props();
 
 	const view = $derived(data.view);
-	const format = $derived(view.measureLabel === 'GDP' ? formatUsd : formatCount);
+	const gdp = $derived(view.measureLabel === 'GDP');
+	const format = $derived(gdp ? formatUsd : formatCount);
 	// Tiles link to a narrower view only for logged-in visitors; anonymous pages link to no query variant.
 	const tiles = $derived(
 		view.tiles.map((t) => (data.interactive ? { ...t, href: sizeHref('/countries', { ...data.nav, countries: toggle(data.nav.countries, t.id) }) } : t))
@@ -39,7 +40,7 @@
 	{/if}
 
 	<h2>All countries by {view.measureLabel}</h2>
-	<Treemap items={tiles} selected={data.nav.countries} {format} measureLabel={view.measureLabel} total={view.total} />
+	<Treemap items={tiles} selected={data.nav.countries} {format} tileFormat={gdp ? formatUsdCompact : format} note={gdp ? USD_COMPACT_NOTE : ''} measureLabel={view.measureLabel} total={view.total} />
 
 	<h2>{data.nav.countries.length > 0 ? 'Selected countries' : 'Largest countries'} versus global</h2>
 	<ShareBars shares={view.shares} {format} measureLabel={view.measureLabel} />
