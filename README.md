@@ -80,7 +80,7 @@ CI also enforces a coverage floor on `src/lib` (`npm run test:coverage`) and run
 
 ## Getting started
 
-Prerequisites: [Node.js](https://nodejs.org) 24.x (pinned in `package.json` under `engines`) and npm.
+Prerequisites: [Node.js](https://nodejs.org) 24.x (pinned in `package.json` under `engines`, and in `.nvmrc`, so `nvm use` picks it) and npm. The project stays on one Node LTS line; moving to the next one means changing `engines`, `.nvmrc`, the CI workflows and `@types/node` together (a test checks they agree).
 
 ```sh
 git clone https://github.com/jan-ru/my-svelte-app.git
