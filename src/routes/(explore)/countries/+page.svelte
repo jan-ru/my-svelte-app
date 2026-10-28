@@ -5,6 +5,7 @@
 	import SelectionBar from '#lib/components/SelectionBar.svelte';
 	import SizeSelector from '#lib/components/SizeSelector.svelte';
 	import Treemap from '#lib/components/Treemap.svelte';
+	import { plural } from '#lib/plural';
 	import { formatCount, formatPercent, formatUsd, formatUsdCompact, USD_COMPACT_NOTE } from '#lib/size';
 	import { sizeHref, toggle } from '#lib/size-nav';
 
@@ -69,7 +70,7 @@
 
 	{#if view.cross}
 		<p role="status">
-			{formatCount(view.cross.count)} companies in {data.nav.countries[0]} and {data.nav.industries[0]}:
+			{formatCount(view.cross.count)} {plural(view.cross.count, 'company', 'companies')} in {data.nav.countries[0]} and {data.nav.industries[0]}:
 			{formatPercent(view.cross.percentOfGlobal)} of all companies,
 			{formatPercent(view.cross.percentOfCountry)} of {data.nav.countries[0]},
 			{formatPercent(view.cross.percentOfIndustry)} of {data.nav.industries[0]}.

@@ -41,22 +41,28 @@
 <form method="GET" {action}>
 	{#if showMeasure}<input type="hidden" name="measure" value={nav.measure} />{/if}
 	{#if countries.length > 0}
-		<label for="country">Countries</label>
-		<select id="country" name="country" multiple size="6">
-			{#each countries as name (name)}<option value={name} selected={nav.countries.includes(name)}>{name}</option>{/each}
-		</select>
+		<div class="field">
+			<label for="country">Countries</label>
+			<select id="country" name="country" multiple size="6">
+				{#each countries as name (name)}<option value={name} selected={nav.countries.includes(name)}>{name}</option>{/each}
+			</select>
+		</div>
 	{/if}
 	{#if industries.length > 0}
-		<label for="industry">Industries</label>
-		<select id="industry" name="industry" multiple size="6">
-			{#each industries as name (name)}<option value={name} selected={nav.industries.includes(name)}>{name}</option>{/each}
-		</select>
+		<div class="field">
+			<label for="industry">Industries</label>
+			<select id="industry" name="industry" multiple size="6">
+				{#each industries as name (name)}<option value={name} selected={nav.industries.includes(name)}>{name}</option>{/each}
+			</select>
+		</div>
 	{/if}
 	{#if sectors.length > 0}
-		<label for="sector">Sectors</label>
-		<select id="sector" name="sector" multiple size="6">
-			{#each sectors as name (name)}<option value={name} selected={nav.sectors.includes(name)}>{name}</option>{/each}
-		</select>
+		<div class="field">
+			<label for="sector">Sectors</label>
+			<select id="sector" name="sector" multiple size="6">
+				{#each sectors as name (name)}<option value={name} selected={nav.sectors.includes(name)}>{name}</option>{/each}
+			</select>
+		</div>
 	{/if}
 	<button type="submit">Show</button>
 	<a class="button" href={sizeHref(action, { measure: nav.measure, countries: [], industries: [], sectors: [] })}>Clear</a>
@@ -66,6 +72,7 @@
 
 <style>
 	form { display: flex; gap: var(--space-2) var(--space-4); align-items: flex-start; flex-wrap: wrap; margin: var(--space-4) 0; padding: var(--space-3) var(--space-4); background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
+	.field { display: flex; flex-direction: column; gap: var(--space-1); }
 	select { max-width: 100%; }
 	.hint { color: var(--text-secondary); font-size: var(--text-sm); }
 	.hint.block { flex-basis: 100%; margin: 0; }

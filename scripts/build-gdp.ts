@@ -39,6 +39,12 @@ const { mapping, unmatched, unusedWb, badManual } = matchCountries(
 	MANUAL_NAMES
 );
 
+// Checked before anything is written, so a stale manual table cannot leave a half-trusted gdp.json behind.
+if (badManual.length > 0) {
+	console.error(`Manual table entries whose World Bank name no longer exists: ${badManual.join('; ')}`);
+	process.exit(1);
+}
+
 const out = {
 	generated: new Date().toISOString().slice(0, 10),
 	source: 'World Bank, GDP (current US$), indicator NY.GDP.MKTP.CD, most recent non-empty value',
@@ -54,7 +60,3 @@ console.log(`Wrote gdp.json: ${Object.keys(countries).length} countries with a v
 console.log(`Countries share of world total: ${((Object.values(countries).reduce((s, c) => s + c.value, 0) / world.value) * 100).toFixed(1)}%`);
 console.log(`NYU countries without a World Bank match (${unmatched.length}): ${unmatched.join('; ') || 'none'}`);
 console.log(`World Bank countries no NYU name maps to (${unusedWb.length}): ${unusedWb.join(' ')}`);
-if (badManual.length > 0) {
-	console.error(`Manual table entries whose World Bank name no longer exists: ${badManual.join('; ')}`);
-	process.exitCode = 1;
-}
