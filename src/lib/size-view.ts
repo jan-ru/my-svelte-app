@@ -51,8 +51,9 @@ export function countriesView(data: CompanyData, gdp: GdpData, nav: SizeNav): Co
 	const selected = nav.countries.length > 0 ? nav.countries : topIds(values, TOP_N);
 
 	const sectorOf = dominantSector(data);
+	// GDP has no industry split, so the industry breakdown belongs to the companies measure only
 	const breakdown =
-		nav.countries.length > 0
+		nav.countries.length > 0 && !gdpMeasure
 			? tilesOf(countBy(data, 'industry', { countries: nav.countries, sectors: nav.sectors }), (industry) => sectorFill(sectorOf[industry]))
 			: null;
 	const cross = nav.countries.length === 1 && nav.industries.length === 1 ? crossCell(data, nav.countries[0], nav.industries[0]) : null;

@@ -72,6 +72,7 @@ describe('countriesView', () => {
 		expect(v.gdpNote).toMatch(/2024.*2025/);
 		expect(v.gdpNote).toMatch(/World Bank/);
 		expect(v.gdpNote).toMatch(/Taiwan/); // countries without GDP are named
+		expect(v.breakdown).toBeNull(); // GDP has no industry split
 	});
 	it('colours the industry breakdown by sector', () => {
 		const v = countriesView(data, gdp, nav({ countries: ['Netherlands'] }));
