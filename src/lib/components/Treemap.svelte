@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { fit, squarify, wrap, type TreemapItem } from '#lib/size-treemap';
-	import { formatPercent } from '#lib/size';
+	import { fit, nest, squarify, wrap, type TreemapItem } from '#lib/size-treemap';
+	import { formatPercent, readableOn } from '#lib/size';
 
 	let {
 		items,
@@ -8,6 +8,7 @@
 		format,
 		tileFormat = format,
 		note = '',
+		groups,
 		measureLabel,
 		total
 	}: {
@@ -18,6 +19,8 @@
 		tileFormat?: (n: number) => string;
 		/** Added to the caption, for example what a unit suffix means. */
 		note?: string;
+		/** Blocks that hold the tiles whose `group` matches an id, with a header strip showing the label. */
+		groups?: { id: string; label: string; fill: string; href?: string }[];
 		measureLabel: string;
 		/** The global total the percentages in the table refer to. */
 		total: number;
@@ -25,7 +28,15 @@
 
 	const W = 720;
 	const H = 420;
-	const rects = $derived(squarify(items, W, H));
+	const HEADER = 18;
+	const layout = $derived(
+		groups
+			? nest(items.map((i) => ({ id: i.id, value: i.value, group: i.group ?? '' })), W, H, HEADER)
+			: { groups: [], tiles: squarify(items, W, H) }
+	);
+	const rects = $derived(layout.tiles);
+	const groupById = $derived(new Map((groups ?? []).map((g) => [g.id, g])));
+	const groupLabel = (id: string) => groupById.get(items.find((i) => i.id === id)?.group ?? '')?.label;
 	const byId = $derived(new Map(items.map((i) => [i.id, i])));
 	const sorted = $derived([...items].filter((i) => i.value > 0).sort((a, b) => b.value - a.value));
 	const summary = $derived(
@@ -45,7 +56,7 @@
 	const activeItem = $derived(active ? byId.get(active) : undefined);
 	const readout = $derived(
 		activeItem
-			? `${activeItem.label}: ${format(activeItem.value)} ${measureLabel} (${percent(activeItem.value)} of global)`
+			? `${activeItem.label}${groupLabel(activeItem.id) ? ` (${groupLabel(activeItem.id)})` : ''}: ${format(activeItem.value)} ${measureLabel} (${percent(activeItem.value)} of global)`
 			: (linked ? 'Click a tile to select it, or a selected tile to remove it. Hover or focus a tile for its name and share.' : 'Hover over, focus or tap a tile for its name and share.')
 	);
 	const LINE = 12;
@@ -70,7 +81,7 @@
 	{#if r.w > 6 && r.h > 6}
 		<rect class="edge" x={r.x + 1.5} y={r.y + 1.5} width={r.w - 3} height={r.h - 3} fill="none" stroke="#1D2D3E" />
 	{/if}
-	<title>{item.label}: {format(item.value)} ({percent(item.value)})</title>
+	<title>{item.label}{groupLabel(item.id) ? ` (${groupLabel(item.id)})` : ''}: {format(item.value)} ({percent(item.value)})</title>
 	{#each lines as line, i (i)}
 		<text x={r.x + 5} y={r.y + 5 + LINE * (i + 1) - 2} fill="#1D2D3E" font-size="11" font-weight="600">{line}</text>
 	{/each}
@@ -79,9 +90,28 @@
 	{/if}
 {/snippet}
 
+{#snippet block(g: { x: number; y: number; w: number; h: number; value: number }, meta: { label: string; fill: string }, head: string)}
+	<rect x={g.x} y={g.y} width={g.w} height={g.h} fill={meta.fill} stroke="#FFFFFF" stroke-width="2" />
+	<title>{meta.label}: {format(g.value)} ({percent(g.value)})</title>
+	{#if head}
+		<text x={g.x + 5} y={g.y + 13} fill={readableOn(meta.fill)} font-size="11" font-weight="700">{head}</text>
+	{/if}
+{/snippet}
+
 <figure>
 	<figcaption>Area shows {measureLabel}. Percentages are of the global total.{note ? ` ${note}` : ''}</figcaption>
 	<svg viewBox="0 0 {W} {H}" role={linked ? 'group' : 'img'} aria-label={summary}>
+		{#each layout.groups as g (g.id)}
+			{@const meta = groupById.get(g.id)}
+			{#if meta}
+				{@const head = fit(`${meta.label} · ${format(g.value)}`, g.w, 6.4) || fit(meta.label, g.w, 6.4)}
+				{#if meta.href}
+					<a href={meta.href} class="tile" aria-label="{meta.label}: {format(g.value)}">{@render block(g, meta, head)}</a>
+				{:else}
+					<g class="tile">{@render block(g, meta, head)}</g>
+				{/if}
+			{/if}
+		{/each}
 		{#each rects as r (r.id)}
 			{@const item = byId.get(r.id)!}
 			{#if item.href}

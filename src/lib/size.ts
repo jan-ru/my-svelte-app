@@ -113,24 +113,46 @@ export function crossCell(data: CompanyData, country: string, industry: string):
 }
 
 /**
- * Light fills, so the dark label text keeps at least a 4.5:1 contrast (tested). Colour is never the only signal:
- * every tile is labelled and the table below the chart lists the sector.
+ * One strong colour per sector: the block headers and the legend. Hues differ enough to tell apart side by side
+ * (a test checks the distance), and a header never relies on colour alone: it carries the sector name.
  */
-export const SECTOR_FILLS: Record<string, string> = {
-	'Communication Services': '#E7C6F2',
-	'Consumer Discretionary': '#FAD7A0',
-	'Consumer Staples': '#D5E8A8',
-	Energy: '#F5B7B1',
-	Financials: '#AED6F1',
-	'Health Care': '#A9DFBF',
-	Industrials: '#D5D8DC',
-	'Information Technology': '#A3E4D7',
-	Materials: '#E6CDA6',
-	'Real Estate': '#F9E79F',
-	Utilities: '#C5CAE9'
+export const SECTOR_STRONG: Record<string, string> = {
+	'Communication Services': '#C58FD6',
+	'Consumer Discretionary': '#F5A04A',
+	'Consumer Staples': '#A4D65E',
+	Energy: '#E8706C',
+	Financials: '#5B9BD5',
+	'Health Care': '#3DB38A',
+	Industrials: '#A0A9B4',
+	'Information Technology': '#32C5D2',
+	Materials: '#C49A6C',
+	'Real Estate': '#F2D14B',
+	Utilities: '#9AA7F2'
 };
+const SECTOR_FALLBACK = '#B8C2CC';
+export const sectorStrong = (sector: string): string => SECTOR_STRONG[sector] ?? SECTOR_FALLBACK;
+
+/** `hex` blended with white; `amount` is the share of white. */
+export function tint(hex: string, amount: number): string {
+	const mixed = [1, 3, 5].map((i) => Math.round(parseInt(hex.slice(i, i + 2), 16) * (1 - amount) + 255 * amount));
+	return `#${mixed.map((c) => c.toString(16).padStart(2, '0')).join('').toUpperCase()}`;
+}
+
+const luminance = (hex: string): number => {
+	const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((c) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4));
+	return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+};
+export const INK = '#1D2D3E';
+/** The label colour with the better contrast on `hex`: the dark ink or white. */
+export function readableOn(hex: string): string {
+	const l = luminance(hex) + 0.05;
+	return l / (luminance(INK) + 0.05) >= 1.05 / l ? INK : '#FFFFFF';
+}
+
+/** Light tile fills: the strong colour thinned out, so the dark label text keeps at least a 4.5:1 contrast (tested). */
+export const SECTOR_FILLS: Record<string, string> = Object.fromEntries(Object.entries(SECTOR_STRONG).map(([k, v]) => [k, tint(v, 0.62)]));
 export const COUNTRY_FILL = '#B3D6FF';
-export const sectorFill = (sector: string): string => SECTOR_FILLS[sector] ?? '#E3E8EE';
+export const sectorFill = (sector: string): string => SECTOR_FILLS[sector] ?? tint(SECTOR_FALLBACK, 0.62);
 
 export const formatCount = (n: number): string => n.toLocaleString('en');
 

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { PageProps } from './$types';
 	import LoginPrompt from '#lib/components/LoginPrompt.svelte';
+	import SelectionBar from '#lib/components/SelectionBar.svelte';
 	import ShareBars from '#lib/components/ShareBars.svelte';
 	import SizeSelector from '#lib/components/SizeSelector.svelte';
 	import Treemap from '#lib/components/Treemap.svelte';
@@ -18,6 +19,16 @@
 		view.breakdown?.map((t) => (data.interactive ? { ...t, href: sizeHref('/industries', { ...data.nav, countries: toggle(data.nav.countries, t.id) }) } : t)) ?? null
 	);
 	const sectorHref = (sector: string) => sizeHref('/industries', { ...data.nav, sectors: toggle(data.nav.sectors, sector) });
+	// anonymous pages apply no filter, so their view holds every industry and sector
+	const industryCount = $derived(data.interactive ? data.industries.length : view.tiles.length);
+	const sectorCount = $derived(data.interactive ? data.sectors.length : view.legend.length);
+	const groups = $derived(view.legend.map((l) => ({ id: l.sector, label: l.sector, fill: l.fill, href: data.interactive ? sectorHref(l.sector) : undefined })));
+	const chips = $derived([
+		...data.nav.sectors.map((v) => ({ label: v, href: sizeHref('/industries', { ...data.nav, sectors: toggle(data.nav.sectors, v) }) })),
+		...data.nav.industries.map((v) => ({ label: v, href: sizeHref('/industries', { ...data.nav, industries: toggle(data.nav.industries, v) }) })),
+		...data.nav.countries.map((v) => ({ label: v, href: sizeHref('/industries', { ...data.nav, countries: toggle(data.nav.countries, v) }) }))
+	]);
+	const clearHref = $derived(sizeHref('/industries', { ...data.nav, sectors: [], industries: [], countries: [] }));
 </script>
 
 <svelte:head>
@@ -28,8 +39,9 @@
 <main>
 	<h1>Industries</h1>
 	<p class="note">
-		How large each industry is as a share of all companies in the NYU Stern list. Measure: <strong>companies</strong>
-		(there is no value per industry in dollars). Colour shows the sector most of an industry's companies belong to.
+		NYU Stern sorts the listed companies into {industryCount} industries, and each industry belongs mostly to one of {sectorCount} sectors, for example Banks (Regional) to Financials.
+		Each coloured block below is a sector and the tiles inside it are its industries. Area shows the number of companies
+		(there is no value per industry in dollars).
 	</p>
 
 	{#if data.interactive}
@@ -38,7 +50,9 @@
 		<LoginPrompt from="/industries">to choose industries, sectors and countries.</LoginPrompt>
 	{/if}
 
-	<h2>Industries by companies</h2>
+	{#if data.interactive}<SelectionBar {chips} {clearHref} />{/if}
+
+	<h2>Industries by sector</h2>
 	<ul class="legend" role="list" aria-label="Sectors">
 		{#each view.legend as l (l.sector)}
 			<li>
@@ -52,8 +66,9 @@
 			</li>
 		{/each}
 	</ul>
-	<p class="note">Each tile is coloured by the dominant sector of its industry; legend counts add up the tiles of that colour. A sector filter keeps only companies of that sector, so an industry can show fewer companies than its total.</p>
-	<Treemap items={tiles} selected={data.nav.industries} format={formatCount} measureLabel="companies" total={view.total} />
+	{#if data.interactive}<p class="note">Click a sector, in the legend or on its header, to keep only the companies of that sector.</p>{/if}
+	<Treemap items={tiles} {groups} selected={data.nav.industries} format={formatCount} measureLabel="companies" total={view.total} />
+	<p class="note">An industry whose companies fall in several sectors is placed under the sector most of them belong to, so a sector filter can show fewer companies than the industry's total.</p>
 
 	<h2>{data.nav.industries.length > 0 ? 'Selected industries' : 'Largest industries'} versus global</h2>
 	<ShareBars shares={view.shares} format={formatCount} measureLabel="companies" />

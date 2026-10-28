@@ -6,6 +6,7 @@ import {
 	countBy,
 	dominantSector,
 	sectorFill,
+	sectorStrong,
 	shareOfGlobal,
 	topIds,
 	type CrossCell,
@@ -81,7 +82,7 @@ export interface IndustriesView {
 	total: number;
 	/** Every industry with companies, coloured by its sector. */
 	tiles: TreemapItem[];
-	/** The sectors present in `tiles`, with their colour and company count: the legend, and the drill-down links. */
+	/** The sectors present in `tiles`, with their strong colour and company count: the legend, the block headers and the drill-down links. */
 	legend: { sector: string; fill: string; value: number }[];
 	/** The selected industries (or the largest ten) against the global total. */
 	shares: Shares;
@@ -94,11 +95,11 @@ export function industriesView(data: CompanyData, nav: SizeNav): IndustriesView 
 	const values = countBy(data, 'industry', { countries: nav.countries, sectors: nav.sectors });
 	const total = data.companies.length;
 	const sectorOf = dominantSector(data);
-	const tiles = tilesOf(values, (industry) => sectorFill(sectorOf[industry]));
+	const tiles = tilesOf(values, (industry) => sectorFill(sectorOf[industry])).map((t) => ({ ...t, group: sectorOf[t.id] }));
 	const legendCounts = new Map<string, number>();
 	for (const t of tiles) legendCounts.set(sectorOf[t.id], (legendCounts.get(sectorOf[t.id]) ?? 0) + t.value);
 	const legend = [...legendCounts]
-		.map(([sector, value]) => ({ sector, fill: sectorFill(sector), value }))
+		.map(([sector, value]) => ({ sector, fill: sectorStrong(sector), value }))
 		.sort((a, b) => b.value - a.value || a.sector.localeCompare(b.sector));
 	const selected = nav.industries.length > 0 ? nav.industries : topIds(values, TOP_N);
 	const breakdown =
