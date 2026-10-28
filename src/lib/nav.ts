@@ -7,6 +7,5 @@ export const EXPLORE_LINKS = [
 ] as const;
 
 export const EXPLORE_HOME = EXPLORE_LINKS[0].href;
-export const EXPLORE_SOURCE = 'NYU Stern (Damodaran) and the World Bank';
 
 export const inExplore = (pathname: string): boolean => EXPLORE_LINKS.some((l) => l.href === pathname);
