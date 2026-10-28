@@ -38,11 +38,11 @@
 		<LoginPrompt from="/industries">to choose industries, sectors and countries.</LoginPrompt>
 	{/if}
 
-	<h2>All industries by companies</h2>
-	<ul class="legend" aria-label="Sectors">
+	<h2>Industries by companies</h2>
+	<ul class="legend" role="list" aria-label="Sectors">
 		{#each view.legend as l (l.sector)}
 			<li>
-				<span class="swatch" style="background: {l.fill}"></span>
+				<span class="swatch" aria-hidden="true" style="background: {l.fill}"></span>
 				{#if data.interactive}
 					<a href={sectorHref(l.sector)} aria-current={data.nav.sectors.includes(l.sector) ? 'true' : undefined}>{l.sector}</a>
 				{:else}
@@ -52,6 +52,7 @@
 			</li>
 		{/each}
 	</ul>
+	<p class="note">Each tile is coloured by the dominant sector of its industry; legend counts add up the tiles of that colour. A sector filter keeps only companies of that sector, so an industry can show fewer companies than its total.</p>
 	<Treemap items={tiles} selected={data.nav.industries} format={formatCount} measureLabel="companies" total={view.total} />
 
 	<h2>{data.nav.industries.length > 0 ? 'Selected industries' : 'Largest industries'} versus global</h2>
