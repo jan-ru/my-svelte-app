@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { fit, squarify } from './size-treemap';
+import { fit, squarify, wrap } from './size-treemap';
 
 const area = (r: { w: number; h: number }) => r.w * r.h;
 const items = [
@@ -56,5 +56,16 @@ describe('fit', () => {
 		expect(fit('Information Technology', 80)).toMatch(/…$/);
 		expect(fit('Information Technology', 80).length).toBeLessThan('Information Technology'.length);
 		expect(fit('Japan', 20)).toBe('');
+	});
+});
+
+describe('wrap', () => {
+	it('breaks on spaces, caps the lines with an ellipsis, and returns nothing when there is no room', () => {
+		expect(wrap('Machinery', 100, 2)).toEqual(['Machinery']);
+		expect(wrap('Software (System & Application)', 96, 2)).toEqual(['Software', '(System &…']);
+		expect(wrap('Metals & Mining', 80, 2)).toEqual(['Metals &', 'Mining']);
+		expect(wrap('Electronics', 40, 2).every((l) => l.length <= 5)).toBe(true);
+		expect(wrap('Japan', 20, 2)).toEqual([]);
+		expect(wrap('Japan', 100, 0)).toEqual([]);
 	});
 });
