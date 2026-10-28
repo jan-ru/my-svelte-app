@@ -56,7 +56,7 @@
 	const activeItem = $derived(active ? byId.get(active) : undefined);
 	const readout = $derived(
 		activeItem
-			? `${activeItem.label}${groupLabel(activeItem.id) ? ` (${groupLabel(activeItem.id)})` : ''}: ${format(activeItem.value)} ${measureLabel} (${percent(activeItem.value)} of global)`
+			? `${activeItem.label}${groupLabel(activeItem.id) ? ` (${groupLabel(activeItem.id)})` : ''}: ${format(activeItem.value)} ${activeItem.value === 1 && measureLabel === 'companies' ? 'company' : measureLabel} (${percent(activeItem.value)} of global)`
 			: (linked ? 'Click a tile to select it, or a selected tile to remove it. Hover or focus a tile for its name and share.' : 'Hover over, focus or tap a tile for its name and share.')
 	);
 	const LINE = 12;

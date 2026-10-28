@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { plural } from '#lib/plural';
 	import type { PageProps } from './$types';
 	import LoginPrompt from '#lib/components/LoginPrompt.svelte';
 	import type { Item } from '#lib/crosswalk';
@@ -153,7 +154,7 @@
 		{@const r = data.reverse}
 		<h3>{r.industry} <a class="note" href={`/companies?industry=${encodeURIComponent(r.industry)}`}>list companies</a></h3>
 		<p class="note">
-			{r.companies.toLocaleString('en')} companies in {r.sic.length} SIC codes. Showing the {Math.min(r.sbi25.length, data.maxReverse)}
+			{r.companies.toLocaleString('en')} {plural(r.companies, 'company', 'companies')} in {r.sic.length} {plural(r.sic.length, 'SIC code', 'SIC codes')}. Showing the {Math.min(r.sbi25.length, data.maxReverse)}
 			best of {r.sbi25.length} SBI 2025 classes. {percent(r.followed)} of the companies could be followed through every step; the rest have SIC codes missing from one of the correspondence tables.
 		</p>
 		<table>
@@ -172,7 +173,7 @@
 			<summary>SIC codes of this industry <span class="count">({r.sic.length})</span></summary>
 			<ul>
 				{#each r.sic as s (s.code)}
-					<li><a href={`/companies?sic=${s.code}`}><code>{s.code}</code></a> {s.title} <span class="count">({s.companies.toLocaleString('en')} companies)</span></li>
+					<li><a href={`/companies?sic=${s.code}`}><code>{s.code}</code></a> {s.title} <span class="count">({s.companies.toLocaleString('en')} {plural(s.companies, 'company', 'companies')})</span></li>
 				{/each}
 			</ul>
 		</details>

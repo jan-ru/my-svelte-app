@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import real from './data/companies.json';
 import { MANUAL_NAMES, matchCountries } from './gdp-match';
 
 const wb = [
@@ -28,5 +29,12 @@ describe('matchCountries', () => {
 	it('keeps Jersey and Guernsey out of the manual table (both would map to the Channel Islands)', () => {
 		expect(MANUAL_NAMES).not.toHaveProperty('Jersey');
 		expect(MANUAL_NAMES).not.toHaveProperty('Guernsey');
+	});
+});
+
+describe('MANUAL_NAMES', () => {
+	it('only has keys that are NYU country names in the company data (a renamed country must not go unnoticed)', () => {
+		const nyu = (real as unknown as { countries: string[] }).countries;
+		for (const name of Object.keys(MANUAL_NAMES)) expect(nyu).toContain(name);
 	});
 });
