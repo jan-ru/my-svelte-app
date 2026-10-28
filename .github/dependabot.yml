@@ -9,3 +9,7 @@ updates:
       # Stay on the Node 24 (LTS) type definitions until the Node pin in package.json and CI is moved on purpose.
       - dependency-name: "@types/node"
         update-types: ["version-update:semver-major"]
+      # svelte-check supports TypeScript 7 only through an experimental flag with TypeScript 6 installed beside it,
+      # and its peer range (^5 || ^6) makes `npm ci` fail. Revisit when svelte-check lists TypeScript 7 as a peer.
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
