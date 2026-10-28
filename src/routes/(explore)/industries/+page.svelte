@@ -45,6 +45,14 @@
 		(there is no value per industry in dollars).
 	</p>
 
+	<details class="explain">
+		<summary>What does this measure mean?</summary>
+		<p>
+			The number of companies is the count of companies in the NYU Stern list, so an industry with many small listings looks large.
+			Percentages are always of the global total (all companies in the list), with "rest of world" as the remainder.
+		</p>
+	</details>
+
 	{#if data.interactive}
 		<SizeSelector action="/industries" nav={data.nav} countries={data.countries} industries={data.industries} sectors={data.sectors} />
 	{:else}
@@ -104,6 +112,8 @@
 	main { max-width: 64rem; margin: 0 auto; padding: 0 var(--space-4) var(--space-12); }
 	h2 { margin-top: var(--space-8); font-size: var(--text-lg); }
 	.note { color: var(--text-secondary); }
+	.explain { margin: var(--space-2) 0; color: var(--text-secondary); font-size: var(--text-sm); }
+	.explain summary { cursor: pointer; }
 	.legend { list-style: none; display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); margin: var(--space-3) 0; padding: 0; font-size: var(--text-sm); }
 	.swatch { display: inline-block; width: 0.8rem; height: 0.8rem; margin-right: var(--space-1); border: 1px solid var(--border-strong); border-radius: 2px; vertical-align: middle; }
 </style>

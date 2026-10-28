@@ -59,12 +59,12 @@
 </script>
 
 <svelte:head>
-	<title>Valuation multiples by industry – Fetch valuation multiples</title>
+	<title>Valuation multiples – Fetch valuation multiples</title>
 	<meta name="description" content="Compare NYU Stern industry valuation multiples across regions." />
 </svelte:head>
 
 <main>
-	<h1>Valuation multiples by industry</h1>
+	<h1>Valuation multiples</h1>
 	<p class="source">
 		Source:
 		<a href="https://pages.stern.nyu.edu/~adamodar/New_Home_Page/data.html" rel="noreferrer">NYU Stern</a>{#if updatedLabel},
@@ -105,24 +105,6 @@
 					<p class="hint"><a href="/classification">Don't know the industry? Find it from an SBI code.</a></p>
 				</fieldset>
 				<fieldset>
-					<legend>Multiples <span class="count">{selection.multiples.length} of {MAX_SELECTION}</span></legend>
-					<input type="hidden" name="m" value="" />
-					{#each MULTIPLES as multiple (multiple.id)}
-						{@const checked = selection.multiples.includes(multiple.id)}
-						<label>
-							<input
-								type="checkbox"
-								name="m"
-								value={multiple.id}
-								{checked}
-								disabled={!checked && isFull(selection.multiples)}
-							/>
-							{multiple.label}
-						</label>
-					{/each}
-				</fieldset>
-
-				<fieldset>
 					<legend>Regions <span class="count">{selection.regions.length} of {MAX_SELECTION}</span></legend>
 					<input type="hidden" name="r" value="" />
 					{#each REGIONS as region (region.id)}
@@ -136,6 +118,24 @@
 								disabled={!checked && isFull(selection.regions)}
 							/>
 							{region.label}
+						</label>
+					{/each}
+				</fieldset>
+
+				<fieldset>
+					<legend>Multiples <span class="count">{selection.multiples.length} of {MAX_SELECTION}</span></legend>
+					<input type="hidden" name="m" value="" />
+					{#each MULTIPLES as multiple (multiple.id)}
+						{@const checked = selection.multiples.includes(multiple.id)}
+						<label>
+							<input
+								type="checkbox"
+								name="m"
+								value={multiple.id}
+								{checked}
+								disabled={!checked && isFull(selection.multiples)}
+							/>
+							{multiple.label}
 						</label>
 					{/each}
 				</fieldset>
