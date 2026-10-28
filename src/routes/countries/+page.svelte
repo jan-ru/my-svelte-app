@@ -47,7 +47,7 @@
 	</p>
 
 	{#if data.interactive}
-		<SizeSelector action="/countries" nav={data.nav} countries={data.countries} industries={data.industries} showMeasure />
+		<SizeSelector action="/countries" nav={data.nav} countries={data.countries} industries={gdp ? [] : data.industries} showMeasure />
 	{:else}
 		<LoginPrompt from="/countries">to choose countries, industries and the measure.</LoginPrompt>
 	{/if}
