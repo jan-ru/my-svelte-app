@@ -51,6 +51,11 @@
 	{/if}
 
 	{#if data.interactive}<SelectionBar {chips} {clearHref} />{/if}
+	{#if data.interactive && data.nav.sectors.length > 0}
+		<p class="note">
+			Showing only the companies of {data.nav.sectors.join(' and ')}. Slivers of other sectors are companies of {data.nav.sectors.length > 1 ? 'these sectors' : 'this sector'} whose industry is mainly placed under another sector.
+		</p>
+	{/if}
 
 	<h2>Industries by sector</h2>
 	<ul class="legend" role="list" aria-label="Sectors">
