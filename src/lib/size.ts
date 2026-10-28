@@ -141,6 +141,16 @@ export function formatUsd(n: number): string {
 	return `US$ ${Math.round(n).toLocaleString('en')}`;
 }
 
+/** Short form for tiles: the unit is explained once in the treemap caption, so no currency and no spelled-out unit. */
+export function formatUsdCompact(n: number): string {
+	for (const [size, suffix] of [[1e12, 'T'], [1e9, 'B'], [1e6, 'M']] as const) {
+		if (n >= size) return `${(n / size).toLocaleString('en', { maximumFractionDigits: n / size >= 100 ? 0 : 1 })}${suffix}`;
+	}
+	return Math.round(n).toLocaleString('en');
+}
+
+export const USD_COMPACT_NOTE = 'Values are in US$: T = trillion, B = billion, M = million.';
+
 export function formatPercent(p: number): string {
 	if (p >= 10) return `${p.toFixed(0)}%`;
 	if (p >= 0.1) return `${p.toFixed(1)}%`;

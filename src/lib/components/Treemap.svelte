@@ -6,12 +6,18 @@
 		items,
 		selected = [],
 		format,
+		tileFormat = format,
+		note = '',
 		measureLabel,
 		total
 	}: {
 		items: TreemapItem[];
 		selected?: string[];
 		format: (n: number) => string;
+		/** A shorter form for the text inside tiles; explain it in `note`. */
+		tileFormat?: (n: number) => string;
+		/** Added to the caption, for example what a unit suffix means. */
+		note?: string;
 		measureLabel: string;
 		/** The global total the percentages in the table refer to. */
 		total: number;
@@ -48,7 +54,7 @@
 	{@const item = byId.get(r.id)!}
 	{@const room = Math.floor((r.h - 6) / LINE)}
 	{@const lines = wrap(item.label, r.w, Math.min(2, room))}
-	{@const value = lines.length > 0 && room > lines.length ? fit(format(item.value), r.w, 5.8) : ''}
+	{@const value = lines.length > 0 && room > lines.length ? fit(tileFormat(item.value), r.w, 5.8) : ''}
 	{@const on = selected.includes(r.id)}
 	<rect
 		x={r.x}
@@ -72,7 +78,7 @@
 {/snippet}
 
 <figure>
-	<figcaption>Area shows {measureLabel}. Percentages are of the global total.</figcaption>
+	<figcaption>Area shows {measureLabel}. Percentages are of the global total.{note ? ` ${note}` : ''}</figcaption>
 	<svg viewBox="0 0 {W} {H}" role={linked ? 'group' : 'img'} aria-label={summary}>
 		{#each rects as r (r.id)}
 			{@const item = byId.get(r.id)!}
