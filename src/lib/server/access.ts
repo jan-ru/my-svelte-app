@@ -5,11 +5,20 @@ import { SESSION_MS } from './auth';
 export const BYPASS_COOKIE = '__prerender_bypass';
 export const ISR_EXPIRATION_SECONDS = 86400;
 /**
- * The only query parameters that reach a cached route (the adapter adds `__pathname`). SvelteKit reads these two
- * before hooks run for `__data.json` requests, so each value needs its own cache entry or the first requester
- * decides what everyone gets. Everything else is ignored by the cache key and by the anonymous loaders.
+ * The query parameters that reach a cached route (the adapter adds `__pathname`). Vercel drops every other parameter
+ * before the function runs, even for a logged-in request that skips the cache, so the pages' own filter and selection
+ * parameters must be listed or the interactive controls stop working. Each value gets its own cache entry; the
+ * anonymous loaders ignore them, so every entry holds the same anonymous view. The two `x-sveltekit-*` parameters are
+ * SvelteKit's `__data.json` request parameters, which it reads before hooks run.
  */
-export const ISR_ALLOW_QUERY = ['x-sveltekit-invalidated', 'x-sveltekit-trailing-slash'] as const;
+export const ISR_ALLOW_QUERY = [
+	// Home
+	'm', 'r', 'i', 'p', 'x', 'c',
+	// Find industry and Companies
+	'q', 'code', 'industry', 'sic', 'country', 'region', 'sector', 'page',
+	// SvelteKit data requests
+	'x-sveltekit-invalidated', 'x-sveltekit-trailing-slash'
+] as const;
 export const MIN_BYPASS_TOKEN_LENGTH = 32;
 /** The session cookie used to be scoped to /financials; login and logout also clear that one. */
 export const LEGACY_COOKIE_PATH = '/financials';
