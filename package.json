@@ -12,6 +12,7 @@
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "build:crosswalk": "node scripts/build-crosswalk.ts",
     "build:companies": "node scripts/build-companies.ts",
+    "build:gdp": "node scripts/build-gdp.ts",
     "check:ts-only": "node scripts/check-no-js.ts"
   },
   "devDependencies": {
