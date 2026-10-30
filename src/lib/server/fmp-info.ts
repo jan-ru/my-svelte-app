@@ -33,6 +33,21 @@ export interface PricePoint {
 	volume: number | null;
 }
 
+export interface PriceTarget {
+	consensus: number | null;
+	median: number | null;
+	high: number | null;
+	low: number | null;
+}
+
+export interface Peer {
+	symbol: string;
+	name: string | null;
+	price: number | null;
+	marketCap: number | null;
+}
+
+export const PEERS_LIMIT = 20;
 export const NEWS_LIMIT = 20;
 const NEWS_PATH = 'news/stock';
 const SNIPPET_MAX = 300;
@@ -135,4 +150,45 @@ export async function fetchPrices(
 	fetchFn: typeof fetch = fetch
 ): Promise<PricePoint[]> {
 	return parsePrices(await fmpGet('historical-price-eod/full', { symbol, from, to }, apiKey, fetchFn));
+}
+
+export function parsePriceTarget(body: unknown): PriceTarget | null {
+	throwIfErrorBody(body);
+	if (!Array.isArray(body)) throw unexpected();
+	const r = body[0];
+	if (!r || typeof r !== 'object') return null;
+	const rec = r as Record<string, unknown>;
+	const target: PriceTarget = {
+		consensus: num(rec.targetConsensus),
+		median: num(rec.targetMedian),
+		high: num(rec.targetHigh),
+		low: num(rec.targetLow)
+	};
+	return Object.values(target).every((v) => v === null) ? null : target;
+}
+
+export function parsePeers(body: unknown): Peer[] {
+	throwIfErrorBody(body);
+	if (!Array.isArray(body)) throw unexpected();
+	const peers: Peer[] = [];
+	for (const entry of body) {
+		if (!entry || typeof entry !== 'object') continue;
+		const rec = entry as Record<string, unknown>;
+		const symbol = str(rec.symbol);
+		if (!symbol) continue;
+		peers.push({ symbol, name: str(rec.companyName), price: num(rec.price), marketCap: num(rec.mktCap) });
+	}
+	return peers.slice(0, PEERS_LIMIT);
+}
+
+export async function fetchPriceTarget(
+	symbol: string,
+	apiKey: string,
+	fetchFn: typeof fetch = fetch
+): Promise<PriceTarget | null> {
+	return parsePriceTarget(await fmpGet('price-target-consensus', { symbol }, apiKey, fetchFn));
+}
+
+export async function fetchPeers(symbol: string, apiKey: string, fetchFn: typeof fetch = fetch): Promise<Peer[]> {
+	return parsePeers(await fmpGet('stock-peers', { symbol }, apiKey, fetchFn));
 }
