@@ -1,7 +1,7 @@
 // src/lib/statements.test.ts
 import { describe, expect, it } from 'vitest';
 import type { Statement } from './server/fmp';
-import { buildTable, formatValue, humanise } from './statements';
+import { buildTable, formatEstimate, formatRatio, formatValue, humanise } from './statements';
 
 describe('humanise', () => {
 	it('turns camelCase into a sentence', () => {
@@ -73,5 +73,33 @@ describe('formatValue for Yahoo per-share keys', () => {
 		expect(formatValue('basicEPS', 1)).toBe('1.00');
 		expect(formatValue('epsdiluted', 2.45)).toBe('2.45');
 		expect(formatValue('totalRevenue', 8_732_000_000)).toBe('8,732.0');
+	});
+});
+
+describe('formatRatio', () => {
+	it('shows a plain number with two decimals, not an amount in millions', () => {
+		expect(formatRatio('priceToEarningsRatio', 28.456)).toBe('28.46');
+		expect(formatRatio('grossProfitMargin', 0.4621)).toBe('0.46');
+	});
+	it('shows n/a for a missing value', () => {
+		expect(formatRatio('priceToEarningsRatio', null)).toBe('n/a');
+	});
+	it('is used by buildTable when passed in', () => {
+		const table = buildTable(
+			{ lines: ['peRatio'], years: [{ fiscalYear: '2024', date: '2024-12-31', currency: 'USD', values: { peRatio: 25 } }] },
+			'annual',
+			formatRatio
+		);
+		expect(table.rows[0].cells).toEqual(['25.00']);
+	});
+});
+
+describe('formatEstimate', () => {
+	it('shows analyst counts as whole numbers, EPS per share and amounts in millions', () => {
+		expect(formatEstimate('numAnalystsEps', 31)).toBe('31');
+		expect(formatEstimate('epsAvg', 8.123)).toBe('8.12');
+		expect(formatEstimate('epsActual', 1.85)).toBe('1.85');
+		expect(formatEstimate('revenueAvg', 5.1e11)).toBe('510,000.0');
+		expect(formatEstimate('revenueActual', null)).toBe('n/a');
 	});
 });

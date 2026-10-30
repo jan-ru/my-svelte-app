@@ -1,7 +1,18 @@
 // src/lib/server/fmp-info.test.ts
 import { describe, expect, it, vi } from 'vitest';
 import { FmpError } from './fmp';
-import { fetchNews, fetchPrices, fetchProfile, parseNews, parsePrices, parseProfile } from './fmp-info';
+import {
+	fetchNews,
+	fetchPeers,
+	fetchPriceTarget,
+	fetchPrices,
+	fetchProfile,
+	parseNews,
+	parsePeers,
+	parsePriceTarget,
+	parsePrices,
+	parseProfile
+} from './fmp-info';
 
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status });
 
@@ -229,5 +240,51 @@ describe('fetchPrices', () => {
 			expect(error).toBeInstanceOf(FmpError);
 			expect((error as Error).message).not.toContain(secret);
 		}
+	});
+});
+
+describe('parsePriceTarget', () => {
+	it('reads the four targets', () => {
+		expect(parsePriceTarget([{ symbol: 'AAPL', targetHigh: 250, targetLow: 150, targetConsensus: 205.5, targetMedian: '210' }])).toEqual({
+			consensus: 205.5,
+			median: 210,
+			high: 250,
+			low: 150
+		});
+	});
+	it('returns null for an empty list or a record with no targets', () => {
+		expect(parsePriceTarget([])).toBeNull();
+		expect(parsePriceTarget([{ symbol: 'AAPL' }])).toBeNull();
+	});
+	it('maps error bodies and unexpected shapes', () => {
+		expect(() => parsePriceTarget({ 'Error Message': 'Limit Reach' })).toThrow(FmpError);
+		expect(() => parsePriceTarget('nope')).toThrow(FmpError);
+	});
+});
+
+describe('parsePeers', () => {
+	it('keeps symbol, name, price and market cap, and skips entries without a symbol', () => {
+		expect(parsePeers([{ symbol: 'MSFT', companyName: 'Microsoft', price: 400, mktCap: 3e12 }, { companyName: 'No symbol' }, null])).toEqual([
+			{ symbol: 'MSFT', name: 'Microsoft', price: 400, marketCap: 3e12 }
+		]);
+	});
+	it('keeps at most 20', () => {
+		const many = Array.from({ length: 30 }, (_, i) => ({ symbol: `T${i}` }));
+		expect(parsePeers(many)).toHaveLength(20);
+	});
+	it('maps error bodies and unexpected shapes', () => {
+		expect(() => parsePeers({ 'Error Message': 'Invalid API KEY.' })).toThrow(FmpError);
+		expect(() => parsePeers(undefined)).toThrow(FmpError);
+	});
+});
+
+describe('fetchPriceTarget and fetchPeers', () => {
+	it('call their stable endpoints with the ticker', async () => {
+		const fetchFn = vi.fn().mockImplementation(async () => json([]));
+		await fetchPriceTarget('AAPL', 'K', fetchFn);
+		await fetchPeers('AAPL', 'K', fetchFn);
+		const urls = fetchFn.mock.calls.map((c) => new URL(c[0] as string));
+		expect(urls.map((u) => u.pathname)).toEqual(['/stable/price-target-consensus', '/stable/stock-peers']);
+		for (const u of urls) expect(u.searchParams.get('symbol')).toBe('AAPL');
 	});
 });

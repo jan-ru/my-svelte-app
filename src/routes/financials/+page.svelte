@@ -173,9 +173,32 @@
 					{:else}
 						<p>{view.message}</p>
 					{/if}
+				{:else if view.state === 'peers'}
+					{#if view.peers.length > 0}
+						<p class="meta">Comparable companies according to FMP. Open one to see its ratios.</p>
+						<ul class="peers">
+							{#each view.peers as peer (peer.symbol)}
+								<li>
+									<a href={navHref({ ...nav, period, tab: 'ratios' }, peer.symbol)}>{peer.symbol}</a>
+									{#if peer.name}<span>{peer.name}</span>{/if}
+									{#if peer.price !== null}<span class="meta">{formatPrice(peer.price)}</span>{/if}
+								</li>
+							{/each}
+						</ul>
+					{:else}
+						<p>{view.message}</p>
+					{/if}
 				{:else if view.state === 'ready'}
 					<section>
 						<h2>{view.title}{#if view.table?.currency} <small>(millions of {view.table.currency}; per-share figures as reported)</small>{/if}</h2>
+						{#if view.target}
+							<dl class="facts">
+								{#if view.target.consensus !== null}<dt>Price target, consensus</dt><dd>{formatPrice(view.target.consensus)}</dd>{/if}
+								{#if view.target.median !== null}<dt>Median</dt><dd>{formatPrice(view.target.median)}</dd>{/if}
+								{#if view.target.high !== null}<dt>High</dt><dd>{formatPrice(view.target.high)}</dd>{/if}
+								{#if view.target.low !== null}<dt>Low</dt><dd>{formatPrice(view.target.low)}</dd>{/if}
+							</dl>
+						{/if}
 						{#if view.table}
 							<div class="scroll">
 								<table>
@@ -213,6 +236,8 @@
 	.bar { display: flex; gap: var(--space-4); justify-content: space-between; flex-wrap: wrap; align-items: center; }
 	form { display: flex; gap: var(--space-2); align-items: center; flex-wrap: wrap; margin: var(--space-4) 0; }
 	table { width: 100%; font-size: var(--text-sm); }
+	.peers { padding: 0; list-style: none; }
+	.peers li { display: flex; gap: var(--space-3); align-items: baseline; padding: var(--space-2) 0; border-bottom: 1px solid var(--border-subtle); }
 	.num { text-align: right; font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
 	small { font-weight: var(--weight-regular); }
 	.error { padding: var(--space-2) var(--space-3); color: var(--negative); background: var(--negative-bg); border-left: 4px solid var(--negative); border-radius: var(--radius-sm); }

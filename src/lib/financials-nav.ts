@@ -4,6 +4,10 @@ import { returnPath, type ReturnPath } from './return-path';
 
 export const TABS = [
 	{ id: 'financials', label: 'Financials' },
+	{ id: 'ratios', label: 'Ratios' },
+	{ id: 'estimates', label: 'Estimates' },
+	{ id: 'earnings', label: 'Earnings' },
+	{ id: 'peers', label: 'Peers' },
 	{ id: 'news', label: 'News' },
 	{ id: 'price', label: 'Stock Price' },
 	{ id: 'company', label: 'Company Data' }

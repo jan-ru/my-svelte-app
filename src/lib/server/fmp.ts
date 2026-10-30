@@ -141,6 +141,22 @@ export async function fmpGet(
 	return body;
 }
 
+/** Annual financial ratios; the rows have the same shape as a statement, so they parse the same way. */
+export async function fetchRatios(symbol: string, apiKey: string, fetchFn: typeof fetch = fetch): Promise<Statement> {
+	return parseStatement(await fmpGet('ratios', { symbol, period: 'annual', limit: '5' }, apiKey, fetchFn));
+}
+
+/** Analyst estimates by fiscal year, furthest-out year first (FMP's order). */
+export async function fetchEstimates(symbol: string, apiKey: string, fetchFn: typeof fetch = fetch): Promise<Statement> {
+	return parseStatement(await fmpGet('analyst-estimates', { symbol, period: 'annual', limit: '5' }, apiKey, fetchFn));
+}
+
+/** Reported and upcoming earnings; several fall in one fiscal year, so each column is labelled by its report date. */
+export async function fetchEarnings(symbol: string, apiKey: string, fetchFn: typeof fetch = fetch): Promise<Statement> {
+	const statement = parseStatement(await fmpGet('earnings', { symbol, limit: '5' }, apiKey, fetchFn));
+	return { ...statement, years: statement.years.map((y) => ({ ...y, fiscalYear: y.date })) };
+}
+
 export async function fetchStatement(
 	kind: Kind,
 	symbol: string,

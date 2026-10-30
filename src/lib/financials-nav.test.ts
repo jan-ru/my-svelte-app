@@ -15,6 +15,7 @@ describe('parseNav', () => {
 		});
 		expect(parseNav(q('tab=news')).tab).toBe('news');
 		expect(parseNav(q('tab=company')).tab).toBe('company');
+		for (const tab of ['ratios', 'estimates', 'earnings', 'peers']) expect(parseNav(q(`tab=${tab}`)).tab).toBe(tab);
 		expect(parseNav(q('statement=balance')).statement).toBe('balance');
 	});
 	it('falls back to the default for unknown values', () => {
