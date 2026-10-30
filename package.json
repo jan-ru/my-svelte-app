@@ -31,6 +31,7 @@
     "@fontsource-variable/public-sans": "^5.3.0",
     "@fontsource/ibm-plex-mono": "^5.3.0",
     "@vercel/analytics": "^2.0.1",
+    "@vercel/speed-insights": "^2.0.0",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
     "yahoo-finance2": "4.0.5"
   },
@@ -53,6 +54,9 @@
   "description": "Fetch multiples from NYU database",
   "overrides": {
     "@vercel/analytics": {
+      "@sveltejs/kit": "$@sveltejs/kit"
+    },
+    "@vercel/speed-insights": {
       "@sveltejs/kit": "$@sveltejs/kit"
     }
   }
