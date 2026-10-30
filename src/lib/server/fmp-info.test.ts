@@ -1,6 +1,5 @@
 // src/lib/server/fmp-info.test.ts
 import { describe, expect, it, vi } from 'vitest';
-import { FmpError } from './fmp';
 import {
 	fetchNews,
 	fetchPeers,
@@ -13,6 +12,7 @@ import {
 	parsePrices,
 	parseProfile
 } from './fmp-info';
+import { SourceError } from './source-error';
 
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status });
 
@@ -74,7 +74,7 @@ describe('parseProfile', () => {
 		expect(parseProfile([{ companyName: 'X', website: 'javascript:alert(1)' }])!.website).toBeNull();
 	});
 	it('maps an FMP error body and rejects other shapes', () => {
-		expect(() => parseProfile({ 'Error Message': 'Invalid API KEY.' })).toThrowError(FmpError);
+		expect(() => parseProfile({ 'Error Message': 'Invalid API KEY.' })).toThrowError(SourceError);
 		expect(() => parseProfile({ nope: 1 })).toThrowError(/Unexpected response/);
 	});
 });
@@ -149,7 +149,7 @@ describe('fetchProfile / fetchNews', () => {
 				(f: typeof fetch) => fetchNews('AAPL', secret, f)
 			]) {
 				const error = await run(vi.fn().mockImplementation(make)).catch((e: unknown) => e);
-				expect(error).toBeInstanceOf(FmpError);
+				expect(error).toBeInstanceOf(SourceError);
 				expect((error as Error).message).not.toContain(secret);
 			}
 		}
@@ -208,7 +208,7 @@ describe('parsePrices', () => {
 	});
 	it('returns [] for an empty list, maps an FMP error body and rejects other shapes', () => {
 		expect(parsePrices([])).toEqual([]);
-		expect(() => parsePrices({ 'Error Message': 'Invalid API KEY.' })).toThrowError(FmpError);
+		expect(() => parsePrices({ 'Error Message': 'Invalid API KEY.' })).toThrowError(SourceError);
 		expect(() => parsePrices({ nope: 1 })).toThrowError(/Unexpected response/);
 	});
 });
@@ -237,7 +237,7 @@ describe('fetchPrices', () => {
 			const error = await fetchPrices('AAPL', secret, '2025-10-26', '2026-10-26', vi.fn().mockImplementation(make)).catch(
 				(e: unknown) => e
 			);
-			expect(error).toBeInstanceOf(FmpError);
+			expect(error).toBeInstanceOf(SourceError);
 			expect((error as Error).message).not.toContain(secret);
 		}
 	});
@@ -257,8 +257,8 @@ describe('parsePriceTarget', () => {
 		expect(parsePriceTarget([{ symbol: 'AAPL' }])).toBeNull();
 	});
 	it('maps error bodies and unexpected shapes', () => {
-		expect(() => parsePriceTarget({ 'Error Message': 'Limit Reach' })).toThrow(FmpError);
-		expect(() => parsePriceTarget('nope')).toThrow(FmpError);
+		expect(() => parsePriceTarget({ 'Error Message': 'Limit Reach' })).toThrow(SourceError);
+		expect(() => parsePriceTarget('nope')).toThrow(SourceError);
 	});
 });
 
@@ -273,8 +273,8 @@ describe('parsePeers', () => {
 		expect(parsePeers(many)).toHaveLength(20);
 	});
 	it('maps error bodies and unexpected shapes', () => {
-		expect(() => parsePeers({ 'Error Message': 'Invalid API KEY.' })).toThrow(FmpError);
-		expect(() => parsePeers(undefined)).toThrow(FmpError);
+		expect(() => parsePeers({ 'Error Message': 'Invalid API KEY.' })).toThrow(SourceError);
+		expect(() => parsePeers(undefined)).toThrow(SourceError);
 	});
 });
 

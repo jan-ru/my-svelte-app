@@ -6,11 +6,12 @@ import type { Nav, Period, Tab } from '../financials-nav';
 import { oneYearWindow } from '../prices';
 import { effectivePeriod, resolveSource, sourceLabel } from '../source';
 import type { Source } from '../source';
+import type { Kind, NewsItem, PricePoint, Profile, Statement } from '../source-data';
 import { cached } from './cache';
-import { FmpError, fetchEarnings, fetchEstimates, fetchRatios, fetchStatement } from './fmp';
-import type { Kind, Statement } from './fmp';
+import { fetchEarnings, fetchEstimates, fetchRatios, fetchStatement } from './fmp';
 import { fetchNews, fetchPeers, fetchPriceTarget, fetchPrices, fetchProfile } from './fmp-info';
-import type { NewsItem, Peer, PricePoint, PriceTarget, Profile } from './fmp-info';
+import type { Peer, PriceTarget } from './fmp-info';
+import { SourceError } from './source-error';
 import { fetchYahooNews, fetchYahooPrices, fetchYahooProfile, fetchYahooStatement } from './yahoo';
 
 export type StatementFetcher = (kind: Kind, symbol: string, apiKey: string, period: Period) => Promise<Statement>;
@@ -105,7 +106,7 @@ export const yahooFetchers: SourceFetchers = {
 
 function messageFor(error: unknown, symbol: string, source: Source): string {
 	const label = sourceLabel(source);
-	if (error instanceof FmpError) {
+	if (error instanceof SourceError) {
 		switch (error.kind) {
 			case 'config':
 				return 'The FMP key was not accepted. Check FMP_API_KEY.';
@@ -119,7 +120,7 @@ function messageFor(error: unknown, symbol: string, source: Source): string {
 }
 
 function failure(what: string, symbol: string, error: unknown, source: Source): string {
-	console.error(`${sourceLabel(source)} ${what} for ${symbol} failed (${error instanceof FmpError ? error.kind : 'error'})`);
+	console.error(`${sourceLabel(source)} ${what} for ${symbol} failed (${error instanceof SourceError ? error.kind : 'error'})`);
 	return messageFor(error, symbol, source);
 }
 

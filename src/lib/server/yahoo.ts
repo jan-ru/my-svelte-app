@@ -1,9 +1,9 @@
 // src/lib/server/yahoo.ts
 import type { Period } from '../financials-nav';
-import { FmpError } from './fmp';
-import type { Kind, Statement } from './fmp';
-import { NEWS_LIMIT, str } from './fmp-info';
-import type { NewsItem, PricePoint, Profile } from './fmp-info';
+import { NEWS_LIMIT } from '../source-data';
+import type { Kind, NewsItem, PricePoint, Profile, Statement } from '../source-data';
+import { str } from './coerce';
+import { SourceError } from './source-error';
 import { parseYahooNews, parseYahooPrices, parseYahooProfile, parseYahooStatement } from './yahoo-parse';
 
 type ModuleOptions = { validateResult: boolean };
@@ -51,11 +51,11 @@ const NOT_FOUND = /not found|no data found|no fundamentals|delisted|invalid symb
 const RATE_LIMITED = /429|too many requests/i;
 
 /** Fixed messages only: library errors can carry URLs and tokens. */
-function mapError(error: unknown): FmpError {
-	if (error instanceof FmpError) return error;
+function mapError(error: unknown): SourceError {
+	if (error instanceof SourceError) return error;
 	const text = error instanceof Error ? `${error.name} ${error.message}` : '';
-	if (RATE_LIMITED.test(text)) return new FmpError('limit', 'Yahoo Finance rate limit reached');
-	return new FmpError('unavailable', 'Yahoo Finance is unavailable');
+	if (RATE_LIMITED.test(text)) return new SourceError('limit', 'Yahoo Finance rate limit reached');
+	return new SourceError('unavailable', 'Yahoo Finance is unavailable');
 }
 
 async function tolerant<T>(run: () => Promise<T>, empty: T): Promise<T> {

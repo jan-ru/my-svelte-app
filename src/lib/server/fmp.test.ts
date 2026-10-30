@@ -1,6 +1,7 @@
 // src/lib/server/fmp.test.ts
 import { describe, expect, it, vi } from 'vitest';
-import { FmpError, fetchEarnings, fetchEstimates, fetchRatios, fetchStatement, parseStatement } from './fmp';
+import { fetchEarnings, fetchEstimates, fetchRatios, fetchStatement, parseStatement } from './fmp';
+import { SourceError } from './source-error';
 
 const record = (year: number, extra: Record<string, unknown> = {}) => ({
 	date: `${year}-12-31`,
@@ -38,12 +39,12 @@ describe('parseStatement', () => {
 	it('returns no years for an empty list', () => {
 		expect(parseStatement([])).toEqual({ lines: [], years: [] });
 	});
-	it('maps FMP error bodies to FmpError kinds', () => {
+	it('maps FMP error bodies to SourceError kinds', () => {
 		const kind = (message: string) => {
 			try {
 				parseStatement({ 'Error Message': message });
 			} catch (error) {
-				return (error as FmpError).kind;
+				return (error as SourceError).kind;
 			}
 		};
 		expect(kind('Invalid API KEY.')).toBe('config');
@@ -52,8 +53,8 @@ describe('parseStatement', () => {
 		expect(kind('Special Endpoint : This endpoint is not available under your current subscription')).toBe('plan');
 	});
 	it('rejects an unexpected shape', () => {
-		expect(() => parseStatement('nope')).toThrow(FmpError);
-		expect(() => parseStatement({ foo: 1 })).toThrow(FmpError);
+		expect(() => parseStatement('nope')).toThrow(SourceError);
+		expect(() => parseStatement({ foo: 1 })).toThrow(SourceError);
 	});
 });
 
@@ -84,7 +85,7 @@ describe('fetchStatement', () => {
 			try {
 				await fetchStatement('income', 'AAPL', 'K', 'annual', fetchFn);
 			} catch (error) {
-				return (error as FmpError).kind;
+				return (error as SourceError).kind;
 			}
 		};
 		expect(await kindFor(401)).toBe('config');
@@ -106,7 +107,7 @@ describe('fetchStatement', () => {
 		for (const make of cases) {
 			const fetchFn = vi.fn().mockImplementation(make);
 			const error = await fetchStatement('income', 'AAPL', secret, 'annual', fetchFn).catch((e: unknown) => e);
-			expect(error).toBeInstanceOf(FmpError);
+			expect(error).toBeInstanceOf(SourceError);
 			expect((error as Error).message).not.toContain(secret);
 		}
 	});
@@ -123,7 +124,7 @@ describe('fetchStatement', () => {
 		for (const make of cases) {
 			const fetchFn = vi.fn().mockImplementation(make);
 			const error = await fetchStatement('income', 'AAPL', secret, 'ttm', fetchFn).catch((e: unknown) => e);
-			expect(error).toBeInstanceOf(FmpError);
+			expect(error).toBeInstanceOf(SourceError);
 			expect((error as Error).message).not.toContain(secret);
 		}
 	});
@@ -138,8 +139,8 @@ describe('fetchStatement', () => {
 		const message = `Key ${secret} (${encodeURIComponent(secret)}) is not entitled to this endpoint`;
 		const fetchFn = vi.fn().mockResolvedValue(json({ 'Error Message': message }));
 		const error = await fetchStatement('income', 'AAPL', secret, 'annual', fetchFn).catch((e: unknown) => e);
-		expect(error).toBeInstanceOf(FmpError);
-		expect((error as FmpError).kind).toBe('plan');
+		expect(error).toBeInstanceOf(SourceError);
+		expect((error as SourceError).kind).toBe('plan');
 		expect((error as Error).message).not.toContain(secret);
 		expect((error as Error).message).not.toContain(encodeURIComponent(secret));
 		expect((error as Error).message).toContain('***');
@@ -155,8 +156,8 @@ describe('fetchStatement', () => {
 		const error = await fetchStatement('income', 'AAPL', secret, 'annual', vi.fn().mockResolvedValue(response)).catch(
 			(e: unknown) => e
 		);
-		expect(error).toBeInstanceOf(FmpError);
-		expect((error as FmpError).kind).toBe('unavailable');
+		expect(error).toBeInstanceOf(SourceError);
+		expect((error as SourceError).kind).toBe('unavailable');
 		expect((error as Error).message).not.toContain(secret);
 		expect((error as Error).message).not.toContain('financialmodelingprep');
 	});
@@ -207,12 +208,12 @@ describe('fetchRatios', () => {
 		expect(url.searchParams.get('limit')).toBe('5');
 		expect(result.years[0].values.priceToEarningsRatio).toBe(28.5);
 	});
-	it('maps a plan error body to an FmpError without the key', async () => {
+	it('maps a plan error body to an SourceError without the key', async () => {
 		const fetchFn = vi.fn().mockResolvedValue(json({ 'Error Message': 'Premium Query Parameter apikey=KEY123' }, 402));
 		const error = await fetchRatios('AAPL', 'KEY123', fetchFn).catch((e: unknown) => e);
-		expect(error).toBeInstanceOf(FmpError);
-		expect((error as FmpError).kind).toBe('plan');
-		expect((error as FmpError).message).not.toContain('KEY123');
+		expect(error).toBeInstanceOf(SourceError);
+		expect((error as SourceError).kind).toBe('plan');
+		expect((error as SourceError).message).not.toContain('KEY123');
 	});
 });
 

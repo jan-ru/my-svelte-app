@@ -1,4 +1,4 @@
-import type { Profile } from './server/fmp-info';
+import type { Profile } from './source-data';
 
 export interface Field {
 	label: string;

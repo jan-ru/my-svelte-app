@@ -1,12 +1,11 @@
 // src/lib/server/yahoo-parse.ts
 import type { Period } from '../financials-nav';
 import { safeUrl } from '../safe-url';
-import { FmpError } from './fmp';
-import type { Kind, Statement, StatementYear } from './fmp';
-import { num, str } from './fmp-info';
-import type { NewsItem, PricePoint, Profile } from './fmp-info';
+import type { Kind, NewsItem, PricePoint, Profile, Statement, StatementYear } from '../source-data';
+import { num, str } from './coerce';
+import { SourceError } from './source-error';
 
-const unexpected = () => new FmpError('unavailable', 'Unexpected response from Yahoo Finance');
+const unexpected = () => new SourceError('unavailable', 'Unexpected response from Yahoo Finance');
 
 /** Yahoo gives Date objects, epoch seconds or ISO strings depending on the call. */
 export function toDate(value: unknown): Date | null {

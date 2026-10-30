@@ -1,7 +1,7 @@
 // src/lib/statements.test.ts
 import { describe, expect, it } from 'vitest';
-import type { Statement } from './server/fmp';
 import { buildTable, formatEstimate, formatRatio, formatValue, humanise } from './statements';
+import type { Statement } from './source-data';
 
 describe('humanise', () => {
 	it('turns camelCase into a sentence', () => {

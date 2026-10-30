@@ -1,4 +1,4 @@
-import type { PricePoint } from './server/fmp-info';
+import type { PricePoint } from './source-data';
 
 export interface PriceSummary {
 	date: string;

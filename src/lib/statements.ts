@@ -1,6 +1,6 @@
 // src/lib/statements.ts
-import type { Statement } from './server/fmp';
 import type { Period } from './financials-nav';
+import type { Statement } from './source-data';
 
 export interface StatementTable {
 	currency: string | null;
