@@ -49,5 +49,19 @@ export interface PricePoint {
 	volume: number | null;
 }
 
+export interface PriceTarget {
+	consensus: number | null;
+	median: number | null;
+	high: number | null;
+	low: number | null;
+}
+
+export interface Peer {
+	symbol: string;
+	name: string | null;
+	price: number | null;
+	marketCap: number | null;
+}
+
 /** How many headlines a source returns. */
 export const NEWS_LIMIT = 20;

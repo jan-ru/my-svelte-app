@@ -6,11 +6,10 @@ import type { Nav, Period, Tab } from '../financials-nav';
 import { oneYearWindow } from '../prices';
 import { effectivePeriod, resolveSource, sourceLabel } from '../source';
 import type { Source } from '../source';
-import type { Kind, NewsItem, PricePoint, Profile, Statement } from '../source-data';
+import type { Kind, NewsItem, Peer, PricePoint, PriceTarget, Profile, Statement } from '../source-data';
 import { cached } from './cache';
 import { fetchEarnings, fetchEstimates, fetchRatios, fetchStatement } from './fmp';
 import { fetchNews, fetchPeers, fetchPriceTarget, fetchPrices, fetchProfile } from './fmp-info';
-import type { Peer, PriceTarget } from './fmp-info';
 import { SourceError } from './source-error';
 import { fetchYahooNews, fetchYahooPrices, fetchYahooProfile, fetchYahooStatement } from './yahoo';
 

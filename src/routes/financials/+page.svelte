@@ -1,13 +1,15 @@
 <!-- src/routes/financials/+page.svelte -->
 <script lang="ts">
 	import type { PageProps } from './$types';
-	import LineChart from '#lib/components/LineChart.svelte';
+	import FinancialTable from '#lib/components/FinancialTable.svelte';
+	import NewsList from '#lib/components/NewsList.svelte';
+	import PeersList from '#lib/components/PeersList.svelte';
+	import PriceView from '#lib/components/PriceView.svelte';
+	import ProfileView from '#lib/components/ProfileView.svelte';
 	import SideLayout from '#lib/components/SideLayout.svelte';
 	import SideMenu from '#lib/components/SideMenu.svelte';
-	import { formatNewsDate, profileFields } from '#lib/company';
 	import { SOURCES, effectivePeriod, isUsListing, periodAvailable, resolveSource, sourceLabel } from '#lib/source';
 	import { PERIODS, STATEMENTS, TABS, loginAction, navHref } from '#lib/financials-nav';
-	import { formatPrice, formatSigned, formatVolume, summarise } from '#lib/prices';
 
 	let { data, form }: PageProps = $props();
 	const view = $derived(data.view);
@@ -97,133 +99,15 @@
 				{:else if view.state === 'idle'}
 					<p>Enter a ticker to see its data. US tickers work with FMP or Yahoo Finance; others, such as ABN.AS, use Yahoo Finance.</p>
 				{:else if view.state === 'profile'}
-					{#if view.profile}
-						<dl class="facts">
-							{#each profileFields(view.profile) as f (f.label)}
-								<dt>{f.label}</dt>
-								<dd>
-									{#if f.href}<a href={f.href} target="_blank" rel="noopener noreferrer">{f.value}</a>{:else}{f.value}{/if}
-								</dd>
-							{/each}
-						</dl>
-						{#if view.profile.description}
-							<h2>About</h2>
-							<p class="desc">{view.profile.description}</p>
-						{/if}
-					{:else}
-						<p>{view.message}</p>
-					{/if}
+					<ProfileView profile={view.profile} message={view.message} />
 				{:else if view.state === 'news'}
-					{#if source === 'yahoo'}<p class="meta">Matched by company name, so some headlines may be only loosely related.</p>{/if}
-					{#if view.items.length > 0}
-						<ul class="news">
-							{#each view.items as item, i (i)}
-								<li>
-									<h2>
-										{#if item.url}<a href={item.url} target="_blank" rel="noopener noreferrer">{item.title}</a>{:else}{item.title}{/if}
-									</h2>
-									{#if item.publisher || item.date}
-										<p class="meta">{[item.publisher, formatNewsDate(item.date)].filter(Boolean).join(' · ')}</p>
-									{/if}
-									{#if item.text}<p>{item.text}</p>{/if}
-								</li>
-							{/each}
-						</ul>
-					{:else}
-						<p>{view.message}</p>
-					{/if}
+					<NewsList items={view.items} message={view.message} {source} />
 				{:else if view.state === 'price'}
-					{#if view.points.length > 0}
-						{@const s = summarise(view.points)!}
-						<p class="meta">Last close, {s.date}. End-of-day prices, not live.</p>
-						<dl class="quote">
-							<div><dt>Close</dt><dd>{formatPrice(s.close)}</dd></div>
-							{#if s.change !== null}
-								<div>
-									<dt>Day change</dt>
-									<dd class:up={s.change > 0} class:down={s.change < 0}>
-										{formatSigned(s.change)}{#if s.changePct !== null} ({formatSigned(s.changePct)}%){/if}
-									</dd>
-								</div>
-							{/if}
-							<div><dt>52-week high</dt><dd>{formatPrice(s.high)}</dd></div>
-							<div><dt>52-week low</dt><dd>{formatPrice(s.low)}</dd></div>
-							{#if s.volume !== null}<div><dt>Volume</dt><dd>{formatVolume(s.volume)}</dd></div>{/if}
-						</dl>
-						<LineChart points={view.points} />
-						<details>
-							<summary>Show data</summary>
-							<div class="scroll tall">
-								<table>
-									<thead>
-										<tr><th scope="col">Date</th><th scope="col" class="num">Close</th><th scope="col" class="num">Volume</th></tr>
-									</thead>
-									<tbody>
-										{#each [...view.points].reverse() as p (p.date)}
-											<tr>
-												<th scope="row">{p.date}</th>
-												<td class="num">{formatPrice(p.close)}</td>
-												<td class="num">{p.volume === null ? '' : formatVolume(p.volume)}</td>
-											</tr>
-										{/each}
-									</tbody>
-								</table>
-							</div>
-						</details>
-					{:else}
-						<p>{view.message}</p>
-					{/if}
+					<PriceView points={view.points} message={view.message} />
 				{:else if view.state === 'peers'}
-					{#if view.peers.length > 0}
-						<p class="meta">Comparable companies according to FMP. Open one to see its ratios.</p>
-						<ul class="peers">
-							{#each view.peers as peer (peer.symbol)}
-								<li>
-									<a href={navHref({ ...nav, period, tab: 'ratios' }, peer.symbol)}>{peer.symbol}</a>
-									{#if peer.name}<span>{peer.name}</span>{/if}
-									{#if peer.price !== null}<span class="meta">{formatPrice(peer.price)}</span>{/if}
-								</li>
-							{/each}
-						</ul>
-					{:else}
-						<p>{view.message}</p>
-					{/if}
+					<PeersList peers={view.peers} message={view.message} hrefFor={(symbol) => navHref({ ...nav, period, tab: 'ratios' }, symbol)} />
 				{:else if view.state === 'ready'}
-					<section>
-						<h2>{view.title}{#if view.table?.currency} <small>(millions of {view.table.currency}; per-share figures as reported)</small>{/if}</h2>
-						{#if view.target}
-							<dl class="facts">
-								{#if view.target.consensus !== null}<dt>Price target, consensus</dt><dd>{formatPrice(view.target.consensus)}</dd>{/if}
-								{#if view.target.median !== null}<dt>Median</dt><dd>{formatPrice(view.target.median)}</dd>{/if}
-								{#if view.target.high !== null}<dt>High</dt><dd>{formatPrice(view.target.high)}</dd>{/if}
-								{#if view.target.low !== null}<dt>Low</dt><dd>{formatPrice(view.target.low)}</dd>{/if}
-							</dl>
-						{/if}
-						{#if view.table}
-							<div class="scroll">
-								<table>
-									<thead>
-										<tr>
-											<th scope="col">Line item</th>
-											{#each view.table.columns as c, i (i)}
-												<th scope="col" class="num">{c.year}<br /><small>{c.date}</small></th>
-											{/each}
-										</tr>
-									</thead>
-									<tbody>
-										{#each view.table.rows as row (row.key)}
-											<tr>
-												<th scope="row">{row.label}</th>
-												{#each row.cells as cell, i (i)}<td class="num">{cell}</td>{/each}
-											</tr>
-										{/each}
-									</tbody>
-								</table>
-							</div>
-						{:else}
-							<p>{view.message}</p>
-						{/if}
-					</section>
+					<FinancialTable title={view.title} table={view.table} message={view.message} target={view.target} />
 				{/if}
 	{/if}
 </main>
@@ -235,11 +119,6 @@
 	.login { margin: var(--space-4) 0; padding: var(--space-3) var(--space-4); background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
 	.bar { display: flex; gap: var(--space-4); justify-content: space-between; flex-wrap: wrap; align-items: center; }
 	form { display: flex; gap: var(--space-2); align-items: center; flex-wrap: wrap; margin: var(--space-4) 0; }
-	table { width: 100%; font-size: var(--text-sm); }
-	.peers { padding: 0; list-style: none; }
-	.peers li { display: flex; gap: var(--space-3); align-items: baseline; padding: var(--space-2) 0; border-bottom: 1px solid var(--border-subtle); }
-	.num { text-align: right; font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
-	small { font-weight: var(--weight-regular); }
 	.error { padding: var(--space-2) var(--space-3); color: var(--negative); background: var(--negative-bg); border-left: 4px solid var(--negative); border-radius: var(--radius-sm); }
 	.tabs a, .period a { padding: 6px 14px; text-decoration: none; color: inherit; }
 	.tabs { display: flex; flex-wrap: wrap; gap: var(--space-1); border-bottom: 1px solid var(--border-subtle); }
@@ -250,24 +129,7 @@
 	.period a:hover { background: var(--blue-05); }
 	.period a[aria-current='page'] { color: var(--text-on-primary); background: var(--color-primary); }
 	.period .disabled { padding: 6px 14px; color: var(--text-disabled); background: var(--grey-02); cursor: not-allowed; }
-	main h2 { font-size: var(--text-lg); margin: var(--space-4) 0 var(--space-2); }
-	.scroll { overflow-x: auto; background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
-	.facts { display: grid; grid-template-columns: max-content 1fr; gap: var(--space-1) var(--space-4); margin: var(--space-4) 0; }
-	.facts dt { font-weight: var(--weight-semibold); color: var(--text-secondary); }
-	.facts dd { margin: 0; }
-	.desc { max-width: 60rem; line-height: var(--leading-normal); }
-	.news { list-style: none; margin: 0; padding: 0; }
-	.news li { padding: var(--space-3) 0; border-bottom: 1px solid var(--border-subtle); }
-	.news h2 { margin: 0 0 var(--space-1); font-size: var(--text-md); }
 	.meta { margin: 0 0 var(--space-1); color: var(--text-secondary); font-size: var(--text-sm); }
-	.quote { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-8); margin: var(--space-3) 0 var(--space-4); }
-	.quote div { display: flex; flex-direction: column; }
-	.quote dt { color: var(--text-secondary); font-size: var(--text-sm); }
-	.quote dd { margin: 0; font-family: var(--font-mono); font-size: var(--text-lg); font-weight: var(--weight-medium); font-variant-numeric: tabular-nums; }
-	.up { color: var(--positive); }
-	.down { color: var(--negative); }
-	.tall { max-height: 24rem; overflow-y: auto; }
-	details { margin-top: var(--space-4); }
 	.source { display: flex; gap: var(--space-2); align-items: center; margin: 0 0 var(--space-3); font-size: var(--text-sm); }
 	.source a { padding: 3px 10px; color: var(--color-primary); text-decoration: none; background: var(--white); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); }
 	.source a:hover { background: var(--blue-05); }
