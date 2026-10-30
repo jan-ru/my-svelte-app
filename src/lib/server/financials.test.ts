@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { Nav } from '../financials-nav';
 import { FmpError, type Statement } from './fmp';
 import type { NewsItem, PricePoint, Profile } from './fmp-info';
+import { TABS } from '../financials-nav';
 import { loadFinancials, statementTitle, type StatementFetcher } from './financials';
 import type { SourceFetchers } from './financials';
 
@@ -27,23 +28,55 @@ describe('statementTitle', () => {
 	});
 });
 
+describe('every tab', () => {
+	it('has a loader that answers with its own view, and none falls through to another', async () => {
+		const empty = async () => ({ lines: [], years: [] });
+		const fmp = {
+			statement: empty,
+			ratios: empty,
+			estimates: empty,
+			earnings: empty,
+			priceTarget: async () => null,
+			peers: async () => [],
+			profile: async () => null,
+			news: async () => [],
+			prices: async () => []
+		};
+		const states = new Map<string, string>();
+		for (const { id } of TABS) {
+			const view = await loadFinancials({ ...base, nav: { ...nav, tab: id }, fmp });
+			states.set(id, view.state);
+		}
+		expect(Object.fromEntries(states)).toEqual({
+			financials: 'ready',
+			ratios: 'ready',
+			estimates: 'ready',
+			earnings: 'ready',
+			peers: 'peers',
+			news: 'news',
+			price: 'price',
+			company: 'profile'
+		});
+	});
+});
+
 describe('loadFinancials', () => {
 	it('does not call FMP without a session', async () => {
 		const fetcher = vi.fn<StatementFetcher>();
-		expect(await loadFinancials({ ...base, authed: false, fetcher })).toEqual({ state: 'locked' });
+		expect(await loadFinancials({ ...base, authed: false, fmp: { statement: fetcher } })).toEqual({ state: 'locked' });
 		expect(fetcher).not.toHaveBeenCalled();
 	});
 	it('does not call FMP without an API key', async () => {
 		const fetcher = vi.fn<StatementFetcher>();
-		expect(await loadFinancials({ ...base, apiKey: undefined, fetcher })).toEqual({ state: 'unconfigured' });
-		expect(await loadFinancials({ ...base, apiKey: '', fetcher })).toEqual({ state: 'unconfigured' });
+		expect(await loadFinancials({ ...base, apiKey: undefined, fmp: { statement: fetcher } })).toEqual({ state: 'unconfigured' });
+		expect(await loadFinancials({ ...base, apiKey: '', fmp: { statement: fetcher } })).toEqual({ state: 'unconfigured' });
 		expect(fetcher).not.toHaveBeenCalled();
 	});
 	it('is idle without a ticker and invalid for a bad one, without calling FMP', async () => {
 		const fetcher = vi.fn<StatementFetcher>();
-		expect(await loadFinancials({ ...base, rawSymbol: null, fetcher })).toEqual({ state: 'idle' });
-		expect(await loadFinancials({ ...base, rawSymbol: '', fetcher })).toEqual({ state: 'idle' });
-		expect(await loadFinancials({ ...base, rawSymbol: 'A&B', fetcher })).toEqual({ state: 'invalid' });
+		expect(await loadFinancials({ ...base, rawSymbol: null, fmp: { statement: fetcher } })).toEqual({ state: 'idle' });
+		expect(await loadFinancials({ ...base, rawSymbol: '', fmp: { statement: fetcher } })).toEqual({ state: 'idle' });
+		expect(await loadFinancials({ ...base, rawSymbol: 'A&B', fmp: { statement: fetcher } })).toEqual({ state: 'invalid' });
 		expect(fetcher).not.toHaveBeenCalled();
 	});
 	describe('ratios tab', () => {
@@ -55,7 +88,7 @@ describe('loadFinancials', () => {
 		it('builds a table of plain-number ratios from the ratios fetcher only', async () => {
 			const fetcher = vi.fn<StatementFetcher>();
 			const ratiosFetcher = vi.fn().mockResolvedValue(ratios);
-			const view = await loadFinancials({ ...base, nav: ratiosNav, fetcher, ratiosFetcher });
+			const view = await loadFinancials({ ...base, nav: ratiosNav, fmp: { statement: fetcher, ratios: ratiosFetcher } });
 			if (view.state !== 'ready' || !view.table) throw new Error('unexpected state');
 			expect(view.title).toBe('Financial ratios');
 			expect(view.table.rows[0].cells).toEqual(['28.46']);
@@ -64,7 +97,7 @@ describe('loadFinancials', () => {
 			expect(fetcher).not.toHaveBeenCalled();
 		});
 		it('says so when FMP has no ratios for the company', async () => {
-			const view = await loadFinancials({ ...base, nav: ratiosNav, ratiosFetcher: async () => ({ lines: [], years: [] }) });
+			const view = await loadFinancials({ ...base, nav: ratiosNav, fmp: { ratios: async () => ({ lines: [], years: [] }) } });
 			expect(view).toMatchObject({ state: 'ready', table: null, message: 'FMP has no ratios for AAPL.' });
 		});
 		it('maps a plan error to a message and logs without the key', async () => {
@@ -72,7 +105,7 @@ describe('loadFinancials', () => {
 			const ratiosFetcher = async () => {
 				throw new FmpError('plan', 'Not available on this FMP plan');
 			};
-			const view = await loadFinancials({ ...base, apiKey: 'TOPSECRET', nav: ratiosNav, ratiosFetcher });
+			const view = await loadFinancials({ ...base, apiKey: 'TOPSECRET', nav: ratiosNav, fmp: { ratios: ratiosFetcher } });
 			if (view.state !== 'ready') throw new Error('unexpected state');
 			expect(view.table).toBeNull();
 			expect(view.message).toMatch(/plan/i);
@@ -80,7 +113,7 @@ describe('loadFinancials', () => {
 		});
 		it('does not offer ratios from Yahoo and does not call FMP', async () => {
 			const ratiosFetcher = vi.fn();
-			const view = await loadFinancials({ ...base, rawSymbol: 'ABN.AS', nav: ratiosNav, ratiosFetcher });
+			const view = await loadFinancials({ ...base, rawSymbol: 'ABN.AS', nav: ratiosNav, fmp: { ratios: ratiosFetcher } });
 			if (view.state !== 'ready') throw new Error('unexpected state');
 			expect(view.table).toBeNull();
 			expect(view.message).toMatch(/only available from Financial Modeling Prep/);
@@ -88,10 +121,10 @@ describe('loadFinancials', () => {
 		});
 		it('guards: no session, no key, no ticker, bad ticker', async () => {
 			const ratiosFetcher = vi.fn();
-			expect(await loadFinancials({ ...base, authed: false, nav: ratiosNav, ratiosFetcher })).toEqual({ state: 'locked' });
-			expect(await loadFinancials({ ...base, apiKey: '', nav: ratiosNav, ratiosFetcher })).toEqual({ state: 'unconfigured' });
-			expect(await loadFinancials({ ...base, rawSymbol: '', nav: ratiosNav, ratiosFetcher })).toEqual({ state: 'idle' });
-			expect(await loadFinancials({ ...base, rawSymbol: 'A&B', nav: ratiosNav, ratiosFetcher })).toEqual({ state: 'invalid' });
+			expect(await loadFinancials({ ...base, authed: false, nav: ratiosNav, fmp: { ratios: ratiosFetcher } })).toEqual({ state: 'locked' });
+			expect(await loadFinancials({ ...base, apiKey: '', nav: ratiosNav, fmp: { ratios: ratiosFetcher } })).toEqual({ state: 'unconfigured' });
+			expect(await loadFinancials({ ...base, rawSymbol: '', nav: ratiosNav, fmp: { ratios: ratiosFetcher } })).toEqual({ state: 'idle' });
+			expect(await loadFinancials({ ...base, rawSymbol: 'A&B', nav: ratiosNav, fmp: { ratios: ratiosFetcher } })).toEqual({ state: 'invalid' });
 			expect(ratiosFetcher).not.toHaveBeenCalled();
 		});
 	});
@@ -106,7 +139,7 @@ describe('loadFinancials', () => {
 		it('shows estimates with the price target', async () => {
 			const estimatesFetcher = vi.fn().mockResolvedValue(estimates);
 			const priceTargetFetcher = vi.fn().mockResolvedValue(target);
-			const view = await loadFinancials({ ...base, nav: estNav, estimatesFetcher, priceTargetFetcher });
+			const view = await loadFinancials({ ...base, nav: estNav, fmp: { estimates: estimatesFetcher, priceTarget: priceTargetFetcher } });
 			if (view.state !== 'ready' || !view.table) throw new Error('unexpected state');
 			expect(view.title).toBe('Analyst estimates');
 			expect(view.table.rows.map((r) => r.cells)).toEqual([['500,000.0'], ['31']]);
@@ -117,7 +150,7 @@ describe('loadFinancials', () => {
 			const priceTargetFetcher = async () => {
 				throw new FmpError('plan', 'Not available on this FMP plan');
 			};
-			const view = await loadFinancials({ ...base, apiKey: 'TOPSECRET', nav: estNav, estimatesFetcher: async () => estimates, priceTargetFetcher });
+			const view = await loadFinancials({ ...base, apiKey: 'TOPSECRET', nav: estNav, fmp: { estimates: async () => estimates, priceTarget: priceTargetFetcher } });
 			if (view.state !== 'ready') throw new Error('unexpected state');
 			expect(view.table).not.toBeNull();
 			expect(view.target).toBeNull();
@@ -128,12 +161,11 @@ describe('loadFinancials', () => {
 			const view = await loadFinancials({
 				...base,
 				nav: estNav,
-				estimatesFetcher: async () => {
+				fmp: { estimates: async () => {
 					throw new FmpError('limit', 'FMP rate limit reached');
-				},
-				priceTargetFetcher: async () => {
+				}, priceTarget: async () => {
 					throw new FmpError('limit', 'FMP rate limit reached');
-				}
+				} }
 			});
 			if (view.state !== 'ready') throw new Error('unexpected state');
 			expect(view.table).toBeNull();
@@ -144,7 +176,7 @@ describe('loadFinancials', () => {
 				lines: ['epsActual', 'revenueActual'],
 				years: [{ fiscalYear: '2025-10-30', date: '2025-10-30', currency: null, values: { epsActual: 1.85, revenueActual: 1.02e11 } }]
 			};
-			const view = await loadFinancials({ ...base, nav: { ...nav, tab: 'earnings' }, earningsFetcher: async () => earnings });
+			const view = await loadFinancials({ ...base, nav: { ...nav, tab: 'earnings' }, fmp: { earnings: async () => earnings } });
 			if (view.state !== 'ready' || !view.table) throw new Error('unexpected state');
 			expect(view.title).toBe('Earnings');
 			expect(view.table.rows.map((r) => r.cells)).toEqual([['1.85'], ['102,000.0']]);
@@ -153,23 +185,23 @@ describe('loadFinancials', () => {
 		it('lists peers, and says so when there are none or the call fails', async () => {
 			const peersNav: Nav = { ...nav, tab: 'peers' };
 			const peers = [{ symbol: 'MSFT', name: 'Microsoft', price: 400, marketCap: 3e12 }];
-			expect(await loadFinancials({ ...base, nav: peersNav, peersFetcher: async () => peers })).toEqual({ state: 'peers', symbol: 'AAPL', peers, message: null });
-			expect(await loadFinancials({ ...base, nav: peersNav, peersFetcher: async () => [] })).toMatchObject({ peers: [], message: 'No peers found for AAPL.' });
+			expect(await loadFinancials({ ...base, nav: peersNav, fmp: { peers: async () => peers } })).toEqual({ state: 'peers', symbol: 'AAPL', peers, message: null });
+			expect(await loadFinancials({ ...base, nav: peersNav, fmp: { peers: async () => [] } })).toMatchObject({ peers: [], message: 'No peers found for AAPL.' });
 			vi.spyOn(console, 'error').mockImplementation(() => {});
 			const failed = await loadFinancials({
 				...base,
 				nav: peersNav,
-				peersFetcher: async () => {
+				fmp: { peers: async () => {
 					throw new FmpError('plan', 'Not available on this FMP plan');
-				}
+				} }
 			});
 			expect(failed).toMatchObject({ state: 'peers', peers: [] });
 			expect(failed.state === 'peers' && failed.message).toMatch(/plan/i);
 		});
 		it('has no earnings, estimates or peers from Yahoo and calls none of the FMP fetchers', async () => {
-			const fetchers = { estimatesFetcher: vi.fn(), priceTargetFetcher: vi.fn(), earningsFetcher: vi.fn(), peersFetcher: vi.fn() };
+			const fetchers = { estimates: vi.fn(), priceTarget: vi.fn(), earnings: vi.fn(), peers: vi.fn() };
 			for (const [tab, what] of [['estimates', 'Estimates'], ['earnings', 'Earnings'], ['peers', 'Peers']] as const) {
-				const view = await loadFinancials({ ...base, rawSymbol: 'ABN.AS', nav: { ...nav, tab }, ...fetchers });
+				const view = await loadFinancials({ ...base, rawSymbol: 'ABN.AS', nav: { ...nav, tab }, fmp: fetchers });
 				expect(view).toMatchObject({ message: `${what} are only available from Financial Modeling Prep, not Yahoo Finance. Choose FMP for a US ticker.` });
 			}
 			for (const f of Object.values(fetchers)) expect(f).not.toHaveBeenCalled();
@@ -182,38 +214,38 @@ describe('loadFinancials', () => {
 			{ date: '2026-10-23', close: 101, volume: 11 }
 		];
 		const others = () => ({
-			fetcher: vi.fn<StatementFetcher>(),
-			profileFetcher: vi.fn(),
-			newsFetcher: vi.fn()
+			statement: vi.fn<StatementFetcher>(),
+			profile: vi.fn(),
+			news: vi.fn()
 		});
 
 		it('fetches only prices, for the upper-cased ticker', async () => {
 			const pricesFetcher = vi.fn().mockResolvedValue(points);
 			const o = others();
-			const view = await loadFinancials({ ...base, nav: priceNav, pricesFetcher, ...o });
+			const view = await loadFinancials({ ...base, nav: priceNav, fmp: { ...o, prices: pricesFetcher } });
 			expect(view).toEqual({ state: 'price', symbol: 'AAPL', points, message: null });
 			expect(pricesFetcher).toHaveBeenCalledWith('AAPL', 'KEY');
-			expect(o.fetcher).not.toHaveBeenCalled();
-			expect(o.profileFetcher).not.toHaveBeenCalled();
-			expect(o.newsFetcher).not.toHaveBeenCalled();
+			expect(o.statement).not.toHaveBeenCalled();
+			expect(o.profile).not.toHaveBeenCalled();
+			expect(o.news).not.toHaveBeenCalled();
 		});
 		it('requires a session, a key and a valid ticker before calling FMP', async () => {
 			const pricesFetcher = vi.fn();
-			expect(await loadFinancials({ ...base, nav: priceNav, authed: false, pricesFetcher })).toEqual({ state: 'locked' });
-			expect(await loadFinancials({ ...base, nav: priceNav, apiKey: undefined, pricesFetcher })).toEqual({ state: 'unconfigured' });
-			expect(await loadFinancials({ ...base, nav: priceNav, rawSymbol: '', pricesFetcher })).toEqual({ state: 'idle' });
-			expect(await loadFinancials({ ...base, nav: priceNav, rawSymbol: 'A&B', pricesFetcher })).toEqual({ state: 'invalid' });
+			expect(await loadFinancials({ ...base, nav: priceNav, authed: false, fmp: { prices: pricesFetcher } })).toEqual({ state: 'locked' });
+			expect(await loadFinancials({ ...base, nav: priceNav, apiKey: undefined, fmp: { prices: pricesFetcher } })).toEqual({ state: 'unconfigured' });
+			expect(await loadFinancials({ ...base, nav: priceNav, rawSymbol: '', fmp: { prices: pricesFetcher } })).toEqual({ state: 'idle' });
+			expect(await loadFinancials({ ...base, nav: priceNav, rawSymbol: 'A&B', fmp: { prices: pricesFetcher } })).toEqual({ state: 'invalid' });
 			expect(pricesFetcher).not.toHaveBeenCalled();
 		});
 		it('says so when there is no history', async () => {
 			const pricesFetcher = vi.fn().mockResolvedValue([]);
-			const view = await loadFinancials({ ...base, nav: priceNav, pricesFetcher });
+			const view = await loadFinancials({ ...base, nav: priceNav, fmp: { prices: pricesFetcher } });
 			expect(view).toEqual({ state: 'price', symbol: 'AAPL', points: [], message: 'No price history found for AAPL.' });
 		});
 		it('maps FMP failures to messages without leaking details', async () => {
 			vi.spyOn(console, 'error').mockImplementation(() => {});
 			const pricesFetcher = vi.fn().mockRejectedValue(new FmpError('limit', 'secret detail'));
-			const view = await loadFinancials({ ...base, nav: priceNav, pricesFetcher });
+			const view = await loadFinancials({ ...base, nav: priceNav, fmp: { prices: pricesFetcher } });
 			if (view.state !== 'price') throw new Error('expected price');
 			expect(view.points).toEqual([]);
 			expect(view.message).toBe('FMP rate limit reached. Try again in a minute.');
@@ -222,7 +254,7 @@ describe('loadFinancials', () => {
 	});
 	it('still requires a session on the placeholder tabs', async () => {
 		const fetcher = vi.fn<StatementFetcher>();
-		const view = await loadFinancials({ ...base, authed: false, nav: { ...nav, tab: 'news' }, fetcher });
+		const view = await loadFinancials({ ...base, authed: false, nav: { ...nav, tab: 'news' }, fmp: { statement: fetcher } });
 		expect(view).toEqual({ state: 'locked' });
 	});
 	it('fetches only the selected statement, with the period', async () => {
@@ -243,7 +275,7 @@ describe('loadFinancials', () => {
 	});
 	it('shows the annual income statement by default', async () => {
 		const fetcher = vi.fn<StatementFetcher>().mockResolvedValue(statement);
-		const view = await loadFinancials({ ...base, fetcher });
+		const view = await loadFinancials({ ...base, fmp: { statement: fetcher } });
 		if (view.state !== 'ready') throw new Error('expected ready');
 		expect(view.title).toBe('Income statement');
 		expect(view.table?.columns[0].year).toBe('2024');
@@ -253,7 +285,7 @@ describe('loadFinancials', () => {
 		const fetcher: StatementFetcher = async () => {
 			throw new FmpError('limit', 'FMP rate limit reached');
 		};
-		const view = await loadFinancials({ ...base, fetcher });
+		const view = await loadFinancials({ ...base, fmp: { statement: fetcher } });
 		if (view.state !== 'ready') throw new Error('expected ready');
 		expect(view.table).toBeNull();
 		expect(view.message).toMatch(/rate limit/i);
@@ -270,7 +302,7 @@ describe('loadFinancials', () => {
 		expect(view.message).toBe('Yahoo Finance has no annual statements for ABVN. Price, news and company data may still be available in the other tabs.');
 	});
 	it('says so when there are no figures', async () => {
-		const annual = await loadFinancials({ ...base, fetcher: async () => ({ lines: [], years: [] }) });
+		const annual = await loadFinancials({ ...base, fmp: { statement: async () => ({ lines: [], years: [] }) } });
 		if (annual.state !== 'ready') throw new Error('expected ready');
 		expect(annual.table).toBeNull();
 		expect(annual.message).toMatch(/no annual statements/i);
@@ -287,7 +319,7 @@ describe('loadFinancials', () => {
 		const fetcher: StatementFetcher = async () => {
 			throw new FmpError('config', 'FMP rejected the API key');
 		};
-		await loadFinancials({ ...base, apiKey: 'TOPSECRET', fetcher });
+		await loadFinancials({ ...base, apiKey: 'TOPSECRET', fmp: { statement: fetcher } });
 		const logged = JSON.stringify(spy.mock.calls);
 		expect(logged).toContain('AAPL');
 		expect(logged).not.toContain('TOPSECRET');
@@ -300,7 +332,7 @@ describe('loadFinancials', () => {
 		const fetcher: StatementFetcher = async () => {
 			throw new Error('boom https://financialmodelingprep.com/stable/x?apikey=TOPSECRET');
 		};
-		const view = await loadFinancials({ ...base, apiKey: 'TOPSECRET', fetcher });
+		const view = await loadFinancials({ ...base, apiKey: 'TOPSECRET', fmp: { statement: fetcher } });
 		if (view.state !== 'ready') throw new Error('expected ready');
 		expect(view.table).toBeNull();
 		expect(view.message).toMatch(/FMP is unavailable/);
@@ -319,7 +351,7 @@ describe('company and news tabs', () => {
 		const fetcher = vi.fn<StatementFetcher>();
 		const profileFetcher = vi.fn().mockResolvedValue(profile);
 		const newsFetcher = vi.fn();
-		const view = await loadFinancials({ ...base, nav: { ...nav, tab: 'company' }, fetcher, profileFetcher, newsFetcher });
+		const view = await loadFinancials({ ...base, nav: { ...nav, tab: 'company' }, fmp: { statement: fetcher, profile: profileFetcher, news: newsFetcher } });
 		expect(view).toEqual({ state: 'profile', symbol: 'AAPL', profile, message: null });
 		expect(profileFetcher).toHaveBeenCalledWith('AAPL', 'KEY');
 		expect(fetcher).not.toHaveBeenCalled();
@@ -329,15 +361,15 @@ describe('company and news tabs', () => {
 		const fetcher = vi.fn<StatementFetcher>();
 		const profileFetcher = vi.fn();
 		const newsFetcher = vi.fn().mockResolvedValue([newsItem]);
-		const view = await loadFinancials({ ...base, nav: { ...nav, tab: 'news' }, fetcher, profileFetcher, newsFetcher });
+		const view = await loadFinancials({ ...base, nav: { ...nav, tab: 'news' }, fmp: { statement: fetcher, profile: profileFetcher, news: newsFetcher } });
 		expect(view).toEqual({ state: 'news', symbol: 'AAPL', items: [newsItem], message: null });
 		expect(newsFetcher).toHaveBeenCalledWith('AAPL', 'KEY');
 		expect(profileFetcher).not.toHaveBeenCalled();
 	});
 	it('says so when there is no profile or no news', async () => {
-		const noProfile = await loadFinancials({ ...base, nav: { ...nav, tab: 'company' }, profileFetcher: async () => null });
+		const noProfile = await loadFinancials({ ...base, nav: { ...nav, tab: 'company' }, fmp: { profile: async () => null } });
 		expect(noProfile).toEqual({ state: 'profile', symbol: 'AAPL', profile: null, message: 'No company profile found for AAPL.' });
-		const noNews = await loadFinancials({ ...base, nav: { ...nav, tab: 'news' }, newsFetcher: async () => [] });
+		const noNews = await loadFinancials({ ...base, nav: { ...nav, tab: 'news' }, fmp: { news: async () => [] } });
 		expect(noNews).toEqual({ state: 'news', symbol: 'AAPL', items: [], message: 'No recent news found for AAPL.' });
 	});
 	it('guards both tabs: no key, no ticker, bad ticker, no session', async () => {
@@ -345,10 +377,10 @@ describe('company and news tabs', () => {
 			const profileFetcher = vi.fn();
 			const newsFetcher = vi.fn();
 			const n = { ...nav, tab };
-			expect(await loadFinancials({ ...base, authed: false, nav: n, profileFetcher, newsFetcher })).toEqual({ state: 'locked' });
-			expect(await loadFinancials({ ...base, apiKey: '', nav: n, profileFetcher, newsFetcher })).toEqual({ state: 'unconfigured' });
-			expect(await loadFinancials({ ...base, rawSymbol: '', nav: n, profileFetcher, newsFetcher })).toEqual({ state: 'idle' });
-			expect(await loadFinancials({ ...base, rawSymbol: 'A&B', nav: n, profileFetcher, newsFetcher })).toEqual({ state: 'invalid' });
+			expect(await loadFinancials({ ...base, authed: false, nav: n, fmp: { profile: profileFetcher, news: newsFetcher } })).toEqual({ state: 'locked' });
+			expect(await loadFinancials({ ...base, apiKey: '', nav: n, fmp: { profile: profileFetcher, news: newsFetcher } })).toEqual({ state: 'unconfigured' });
+			expect(await loadFinancials({ ...base, rawSymbol: '', nav: n, fmp: { profile: profileFetcher, news: newsFetcher } })).toEqual({ state: 'idle' });
+			expect(await loadFinancials({ ...base, rawSymbol: 'A&B', nav: n, fmp: { profile: profileFetcher, news: newsFetcher } })).toEqual({ state: 'invalid' });
 			expect(profileFetcher).not.toHaveBeenCalled();
 			expect(newsFetcher).not.toHaveBeenCalled();
 		}
@@ -358,8 +390,8 @@ describe('company and news tabs', () => {
 		const boom = async () => {
 			throw new FmpError('plan', 'Not available on this FMP plan');
 		};
-		const c = await loadFinancials({ ...base, apiKey: 'TOPSECRET', nav: { ...nav, tab: 'company' }, profileFetcher: boom });
-		const n = await loadFinancials({ ...base, apiKey: 'TOPSECRET', nav: { ...nav, tab: 'news' }, newsFetcher: boom });
+		const c = await loadFinancials({ ...base, apiKey: 'TOPSECRET', nav: { ...nav, tab: 'company' }, fmp: { profile: boom } });
+		const n = await loadFinancials({ ...base, apiKey: 'TOPSECRET', nav: { ...nav, tab: 'news' }, fmp: { news: boom } });
 		if (c.state !== 'profile' || n.state !== 'news') throw new Error('unexpected state');
 		expect(c.message).toMatch(/plan/i);
 		expect(n.message).toMatch(/plan/i);
@@ -380,10 +412,10 @@ describe('sources', () => {
 	const yahooPoints: PricePoint[] = [{ date: '2026-10-23', close: 39.5, volume: 10 }];
 	const fakes = () => ({
 		fmp: {
-			fetcher: vi.fn<StatementFetcher>().mockResolvedValue(statement),
-			profileFetcher: vi.fn(),
-			newsFetcher: vi.fn(),
-			pricesFetcher: vi.fn()
+			statement: vi.fn<StatementFetcher>().mockResolvedValue(statement),
+			profile: vi.fn(),
+			news: vi.fn(),
+			prices: vi.fn()
 		},
 		yahoo: {
 			statement: vi.fn<StatementFetcher>().mockResolvedValue(yahooStatement),
@@ -395,43 +427,43 @@ describe('sources', () => {
 
 	it('serves a non-US ticker from Yahoo only, without an FMP key', async () => {
 		const { fmp, yahoo } = fakes();
-		const view = await loadFinancials({ ...base, rawSymbol: 'abn.as', apiKey: undefined, nav: { ...nav, tab: 'price' }, ...fmp, yahoo });
+		const view = await loadFinancials({ ...base, rawSymbol: 'abn.as', apiKey: undefined, nav: { ...nav, tab: 'price' }, fmp, yahoo });
 		expect(view).toEqual({ state: 'price', symbol: 'ABN.AS', points: yahooPoints, message: null });
 		expect(yahoo.prices).toHaveBeenCalledWith('ABN.AS', '');
-		expect(fmp.pricesFetcher).not.toHaveBeenCalled();
+		expect(fmp.prices).not.toHaveBeenCalled();
 	});
 	it('ignores source=fmp for a non-US ticker', async () => {
 		const { fmp, yahoo } = fakes();
-		await loadFinancials({ ...base, rawSymbol: 'ABN.AS', nav: { ...nav, tab: 'company', source: 'fmp' }, ...fmp, yahoo });
+		await loadFinancials({ ...base, rawSymbol: 'ABN.AS', nav: { ...nav, tab: 'company', source: 'fmp' }, fmp, yahoo });
 		expect(yahoo.profile).toHaveBeenCalled();
-		expect(fmp.profileFetcher).not.toHaveBeenCalled();
+		expect(fmp.profile).not.toHaveBeenCalled();
 	});
 	it('serves a US ticker from FMP by default and from Yahoo on request', async () => {
 		const { fmp, yahoo } = fakes();
-		await loadFinancials({ ...base, ...fmp, yahoo });
-		expect(fmp.fetcher).toHaveBeenCalledTimes(1);
+		await loadFinancials({ ...base, fmp, yahoo });
+		expect(fmp.statement).toHaveBeenCalledTimes(1);
 		expect(yahoo.statement).not.toHaveBeenCalled();
-		await loadFinancials({ ...base, nav: { ...nav, source: 'yahoo' }, ...fmp, yahoo });
+		await loadFinancials({ ...base, nav: { ...nav, source: 'yahoo' }, fmp, yahoo });
 		expect(yahoo.statement).toHaveBeenCalledTimes(1);
-		expect(fmp.fetcher).toHaveBeenCalledTimes(1);
+		expect(fmp.statement).toHaveBeenCalledTimes(1);
 	});
 	it('needs the FMP key only for FMP views', async () => {
 		const { fmp, yahoo } = fakes();
-		expect(await loadFinancials({ ...base, apiKey: undefined, ...fmp, yahoo })).toEqual({ state: 'unconfigured' });
-		const view = await loadFinancials({ ...base, apiKey: undefined, nav: { ...nav, source: 'yahoo' }, ...fmp, yahoo });
+		expect(await loadFinancials({ ...base, apiKey: undefined, fmp, yahoo })).toEqual({ state: 'unconfigured' });
+		const view = await loadFinancials({ ...base, apiKey: undefined, nav: { ...nav, source: 'yahoo' }, fmp, yahoo });
 		expect(view.state).toBe('ready');
 	});
 	it('never asks FMP for TTM: the period becomes annual', async () => {
 		const { fmp, yahoo } = fakes();
-		const view = await loadFinancials({ ...base, nav: { ...nav, period: 'ttm' }, ...fmp, yahoo });
-		expect(fmp.fetcher).toHaveBeenCalledWith('income', 'AAPL', 'KEY', 'annual');
+		const view = await loadFinancials({ ...base, nav: { ...nav, period: 'ttm' }, fmp, yahoo });
+		expect(fmp.statement).toHaveBeenCalledWith('income', 'AAPL', 'KEY', 'annual');
 		if (view.state !== 'ready') throw new Error('expected ready');
 		expect(view.title).toBe('Income statement');
 		expect(view.table?.columns[0].year).toBe('2024');
 	});
 	it('asks Yahoo for TTM when it is the source', async () => {
 		const { fmp, yahoo } = fakes();
-		const view = await loadFinancials({ ...base, rawSymbol: 'ABN.AS', nav: { ...nav, period: 'ttm' }, ...fmp, yahoo });
+		const view = await loadFinancials({ ...base, rawSymbol: 'ABN.AS', nav: { ...nav, period: 'ttm' }, fmp, yahoo });
 		expect(yahoo.statement).toHaveBeenCalledWith('income', 'ABN.AS', '', 'ttm');
 		if (view.state !== 'ready') throw new Error('expected ready');
 		expect(view.table?.columns[0].year).toBe('TTM');
@@ -439,20 +471,20 @@ describe('sources', () => {
 	});
 	it('still requires a session first, and a valid ticker', async () => {
 		const { fmp, yahoo } = fakes();
-		expect(await loadFinancials({ ...base, authed: false, rawSymbol: 'ABN.AS', ...fmp, yahoo })).toEqual({ state: 'locked' });
-		expect(await loadFinancials({ ...base, rawSymbol: 'A.B&C', ...fmp, yahoo })).toEqual({ state: 'invalid' });
-		expect(await loadFinancials({ ...base, rawSymbol: '', nav: { ...nav, source: 'yahoo' }, apiKey: undefined, ...fmp, yahoo })).toEqual({ state: 'idle' });
+		expect(await loadFinancials({ ...base, authed: false, rawSymbol: 'ABN.AS', fmp, yahoo })).toEqual({ state: 'locked' });
+		expect(await loadFinancials({ ...base, rawSymbol: 'A.B&C', fmp, yahoo })).toEqual({ state: 'invalid' });
+		expect(await loadFinancials({ ...base, rawSymbol: '', nav: { ...nav, source: 'yahoo' }, apiKey: undefined, fmp, yahoo })).toEqual({ state: 'idle' });
 		expect(yahoo.statement).not.toHaveBeenCalled();
 	});
 	it('names the effective source in failure messages', async () => {
 		vi.spyOn(console, 'error').mockImplementation(() => {});
 		const { fmp, yahoo } = fakes();
 		yahoo.statement.mockRejectedValue(new FmpError('limit', 'x'));
-		const view = await loadFinancials({ ...base, rawSymbol: 'ABN.AS', ...fmp, yahoo });
+		const view = await loadFinancials({ ...base, rawSymbol: 'ABN.AS', fmp, yahoo });
 		if (view.state !== 'ready') throw new Error('expected ready');
 		expect(view.message).toBe('Yahoo Finance rate limit reached. Try again in a minute.');
 		yahoo.profile.mockRejectedValue(new FmpError('unavailable', 'x'));
-		const profile = await loadFinancials({ ...base, rawSymbol: 'ABN.AS', nav: { ...nav, tab: 'company' }, ...fmp, yahoo });
+		const profile = await loadFinancials({ ...base, rawSymbol: 'ABN.AS', nav: { ...nav, tab: 'company' }, fmp, yahoo });
 		if (profile.state !== 'profile') throw new Error('expected profile');
 		expect(profile.message).toBe('Yahoo Finance is unavailable right now. Try again shortly.');
 	});
