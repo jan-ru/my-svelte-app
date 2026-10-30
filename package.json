@@ -30,6 +30,7 @@
   "dependencies": {
     "@fontsource-variable/public-sans": "^5.3.0",
     "@fontsource/ibm-plex-mono": "^5.3.0",
+    "@vercel/analytics": "^2.0.1",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
     "yahoo-finance2": "4.0.5"
   },
@@ -49,5 +50,10 @@
   "keywords": [],
   "author": "JRM",
   "license": "MIT",
-  "description": "Fetch multiples from NYU database"
+  "description": "Fetch multiples from NYU database",
+  "overrides": {
+    "@vercel/analytics": {
+      "@sveltejs/kit": "$@sveltejs/kit"
+    }
+  }
 }
