@@ -1,0 +1,30 @@
+{
+	"$schema": "https://typedoc.org/schema.json",
+	"name": "Fetch valuation multiples",
+	"entryPoints": [
+		"src/lib"
+	],
+	"entryPointStrategy": "expand",
+	"exclude": [
+		"**/*.test.ts",
+		"**/*.live.ts",
+		"**/testing/**"
+	],
+	"tsconfig": "tsconfig.json",
+	"out": "docs/api",
+	"readme": "none",
+	"githubPages": false,
+	"excludeInternal": true,
+	"navigation": {
+		"includeCategories": false,
+		"includeGroups": false
+	},
+	"sort": [
+		"source-order"
+	],
+	"intentionallyNotExported": [
+		"ModuleOptions",
+		"StatementModule"
+	],
+	"treatWarningsAsErrors": true
+}

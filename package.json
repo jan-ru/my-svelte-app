@@ -13,7 +13,8 @@
     "build:crosswalk": "node scripts/build-crosswalk.ts",
     "build:companies": "node scripts/build-companies.ts",
     "build:gdp": "node scripts/build-gdp.ts",
-    "check:ts-only": "node scripts/check-no-js.ts"
+    "check:ts-only": "node scripts/check-no-js.ts",
+    "docs": "svelte-kit sync && typedoc"
   },
   "devDependencies": {
     "@sveltejs/adapter-vercel": "^7.0.1",
@@ -23,6 +24,7 @@
     "@vitest/coverage-v8": "^5.0.5",
     "svelte": "^5.55.7",
     "svelte-check": "^4.7.7",
+    "typedoc": "^0.28.20",
     "typescript": "^6.0.3",
     "vite": "^8.3.5",
     "vitest": "^5.0.5"
