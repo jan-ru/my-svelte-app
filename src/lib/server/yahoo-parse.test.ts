@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest';
-import { FmpError } from './fmp';
 import {
 	parseYahooNews,
 	parseYahooPrices,
@@ -7,6 +6,7 @@ import {
 	parseYahooStatement,
 	toDate
 } from './yahoo-parse';
+import { SourceError } from './source-error';
 
 describe('toDate', () => {
 	it('reads Dates, epoch seconds, epoch milliseconds and ISO strings', () => {
@@ -52,7 +52,7 @@ describe('parseYahooPrices', () => {
 	});
 	it('returns [] for an empty list and rejects other shapes', () => {
 		expect(parseYahooPrices([])).toEqual([]);
-		expect(() => parseYahooPrices({ nope: 1 })).toThrowError(FmpError);
+		expect(() => parseYahooPrices({ nope: 1 })).toThrowError(SourceError);
 	});
 });
 
@@ -108,8 +108,8 @@ describe('parseYahooProfile', () => {
 	});
 	it('returns null when nothing usable is there and rejects non-objects', () => {
 		expect(parseYahooProfile({})).toBeNull();
-		expect(() => parseYahooProfile(null)).toThrowError(FmpError);
-		expect(() => parseYahooProfile('x')).toThrowError(FmpError);
+		expect(() => parseYahooProfile(null)).toThrowError(SourceError);
+		expect(() => parseYahooProfile('x')).toThrowError(SourceError);
 	});
 });
 
@@ -129,7 +129,7 @@ describe('parseYahooNews', () => {
 	});
 	it('returns [] for an empty list and rejects other shapes', () => {
 		expect(parseYahooNews([])).toEqual([]);
-		expect(() => parseYahooNews(undefined)).toThrowError(FmpError);
+		expect(() => parseYahooNews(undefined)).toThrowError(SourceError);
 	});
 });
 
@@ -194,8 +194,8 @@ describe('parseYahooStatement', () => {
 	});
 	it('returns an empty statement when there are no rows, and rejects other shapes', () => {
 		expect(parseYahooStatement('income', [], null, 'annual', null)).toEqual({ lines: [], years: [] });
-		expect(() => parseYahooStatement('income', { nope: 1 }, null, 'annual', null)).toThrowError(FmpError);
-		expect(() => parseYahooStatement('income', [], { nope: 1 }, 'ttm', null)).toThrowError(FmpError);
+		expect(() => parseYahooStatement('income', { nope: 1 }, null, 'annual', null)).toThrowError(SourceError);
+		expect(() => parseYahooStatement('income', [], { nope: 1 }, 'ttm', null)).toThrowError(SourceError);
 	});
 	it('skips rows without a usable date', () => {
 		const s = parseYahooStatement('income', [{ date: 'soon', totalRevenue: 1 }, row(2025, { totalRevenue: 2 })], null, 'annual', null);

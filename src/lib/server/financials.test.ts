@@ -1,11 +1,11 @@
 // src/lib/server/financials.test.ts
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { Nav } from '../financials-nav';
-import { FmpError, type Statement } from './fmp';
-import type { NewsItem, PricePoint, Profile } from './fmp-info';
 import { TABS } from '../financials-nav';
 import { loadFinancials, statementTitle, type StatementFetcher } from './financials';
 import type { SourceFetchers } from './financials';
+import type { NewsItem, PricePoint, Profile, Statement } from '../source-data';
+import { SourceError } from './source-error';
 
 const statement: Statement = {
 	lines: ['revenue'],
@@ -103,7 +103,7 @@ describe('loadFinancials', () => {
 		it('maps a plan error to a message and logs without the key', async () => {
 			const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
 			const ratiosFetcher = async () => {
-				throw new FmpError('plan', 'Not available on this FMP plan');
+				throw new SourceError('plan', 'Not available on this FMP plan');
 			};
 			const view = await loadFinancials({ ...base, apiKey: 'TOPSECRET', nav: ratiosNav, fmp: { ratios: ratiosFetcher } });
 			if (view.state !== 'ready') throw new Error('unexpected state');
@@ -148,7 +148,7 @@ describe('loadFinancials', () => {
 		it('keeps the estimates table when only the price target fails', async () => {
 			const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
 			const priceTargetFetcher = async () => {
-				throw new FmpError('plan', 'Not available on this FMP plan');
+				throw new SourceError('plan', 'Not available on this FMP plan');
 			};
 			const view = await loadFinancials({ ...base, apiKey: 'TOPSECRET', nav: estNav, fmp: { estimates: async () => estimates, priceTarget: priceTargetFetcher } });
 			if (view.state !== 'ready') throw new Error('unexpected state');
@@ -162,9 +162,9 @@ describe('loadFinancials', () => {
 				...base,
 				nav: estNav,
 				fmp: { estimates: async () => {
-					throw new FmpError('limit', 'FMP rate limit reached');
+					throw new SourceError('limit', 'FMP rate limit reached');
 				}, priceTarget: async () => {
-					throw new FmpError('limit', 'FMP rate limit reached');
+					throw new SourceError('limit', 'FMP rate limit reached');
 				} }
 			});
 			if (view.state !== 'ready') throw new Error('unexpected state');
@@ -192,7 +192,7 @@ describe('loadFinancials', () => {
 				...base,
 				nav: peersNav,
 				fmp: { peers: async () => {
-					throw new FmpError('plan', 'Not available on this FMP plan');
+					throw new SourceError('plan', 'Not available on this FMP plan');
 				} }
 			});
 			expect(failed).toMatchObject({ state: 'peers', peers: [] });
@@ -244,7 +244,7 @@ describe('loadFinancials', () => {
 		});
 		it('maps FMP failures to messages without leaking details', async () => {
 			vi.spyOn(console, 'error').mockImplementation(() => {});
-			const pricesFetcher = vi.fn().mockRejectedValue(new FmpError('limit', 'secret detail'));
+			const pricesFetcher = vi.fn().mockRejectedValue(new SourceError('limit', 'secret detail'));
 			const view = await loadFinancials({ ...base, nav: priceNav, fmp: { prices: pricesFetcher } });
 			if (view.state !== 'price') throw new Error('expected price');
 			expect(view.points).toEqual([]);
@@ -283,7 +283,7 @@ describe('loadFinancials', () => {
 	it('reports a failure for the selected statement only', async () => {
 		vi.spyOn(console, 'error').mockImplementation(() => {});
 		const fetcher: StatementFetcher = async () => {
-			throw new FmpError('limit', 'FMP rate limit reached');
+			throw new SourceError('limit', 'FMP rate limit reached');
 		};
 		const view = await loadFinancials({ ...base, fmp: { statement: fetcher } });
 		if (view.state !== 'ready') throw new Error('expected ready');
@@ -317,7 +317,7 @@ describe('loadFinancials', () => {
 	it('logs failures without the key and without a URL', async () => {
 		const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
 		const fetcher: StatementFetcher = async () => {
-			throw new FmpError('config', 'FMP rejected the API key');
+			throw new SourceError('config', 'FMP rejected the API key');
 		};
 		await loadFinancials({ ...base, apiKey: 'TOPSECRET', fmp: { statement: fetcher } });
 		const logged = JSON.stringify(spy.mock.calls);
@@ -325,7 +325,7 @@ describe('loadFinancials', () => {
 		expect(logged).not.toContain('TOPSECRET');
 		expect(logged).not.toContain('apikey');
 	});
-	it('treats a non-FmpError as unavailable and logs nothing sensitive', async () => {
+	it('treats a non-SourceError as unavailable and logs nothing sensitive', async () => {
 		const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
 		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
 		const log = vi.spyOn(console, 'log').mockImplementation(() => {});
@@ -388,7 +388,7 @@ describe('company and news tabs', () => {
 	it('maps failures to messages and logs without key or URL', async () => {
 		const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
 		const boom = async () => {
-			throw new FmpError('plan', 'Not available on this FMP plan');
+			throw new SourceError('plan', 'Not available on this FMP plan');
 		};
 		const c = await loadFinancials({ ...base, apiKey: 'TOPSECRET', nav: { ...nav, tab: 'company' }, fmp: { profile: boom } });
 		const n = await loadFinancials({ ...base, apiKey: 'TOPSECRET', nav: { ...nav, tab: 'news' }, fmp: { news: boom } });
@@ -479,11 +479,11 @@ describe('sources', () => {
 	it('names the effective source in failure messages', async () => {
 		vi.spyOn(console, 'error').mockImplementation(() => {});
 		const { fmp, yahoo } = fakes();
-		yahoo.statement.mockRejectedValue(new FmpError('limit', 'x'));
+		yahoo.statement.mockRejectedValue(new SourceError('limit', 'x'));
 		const view = await loadFinancials({ ...base, rawSymbol: 'ABN.AS', fmp, yahoo });
 		if (view.state !== 'ready') throw new Error('expected ready');
 		expect(view.message).toBe('Yahoo Finance rate limit reached. Try again in a minute.');
-		yahoo.profile.mockRejectedValue(new FmpError('unavailable', 'x'));
+		yahoo.profile.mockRejectedValue(new SourceError('unavailable', 'x'));
 		const profile = await loadFinancials({ ...base, rawSymbol: 'ABN.AS', nav: { ...nav, tab: 'company' }, fmp, yahoo });
 		if (profile.state !== 'profile') throw new Error('expected profile');
 		expect(profile.message).toBe('Yahoo Finance is unavailable right now. Try again shortly.');

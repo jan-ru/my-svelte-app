@@ -1,5 +1,4 @@
 import { describe, expect, it, vi } from 'vitest';
-import { FmpError } from './fmp';
 import {
 	fetchYahooNews,
 	fetchYahooPrices,
@@ -7,6 +6,7 @@ import {
 	fetchYahooStatement,
 	type YahooClient
 } from './yahoo';
+import { SourceError } from './source-error';
 
 const fake = (overrides: Partial<YahooClient> = {}): YahooClient => ({
 	chart: vi.fn(async () => ({ meta: { gmtoffset: 3600 }, quotes: [{ date: new Date('2026-10-23T08:00:00Z'), close: 39.5, volume: 10 }] })),
@@ -119,13 +119,13 @@ describe('errors', () => {
 		const delisted = failing(new Error('No data found, symbol may be delisted'));
 		expect(await fetchYahooPrices('NOPE', '2025-10-26', '2026-10-26', delisted)).toEqual([]);
 	});
-	it('maps rate limits and everything else to FmpError kinds', async () => {
+	it('maps rate limits and everything else to SourceError kinds', async () => {
 		const limited = await fetchYahooPrices('X', '2025-10-26', '2026-10-26', failing(new Error('HTTP 429 Too Many Requests'))).catch((e: unknown) => e);
-		expect(limited).toBeInstanceOf(FmpError);
-		expect((limited as FmpError).kind).toBe('limit');
+		expect(limited).toBeInstanceOf(SourceError);
+		expect((limited as SourceError).kind).toBe('limit');
 		const broken = await fetchYahooProfile('X', failing(new Error('fetch failed https://query1.finance.yahoo.com/v7?crumb=SECRET'))).catch((e: unknown) => e);
-		expect(broken).toBeInstanceOf(FmpError);
-		expect((broken as FmpError).kind).toBe('unavailable');
+		expect(broken).toBeInstanceOf(SourceError);
+		expect((broken as SourceError).kind).toBe('unavailable');
 		expect((broken as Error).message).not.toMatch(/https?:|crumb|SECRET/);
 	});
 });

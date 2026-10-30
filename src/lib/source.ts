@@ -6,7 +6,11 @@ export const SOURCES = [
 ] as const;
 export type Source = (typeof SOURCES)[number]['id'];
 
-/** The owner's FMP plan has no trailing-twelve-month data; set this to true if that ever changes. */
+/**
+ * Whether FMP is asked for trailing-twelve-month figures. It is false because the FMP plan this app runs on has
+ * no TTM endpoints; set it to true if the plan changes. It is a constant, not an environment variable, because
+ * `periodAvailable` also runs in the browser (the period toggle), where private environment variables do not exist.
+ */
 export const FMP_SUPPORTS_TTM = false;
 
 export const sourceLabel = (source: Source): string => SOURCES.find((s) => s.id === source)!.label;

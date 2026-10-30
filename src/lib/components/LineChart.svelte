@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { PALETTE, monthTicks, priceTicks } from '#lib/chart';
 	import { formatPrice } from '#lib/prices';
-	import type { PricePoint } from '#lib/server/fmp-info';
+	import type { PricePoint } from '#lib/source-data';
 
 	let { points }: { points: PricePoint[] } = $props();
 

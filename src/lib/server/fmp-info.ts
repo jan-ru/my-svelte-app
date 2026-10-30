@@ -1,37 +1,10 @@
 // src/lib/server/fmp-info.ts
 import { safeUrl } from '../safe-url';
-import { FmpError, fmpGet, throwIfErrorBody } from './fmp';
-
-export interface Profile {
-	name: string | null;
-	exchange: string | null;
-	sector: string | null;
-	industry: string | null;
-	country: string | null;
-	ceo: string | null;
-	website: string | null;
-	ipoDate: string | null;
-	currency: string | null;
-	description: string | null;
-	employees: number | null;
-	price: number | null;
-	marketCap: number | null;
-	beta: number | null;
-}
-
-export interface NewsItem {
-	title: string;
-	publisher: string | null;
-	date: string | null;
-	text: string | null;
-	url: string | null;
-}
-
-export interface PricePoint {
-	date: string;
-	close: number;
-	volume: number | null;
-}
+import { NEWS_LIMIT } from '../source-data';
+import type { NewsItem, PricePoint, Profile } from '../source-data';
+import { num, str } from './coerce';
+import { fmpGet, throwIfErrorBody } from './fmp';
+import { SourceError } from './source-error';
 
 export interface PriceTarget {
 	consensus: number | null;
@@ -48,19 +21,10 @@ export interface Peer {
 }
 
 export const PEERS_LIMIT = 20;
-export const NEWS_LIMIT = 20;
 const NEWS_PATH = 'news/stock';
 const SNIPPET_MAX = 300;
 
-export const str = (value: unknown): string | null =>
-	typeof value === 'string' && value.trim() !== '' ? value.trim() : null;
-
-export const num = (value: unknown): number | null => {
-	const n = typeof value === 'string' && value.trim() !== '' ? Number(value) : value;
-	return typeof n === 'number' && Number.isFinite(n) ? n : null;
-};
-
-const unexpected = () => new FmpError('unavailable', 'Unexpected response from FMP');
+const unexpected = () => new SourceError('unavailable', 'Unexpected response from FMP');
 
 export function parseProfile(body: unknown): Profile | null {
 	throwIfErrorBody(body);

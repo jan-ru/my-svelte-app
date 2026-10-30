@@ -1,6 +1,5 @@
 // src/lib/server/financials-cache.test.ts
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { Statement } from './fmp';
 
 vi.mock('./fmp', async (importActual) => ({
 	...(await importActual<typeof import('./fmp')>()),
@@ -9,6 +8,7 @@ vi.mock('./fmp', async (importActual) => ({
 
 import { fetchStatement } from './fmp';
 import { cachedFetcher } from './financials';
+import type { Statement } from '../source-data';
 
 const statement: Statement = {
 	lines: ['revenue'],

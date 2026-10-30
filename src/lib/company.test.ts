@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { formatNewsDate, profileFields } from './company';
-import type { Profile } from './server/fmp-info';
+import type { Profile } from './source-data';
 
 const empty: Profile = {
 	name: null, exchange: null, sector: null, industry: null, country: null, ceo: null, website: null,
