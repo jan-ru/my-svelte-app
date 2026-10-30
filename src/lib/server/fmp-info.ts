@@ -1,24 +1,10 @@
 // src/lib/server/fmp-info.ts
 import { safeUrl } from '../safe-url';
 import { NEWS_LIMIT } from '../source-data';
-import type { NewsItem, PricePoint, Profile } from '../source-data';
+import type { NewsItem, Peer, PricePoint, PriceTarget, Profile } from '../source-data';
 import { num, str } from './coerce';
 import { fmpGet, throwIfErrorBody } from './fmp';
 import { SourceError } from './source-error';
-
-export interface PriceTarget {
-	consensus: number | null;
-	median: number | null;
-	high: number | null;
-	low: number | null;
-}
-
-export interface Peer {
-	symbol: string;
-	name: string | null;
-	price: number | null;
-	marketCap: number | null;
-}
 
 export const PEERS_LIMIT = 20;
 const NEWS_PATH = 'news/stock';

@@ -13,7 +13,17 @@ describe('source boundaries', () => {
 	it.each(['fmp.ts', 'fmp-info.ts'])('%s does not import the Yahoo modules', (file) => {
 		expect(imports(file).filter((path) => /(^|\/)yahoo(-parse)?$/.test(path))).toEqual([]);
 	});
-	it.each(['../prices.ts', '../company.ts', '../statements.ts', '../components/LineChart.svelte'])(
+	it.each([
+		'../prices.ts',
+		'../company.ts',
+		'../statements.ts',
+		'../components/LineChart.svelte',
+		'../components/FinancialTable.svelte',
+		'../components/NewsList.svelte',
+		'../components/PeersList.svelte',
+		'../components/PriceView.svelte',
+		'../components/ProfileView.svelte'
+	])(
 		'%s, which also runs in the browser, imports its types from source-data and not from a server module',
 		(file) => {
 			expect(imports(file).filter((path) => path.includes('server/'))).toEqual([]);
