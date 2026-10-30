@@ -2,6 +2,10 @@
 
 - **TypeScript only.** Write all source in TypeScript: `.ts` files and Svelte `<script lang="ts">`. Do not add `.js`, `.mjs`, `.cjs` or `.jsx` files. Scripts in `scripts/` are `.ts` too and run with `node scripts/<name>.ts` (Node 24 strips the types). `npm run check:ts-only` enforces this and CI runs it.
 - **Type-check before committing:** `npm run check` (svelte-check, strict). It must report 0 errors.
+- **Style: mostly functional, effects at the edge.** This applies to new and changed code; do not rewrite existing code only to match it.
+  - **Data shapes are `readonly`.** Interfaces and types that describe data (rows, views, API results) use `readonly` properties and `readonly T[]`, and constant tables use `as const`. Build a new value instead of changing one in place.
+  - **Prefer `map`, `filter`, `flatMap`, `some` and `find` to a loop** where that reads better. A loop is fine when it is clearer, for example when it builds up several results at once or must stop early.
+  - **Keep I/O thin.** Network calls, caches, cookies, logging and environment reads stay in small functions at the outside (`fmp.ts`, `yahoo.ts`, `hooks.server.ts`, route files). Parsing, formatting and decisions are pure functions that take data and return data, so tests need no mocks; pass fetchers in as arguments.
 - **Imports:** use the `#lib/...` alias for `src/lib` (declared under `imports` in `package.json`). Do not use `$lib` or `config.alias`, which SvelteKit 3 deprecates.
 - **Tests:** `npm test` (Vitest, no network). CI runs `npm run test:coverage`, which fails if coverage of `src/lib` drops below the thresholds in `vitest.config.ts`, so add tests with new code. `npm run check:data` fetches the real NYU files; it also runs monthly in GitHub Actions (`check-data.yml`).
 - **Branches:** `main` is protected by a ruleset that requires a pull request and a passing `test` check. Work on a branch and open a PR. Do not merge without the owner's approval.
