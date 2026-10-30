@@ -46,3 +46,13 @@ export function createCache<T>(options: { ttlMs: number; now?: () => number }): 
 		}
 	};
 }
+
+/** Wrap an async function in a cache of its own, keyed by `keyOf(...args)`. The clock is read per call so fake timers work. */
+export function cached<A extends unknown[], T>(
+	ttlMs: number,
+	keyOf: (...args: A) => string,
+	fn: (...args: A) => Promise<T>
+): (...args: A) => Promise<T> {
+	const cache = createCache<T>({ ttlMs, now: () => Date.now() });
+	return (...args) => cache.get(keyOf(...args), () => fn(...args));
+}

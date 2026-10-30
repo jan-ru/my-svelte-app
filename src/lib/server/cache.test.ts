@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { createCache } from './cache';
+import { cached, createCache } from './cache';
 
 describe('createCache', () => {
 	it('reuses a value until it expires', async () => {
@@ -82,5 +82,35 @@ describe('createCache', () => {
 
 		t = 60_001;
 		await expect(cache.get('k', async () => 'ok')).resolves.toBe('ok');
+	});
+});
+
+describe('cached', () => {
+	it('loads once per key and passes every argument through', async () => {
+		const load = vi.fn(async (symbol: string, apiKey: string) => `${symbol}:${apiKey}`);
+		const get = cached(1000, (symbol: string, _apiKey: string) => symbol, load);
+		expect(await get('AAPL', 'K')).toBe('AAPL:K');
+		expect(await get('AAPL', 'OTHER')).toBe('AAPL:K');
+		expect(await get('MSFT', 'K')).toBe('MSFT:K');
+		expect(load).toHaveBeenCalledTimes(2);
+	});
+	it('keeps a separate cache for each wrapped function', async () => {
+		const a = cached(1000, (key: string) => key, async (key: string) => `a:${key}`);
+		const b = cached(1000, (key: string) => key, async (key: string) => `b:${key}`);
+		expect(await a('x')).toBe('a:x');
+		expect(await b('x')).toBe('b:x');
+	});
+	it('expires entries by the real clock', async () => {
+		vi.useFakeTimers();
+		try {
+			const load = vi.fn(async () => 'v');
+			const get = cached(1000, () => 'k', load);
+			await get();
+			vi.setSystemTime(Date.now() + 1001);
+			await get();
+			expect(load).toHaveBeenCalledTimes(2);
+		} finally {
+			vi.useRealTimers();
+		}
 	});
 });
