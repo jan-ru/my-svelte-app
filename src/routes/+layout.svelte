@@ -19,6 +19,7 @@
 		{ href: '/', label: 'Multiples', current: () => page.url.pathname === '/' },
 		{ href: EXPLORE_HOME, label: 'Explore', current: () => inExplore(page.url.pathname) },
 		{ href: '/financials', label: 'Financials', current: () => page.url.pathname === '/financials' },
+		{ href: '/financials/valuation', label: 'Valuation', current: () => page.url.pathname === '/financials/valuation' },
 		{ href: '/about', label: 'About', current: () => page.url.pathname === '/about' }
 	];
 </script>
