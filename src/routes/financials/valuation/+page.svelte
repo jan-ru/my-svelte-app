@@ -1,11 +1,14 @@
 <!-- src/routes/financials/valuation/+page.svelte -->
 <script lang="ts">
 	import { MAX_SELECTION, MULTIPLES, REGIONS } from '#lib/catalog';
+	import BandOverrides from '#lib/components/BandOverrides.svelte';
 	import CompanyFigures from '#lib/components/CompanyFigures.svelte';
+	import FootballField from '#lib/components/FootballField.svelte';
 	import LoginPrompt from '#lib/components/LoginPrompt.svelte';
 	import MultiplesTable from '#lib/components/MultiplesTable.svelte';
 	import PeerPicker from '#lib/components/PeerPicker.svelte';
 	import ValuationTable from '#lib/components/ValuationTable.svelte';
+	import { fieldModel } from '#lib/football-field';
 	import { sourceLabel } from '#lib/source';
 	import { MAX_PEERS, VALUATION_PATH } from '#lib/valuation-nav';
 	import type { PageProps } from './$types';
@@ -14,6 +17,7 @@
 	const view = $derived(data.view);
 	const nav = $derived(data.nav);
 	const heading = $derived(view.state === 'ready' && view.company ? `${view.company.name} valuation` : 'Valuation versus peers');
+	const field = $derived(view.state === 'ready' && view.result ? fieldModel(view.result) : null);
 	const sectorLabel = $derived(nav.industry ? `${nav.industry}, ${REGIONS.find((r) => r.id === nav.region)?.label}` : null);
 </script>
 
@@ -66,6 +70,14 @@
 			{:else}
 				{#each nav.peers as p (p)}<input type="hidden" name="peer" value={p} />{/each}
 			{/if}
+			{#if view.state === 'ready' && view.result}
+				<BandOverrides benchmarks={view.result.benchmarks} overrides={nav.overrides} />
+			{:else}
+				{#each Object.entries(nav.overrides) as [id, band] (id)}
+					<input type="hidden" name="lo.{id}" value={band.low} />
+					<input type="hidden" name="hi.{id}" value={band.high} />
+				{/each}
+			{/if}
 			<button type="submit">Update</button>
 		</form>
 
@@ -84,6 +96,7 @@
 				{#if view.peers.length > 0 || sectorLabel}
 					<MultiplesTable peers={view.peers} benchmarks={view.result.benchmarks} {sectorLabel} />
 				{/if}
+				{#if field}<FootballField model={field} />{/if}
 				<ValuationTable result={view.result} />
 			{/if}
 		{/if}

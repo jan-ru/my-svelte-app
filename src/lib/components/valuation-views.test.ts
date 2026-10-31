@@ -3,7 +3,10 @@ import type { Component, ComponentProps } from 'svelte';
 import { describe, expect, it } from 'vitest';
 import { valuationView } from '../valuation';
 import type { CompanyFigures, PeerRow } from '../valuation-data';
+import { fieldModel } from '../football-field';
+import BandOverrides from './BandOverrides.svelte';
 import CompanyFiguresView from './CompanyFigures.svelte';
+import FootballField from './FootballField.svelte';
 import MultiplesTable from './MultiplesTable.svelte';
 import PeerPicker from './PeerPicker.svelte';
 import ValuationTable from './ValuationTable.svelte';
@@ -81,5 +84,39 @@ describe('ValuationTable', () => {
 		expect(body).toContain('3.0x to 5.0x manual');
 		expect(body).toContain('The company figure for this multiple is missing.');
 		expect(body).toMatch(/Average [\d,]+/);
+	});
+});
+
+describe('FootballField', () => {
+	const model = fieldModel(result)!;
+	it('draws a bar per method and summarises the chart for screen readers', () => {
+		const body = html(FootballField, { model });
+		expect(body).toContain('role="img"');
+		expect(body).toMatch(/aria-label="Equity value range per method, thousands of EUR\. EV\/EBITDA \(EBITDA 2025, 7\.0x to 9\.0x\): 420 to 555, mid 488, at sector 420/);
+		expect((body.match(/class="range[^"]*"/g) ?? []).length).toBe(2);
+		expect((body.match(/class="sector[^"]*"/g) ?? []).length).toBe(1);
+		const t = text(body);
+		expect(t).toContain('Equity value (thousands of EUR)');
+		expect(t).toContain('P/S');
+		expect(t).toContain('· manual');
+		expect(t).toContain('Not shown: P/B (see the table).');
+		expect(t).toMatch(/Average [\d,]+/);
+	});
+	it('has no average line or skipped note when there is nothing to show', () => {
+		const body = html(FootballField, { model: { ...model, average: null, skipped: [] } });
+		expect(body).not.toMatch(/class="average/);
+		expect(text(body)).not.toContain('Not shown');
+	});
+});
+
+describe('BandOverrides', () => {
+	it('offers low and high per multiple, filled from the URL, with the peer percentiles as placeholders', () => {
+		const body = html(BandOverrides, { benchmarks: result.benchmarks, overrides: { ps: { low: 3, high: 5 } } });
+		expect(body).toMatch(/name="lo\.ev_ebitda"[^>]*value=""[^>]*placeholder="7\.0"/);
+		expect(body).toMatch(/name="hi\.ev_ebitda"[^>]*placeholder="9\.0"/);
+		expect(body).toMatch(/name="lo\.ps"[^>]*value="3"/);
+		expect(body).toMatch(/name="hi\.ps"[^>]*value="5"/);
+		expect(body).toMatch(/name="lo\.pbv"[^>]*placeholder=""/);
+		expect(text(body)).toContain('manual');
 	});
 });
