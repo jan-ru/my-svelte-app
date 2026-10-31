@@ -29,6 +29,11 @@ export interface PeerMultiples {
 	readonly multiples: Readonly<Record<string, number | null>>;
 }
 
+/** A peer as the valuation page shows it: its multiples, or why there are none. */
+export interface PeerRow extends PeerMultiples {
+	readonly message: string | null;
+}
+
 /** A multiple band typed in by hand, replacing the peer percentiles (for example 3x to 5x). */
 export interface Band {
 	readonly low: number;
