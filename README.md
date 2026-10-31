@@ -52,6 +52,19 @@ Login sets a signed, HTTP-only cookie that lasts 7 days and applies to the whole
 
 The page has vertical tabs (Financials, News, Stock Price, Company Data) and, under Financials, tabs for the income statement, balance sheet and cash flow statement plus a Latest 5 years / TTM toggle. The choices live in the URL (`tab`, `statement`, `period`, next to `symbol`), so a view can be bookmarked or shared. Company Data shows the company profile from the active source (cached 24 h) and News the latest 20 articles for the ticker (cached 15 min); links to articles and websites open in a new tab and only http(s) URLs are linked. Stock Price shows the last close, day change, 52-week high and low and volume (end-of-day, not live) with a line chart of the last year of daily closes, from one call to the active source, cached for 1 h. TTM is only available with Yahoo (grayed out with FMP); the TTM balance sheet is the latest annual balance sheet. News on Yahoo is matched by company name and is looser than FMP's.
 
+### Valuation versus peers (`/financials/valuation`)
+
+The valuation page values one company with multiples, the way the football-field slides in a valuation report do. It sits under `/financials`, so it uses the same password and is never cached publicly.
+
+- **Company:** a listed ticker (figures from FMP or Yahoo, the same source rules as `/financials`; forward multiples use FMP analyst estimates) or a private company uploaded from an Excel template. *Download the template* gives an .xlsx with Company, Currency, Net debt, a Year row, a Type row (Actual or Forecast) and one row per figure (Revenue, EBITDA, EBIT, Net income, Book equity, Invested capital). Labels may also be Dutch (Omzet, Eigen vermogen, Realisatie, Prognose). The file is read once and never stored; its figures travel in the page URL (`co`), so they end up in the browser history and the server's request logs.
+- **Peers:** picked by hand, up to 8. FMP's peer list is only offered as suggestions. A peer's multiples are computed from its market cap, net debt and figures, so Yahoo peers (tickers with a dot) work too.
+- **Multiples:** up to 4 from the same list as the home page.
+- **Sector:** a Damodaran region and industry, whose value is shown as a separate row and marker.
+
+The page shows the company's figures, a table of each peer's multiples with the peers' 25th percentile, median, 75th percentile and the sector value, a football-field chart and a table of equity values. Each method's range is the company figure times the peers' P25 to P75 (the median is the midpoint), minus net debt for EV multiples. *Manual bands* replace the peer range with a low and high multiple you type in (for example 3x to 5x). The average line is the mean of the midpoints. Values are in the company's own currency, and zero or negative multiples are left out of the percentiles.
+
+All choices live in the URL: `symbol` or `co`, `peer` (repeated), `m` (repeated), `region`, `industry`, `lo.<multiple>` and `hi.<multiple>`, and `source`. A DCF valuation is planned as a separate page.
+
 ### Public and logged-in
 
 Anonymous visitors see the default view of Multiples, Find industry, Companies (the first 20 companies) and About, cached for a day. They cannot use filters, search or paging; the URL parameters are ignored. The same shared password unlocks interactive versions of every page. `/financials` is unchanged. `robots.txt` disallows crawlers.
@@ -127,6 +140,8 @@ src/
     size-nav.ts         URL state of the size pages (SIZE_PARAMS)
     size-view.ts        View models of /countries and /industries
     gdp.ts, gdp-match.ts  World Bank GDP lookup and country-name matching
+    valuation*.ts       Valuation page: calculation, figures mapping, URL state, template, formatting
+    football-field.ts   Model of the football-field chart
     styles/             Design tokens and global CSS
     data/               Generated crosswalk.json, companies.json and gdp.json
     components/         Charts and the login prompt
@@ -142,6 +157,7 @@ src/
     countries/          Country size versus global (companies or GDP)
     industries/         Industry and sector size versus global
     financials/         Password-protected financial statements (FMP or Yahoo)
+      valuation/        Valuation versus peers and sector, template download and upload
     +layout.*           Nav with Log in / Log out, passes the interactive flag
     about/+page.svelte  About page
 scripts/                Builds the classification data (see docs/crosswalk.md)
