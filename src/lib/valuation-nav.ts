@@ -4,7 +4,8 @@
 import { MAX_SELECTION, MULTIPLES, REGIONS } from './catalog';
 import { parseSource, type Source } from './source';
 import { parseSymbol } from './symbol';
-import type { Band } from './valuation-data';
+import { decodeCompany, encodeCompany } from './valuation-company';
+import type { Band, CompanyFigures } from './valuation-data';
 
 export const VALUATION_PATH = '/financials/valuation';
 
@@ -15,8 +16,10 @@ export const DEFAULT_MULTIPLES: readonly string[] = ['ev_ebitda', 'ev_sales', 'p
 export const DEFAULT_REGION = 'global';
 
 export interface ValuationNav {
-	/** Upper-cased ticker, or '' when none (or an invalid one) was given. */
+	/** Upper-cased ticker, or '' when none (or an invalid one) was given. Ignored when `company` is set. */
 	readonly symbol: string;
+	/** A private company's figures from an uploaded template, carried in the URL as `co`. */
+	readonly company: CompanyFigures | null;
 	readonly peers: readonly string[];
 	/** Multiple ids from `MULTIPLES`, in catalog order. */
 	readonly multiples: readonly string[];
@@ -70,6 +73,7 @@ export function parseValuationNav(sp: URLSearchParams, industries: readonly stri
 	const multiples = readMultiples(sp);
 	return {
 		symbol,
+		company: decodeCompany(sp.get('co')),
 		peers: readPeers(sp, symbol),
 		multiples,
 		region: REGIONS.some((r) => r.id === region) ? region : DEFAULT_REGION,
@@ -82,7 +86,8 @@ export function parseValuationNav(sp: URLSearchParams, industries: readonly stri
 /** The URL for a state; the inverse of `parseValuationNav`. */
 export function valuationHref(nav: ValuationNav): string {
 	const sp = new URLSearchParams();
-	if (nav.symbol) sp.set('symbol', nav.symbol);
+	if (nav.company) sp.set('co', encodeCompany(nav.company));
+	else if (nav.symbol) sp.set('symbol', nav.symbol);
 	for (const p of nav.peers) sp.append('peer', p);
 	if (nav.multiples.length === 0) sp.append('m', '');
 	for (const m of nav.multiples) sp.append('m', m);

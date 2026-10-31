@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import { encodeCompany } from './valuation-company';
+import type { CompanyFigures } from './valuation-data';
 import { DEFAULT_MULTIPLES, DEFAULT_REGION, MAX_PEERS, parseValuationNav, valuationHref } from './valuation-nav';
 
 const sp = (query: string) => new URLSearchParams(query);
@@ -8,6 +10,7 @@ describe('parseValuationNav', () => {
 	it('has defaults for an empty query', () => {
 		expect(parseValuationNav(sp(''))).toEqual({
 			symbol: '',
+			company: null,
 			peers: [],
 			multiples: DEFAULT_MULTIPLES,
 			region: DEFAULT_REGION,
@@ -22,6 +25,7 @@ describe('parseValuationNav', () => {
 		);
 		expect(nav).toEqual({
 			symbol: 'ASML.AS',
+			company: null,
 			peers: ['BESI.AS', 'NVDA'],
 			multiples: ['ev_ebitda', 'pe_forward'],
 			region: 'europe',
@@ -49,6 +53,7 @@ describe('parseValuationNav', () => {
 	it('falls back for an unknown region, industry, source and an invalid ticker', () => {
 		expect(parseValuationNav(sp('symbol=bad!&region=mars&industry=Nope&source=x'), INDUSTRIES)).toEqual({
 			symbol: '',
+			company: null,
 			peers: [],
 			multiples: DEFAULT_MULTIPLES,
 			region: DEFAULT_REGION,
@@ -85,5 +90,26 @@ describe('valuationHref', () => {
 	it('writes an empty multiple list so it is not read back as the default', () => {
 		const nav = parseValuationNav(sp('m='));
 		expect(parseValuationNav(new URL(valuationHref(nav), 'http://x.test').searchParams).multiples).toEqual([]);
+	});
+});
+
+describe('private company in the URL', () => {
+	const company: CompanyFigures = {
+		name: 'ACCENSS BV',
+		currency: 'EUR',
+		origin: 'manual',
+		netDebt: 1000,
+		years: [{ fiscalYear: '2025', kind: 'actual', values: { revenue: 238251, ebitda: 67208, ebit: null, netIncome: null, bookEquity: null, investedCapital: null } }]
+	};
+	it('reads co and writes it in place of the ticker', () => {
+		const nav = parseValuationNav(sp(`co=${encodeCompany(company)}&symbol=AAPL&peer=MSFT`));
+		expect(nav.company).toEqual(company);
+		const href = valuationHref(nav);
+		expect(href).toContain('co=');
+		expect(href).not.toContain('symbol=');
+		expect(parseValuationNav(new URL(href, 'http://x.test').searchParams).company).toEqual(company);
+	});
+	it('ignores a broken co', () => {
+		expect(parseValuationNav(sp('co=nonsense')).company).toBeNull();
 	});
 });

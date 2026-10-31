@@ -10,14 +10,18 @@
 	import ValuationTable from '#lib/components/ValuationTable.svelte';
 	import { fieldModel } from '#lib/football-field';
 	import { sourceLabel } from '#lib/source';
-	import { MAX_PEERS, VALUATION_PATH } from '#lib/valuation-nav';
+	import { encodeCompany } from '#lib/valuation-company';
+	import { MAX_PEERS, VALUATION_PATH, valuationHref } from '#lib/valuation-nav';
 	import type { PageProps } from './$types';
 
-	let { data }: PageProps = $props();
+	let { data, form }: PageProps = $props();
 	const view = $derived(data.view);
 	const nav = $derived(data.nav);
 	const heading = $derived(view.state === 'ready' && view.company ? `${view.company.name} valuation` : 'Valuation versus peers');
 	const field = $derived(view.state === 'ready' && view.result ? fieldModel(view.result) : null);
+	// the upload keeps the rest of the page state and replaces the company
+	const uploadAction = $derived(`?/upload&${valuationHref({ ...nav, company: null, symbol: '' }).split('?')[1]}`);
+	const clearHref = $derived(valuationHref({ ...nav, company: null }));
 	const sectorLabel = $derived(nav.industry ? `${nav.industry}, ${REGIONS.find((r) => r.id === nav.region)?.label}` : null);
 </script>
 
@@ -30,7 +34,7 @@
 	<h1>{heading}</h1>
 	<p class="note">
 		Values a company with multiples from peers you pick and from its Damodaran sector. Enter a ticker such as AAPL, or
-		ABN.AS for a listing outside the US.
+		ABN.AS for a listing outside the US, or upload the figures of a private company.
 	</p>
 
 	{#if view.state === 'locked'}
@@ -45,8 +49,13 @@
 		<form method="GET" class="controls">
 			{#if nav.source}<input type="hidden" name="source" value={nav.source} />{/if}
 			<div class="row">
-				<label for="symbol">Ticker</label>
-				<input id="symbol" name="symbol" value={nav.symbol} placeholder="AAPL or ABN.AS" maxlength="15" autocomplete="off" />
+				{#if nav.company}
+					<input type="hidden" name="co" value={encodeCompany(nav.company)} />
+					<span class="private">Company: <strong>{nav.company.name}</strong> (uploaded) · <a href={clearHref}>Use a ticker instead</a></span>
+				{:else}
+					<label for="symbol">Ticker</label>
+					<input id="symbol" name="symbol" value={nav.symbol} placeholder="AAPL or ABN.AS" maxlength="15" autocomplete="off" />
+				{/if}
 				<label for="region">Region</label>
 				<select id="region" name="region">
 					{#each REGIONS as r (r.id)}<option value={r.id} selected={r.id === nav.region}>{r.label}</option>{/each}
@@ -81,12 +90,24 @@
 			<button type="submit">Update</button>
 		</form>
 
+		<form method="POST" action={uploadAction} enctype="multipart/form-data" class="upload">
+			<label for="file">Private company</label>
+			<input id="file" name="file" type="file" accept=".xlsx,.xls,.ods,.csv" required />
+			<button type="submit">Upload figures</button>
+			<a href="{VALUATION_PATH}/template">Download the template</a>
+			<span class="hint">The file is read once and not stored; its figures are kept in the page address.</span>
+		</form>
+		{#if form?.message}<p class="error" role="alert">{form.message}</p>{/if}
+
 		{#if view.state === 'invalid'}
 			<p class="error" role="alert">That is not a valid ticker. Use letters, digits, dots and dashes, for example BRK-B.</p>
 		{:else if view.state === 'idle'}
 			<p>Enter a ticker to start.</p>
 		{:else if view.state === 'ready'}
-			<p class="meta">Source for {view.symbol}: {sourceLabel(view.source)}. Peers with a dot in the ticker come from Yahoo Finance.</p>
+			<p class="meta">
+				{#if view.source === 'manual'}Company figures from your upload.{:else}Source for {view.symbol}: {sourceLabel(view.source)}.{/if}
+				Peers with a dot in the ticker come from Yahoo Finance.
+			</p>
 			{#if view.sectorMessage}<p class="error" role="alert">{view.sectorMessage}</p>{/if}
 			{#if view.message}
 				<p class="error" role="alert">{view.message}</p>
@@ -110,6 +131,8 @@
 	.controls { margin: var(--space-4) 0; }
 	.row { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; }
 	.row select { max-width: 20rem; }
+	.upload { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; margin: var(--space-3) 0; padding: var(--space-3) var(--space-4); background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
+	.hint { color: var(--text-secondary); font-size: var(--text-sm); }
 	.multiples { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-4); margin: var(--space-3) 0; padding: var(--space-3) var(--space-4); background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
 	.multiples legend { width: 100%; }
 	.error { padding: var(--space-2) var(--space-3); color: var(--negative); background: var(--negative-bg); border-left: 4px solid var(--negative); border-radius: var(--radius-sm); }

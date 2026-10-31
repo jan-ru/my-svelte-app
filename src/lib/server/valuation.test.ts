@@ -10,6 +10,7 @@ vi.mock('./compare', () => ({
 }));
 
 import type { Kind, Peer, Profile, Statement } from '../source-data';
+import { encodeCompany } from '../valuation-company';
 import { parseValuationNav, type ValuationNav } from '../valuation-nav';
 import { getComparison } from './compare';
 import { SourceError } from './source-error';
@@ -197,6 +198,25 @@ describe('loadValuation ready', () => {
 		if (view.state !== 'ready') throw new Error(view.state);
 		expect(view.suggestions).toEqual([]);
 		expect(view.source).toBe('yahoo');
+	});
+});
+
+describe('loadValuation for a private company', () => {
+	const co = encodeCompany({
+		name: 'ACCENSS BV',
+		currency: 'EUR',
+		origin: 'manual',
+		netDebt: 0,
+		years: [{ fiscalYear: '2025', kind: 'actual', values: { revenue: 1000, ebitda: 100 } }]
+	});
+	it('uses the uploaded figures, needs no ticker or key, and offers no suggestions', async () => {
+		const log: string[] = [];
+		const view = await run(`co=${co}&peer=ASML.AS&m=ev_ebitda`, { apiKey: undefined, yahoo: fetchers(log) });
+		if (view.state !== 'ready') throw new Error(view.state);
+		expect(view).toMatchObject({ symbol: '', source: 'manual', message: null, suggestions: [] });
+		expect(view.company?.name).toBe('ACCENSS BV');
+		expect(log.some((l) => l.endsWith(':ACCENSS BV'))).toBe(false);
+		expect(view.result?.methods[0]).toMatchObject({ ok: false, reason: 'no-band' });
 	});
 });
 
