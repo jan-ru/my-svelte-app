@@ -46,8 +46,10 @@ export type ValuationPage =
 	| { readonly state: 'invalid' }
 	| {
 			readonly state: 'ready';
+			/** The ticker, or '' for a private company. */
 			readonly symbol: string;
-			readonly source: Source;
+			/** Where the company's figures came from; peers always come from FMP or Yahoo. */
+			readonly source: Source | 'manual';
 			readonly company: CompanyFigures | null;
 			readonly message: string | null;
 			/** FMP's peer suggestions that are not picked yet. */
@@ -127,10 +129,13 @@ export async function loadValuation(input: {
 	if (!input.authed) return { state: 'locked' };
 	const { nav, apiKey = '' } = input;
 	const source = resolveSource(nav.source, nav.symbol);
-	if (source === 'fmp' && !apiKey) return { state: 'unconfigured' };
-	if (!input.rawSymbol?.trim()) return { state: 'idle' };
-	const symbol = parseSymbol(input.rawSymbol);
-	if (!symbol) return { state: 'invalid' };
+	// a private company needs no ticker and no key of its own; its peers say so per row when the key is missing
+	const symbol = nav.company ? '' : parseSymbol(input.rawSymbol);
+	if (!nav.company) {
+		if (source === 'fmp' && !apiKey) return { state: 'unconfigured' };
+		if (!input.rawSymbol?.trim()) return { state: 'idle' };
+		if (!symbol) return { state: 'invalid' };
+	}
 
 	const fetchersFor = (s: Source): ValuationFetchers =>
 		s === 'fmp' ? { ...fmpFetchers, ...input.fmp } : { ...yahooFetchers, ...input.yahoo };
@@ -151,9 +156,11 @@ export async function loadValuation(input: {
 	const fetchers = fetchersFor(source);
 	const sector = input.sector ?? loadSector;
 	const [company, peers, suggested, sectors] = await Promise.all([
-		loadCompany(symbol, source, fetchers, keyFor(source), needForecast),
+		nav.company || !symbol
+			? { figures: nav.company, name: nav.company?.name ?? '', marketCap: null, message: null }
+			: loadCompany(symbol, source, fetchers, keyFor(source), needForecast),
 		Promise.all(nav.peers.map(loadPeer)),
-		orNull(fetchers.peers?.(symbol, keyFor(source))),
+		nav.company || !symbol ? null : orNull(fetchers.peers?.(symbol, keyFor(source))),
 		nav.industry && nav.multiples.length > 0
 			? sector(nav.multiples, nav.region, nav.industry).catch((error: unknown) => {
 					console.error('valuation: Damodaran sector values failed', error);
@@ -164,8 +171,8 @@ export async function loadValuation(input: {
 
 	return {
 		state: 'ready',
-		symbol,
-		source,
+		symbol: symbol ?? '',
+		source: nav.company ? 'manual' : source,
 		company: company.figures,
 		message: company.message,
 		suggestions: (suggested ?? []).filter((p) => p.symbol !== symbol && !nav.peers.includes(p.symbol)),

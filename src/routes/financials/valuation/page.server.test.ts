@@ -11,7 +11,10 @@ vi.mock('#lib/server/compare', () => ({ getIndustries: vi.fn(async () => ['Semic
 
 import { getIndustries } from '#lib/server/compare';
 import { loadValuation } from '#lib/server/valuation';
-import { load } from './+page.server';
+import { writeTemplate } from '#lib/server/valuation-template';
+import { decodeCompany } from '#lib/valuation-company';
+import { actions, load } from './+page.server';
+import { GET } from './template/+server';
 
 const run = async (query: string, authed: boolean) => {
 	const headers: Record<string, string> = {};
@@ -48,5 +51,55 @@ describe('valuation load', () => {
 		env.SITE_PASSWORD = undefined;
 		const { data } = await run('?industry=Semiconductor', true);
 		expect(data).toMatchObject({ configured: false, industries: [], nav: { industry: null } });
+	});
+});
+
+const upload = async (query: string, file: File | null, authed = true) => {
+	const body = new FormData();
+	if (file) body.set('file', file);
+	try {
+		return await (actions.upload as unknown as (e: unknown) => Promise<unknown>)({
+			locals: { authed },
+			request: new Request('http://x.test/financials/valuation?/upload', { method: 'POST', body }),
+			url: new URL(`http://x.test/financials/valuation${query}`)
+		});
+	} catch (e) {
+		return e;
+	}
+};
+const xlsx = (bytes: Uint8Array<ArrayBuffer>) => new File([bytes], 'figures.xlsx');
+
+describe('upload action', () => {
+	it('refuses a visitor without a session, a missing file and an oversized one', async () => {
+		expect(await upload('', xlsx(writeTemplate(2026)), false)).toMatchObject({ status: 401 });
+		expect(await upload('', null)).toMatchObject({ status: 400, data: { message: 'Choose a filled-in template to upload.' } });
+		expect(await upload('', new File([new Uint8Array(1_000_001)], 'big.xlsx'))).toMatchObject({ status: 413 });
+	});
+	it('explains a template it cannot read', async () => {
+		const r = await upload('', new File(['Company,\n'], 'x.csv'));
+		expect(r).toMatchObject({ status: 400, data: { message: 'Fill in the company name next to "Company".' } });
+	});
+	it('sends the figures on in the URL and keeps the rest of the page state', async () => {
+		const r = (await upload('?/upload&symbol=AAPL&peer=MSFT&m=ps&industry=Semiconductor', xlsx(writeTemplate(2026)))) as { status: number; location: string };
+		expect(r.status).toBe(303);
+		const url = new URL(r.location, 'http://x.test');
+		expect(url.pathname).toBe('/financials/valuation');
+		expect(url.searchParams.get('symbol')).toBeNull();
+		expect(url.searchParams.getAll('peer')).toEqual(['MSFT']);
+		expect(url.searchParams.get('industry')).toBe('Semiconductor');
+		expect(decodeCompany(url.searchParams.get('co'))?.name).toBe('Example BV');
+	});
+});
+
+describe('template download', () => {
+	const get = (authed: boolean) => (GET as unknown as (e: unknown) => Response)({ locals: { authed } });
+	it('serves the xlsx to a logged-in visitor, privately', () => {
+		const r = get(true);
+		expect(r.headers.get('content-type')).toContain('spreadsheetml');
+		expect(r.headers.get('content-disposition')).toContain('valuation-template.xlsx');
+		expect(r.headers.get('cache-control')).toBe('private, no-store');
+	});
+	it('refuses a visitor without a session', () => {
+		expect(() => get(false)).toThrow();
 	});
 });
