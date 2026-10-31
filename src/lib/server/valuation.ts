@@ -171,7 +171,13 @@ export async function loadValuation(input: {
 		suggestions: (suggested ?? []).filter((p) => p.symbol !== symbol && !nav.peers.includes(p.symbol)),
 		peers,
 		result: company.figures
-			? valuationView({ figures: company.figures, multiples: nav.multiples, peers, sectors: sectors ?? {} })
+			? valuationView({
+					figures: company.figures,
+					multiples: nav.multiples,
+					peers,
+					sectors: sectors ?? {},
+					overrides: nav.overrides
+				})
 			: null,
 		sectorMessage: sectors === null ? 'The Damodaran sector values could not be loaded right now.' : null
 	};

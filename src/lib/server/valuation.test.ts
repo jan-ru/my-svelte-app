@@ -141,6 +141,11 @@ describe('loadValuation ready', () => {
 		expect(evEbitda).toMatchObject({ ok: true, multiple: 'ev_ebitda', sector: 14 * 140 - 40 });
 		expect(view.result?.benchmarks[0]).toMatchObject({ multiple: 'ev_ebitda', count: 2, sector: 14 });
 	});
+	it('applies manual bands from the URL', async () => {
+		const view = await run('symbol=AAPL&peer=MSFT&m=ev_ebitda&lo.ev_ebitda=10&hi.ev_ebitda=20');
+		if (view.state !== 'ready') throw new Error(view.state);
+		expect(view.result?.methods[0]).toMatchObject({ ok: true, bandSource: 'manual', low: 1360, high: 2760 });
+	});
 	it('fetches analyst estimates only when a forward multiple is selected', async () => {
 		const log: string[] = [];
 		await run('symbol=AAPL&peer=MSFT&m=ps', { fmp: fetchers(log) });

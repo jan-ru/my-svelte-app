@@ -11,7 +11,8 @@ describe('parseValuationNav', () => {
 			peers: [],
 			multiples: DEFAULT_MULTIPLES,
 			region: DEFAULT_REGION,
-			industry: null
+			industry: null,
+			overrides: {}
 		});
 	});
 	it('reads a full query', () => {
@@ -25,6 +26,7 @@ describe('parseValuationNav', () => {
 			multiples: ['ev_ebitda', 'pe_forward'],
 			region: 'europe',
 			industry: 'Semiconductor',
+			overrides: {},
 			source: 'yahoo'
 		});
 	});
@@ -50,14 +52,32 @@ describe('parseValuationNav', () => {
 			peers: [],
 			multiples: DEFAULT_MULTIPLES,
 			region: DEFAULT_REGION,
-			industry: null
+			industry: null,
+			overrides: {}
 		});
+	});
+});
+
+describe('manual bands', () => {
+	it('reads lo.<id> and hi.<id> for selected multiples, with a comma as decimal mark', () => {
+		const nav = parseValuationNav(sp('m=ev_ebitda&m=ps&lo.ev_ebitda=6&hi.ev_ebitda=10,5&lo.pbv=1&hi.pbv=2'));
+		expect(nav.overrides).toEqual({ ev_ebitda: { low: 6, high: 10.5 } });
+	});
+	it.each([
+		['lo.ps=2', 'only one end'],
+		['lo.ps=&hi.ps=3', 'an empty end'],
+		['lo.ps=0&hi.ps=3', 'a zero end'],
+		['lo.ps=-1&hi.ps=3', 'a negative end'],
+		['lo.ps=abc&hi.ps=3', 'text']
+	])('ignores a band with %s (%s)', (query) => {
+		expect(parseValuationNav(sp(`m=ps&${query}`)).overrides).toEqual({});
 	});
 });
 
 describe('valuationHref', () => {
 	it('round-trips through parseValuationNav', () => {
-		const nav = parseValuationNav(sp('symbol=ASML.AS&peer=NVDA&m=ps&region=europe&industry=Semiconductor&source=yahoo'), INDUSTRIES);
+		const nav = parseValuationNav(sp('symbol=ASML.AS&peer=NVDA&m=ps&lo.ps=1.5&hi.ps=3&region=europe&industry=Semiconductor&source=yahoo'), INDUSTRIES);
+		expect(nav.overrides).toEqual({ ps: { low: 1.5, high: 3 } });
 		const href = valuationHref(nav);
 		expect(href.startsWith('/financials/valuation?')).toBe(true);
 		expect(parseValuationNav(new URL(href, 'http://x.test').searchParams, INDUSTRIES)).toEqual(nav);
