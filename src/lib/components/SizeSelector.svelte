@@ -18,6 +18,11 @@
 		showMeasure?: boolean;
 	} = $props();
 
+	// The lists arrive in data order (largest first); alphabetical makes a name easy to find
+	const alphabetical = (names: readonly string[]): readonly string[] => [...names].sort((a, b) => a.localeCompare(b));
+	const countryOptions = $derived(alphabetical(countries));
+	const industryOptions = $derived(alphabetical(industries));
+	const sectorOptions = $derived(alphabetical(sectors));
 	const picked = $derived(nav.countries.length + nav.industries.length + nav.sectors.length);
 	// GDP exists per country only, so switching to it drops any industry or sector restriction
 	const measureHref = (id: SizeNav['measure']) =>
@@ -49,7 +54,8 @@
 			<div class="field">
 				<label for="country">Countries</label>
 				<select id="country" name="country" multiple size="6">
-					{#each countries as name (name)}<option value={name} selected={nav.countries.includes(name)}>{name}</option
+					{#each countryOptions as name (name)}<option value={name} selected={nav.countries.includes(name)}
+							>{name}</option
 						>{/each}
 				</select>
 			</div>
@@ -58,7 +64,8 @@
 			<div class="field">
 				<label for="industry">Industries</label>
 				<select id="industry" name="industry" multiple size="6">
-					{#each industries as name (name)}<option value={name} selected={nav.industries.includes(name)}>{name}</option
+					{#each industryOptions as name (name)}<option value={name} selected={nav.industries.includes(name)}
+							>{name}</option
 						>{/each}
 				</select>
 			</div>
@@ -67,7 +74,7 @@
 			<div class="field">
 				<label for="sector">Sectors</label>
 				<select id="sector" name="sector" multiple size="6">
-					{#each sectors as name (name)}<option value={name} selected={nav.sectors.includes(name)}>{name}</option
+					{#each sectorOptions as name (name)}<option value={name} selected={nav.sectors.includes(name)}>{name}</option
 						>{/each}
 				</select>
 			</div>

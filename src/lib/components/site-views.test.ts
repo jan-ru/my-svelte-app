@@ -12,6 +12,7 @@ import ErrorMessage from './ErrorMessage.svelte';
 import IndustryPicker from './IndustryPicker.svelte';
 import MacroTable from './MacroTable.svelte';
 import ReverseTraceView from './ReverseTraceView.svelte';
+import SizeSelector from './SizeSelector.svelte';
 
 type Renderer = (component: unknown, options: { props: unknown }) => { body: string };
 /** Server-render a component to HTML (see financials-views.test.ts for why the cast). */
@@ -186,5 +187,29 @@ describe('MacroTable', () => {
 		expect(t).toContain('Netherlands 2.9% (2025) 4.9% (2021–2025) −0.4% (2025) n/a');
 		expect(t).toContain('Taiwan n/a n/a n/a n/a');
 		expect(t).toContain('5-year average');
+	});
+});
+
+describe('SizeSelector', () => {
+	it('lists countries, industries and sectors alphabetically', () => {
+		const body = html(SizeSelector, {
+			action: '/countries',
+			nav: { measure: 'companies', countries: [], industries: [], sectors: [] },
+			countries: ['Romania', 'United Kingdom', 'China', 'Åland', 'germany'],
+			industries: ['Steel', 'Banks'],
+			sectors: ['Utilities', 'Energy']
+		});
+		const options = [...body.matchAll(/<option value="([^"]+)"/g)].map((m) => m[1]);
+		expect(options).toEqual([
+			'Åland',
+			'China',
+			'germany',
+			'Romania',
+			'United Kingdom',
+			'Banks',
+			'Steel',
+			'Energy',
+			'Utilities'
+		]);
 	});
 });
