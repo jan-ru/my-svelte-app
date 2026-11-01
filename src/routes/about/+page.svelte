@@ -23,15 +23,30 @@
 		<dt><a href="/industries">Industries</a></dt>
 		<dd>How large each industry is as a share of all listed companies, grouped by sector.</dd>
 		<dt><a href="/companies">Companies</a></dt>
-		<dd>The listed companies in each industry, with their SIC code and country.</dd>
+		<dd>The listed companies in each industry, filtered by industry, region, sector, SIC code and country.</dd>
 		<dt><a href="/classification">Find industry</a></dt>
 		<dd>From a Dutch SBI 2025 code to the matching NYU Stern industries, and back.</dd>
 	</dl>
 	<h3>Financials</h3>
 	<dl>
 		<dt><a href="/financials">Financials</a></dt>
-		<dd>Profile, news, prices and financial statements of one company. Needs a login.</dd>
+		<dd>
+			Financial statements, ratios, estimates, news, prices and the company profile of one listed company, from
+			Financial Modeling Prep or Yahoo Finance. Needs a login.
+		</dd>
+		<dt><a href="/financials/valuation">Valuation</a></dt>
+		<dd>
+			Values one company with multiples against peers you pick and its Damodaran sector, shown as a football-field
+			chart. Works for a listed ticker or a private company uploaded from an Excel template, which is read once and not
+			stored. Needs a login.
+		</dd>
 	</dl>
+
+	<h2>Public and logged-in</h2>
+	<p>
+		Without a login you see the default view of each public page, cached for a day. The shared password unlocks the
+		filters, search and paging, and the Financials and Valuation pages, which are never cached publicly.
+	</p>
 
 	<h2>Data sources</h2>
 	<ul>
@@ -41,7 +56,10 @@
 		</li>
 		<li>CBS, UN Statistics Division and US Census Bureau: the classification tables.</li>
 		<li>World Bank: GDP (current US$), licensed CC BY 4.0.</li>
-		<li>Financial Modeling Prep and Yahoo Finance: company financials and prices.</li>
+		<li>
+			Financial Modeling Prep and Yahoo Finance: company financials, prices, news, analyst estimates and peer
+			suggestions.
+		</li>
 	</ul>
 	<p>
 		The app only reads this data and does not change it. Check each source for the date, methodology and licence terms
