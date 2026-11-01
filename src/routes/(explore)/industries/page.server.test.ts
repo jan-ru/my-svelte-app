@@ -19,7 +19,7 @@ describe('industries loader', () => {
 		expect(plain.view.breakdown).toBeNull();
 	});
 	it('applies the query for logged-in requests', async () => {
-		const name = (companies as { industries: string[] }).industries[0];
+		const name = companies.industries[0];
 		const one = await run(`?industry=${encodeURIComponent(name)}`, true);
 		expect(one.nav.industries).toEqual([name]);
 		expect(one.view.breakdown).not.toBeNull();

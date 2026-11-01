@@ -2,11 +2,12 @@
 import type { Period } from '../financials-nav';
 import { NEWS_LIMIT } from '../source-data';
 import type { Kind, NewsItem, PricePoint, Profile, Statement } from '../source-data';
-import { str } from './coerce';
+import { field, num, str } from './coerce';
 import { SourceError } from './source-error';
 import { parseYahooNews, parseYahooPrices, parseYahooProfile, parseYahooStatement } from './yahoo-parse';
 
-type ModuleOptions = { validateResult: boolean };
+type ModuleOptions = { validateResult: false };
+type SummaryModule = 'assetProfile' | 'financialData' | 'price';
 type StatementModule = 'financials' | 'balance-sheet' | 'cash-flow';
 
 /** The few `yahoo-finance2` calls we use, so tests can pass a fake. Results are `unknown` on purpose: our parsers validate them. */
@@ -15,13 +16,13 @@ export interface YahooClient {
 		symbol: string,
 		options: { period1: Date; period2: Date; interval: '1d' },
 		moduleOptions?: ModuleOptions
-	): Promise<{ meta?: { gmtoffset?: number }; quotes: unknown }>;
-	quoteSummary(symbol: string, options: { modules: string[] }, moduleOptions?: ModuleOptions): Promise<unknown>;
+	): Promise<unknown>;
+	quoteSummary(symbol: string, options: { modules: SummaryModule[] }, moduleOptions?: ModuleOptions): Promise<unknown>;
 	search(
 		query: string,
 		options: { newsCount: number; quotesCount: number },
 		moduleOptions?: ModuleOptions
-	): Promise<{ news?: unknown }>;
+	): Promise<unknown>;
 	fundamentalsTimeSeries(
 		symbol: string,
 		options: { period1: Date; type: 'annual' | 'trailing'; module: StatementModule },
@@ -37,13 +38,18 @@ let shared: Promise<YahooClient> | undefined;
 
 /** One client per server instance, created on first use so other pages never load the library. */
 export function defaultClient(): Promise<YahooClient> {
-	shared ??= import('yahoo-finance2').then(
-		({ default: YahooFinance }) =>
-			new YahooFinance({
-				suppressNotices: ['yahooSurvey'],
-				logger: { info() {}, warn() {}, error() {}, debug() {}, dir() {} }
-			}) as unknown as YahooClient
-	);
+	shared ??= import('yahoo-finance2').then(({ default: YahooFinance }) => {
+		const yf = new YahooFinance({
+			suppressNotices: ['yahooSurvey'],
+			logger: { info() {}, warn() {}, error() {}, debug() {}, dir() {} }
+		});
+		return {
+			chart: (symbol, options, moduleOptions) => yf.chart(symbol, options, moduleOptions),
+			quoteSummary: (symbol, options, moduleOptions) => yf.quoteSummary(symbol, options, moduleOptions),
+			search: (query, options, moduleOptions) => yf.search(query, options, moduleOptions),
+			fundamentalsTimeSeries: (symbol, options, moduleOptions) => yf.fundamentalsTimeSeries(symbol, options, moduleOptions)
+		} satisfies YahooClient;
+	});
 	return shared;
 }
 
@@ -75,7 +81,7 @@ export function fetchYahooPrices(symbol: string, from: string, to: string, clien
 			{ period1: new Date(`${from}T00:00:00Z`), period2: new Date(`${to}T23:59:59Z`), interval: '1d' },
 			OPTIONS
 		);
-		return parseYahooPrices(result.quotes, result.meta?.gmtoffset ?? 0);
+		return parseYahooPrices(field(result, 'quotes'), num(field(field(result, 'meta'), 'gmtoffset')) ?? 0);
 	}, []);
 }
 
@@ -92,25 +98,20 @@ export function fetchYahooNews(symbol: string, client?: YahooClient): Promise<Ne
 		const c = client ?? (await defaultClient());
 		let query = symbol;
 		try {
-			const summary = (await c.quoteSummary(symbol, { modules: ['price'] }, OPTIONS)) as {
-				price?: { longName?: unknown; shortName?: unknown };
-			};
-			query = str(summary.price?.longName) ?? str(summary.price?.shortName) ?? symbol;
+			const price = field(await c.quoteSummary(symbol, { modules: ['price'] }, OPTIONS), 'price');
+			query = str(field(price, 'longName')) ?? str(field(price, 'shortName')) ?? symbol;
 		} catch {
 			// the ticker is a fine fallback query
 		}
 		const result = await c.search(query, { newsCount: NEWS_LIMIT, quotesCount: 0 }, OPTIONS);
-		return parseYahooNews(result.news ?? []);
+		return parseYahooNews(field(result, 'news') ?? []);
 	}, []);
 }
 
 async function reportingCurrency(c: YahooClient, symbol: string): Promise<string | null> {
 	try {
-		const s = (await c.quoteSummary(symbol, { modules: ['financialData', 'price'] }, OPTIONS)) as {
-			financialData?: { financialCurrency?: unknown };
-			price?: { currency?: unknown };
-		};
-		return str(s.financialData?.financialCurrency) ?? str(s.price?.currency);
+		const s = await c.quoteSummary(symbol, { modules: ['financialData', 'price'] }, OPTIONS);
+		return str(field(field(s, 'financialData'), 'financialCurrency')) ?? str(field(field(s, 'price'), 'currency'));
 	} catch {
 		return null;
 	}

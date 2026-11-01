@@ -34,7 +34,7 @@ describe('matchCountries', () => {
 
 describe('MANUAL_NAMES', () => {
 	it('only has keys that are NYU country names in the company data (a renamed country must not go unnoticed)', () => {
-		const nyu = (real as unknown as { countries: string[] }).countries;
+		const nyu = real.countries;
 		for (const name of Object.keys(MANUAL_NAMES)) expect(nyu).toContain(name);
 	});
 });

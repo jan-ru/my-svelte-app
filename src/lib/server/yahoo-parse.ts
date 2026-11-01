@@ -2,7 +2,7 @@
 import type { Period } from '../financials-nav';
 import { safeUrl } from '../safe-url';
 import type { Kind, NewsItem, PricePoint, Profile, Statement, StatementYear } from '../source-data';
-import { num, str } from './coerce';
+import { isRecord, num, str } from './coerce';
 import { SourceError } from './source-error';
 
 const unexpected = () => new SourceError('unavailable', 'Unexpected response from Yahoo Finance');
@@ -19,9 +19,9 @@ export function toDate(value: unknown): Date | null {
 const isoDate = (date: Date, offsetSeconds = 0): string =>
 	new Date(date.getTime() + offsetSeconds * 1000).toISOString().slice(0, 10);
 
-const records = (body: unknown): Record<string, unknown>[] => {
+const records = (body: unknown): readonly Readonly<Record<string, unknown>>[] => {
 	if (!Array.isArray(body)) throw unexpected();
-	return body.filter((r): r is Record<string, unknown> => Boolean(r) && typeof r === 'object');
+	return body.filter(isRecord);
 };
 
 /** Daily closes from `chart().quotes`; `gmtoffsetSeconds` (from `chart().meta`) puts each quote on its exchange-local date. */
@@ -38,12 +38,11 @@ export function parseYahooPrices(quotes: unknown, gmtoffsetSeconds = 0): PricePo
 }
 
 export function parseYahooProfile(summary: unknown): Profile | null {
-	if (!summary || typeof summary !== 'object' || Array.isArray(summary)) throw unexpected();
-	const { assetProfile, price } = summary as { assetProfile?: Record<string, unknown>; price?: Record<string, unknown> };
-	const a = assetProfile ?? {};
-	const p = price ?? {};
-	const officers = Array.isArray(a.companyOfficers) ? (a.companyOfficers as Record<string, unknown>[]) : [];
-	const ceo = officers.find((o) => o && typeof o.title === 'string' && /\bceo\b|chief executive/i.test(o.title));
+	if (!isRecord(summary)) throw unexpected();
+	const a = isRecord(summary.assetProfile) ? summary.assetProfile : {};
+	const p = isRecord(summary.price) ? summary.price : {};
+	const officers = Array.isArray(a.companyOfficers) ? a.companyOfficers.filter(isRecord) : [];
+	const ceo = officers.find((o) => typeof o.title === 'string' && /\bceo\b|chief executive/i.test(o.title));
 	const profile: Profile = {
 		name: str(p.longName) ?? str(p.shortName),
 		exchange: str(p.exchangeName),
@@ -103,7 +102,7 @@ function toYear(row: Record<string, unknown>, currency: string | null): Statemen
 	return { fiscalYear: String(when.getUTCFullYear()), date: isoDate(when), currency, values };
 }
 
-function newestFirst(rows: Record<string, unknown>[], currency: string | null): StatementYear[] {
+function newestFirst(rows: readonly Readonly<Record<string, unknown>>[], currency: string | null): StatementYear[] {
 	const byDate = new Map<string, StatementYear>();
 	for (const row of rows) {
 		const year = toYear(row, currency);

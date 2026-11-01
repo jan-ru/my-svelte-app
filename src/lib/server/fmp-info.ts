@@ -2,7 +2,7 @@
 import { safeUrl } from '../safe-url';
 import { NEWS_LIMIT } from '../source-data';
 import type { NewsItem, Peer, PricePoint, PriceTarget, Profile } from '../source-data';
-import { num, str } from './coerce';
+import { isRecord, num, str } from './coerce';
 import { fmpGet, throwIfErrorBody } from './fmp';
 import { SourceError } from './source-error';
 
@@ -15,9 +15,8 @@ const unexpected = () => new SourceError('unavailable', 'Unexpected response fro
 export function parseProfile(body: unknown): Profile | null {
 	throwIfErrorBody(body);
 	if (!Array.isArray(body)) throw unexpected();
-	const r = body[0];
-	if (!r || typeof r !== 'object') return null;
-	const rec = r as Record<string, unknown>;
+	const rec: unknown = body[0];
+	if (!isRecord(rec)) return null;
 	const profile: Profile = {
 		name: str(rec.companyName),
 		exchange: str(rec.exchangeFullName) ?? str(rec.exchange),
@@ -41,9 +40,8 @@ export function parseNews(body: unknown): NewsItem[] {
 	throwIfErrorBody(body);
 	if (!Array.isArray(body)) throw unexpected();
 	const items: NewsItem[] = [];
-	for (const entry of body) {
-		if (!entry || typeof entry !== 'object') continue;
-		const rec = entry as Record<string, unknown>;
+	for (const rec of body) {
+		if (!isRecord(rec)) continue;
 		const title = str(rec.title);
 		if (!title) continue;
 		const text = str(rec.text);
@@ -65,9 +63,8 @@ export function parsePrices(body: unknown): PricePoint[] {
 	if (!Array.isArray(body)) throw unexpected();
 	// One point per date: a repeated date keeps the last record in the response.
 	const byDate = new Map<string, PricePoint>();
-	for (const entry of body) {
-		if (!entry || typeof entry !== 'object') continue;
-		const rec = entry as Record<string, unknown>;
+	for (const rec of body) {
+		if (!isRecord(rec)) continue;
 		const date = str(rec.date);
 		const close = num(rec.close);
 		if (!date || !ISO_DATE.test(date) || close === null) continue;
@@ -105,9 +102,8 @@ export async function fetchPrices(
 export function parsePriceTarget(body: unknown): PriceTarget | null {
 	throwIfErrorBody(body);
 	if (!Array.isArray(body)) throw unexpected();
-	const r = body[0];
-	if (!r || typeof r !== 'object') return null;
-	const rec = r as Record<string, unknown>;
+	const rec: unknown = body[0];
+	if (!isRecord(rec)) return null;
 	const target: PriceTarget = {
 		consensus: num(rec.targetConsensus),
 		median: num(rec.targetMedian),
@@ -121,9 +117,8 @@ export function parsePeers(body: unknown): Peer[] {
 	throwIfErrorBody(body);
 	if (!Array.isArray(body)) throw unexpected();
 	const peers: Peer[] = [];
-	for (const entry of body) {
-		if (!entry || typeof entry !== 'object') continue;
-		const rec = entry as Record<string, unknown>;
+	for (const rec of body) {
+		if (!isRecord(rec)) continue;
 		const symbol = str(rec.symbol);
 		if (!symbol) continue;
 		peers.push({ symbol, name: str(rec.companyName), price: num(rec.price), marketCap: num(rec.mktCap) });

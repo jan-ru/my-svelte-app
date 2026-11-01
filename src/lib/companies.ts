@@ -2,54 +2,54 @@ import { parseSymbol } from './symbol';
 import { yahooSymbol } from './yahoo';
 
 export interface CompanyData {
-	generated: string;
-	industries: string[];
-	countries: string[];
-	groups: string[];
-	sectors: string[];
-	subGroups: string[];
+	readonly generated: string;
+	readonly industries: readonly string[];
+	readonly countries: readonly string[];
+	readonly groups: readonly string[];
+	readonly sectors: readonly string[];
+	readonly subGroups: readonly string[];
 	/** [name, ticker, sic, industry index, country index, region index, sector index, sub group index] */
-	companies: [string, string, string, number, number, number, number, number][];
+	readonly companies: readonly (readonly [string, string, string, number, number, number, number, number])[];
 }
 
 export interface Company {
-	name: string;
-	ticker: string;
-	sic: string;
-	industry: string;
-	country: string;
-	region: string;
-	sector: string;
+	readonly name: string;
+	readonly ticker: string;
+	readonly sic: string;
+	readonly industry: string;
+	readonly country: string;
+	readonly region: string;
+	readonly sector: string;
 }
 
 export interface CompanyQuery {
-	industry?: string;
-	sic?: string;
-	country?: string;
-	region?: string;
-	sector?: string;
-	q?: string;
-	page?: number;
+	readonly industry?: string;
+	readonly sic?: string;
+	readonly country?: string;
+	readonly region?: string;
+	readonly sector?: string;
+	readonly q?: string;
+	readonly page?: number;
 }
 
 /** How many distinct values occur among the matching companies. */
 export interface DistinctCounts {
-	industries: number;
-	sectors: number;
-	regions: number;
-	subGroups: number;
-	exchanges: number;
+	readonly industries: number;
+	readonly sectors: number;
+	readonly regions: number;
+	readonly subGroups: number;
+	readonly exchanges: number;
 }
 
 export interface CompanyPage {
-	total: number;
-	page: number;
-	pages: number;
-	rows: Company[];
+	readonly total: number;
+	readonly page: number;
+	readonly pages: number;
+	readonly rows: readonly Company[];
 	/** Countries present in the matches before the country filter, with counts, largest first. */
-	countries: [string, number][];
+	readonly countries: readonly (readonly [string, number])[];
 	/** Distinct industries, sectors, regions, sub groups and exchanges among all matches (country filter included). */
-	distinct: DistinctCounts;
+	readonly distinct: DistinctCounts;
 }
 
 /** The Capital IQ exchange code of a `EXCHANGE:SYMBOL` ticker; '' when there is none. */

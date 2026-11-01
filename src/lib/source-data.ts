@@ -5,62 +5,62 @@
 export type Kind = 'income' | 'balance' | 'cashflow';
 
 export interface StatementYear {
-	fiscalYear: string;
-	date: string;
-	currency: string | null;
-	values: Record<string, number | null>;
+	readonly fiscalYear: string;
+	readonly date: string;
+	readonly currency: string | null;
+	readonly values: Readonly<Record<string, number | null>>;
 }
 
 export interface Statement {
 	/** Names of the figures, in the order the source first returns them. */
-	lines: string[];
+	readonly lines: readonly string[];
 	/** Newest first, at most five. */
-	years: StatementYear[];
+	readonly years: readonly StatementYear[];
 }
 
 export interface Profile {
-	name: string | null;
-	exchange: string | null;
-	sector: string | null;
-	industry: string | null;
-	country: string | null;
-	ceo: string | null;
-	website: string | null;
-	ipoDate: string | null;
-	currency: string | null;
-	description: string | null;
-	employees: number | null;
-	price: number | null;
-	marketCap: number | null;
-	beta: number | null;
+	readonly name: string | null;
+	readonly exchange: string | null;
+	readonly sector: string | null;
+	readonly industry: string | null;
+	readonly country: string | null;
+	readonly ceo: string | null;
+	readonly website: string | null;
+	readonly ipoDate: string | null;
+	readonly currency: string | null;
+	readonly description: string | null;
+	readonly employees: number | null;
+	readonly price: number | null;
+	readonly marketCap: number | null;
+	readonly beta: number | null;
 }
 
 export interface NewsItem {
-	title: string;
-	publisher: string | null;
-	date: string | null;
-	text: string | null;
-	url: string | null;
+	readonly title: string;
+	readonly publisher: string | null;
+	readonly date: string | null;
+	readonly text: string | null;
+	readonly url: string | null;
 }
 
 export interface PricePoint {
-	date: string;
-	close: number;
-	volume: number | null;
+	readonly date: string;
+	readonly close: number;
+	readonly volume: number | null;
 }
 
 export interface PriceTarget {
-	consensus: number | null;
-	median: number | null;
-	high: number | null;
-	low: number | null;
+	readonly consensus: number | null;
+	readonly median: number | null;
+	readonly high: number | null;
+	readonly low: number | null;
 }
 
 export interface Peer {
-	symbol: string;
-	name: string | null;
-	price: number | null;
-	marketCap: number | null;
+	readonly symbol: string;
+	readonly name: string | null;
+	readonly price: number | null;
+	readonly marketCap: number | null;
 }
 
 /** How many headlines a source returns. */

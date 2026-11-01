@@ -1,12 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import companies from './data/companies.json';
 import crosswalk from './data/crosswalk.json';
-import type { CompanyData } from './companies';
-import type { Crosswalk } from './crosswalk';
 
-// The generated JSON is cast to these types at runtime, so check that it really has the shape.
-const people = companies as unknown as CompanyData;
-const xw = crosswalk as unknown as Crosswalk;
+// The generated JSON is typed by the declarations next to it (*.d.json.ts), so check that it really has that shape.
+const people = companies;
+const xw = crosswalk;
 
 describe('companies.json', () => {
 	it('has a plausible number of companies', () => {

@@ -47,7 +47,7 @@ function decodeYear(raw: unknown): FigureYear | null {
 	return {
 		fiscalYear,
 		kind: actual === 1 ? 'actual' : 'forecast',
-		values: Object.fromEntries(METRICS.map((m, i) => [m, values[i] as number | null]))
+		values: Object.fromEntries(METRICS.map((m, i) => [m, values[i]]))
 	};
 }
 
@@ -67,7 +67,7 @@ export function decodeCompany(raw: string | null): CompanyFigures | null {
 	if (typeof name !== 'string' || name.trim() === '' || name.length > MAX_NAME) return null;
 	if (typeof currency !== 'string' || !CURRENCY.test(currency) || !isAmount(netDebt)) return null;
 	if (!Array.isArray(years) || years.length === 0 || years.length > MAX_YEARS) return null;
-	const decoded = years.map(decodeYear);
-	if (decoded.some((y) => y === null)) return null;
-	return { name, currency, origin: 'manual', netDebt, years: decoded as FigureYear[] };
+	const decoded = years.map(decodeYear).filter((y) => y !== null);
+	if (decoded.length !== years.length) return null;
+	return { name, currency, origin: 'manual', netDebt, years: decoded };
 }

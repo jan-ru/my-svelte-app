@@ -89,7 +89,7 @@
 			<h2 id="start">SBI 2025 <code>{t.start.code}</code>: {t.start.title}</h2>
 
 			{#each steps as step (step.key)}
-				{@const items: Item[] = t[step.key]}
+				{@const items: readonly Item[] = t[step.key]}
 				<details open={step.key === 'sic' ? false : items.length <= 12}>
 					<summary>{step.label} <span class="count">({items.length})</span></summary>
 					<p class="note">{step.note}</p>

@@ -5,7 +5,7 @@ import { parseSizeNav } from '#lib/size-nav';
 import { industriesView } from '#lib/size-view';
 import type { PageServerLoad } from './$types';
 
-const data = companies as unknown as CompanyData;
+const data: CompanyData = companies;
 
 // The page is cached for anonymous visitors; logged-in browsers skip the cache.
 export const config = isrConfig(process.env.ISR_BYPASS_TOKEN);

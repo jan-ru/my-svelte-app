@@ -3,7 +3,7 @@ import { MAX_REVERSE, industries, reverseTrace, searchSbi, trace, type Crosswalk
 import { isrConfig, pageParams } from '#lib/server/access';
 import type { PageServerLoad } from './$types';
 
-const data = crosswalk as unknown as Crosswalk;
+const data: Crosswalk = crosswalk;
 
 // The page is cached for anonymous visitors; logged-in browsers skip the cache.
 export const config = isrConfig(process.env.ISR_BYPASS_TOKEN);

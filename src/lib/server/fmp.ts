@@ -1,6 +1,7 @@
 // src/lib/server/fmp.ts
 import type { Period } from '../financials-nav';
 import type { Kind, Statement, StatementYear } from '../source-data';
+import { field, isRecord } from './coerce';
 import { SourceError } from './source-error';
 
 export const FETCH_TIMEOUT_MS = 10_000;
@@ -35,10 +36,8 @@ function fromMessage(message: string): SourceError {
 
 /** Throw the mapped error when FMP answered with an `Error Message` body; otherwise do nothing. */
 export function throwIfErrorBody(body: unknown): void {
-	if (body && typeof body === 'object' && !Array.isArray(body)) {
-		const message = (body as Record<string, unknown>)['Error Message'];
-		if (typeof message === 'string') throw fromMessage(message);
-	}
+	const message = field(body, 'Error Message');
+	if (typeof message === 'string') throw fromMessage(message);
 }
 
 export function parseStatement(body: unknown): Statement {
@@ -47,9 +46,8 @@ export function parseStatement(body: unknown): Statement {
 
 	const lines: string[] = [];
 	const years: StatementYear[] = [];
-	for (const item of body) {
-		if (!item || typeof item !== 'object') continue;
-		const record = item as Record<string, unknown>;
+	for (const record of body) {
+		if (!isRecord(record)) continue;
 		const date = typeof record.date === 'string' ? record.date : '';
 		const values: Record<string, number | null> = {};
 		for (const [key, value] of Object.entries(record)) {

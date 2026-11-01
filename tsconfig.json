@@ -9,7 +9,8 @@
 			"node",
 			"$app/types"
 		],
-		"erasableSyntaxOnly": true
+		"erasableSyntaxOnly": true,
+		"allowArbitraryExtensions": true
 	},
 	"include": [
 		"src",

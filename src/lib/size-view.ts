@@ -19,21 +19,21 @@ import type { TreemapItem } from './size-treemap';
 export const TOP_N = 10;
 
 export interface CountriesView {
-	measureLabel: string;
+	readonly measureLabel: string;
 	/** The global total the percentages refer to: all companies, or the World Bank world GDP. */
-	total: number;
+	readonly total: number;
 	/** Every country with a value for the measure. */
-	tiles: TreemapItem[];
+	readonly tiles: readonly TreemapItem[];
 	/** The selected countries (or the largest ten) against the global total. */
-	shares: Shares;
+	readonly shares: Shares;
 	/** The industries of the selected countries, by company count; null when no country is selected. */
-	breakdown: TreemapItem[] | null;
+	readonly breakdown: readonly TreemapItem[] | null;
 	/** The global company count, the denominator for `breakdown`. */
-	breakdownTotal: number;
+	readonly breakdownTotal: number;
 	/** One country and one industry together. */
-	cross: CrossCell | null;
+	readonly cross: CrossCell | null;
 	/** What the GDP numbers are; null for the company measure. */
-	gdpNote: string | null;
+	readonly gdpNote: string | null;
 }
 
 const tilesOf = (values: Record<string, number>, fill: (id: string) => string): TreemapItem[] =>
@@ -78,18 +78,18 @@ export function countriesView(data: CompanyData, gdp: GdpData, nav: SizeNav): Co
 }
 
 export interface IndustriesView {
-	measureLabel: string;
+	readonly measureLabel: string;
 	/** All companies: the global total the percentages refer to. */
-	total: number;
+	readonly total: number;
 	/** Every industry with companies, coloured by its sector. */
-	tiles: TreemapItem[];
+	readonly tiles: readonly TreemapItem[];
 	/** The sectors present in `tiles`, with their strong colour and company count: the legend, the block headers and the drill-down links. */
-	legend: { sector: string; fill: string; value: number }[];
+	readonly legend: readonly { readonly sector: string; readonly fill: string; readonly value: number }[];
 	/** The selected industries (or the largest ten) against the global total. */
-	shares: Shares;
+	readonly shares: Shares;
 	/** The countries of the selected industries, by company count; null when no industry is selected. */
-	breakdown: TreemapItem[] | null;
-	cross: CrossCell | null;
+	readonly breakdown: readonly TreemapItem[] | null;
+	readonly cross: CrossCell | null;
 }
 
 export function industriesView(data: CompanyData, nav: SizeNav): IndustriesView {

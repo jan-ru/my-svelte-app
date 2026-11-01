@@ -18,7 +18,7 @@ export interface SizeFilter {
 const COLUMN = { industry: 3, country: 4, region: 5, sector: 6 } as const;
 const LIST = { industry: 'industries', country: 'countries', region: 'groups', sector: 'sectors' } as const;
 
-const indexSet = (names: readonly string[] | undefined, list: string[]): Set<number> | null =>
+const indexSet = (names: readonly string[] | undefined, list: readonly string[]): Set<number> | null =>
 	names && names.length > 0 ? new Set(names.map((n) => list.indexOf(n)).filter((i) => i >= 0)) : null;
 
 /** Number of companies per value of a dimension, among the companies that match the filter. Values without companies are absent. */

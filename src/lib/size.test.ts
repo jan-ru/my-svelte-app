@@ -52,7 +52,7 @@ describe('countBy', () => {
 		expect(countBy(data, 'country', { industries: ['Nope'] })).toEqual({});
 	});
 	it('counts every company of the real file exactly once per dimension', () => {
-		const all = real as unknown as CompanyData;
+		const all = real;
 		for (const by of ['country', 'industry', 'sector', 'region'] as const) {
 			expect(Object.values(countBy(all, by)).reduce((s, n) => s + n, 0)).toBe(all.companies.length);
 		}
@@ -66,7 +66,7 @@ describe('dominantSector', () => {
 		expect(dominantSector(tie)).toEqual({ Banks: 'Financials' });
 	});
 	it('covers all 94 industries of the real file with a sector that has a colour', () => {
-		const all = real as unknown as CompanyData;
+		const all = real;
 		const map = dominantSector(all);
 		expect(Object.keys(map)).toHaveLength(all.industries.length);
 		for (const sector of Object.values(map)) expect(SECTOR_FILLS).toHaveProperty(sector);
@@ -80,7 +80,7 @@ describe('sector colours', () => {
 	};
 	const ink = luminance('#1D2D3E');
 	it('has a colour for every real sector and a fallback', () => {
-		for (const s of (real as unknown as CompanyData).sectors) expect(SECTOR_FILLS).toHaveProperty(s);
+		for (const s of (real).sectors) expect(SECTOR_FILLS).toHaveProperty(s);
 		expect(sectorFill('Nonsense')).toMatch(/^#/);
 	});
 	it('keeps the dark label text readable (WCAG AA, 4.5:1) on every fill', () => {
@@ -105,7 +105,7 @@ describe('sector colours', () => {
 		}
 	});
 	it('has a strong colour for every real sector', () => {
-		for (const s of (real as unknown as CompanyData).sectors) expect(SECTOR_STRONG).toHaveProperty(s);
+		for (const s of (real).sectors) expect(SECTOR_STRONG).toHaveProperty(s);
 	});
 });
 
