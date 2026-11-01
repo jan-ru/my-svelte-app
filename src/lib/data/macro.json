@@ -1,5 +1,8936 @@
 {
- "generated": "",
- "source": "Placeholder: run npm run build:gdp to fill this file",
- "countries": {}
+ "generated": "2026-11-01",
+ "source": "World Bank, inflation (consumer prices, annual %, FP.CPI.TOTL.ZG) and GDP growth (constant prices, annual %, NY.GDP.MKTP.KD.ZG), latest 5 years with a value",
+ "countries": {
+  "ABW": {
+   "inflation": [],
+   "growth": [
+    {
+     "year": 2020,
+     "value": -23.94
+    },
+    {
+     "year": 2021,
+     "value": 14.83
+    },
+    {
+     "year": 2022,
+     "value": 10.61
+    },
+    {
+     "year": 2023,
+     "value": 9.52
+    },
+    {
+     "year": 2024,
+     "value": 6.81
+    }
+   ]
+  },
+  "AFG": {
+   "inflation": [
+    {
+     "year": 2020,
+     "value": 5.6
+    },
+    {
+     "year": 2021,
+     "value": 5.13
+    },
+    {
+     "year": 2022,
+     "value": 13.71
+    },
+    {
+     "year": 2023,
+     "value": -4.64
+    },
+    {
+     "year": 2024,
+     "value": -6.6
+    }
+   ],
+   "growth": [
+    {
+     "year": 2020,
+     "value": -2.35
+    },
+    {
+     "year": 2021,
+     "value": -20.74
+    },
+    {
+     "year": 2022,
+     "value": -6.24
+    },
+    {
+     "year": 2023,
+     "value": 2.27
+    },
+    {
+     "year": 2024,
+     "value": 1.87
+    }
+   ]
+  },
+  "AGO": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 25.75
+    },
+    {
+     "year": 2022,
+     "value": 21.36
+    },
+    {
+     "year": 2023,
+     "value": 13.64
+    },
+    {
+     "year": 2024,
+     "value": 28.24
+    },
+    {
+     "year": 2025,
+     "value": 20.16
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 1.09
+    },
+    {
+     "year": 2022,
+     "value": 3.56
+    },
+    {
+     "year": 2023,
+     "value": 1.32
+    },
+    {
+     "year": 2024,
+     "value": 4.95
+    },
+    {
+     "year": 2025,
+     "value": 3.13
+    }
+   ]
+  },
+  "ALB": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 2.04
+    },
+    {
+     "year": 2022,
+     "value": 6.73
+    },
+    {
+     "year": 2023,
+     "value": 4.76
+    },
+    {
+     "year": 2024,
+     "value": 2.22
+    },
+    {
+     "year": 2025,
+     "value": 2.15
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 8.97
+    },
+    {
+     "year": 2022,
+     "value": 4.83
+    },
+    {
+     "year": 2023,
+     "value": 4.02
+    },
+    {
+     "year": 2024,
+     "value": 4.05
+    },
+    {
+     "year": 2025,
+     "value": 3.79
+    }
+   ]
+  },
+  "AND": {
+   "inflation": [],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 8.29
+    },
+    {
+     "year": 2022,
+     "value": 9.56
+    },
+    {
+     "year": 2023,
+     "value": 2.58
+    },
+    {
+     "year": 2024,
+     "value": 3.85
+    },
+    {
+     "year": 2025,
+     "value": 3.87
+    }
+   ]
+  },
+  "ARE": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 0.18
+    },
+    {
+     "year": 2022,
+     "value": 5.29
+    },
+    {
+     "year": 2023,
+     "value": 1.63
+    },
+    {
+     "year": 2024,
+     "value": 1.66
+    },
+    {
+     "year": 2025,
+     "value": 1.25
+    }
+   ],
+   "growth": [
+    {
+     "year": 2020,
+     "value": -8.69
+    },
+    {
+     "year": 2021,
+     "value": 4.55
+    },
+    {
+     "year": 2022,
+     "value": 7.51
+    },
+    {
+     "year": 2023,
+     "value": 4.3
+    },
+    {
+     "year": 2024,
+     "value": 3.99
+    }
+   ]
+  },
+  "ARG": {
+   "inflation": [
+    {
+     "year": 2020,
+     "value": 42.02
+    },
+    {
+     "year": 2021,
+     "value": 48.41
+    },
+    {
+     "year": 2022,
+     "value": 72.43
+    },
+    {
+     "year": 2023,
+     "value": 133.49
+    },
+    {
+     "year": 2024,
+     "value": 219.88
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 10.44
+    },
+    {
+     "year": 2022,
+     "value": 6.02
+    },
+    {
+     "year": 2023,
+     "value": -1.86
+    },
+    {
+     "year": 2024,
+     "value": -1.34
+    },
+    {
+     "year": 2025,
+     "value": 4.37
+    }
+   ]
+  },
+  "ARM": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 7.18
+    },
+    {
+     "year": 2022,
+     "value": 8.64
+    },
+    {
+     "year": 2023,
+     "value": 1.98
+    },
+    {
+     "year": 2024,
+     "value": 0.27
+    },
+    {
+     "year": 2025,
+     "value": 3.31
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 5.8
+    },
+    {
+     "year": 2022,
+     "value": 12.6
+    },
+    {
+     "year": 2023,
+     "value": 8.3
+    },
+    {
+     "year": 2024,
+     "value": 5.9
+    },
+    {
+     "year": 2025,
+     "value": 7.2
+    }
+   ]
+  },
+  "ASM": {
+   "inflation": [],
+   "growth": [
+    {
+     "year": 2020,
+     "value": 4.41
+    },
+    {
+     "year": 2021,
+     "value": -0.78
+    },
+    {
+     "year": 2022,
+     "value": 1.74
+    }
+   ]
+  },
+  "ATG": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 2.06
+    },
+    {
+     "year": 2022,
+     "value": 7.53
+    },
+    {
+     "year": 2023,
+     "value": 5.07
+    },
+    {
+     "year": 2024,
+     "value": 6.2
+    },
+    {
+     "year": 2025,
+     "value": 1.37
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 8.17
+    },
+    {
+     "year": 2022,
+     "value": 8.5
+    },
+    {
+     "year": 2023,
+     "value": 3.87
+    },
+    {
+     "year": 2024,
+     "value": 2.54
+    },
+    {
+     "year": 2025,
+     "value": 5
+    }
+   ]
+  },
+  "AUS": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 2.86
+    },
+    {
+     "year": 2022,
+     "value": 6.59
+    },
+    {
+     "year": 2023,
+     "value": 5.6
+    },
+    {
+     "year": 2024,
+     "value": 3.17
+    },
+    {
+     "year": 2025,
+     "value": 2.87
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 2.01
+    },
+    {
+     "year": 2022,
+     "value": 4.25
+    },
+    {
+     "year": 2023,
+     "value": 3.58
+    },
+    {
+     "year": 2024,
+     "value": 1.37
+    },
+    {
+     "year": 2025,
+     "value": 1.35
+    }
+   ]
+  },
+  "AUT": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 2.77
+    },
+    {
+     "year": 2022,
+     "value": 8.55
+    },
+    {
+     "year": 2023,
+     "value": 7.81
+    },
+    {
+     "year": 2024,
+     "value": 2.94
+    },
+    {
+     "year": 2025,
+     "value": 3.53
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 4.92
+    },
+    {
+     "year": 2022,
+     "value": 5.33
+    },
+    {
+     "year": 2023,
+     "value": -0.79
+    },
+    {
+     "year": 2024,
+     "value": -0.66
+    },
+    {
+     "year": 2025,
+     "value": 0.62
+    }
+   ]
+  },
+  "AZE": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 6.65
+    },
+    {
+     "year": 2022,
+     "value": 13.85
+    },
+    {
+     "year": 2023,
+     "value": 8.79
+    },
+    {
+     "year": 2024,
+     "value": 2.21
+    },
+    {
+     "year": 2025,
+     "value": 5.62
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 5.62
+    },
+    {
+     "year": 2022,
+     "value": 4.71
+    },
+    {
+     "year": 2023,
+     "value": 1.35
+    },
+    {
+     "year": 2024,
+     "value": 4.16
+    },
+    {
+     "year": 2025,
+     "value": 1.45
+    }
+   ]
+  },
+  "BDI": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 8.4
+    },
+    {
+     "year": 2022,
+     "value": 18.8
+    },
+    {
+     "year": 2023,
+     "value": 26.94
+    },
+    {
+     "year": 2024,
+     "value": 20.21
+    },
+    {
+     "year": 2025,
+     "value": 34.13
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 3.24
+    },
+    {
+     "year": 2022,
+     "value": 2.32
+    },
+    {
+     "year": 2023,
+     "value": 3.25
+    },
+    {
+     "year": 2024,
+     "value": 4.11
+    },
+    {
+     "year": 2025,
+     "value": 4.24
+    }
+   ]
+  },
+  "BEL": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 2.44
+    },
+    {
+     "year": 2022,
+     "value": 9.6
+    },
+    {
+     "year": 2023,
+     "value": 4.05
+    },
+    {
+     "year": 2024,
+     "value": 3.14
+    },
+    {
+     "year": 2025,
+     "value": 2.47
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 6.25
+    },
+    {
+     "year": 2022,
+     "value": 4.02
+    },
+    {
+     "year": 2023,
+     "value": 1.56
+    },
+    {
+     "year": 2024,
+     "value": 1.1
+    },
+    {
+     "year": 2025,
+     "value": 0.98
+    }
+   ]
+  },
+  "BEN": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 1.73
+    },
+    {
+     "year": 2022,
+     "value": 1.35
+    },
+    {
+     "year": 2023,
+     "value": 2.74
+    },
+    {
+     "year": 2024,
+     "value": 1.16
+    },
+    {
+     "year": 2025,
+     "value": 1.1
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 7.16
+    },
+    {
+     "year": 2022,
+     "value": 6.25
+    },
+    {
+     "year": 2023,
+     "value": 6.35
+    },
+    {
+     "year": 2024,
+     "value": 7.45
+    },
+    {
+     "year": 2025,
+     "value": 8.07
+    }
+   ]
+  },
+  "BFA": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 3.65
+    },
+    {
+     "year": 2022,
+     "value": 14.29
+    },
+    {
+     "year": 2023,
+     "value": 0.74
+    },
+    {
+     "year": 2024,
+     "value": 4.19
+    },
+    {
+     "year": 2025,
+     "value": -0.59
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 6.94
+    },
+    {
+     "year": 2022,
+     "value": 1.63
+    },
+    {
+     "year": 2023,
+     "value": 3
+    },
+    {
+     "year": 2024,
+     "value": 4.83
+    },
+    {
+     "year": 2025,
+     "value": 5.29
+    }
+   ]
+  },
+  "BGD": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 5.55
+    },
+    {
+     "year": 2022,
+     "value": 7.7
+    },
+    {
+     "year": 2023,
+     "value": 9.88
+    },
+    {
+     "year": 2024,
+     "value": 10.47
+    },
+    {
+     "year": 2025,
+     "value": 8.77
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 6.94
+    },
+    {
+     "year": 2022,
+     "value": 7.1
+    },
+    {
+     "year": 2023,
+     "value": 5.78
+    },
+    {
+     "year": 2024,
+     "value": 4.22
+    },
+    {
+     "year": 2025,
+     "value": 3.49
+    }
+   ]
+  },
+  "BGR": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 3.3
+    },
+    {
+     "year": 2022,
+     "value": 15.33
+    },
+    {
+     "year": 2023,
+     "value": 9.44
+    },
+    {
+     "year": 2024,
+     "value": 2.45
+    },
+    {
+     "year": 2025,
+     "value": 4.58
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 7.83
+    },
+    {
+     "year": 2022,
+     "value": 4.08
+    },
+    {
+     "year": 2023,
+     "value": 1.68
+    },
+    {
+     "year": 2024,
+     "value": 3.39
+    },
+    {
+     "year": 2025,
+     "value": 3.1
+    }
+   ]
+  },
+  "BHR": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": -0.61
+    },
+    {
+     "year": 2022,
+     "value": 3.63
+    },
+    {
+     "year": 2023,
+     "value": 0.07
+    },
+    {
+     "year": 2024,
+     "value": 0.92
+    },
+    {
+     "year": 2025,
+     "value": -0.14
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 4.35
+    },
+    {
+     "year": 2022,
+     "value": 6.18
+    },
+    {
+     "year": 2023,
+     "value": 3.88
+    },
+    {
+     "year": 2024,
+     "value": 2.9
+    },
+    {
+     "year": 2025,
+     "value": 3.48
+    }
+   ]
+  },
+  "BHS": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 2.9
+    },
+    {
+     "year": 2022,
+     "value": 5.61
+    },
+    {
+     "year": 2023,
+     "value": 3.05
+    },
+    {
+     "year": 2024,
+     "value": 0.41
+    },
+    {
+     "year": 2025,
+     "value": 1.11
+    }
+   ],
+   "growth": [
+    {
+     "year": 2020,
+     "value": -20.09
+    },
+    {
+     "year": 2021,
+     "value": 17.59
+    },
+    {
+     "year": 2022,
+     "value": 10.88
+    },
+    {
+     "year": 2023,
+     "value": 3.05
+    },
+    {
+     "year": 2024,
+     "value": 3.38
+    }
+   ]
+  },
+  "BIH": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 1.98
+    },
+    {
+     "year": 2022,
+     "value": 14.02
+    },
+    {
+     "year": 2023,
+     "value": 6.11
+    },
+    {
+     "year": 2024,
+     "value": 1.69
+    },
+    {
+     "year": 2025,
+     "value": 3.98
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 7.39
+    },
+    {
+     "year": 2022,
+     "value": 4.23
+    },
+    {
+     "year": 2023,
+     "value": 1.99
+    },
+    {
+     "year": 2024,
+     "value": 3.23
+    },
+    {
+     "year": 2025,
+     "value": 2.13
+    }
+   ]
+  },
+  "BLR": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 9.46
+    },
+    {
+     "year": 2022,
+     "value": 15.21
+    },
+    {
+     "year": 2023,
+     "value": 5
+    },
+    {
+     "year": 2024,
+     "value": 5.79
+    },
+    {
+     "year": 2025,
+     "value": 6.6
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 2.44
+    },
+    {
+     "year": 2022,
+     "value": -4.66
+    },
+    {
+     "year": 2023,
+     "value": 4.13
+    },
+    {
+     "year": 2024,
+     "value": 4.35
+    },
+    {
+     "year": 2025,
+     "value": 1.3
+    }
+   ]
+  },
+  "BLZ": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 3.24
+    },
+    {
+     "year": 2022,
+     "value": 6.28
+    },
+    {
+     "year": 2023,
+     "value": 4.39
+    },
+    {
+     "year": 2024,
+     "value": 3.29
+    },
+    {
+     "year": 2025,
+     "value": 1.06
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 17.99
+    },
+    {
+     "year": 2022,
+     "value": 9.25
+    },
+    {
+     "year": 2023,
+     "value": 0.5
+    },
+    {
+     "year": 2024,
+     "value": 3.5
+    },
+    {
+     "year": 2025,
+     "value": 2.75
+    }
+   ]
+  },
+  "BMU": {
+   "inflation": [],
+   "growth": [
+    {
+     "year": 2020,
+     "value": -6.97
+    },
+    {
+     "year": 2021,
+     "value": 4.76
+    },
+    {
+     "year": 2022,
+     "value": 6.26
+    },
+    {
+     "year": 2023,
+     "value": 4.33
+    },
+    {
+     "year": 2024,
+     "value": 1.89
+    }
+   ]
+  },
+  "BOL": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 0.74
+    },
+    {
+     "year": 2022,
+     "value": 1.75
+    },
+    {
+     "year": 2023,
+     "value": 2.58
+    },
+    {
+     "year": 2024,
+     "value": 5.1
+    },
+    {
+     "year": 2025,
+     "value": 19.52
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 10.03
+    },
+    {
+     "year": 2022,
+     "value": 3.75
+    },
+    {
+     "year": 2023,
+     "value": 2.52
+    },
+    {
+     "year": 2024,
+     "value": -1.12
+    },
+    {
+     "year": 2025,
+     "value": -1.58
+    }
+   ]
+  },
+  "BRA": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 8.3
+    },
+    {
+     "year": 2022,
+     "value": 9.28
+    },
+    {
+     "year": 2023,
+     "value": 4.59
+    },
+    {
+     "year": 2024,
+     "value": 4.37
+    },
+    {
+     "year": 2025,
+     "value": 5.02
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 4.76
+    },
+    {
+     "year": 2022,
+     "value": 3.02
+    },
+    {
+     "year": 2023,
+     "value": 3.24
+    },
+    {
+     "year": 2024,
+     "value": 3.42
+    },
+    {
+     "year": 2025,
+     "value": 2.29
+    }
+   ]
+  },
+  "BRB": {
+   "inflation": [
+    {
+     "year": 2023,
+     "value": 3.19
+    },
+    {
+     "year": 2024,
+     "value": 1.45
+    },
+    {
+     "year": 2025,
+     "value": 0.85
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 8.02
+    },
+    {
+     "year": 2022,
+     "value": 15.95
+    },
+    {
+     "year": 2023,
+     "value": 1.81
+    },
+    {
+     "year": 2024,
+     "value": 3.37
+    },
+    {
+     "year": 2025,
+     "value": 2.7
+    }
+   ]
+  },
+  "BRN": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 1.73
+    },
+    {
+     "year": 2022,
+     "value": 3.68
+    },
+    {
+     "year": 2023,
+     "value": 0.36
+    },
+    {
+     "year": 2024,
+     "value": -0.39
+    },
+    {
+     "year": 2025,
+     "value": -0.3
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": -1.59
+    },
+    {
+     "year": 2022,
+     "value": -1.63
+    },
+    {
+     "year": 2023,
+     "value": 1.13
+    },
+    {
+     "year": 2024,
+     "value": 4.05
+    },
+    {
+     "year": 2025,
+     "value": 0.67
+    }
+   ]
+  },
+  "BTN": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 7.35
+    },
+    {
+     "year": 2022,
+     "value": 5.64
+    },
+    {
+     "year": 2023,
+     "value": 4.23
+    },
+    {
+     "year": 2024,
+     "value": 2.76
+    },
+    {
+     "year": 2025,
+     "value": 3.56
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 4.42
+    },
+    {
+     "year": 2022,
+     "value": 5.21
+    },
+    {
+     "year": 2023,
+     "value": 4.63
+    },
+    {
+     "year": 2024,
+     "value": 7.5
+    },
+    {
+     "year": 2025,
+     "value": 8.01
+    }
+   ]
+  },
+  "BWA": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 7.24
+    },
+    {
+     "year": 2022,
+     "value": 11.67
+    },
+    {
+     "year": 2023,
+     "value": 5.07
+    },
+    {
+     "year": 2024,
+     "value": 2.82
+    },
+    {
+     "year": 2025,
+     "value": 2.66
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 11.92
+    },
+    {
+     "year": 2022,
+     "value": 5.49
+    },
+    {
+     "year": 2023,
+     "value": 3.21
+    },
+    {
+     "year": 2024,
+     "value": -2.78
+    },
+    {
+     "year": 2025,
+     "value": -0.73
+    }
+   ]
+  },
+  "CAF": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 4.26
+    },
+    {
+     "year": 2022,
+     "value": 5.58
+    },
+    {
+     "year": 2023,
+     "value": 2.98
+    },
+    {
+     "year": 2024,
+     "value": 1.48
+    },
+    {
+     "year": 2025,
+     "value": 1
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 0.98
+    },
+    {
+     "year": 2022,
+     "value": 0.45
+    },
+    {
+     "year": 2023,
+     "value": 0.7
+    },
+    {
+     "year": 2024,
+     "value": 1.5
+    },
+    {
+     "year": 2025,
+     "value": 4.5
+    }
+   ]
+  },
+  "CAN": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 3.4
+    },
+    {
+     "year": 2022,
+     "value": 6.8
+    },
+    {
+     "year": 2023,
+     "value": 3.88
+    },
+    {
+     "year": 2024,
+     "value": 2.38
+    },
+    {
+     "year": 2025,
+     "value": 2.07
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 5.95
+    },
+    {
+     "year": 2022,
+     "value": 4.7
+    },
+    {
+     "year": 2023,
+     "value": 1.95
+    },
+    {
+     "year": 2024,
+     "value": 2.05
+    },
+    {
+     "year": 2025,
+     "value": 1.74
+    }
+   ]
+  },
+  "CHE": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 0.58
+    },
+    {
+     "year": 2022,
+     "value": 2.84
+    },
+    {
+     "year": 2023,
+     "value": 2.14
+    },
+    {
+     "year": 2024,
+     "value": 1.06
+    },
+    {
+     "year": 2025,
+     "value": 0.15
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 6.18
+    },
+    {
+     "year": 2022,
+     "value": 3.53
+    },
+    {
+     "year": 2023,
+     "value": 0.83
+    },
+    {
+     "year": 2024,
+     "value": 1.39
+    },
+    {
+     "year": 2025,
+     "value": 1.3
+    }
+   ]
+  },
+  "CHI": {
+   "inflation": [],
+   "growth": [
+    {
+     "year": 2020,
+     "value": -8.9
+    },
+    {
+     "year": 2021,
+     "value": 9.94
+    },
+    {
+     "year": 2022,
+     "value": 5.34
+    },
+    {
+     "year": 2023,
+     "value": 3.72
+    }
+   ]
+  },
+  "CHL": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 4.52
+    },
+    {
+     "year": 2022,
+     "value": 11.64
+    },
+    {
+     "year": 2023,
+     "value": 7.58
+    },
+    {
+     "year": 2024,
+     "value": 4.3
+    },
+    {
+     "year": 2025,
+     "value": 4.21
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 11.34
+    },
+    {
+     "year": 2022,
+     "value": 2.06
+    },
+    {
+     "year": 2023,
+     "value": 0.68
+    },
+    {
+     "year": 2024,
+     "value": 2.81
+    },
+    {
+     "year": 2025,
+     "value": 2.46
+    }
+   ]
+  },
+  "CHN": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 0.98
+    },
+    {
+     "year": 2022,
+     "value": 1.97
+    },
+    {
+     "year": 2023,
+     "value": 0.23
+    },
+    {
+     "year": 2024,
+     "value": 0.22
+    },
+    {
+     "year": 2025,
+     "value": 0.06
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 8.57
+    },
+    {
+     "year": 2022,
+     "value": 3.13
+    },
+    {
+     "year": 2023,
+     "value": 5.42
+    },
+    {
+     "year": 2024,
+     "value": 4.96
+    },
+    {
+     "year": 2025,
+     "value": 4.96
+    }
+   ]
+  },
+  "CIV": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 4.16
+    },
+    {
+     "year": 2022,
+     "value": 5.23
+    },
+    {
+     "year": 2023,
+     "value": 4.37
+    },
+    {
+     "year": 2024,
+     "value": 3.45
+    },
+    {
+     "year": 2025,
+     "value": 0.13
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 7.06
+    },
+    {
+     "year": 2022,
+     "value": 6.4
+    },
+    {
+     "year": 2023,
+     "value": 6.6
+    },
+    {
+     "year": 2024,
+     "value": 6.02
+    },
+    {
+     "year": 2025,
+     "value": 6.5
+    }
+   ]
+  },
+  "CMR": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 2.27
+    },
+    {
+     "year": 2022,
+     "value": 6.25
+    },
+    {
+     "year": 2023,
+     "value": 7.38
+    },
+    {
+     "year": 2024,
+     "value": 4.53
+    },
+    {
+     "year": 2025,
+     "value": 3.4
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 3.34
+    },
+    {
+     "year": 2022,
+     "value": 3.74
+    },
+    {
+     "year": 2023,
+     "value": 3.35
+    },
+    {
+     "year": 2024,
+     "value": 3.52
+    },
+    {
+     "year": 2025,
+     "value": 3.2
+    }
+   ]
+  },
+  "COD": {
+   "inflation": [],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 6.43
+    },
+    {
+     "year": 2022,
+     "value": 9.31
+    },
+    {
+     "year": 2023,
+     "value": 8.53
+    },
+    {
+     "year": 2024,
+     "value": 6.1
+    },
+    {
+     "year": 2025,
+     "value": 5.76
+    }
+   ]
+  },
+  "COG": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 1.72
+    },
+    {
+     "year": 2022,
+     "value": 3.04
+    },
+    {
+     "year": 2023,
+     "value": 4.3
+    },
+    {
+     "year": 2024,
+     "value": 3.09
+    },
+    {
+     "year": 2025,
+     "value": 2.4
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 1.02
+    },
+    {
+     "year": 2022,
+     "value": 1.48
+    },
+    {
+     "year": 2023,
+     "value": 1.91
+    },
+    {
+     "year": 2024,
+     "value": 2.1
+    },
+    {
+     "year": 2025,
+     "value": 3.08
+    }
+   ]
+  },
+  "COL": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 3.5
+    },
+    {
+     "year": 2022,
+     "value": 10.18
+    },
+    {
+     "year": 2023,
+     "value": 11.74
+    },
+    {
+     "year": 2024,
+     "value": 6.61
+    },
+    {
+     "year": 2025,
+     "value": 5.14
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 10.8
+    },
+    {
+     "year": 2022,
+     "value": 7.33
+    },
+    {
+     "year": 2023,
+     "value": 0.84
+    },
+    {
+     "year": 2024,
+     "value": 1.49
+    },
+    {
+     "year": 2025,
+     "value": 2.64
+    }
+   ]
+  },
+  "COM": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 0
+    },
+    {
+     "year": 2022,
+     "value": 12.53
+    },
+    {
+     "year": 2023,
+     "value": 8.37
+    },
+    {
+     "year": 2024,
+     "value": 5.05
+    },
+    {
+     "year": 2025,
+     "value": 3.25
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 2.04
+    },
+    {
+     "year": 2022,
+     "value": 2.45
+    },
+    {
+     "year": 2023,
+     "value": 3.19
+    },
+    {
+     "year": 2024,
+     "value": 3.3
+    },
+    {
+     "year": 2025,
+     "value": 3.75
+    }
+   ]
+  },
+  "CPV": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 1.86
+    },
+    {
+     "year": 2022,
+     "value": 7.93
+    },
+    {
+     "year": 2023,
+     "value": 3.72
+    },
+    {
+     "year": 2024,
+     "value": 1.05
+    },
+    {
+     "year": 2025,
+     "value": 2.34
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 7.03
+    },
+    {
+     "year": 2022,
+     "value": 15.84
+    },
+    {
+     "year": 2023,
+     "value": 4.79
+    },
+    {
+     "year": 2024,
+     "value": 6.99
+    },
+    {
+     "year": 2025,
+     "value": 6.3
+    }
+   ]
+  },
+  "CRI": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 1.73
+    },
+    {
+     "year": 2022,
+     "value": 8.27
+    },
+    {
+     "year": 2023,
+     "value": 0.53
+    },
+    {
+     "year": 2024,
+     "value": -0.41
+    },
+    {
+     "year": 2025,
+     "value": -0.07
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 8.22
+    },
+    {
+     "year": 2022,
+     "value": 5.46
+    },
+    {
+     "year": 2023,
+     "value": 4.79
+    },
+    {
+     "year": 2024,
+     "value": 4.08
+    },
+    {
+     "year": 2025,
+     "value": 4.56
+    }
+   ]
+  },
+  "CUB": {
+   "inflation": [],
+   "growth": [
+    {
+     "year": 2020,
+     "value": -10.95
+    },
+    {
+     "year": 2021,
+     "value": 1.25
+    },
+    {
+     "year": 2022,
+     "value": 1.77
+    },
+    {
+     "year": 2023,
+     "value": -1.93
+    },
+    {
+     "year": 2024,
+     "value": -1.06
+    }
+   ]
+  },
+  "CUW": {
+   "inflation": [],
+   "growth": [
+    {
+     "year": 2020,
+     "value": -18.44
+    },
+    {
+     "year": 2021,
+     "value": 4.18
+    },
+    {
+     "year": 2022,
+     "value": 6.91
+    },
+    {
+     "year": 2023,
+     "value": 4.2
+    },
+    {
+     "year": 2024,
+     "value": 5.03
+    }
+   ]
+  },
+  "CYM": {
+   "inflation": [],
+   "growth": [
+    {
+     "year": 2020,
+     "value": -4.95
+    },
+    {
+     "year": 2021,
+     "value": 4.87
+    },
+    {
+     "year": 2022,
+     "value": 5.66
+    },
+    {
+     "year": 2023,
+     "value": 5.8
+    },
+    {
+     "year": 2024,
+     "value": 3.76
+    }
+   ]
+  },
+  "CYP": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 2.45
+    },
+    {
+     "year": 2022,
+     "value": 8.4
+    },
+    {
+     "year": 2023,
+     "value": 3.54
+    },
+    {
+     "year": 2024,
+     "value": 1.8
+    },
+    {
+     "year": 2025,
+     "value": 0.13
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 11.4
+    },
+    {
+     "year": 2022,
+     "value": 8.74
+    },
+    {
+     "year": 2023,
+     "value": 3.62
+    },
+    {
+     "year": 2024,
+     "value": 3.94
+    },
+    {
+     "year": 2025,
+     "value": 3.77
+    }
+   ]
+  },
+  "CZE": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 3.84
+    },
+    {
+     "year": 2022,
+     "value": 15.1
+    },
+    {
+     "year": 2023,
+     "value": 10.66
+    },
+    {
+     "year": 2024,
+     "value": 2.44
+    },
+    {
+     "year": 2025,
+     "value": 2.46
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 4.03
+    },
+    {
+     "year": 2022,
+     "value": 2.85
+    },
+    {
+     "year": 2023,
+     "value": 0.05
+    },
+    {
+     "year": 2024,
+     "value": 1.25
+    },
+    {
+     "year": 2025,
+     "value": 2.58
+    }
+   ]
+  },
+  "DEU": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 3.07
+    },
+    {
+     "year": 2022,
+     "value": 6.87
+    },
+    {
+     "year": 2023,
+     "value": 5.95
+    },
+    {
+     "year": 2024,
+     "value": 2.26
+    },
+    {
+     "year": 2025,
+     "value": 2.17
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 3.91
+    },
+    {
+     "year": 2022,
+     "value": 1.81
+    },
+    {
+     "year": 2023,
+     "value": -0.87
+    },
+    {
+     "year": 2024,
+     "value": -0.5
+    },
+    {
+     "year": 2025,
+     "value": 0.24
+    }
+   ]
+  },
+  "DJI": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 1.18
+    },
+    {
+     "year": 2022,
+     "value": 5.17
+    },
+    {
+     "year": 2023,
+     "value": 1.45
+    },
+    {
+     "year": 2024,
+     "value": 2.11
+    },
+    {
+     "year": 2025,
+     "value": -0.31
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 4.41
+    },
+    {
+     "year": 2022,
+     "value": 5.17
+    },
+    {
+     "year": 2023,
+     "value": 6.81
+    },
+    {
+     "year": 2024,
+     "value": 6.98
+    },
+    {
+     "year": 2025,
+     "value": 6.5
+    }
+   ]
+  },
+  "DMA": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 2.23
+    },
+    {
+     "year": 2022,
+     "value": 2.88
+    },
+    {
+     "year": 2023,
+     "value": 5.09
+    },
+    {
+     "year": 2024,
+     "value": 2.74
+    },
+    {
+     "year": 2025,
+     "value": 2.53
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 5.38
+    },
+    {
+     "year": 2022,
+     "value": 10.4
+    },
+    {
+     "year": 2023,
+     "value": 3.65
+    },
+    {
+     "year": 2024,
+     "value": 2.05
+    },
+    {
+     "year": 2025,
+     "value": 3.05
+    }
+   ]
+  },
+  "DNK": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 1.84
+    },
+    {
+     "year": 2022,
+     "value": 7.7
+    },
+    {
+     "year": 2023,
+     "value": 3.31
+    },
+    {
+     "year": 2024,
+     "value": 1.38
+    },
+    {
+     "year": 2025,
+     "value": 1.89
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 6.5
+    },
+    {
+     "year": 2022,
+     "value": 0.44
+    },
+    {
+     "year": 2023,
+     "value": 0.6
+    },
+    {
+     "year": 2024,
+     "value": 3.48
+    },
+    {
+     "year": 2025,
+     "value": 2.93
+    }
+   ]
+  },
+  "DOM": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 8.24
+    },
+    {
+     "year": 2022,
+     "value": 8.81
+    },
+    {
+     "year": 2023,
+     "value": 4.79
+    },
+    {
+     "year": 2024,
+     "value": 3.3
+    },
+    {
+     "year": 2025,
+     "value": 3.87
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 14.01
+    },
+    {
+     "year": 2022,
+     "value": 5.24
+    },
+    {
+     "year": 2023,
+     "value": 2.19
+    },
+    {
+     "year": 2024,
+     "value": 4.95
+    },
+    {
+     "year": 2025,
+     "value": 2.12
+    }
+   ]
+  },
+  "DZA": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 7.23
+    },
+    {
+     "year": 2022,
+     "value": 9.27
+    },
+    {
+     "year": 2023,
+     "value": 9.32
+    },
+    {
+     "year": 2024,
+     "value": 4.05
+    },
+    {
+     "year": 2025,
+     "value": 1.42
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 3.8
+    },
+    {
+     "year": 2022,
+     "value": 3.6
+    },
+    {
+     "year": 2023,
+     "value": 4.1
+    },
+    {
+     "year": 2024,
+     "value": 3.7
+    },
+    {
+     "year": 2025,
+     "value": 3.82
+    }
+   ]
+  },
+  "ECU": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 0.13
+    },
+    {
+     "year": 2022,
+     "value": 3.47
+    },
+    {
+     "year": 2023,
+     "value": 2.22
+    },
+    {
+     "year": 2024,
+     "value": 1.55
+    },
+    {
+     "year": 2025,
+     "value": 0.71
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 9.42
+    },
+    {
+     "year": 2022,
+     "value": 5.87
+    },
+    {
+     "year": 2023,
+     "value": 1.83
+    },
+    {
+     "year": 2024,
+     "value": -1.94
+    },
+    {
+     "year": 2025,
+     "value": 3.73
+    }
+   ]
+  },
+  "EGY": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 5.21
+    },
+    {
+     "year": 2022,
+     "value": 13.9
+    },
+    {
+     "year": 2023,
+     "value": 33.88
+    },
+    {
+     "year": 2024,
+     "value": 28.27
+    },
+    {
+     "year": 2025,
+     "value": 14.07
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 3.29
+    },
+    {
+     "year": 2022,
+     "value": 6.59
+    },
+    {
+     "year": 2023,
+     "value": 3.76
+    },
+    {
+     "year": 2024,
+     "value": 2.4
+    },
+    {
+     "year": 2025,
+     "value": 4.39
+    }
+   ]
+  },
+  "ESP": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 3.09
+    },
+    {
+     "year": 2022,
+     "value": 8.39
+    },
+    {
+     "year": 2023,
+     "value": 3.53
+    },
+    {
+     "year": 2024,
+     "value": 2.77
+    },
+    {
+     "year": 2025,
+     "value": 2.67
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 6.68
+    },
+    {
+     "year": 2022,
+     "value": 6.37
+    },
+    {
+     "year": 2023,
+     "value": 2.46
+    },
+    {
+     "year": 2024,
+     "value": 3.46
+    },
+    {
+     "year": 2025,
+     "value": 2.82
+    }
+   ]
+  },
+  "EST": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 4.65
+    },
+    {
+     "year": 2022,
+     "value": 19.4
+    },
+    {
+     "year": 2023,
+     "value": 9.15
+    },
+    {
+     "year": 2024,
+     "value": 3.52
+    },
+    {
+     "year": 2025,
+     "value": 4.83
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 8.25
+    },
+    {
+     "year": 2022,
+     "value": -1.23
+    },
+    {
+     "year": 2023,
+     "value": -2.74
+    },
+    {
+     "year": 2024,
+     "value": -0.09
+    },
+    {
+     "year": 2025,
+     "value": 0.58
+    }
+   ]
+  },
+  "ETH": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 26.84
+    },
+    {
+     "year": 2022,
+     "value": 33.89
+    },
+    {
+     "year": 2023,
+     "value": 30.22
+    },
+    {
+     "year": 2024,
+     "value": 21.04
+    },
+    {
+     "year": 2025,
+     "value": 13.23
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 5.64
+    },
+    {
+     "year": 2022,
+     "value": 5.32
+    },
+    {
+     "year": 2023,
+     "value": 6.59
+    },
+    {
+     "year": 2024,
+     "value": 7.61
+    },
+    {
+     "year": 2025,
+     "value": 9.77
+    }
+   ]
+  },
+  "FIN": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 2.2
+    },
+    {
+     "year": 2022,
+     "value": 7.11
+    },
+    {
+     "year": 2023,
+     "value": 6.25
+    },
+    {
+     "year": 2024,
+     "value": 1.58
+    },
+    {
+     "year": 2025,
+     "value": 0.33
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 2.68
+    },
+    {
+     "year": 2022,
+     "value": 0.76
+    },
+    {
+     "year": 2023,
+     "value": -1.29
+    },
+    {
+     "year": 2024,
+     "value": 0.37
+    },
+    {
+     "year": 2025,
+     "value": 0.17
+    }
+   ]
+  },
+  "FJI": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 1.53
+    },
+    {
+     "year": 2022,
+     "value": 6.08
+    },
+    {
+     "year": 2023,
+     "value": 2.98
+    },
+    {
+     "year": 2024,
+     "value": 3.89
+    },
+    {
+     "year": 2025,
+     "value": -1.38
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": -4.35
+    },
+    {
+     "year": 2022,
+     "value": 17.75
+    },
+    {
+     "year": 2023,
+     "value": 9.44
+    },
+    {
+     "year": 2024,
+     "value": 3.53
+    },
+    {
+     "year": 2025,
+     "value": 3.2
+    }
+   ]
+  },
+  "FRA": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 1.64
+    },
+    {
+     "year": 2022,
+     "value": 5.22
+    },
+    {
+     "year": 2023,
+     "value": 4.88
+    },
+    {
+     "year": 2024,
+     "value": 2
+    },
+    {
+     "year": 2025,
+     "value": 0.94
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 6.88
+    },
+    {
+     "year": 2022,
+     "value": 2.72
+    },
+    {
+     "year": 2023,
+     "value": 1.44
+    },
+    {
+     "year": 2024,
+     "value": 1.19
+    },
+    {
+     "year": 2025,
+     "value": 0.84
+    }
+   ]
+  },
+  "FRO": {
+   "inflation": [],
+   "growth": [
+    {
+     "year": 2020,
+     "value": -1.64
+    },
+    {
+     "year": 2021,
+     "value": 5.07
+    },
+    {
+     "year": 2022,
+     "value": 3.86
+    },
+    {
+     "year": 2023,
+     "value": 3.16
+    },
+    {
+     "year": 2024,
+     "value": 0.84
+    }
+   ]
+  },
+  "FSM": {
+   "inflation": [
+    {
+     "year": 2020,
+     "value": 0.55
+    },
+    {
+     "year": 2021,
+     "value": 3.19
+    },
+    {
+     "year": 2022,
+     "value": 5.41
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 3.1
+    },
+    {
+     "year": 2022,
+     "value": -3.11
+    },
+    {
+     "year": 2023,
+     "value": 1.13
+    },
+    {
+     "year": 2024,
+     "value": 2.3
+    },
+    {
+     "year": 2025,
+     "value": 1.06
+    }
+   ]
+  },
+  "GAB": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 1.09
+    },
+    {
+     "year": 2022,
+     "value": 4.23
+    },
+    {
+     "year": 2023,
+     "value": 3.63
+    },
+    {
+     "year": 2024,
+     "value": 1.17
+    },
+    {
+     "year": 2025,
+     "value": 1.77
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 1.47
+    },
+    {
+     "year": 2022,
+     "value": 3.04
+    },
+    {
+     "year": 2023,
+     "value": 2.44
+    },
+    {
+     "year": 2024,
+     "value": 3.39
+    },
+    {
+     "year": 2025,
+     "value": 2.47
+    }
+   ]
+  },
+  "GBR": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 2.52
+    },
+    {
+     "year": 2022,
+     "value": 7.92
+    },
+    {
+     "year": 2023,
+     "value": 6.79
+    },
+    {
+     "year": 2024,
+     "value": 3.27
+    },
+    {
+     "year": 2025,
+     "value": 3.88
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 8.54
+    },
+    {
+     "year": 2022,
+     "value": 5.15
+    },
+    {
+     "year": 2023,
+     "value": 0.27
+    },
+    {
+     "year": 2024,
+     "value": 1.08
+    },
+    {
+     "year": 2025,
+     "value": 1.39
+    }
+   ]
+  },
+  "GEO": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 9.57
+    },
+    {
+     "year": 2022,
+     "value": 11.9
+    },
+    {
+     "year": 2023,
+     "value": 2.49
+    },
+    {
+     "year": 2024,
+     "value": 1.11
+    },
+    {
+     "year": 2025,
+     "value": 3.87
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 10.64
+    },
+    {
+     "year": 2022,
+     "value": 10.96
+    },
+    {
+     "year": 2023,
+     "value": 7.83
+    },
+    {
+     "year": 2024,
+     "value": 9.68
+    },
+    {
+     "year": 2025,
+     "value": 7.46
+    }
+   ]
+  },
+  "GHA": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 9.97
+    },
+    {
+     "year": 2022,
+     "value": 31.26
+    },
+    {
+     "year": 2023,
+     "value": 38.11
+    },
+    {
+     "year": 2024,
+     "value": 22.85
+    },
+    {
+     "year": 2025,
+     "value": 14.2
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 5.08
+    },
+    {
+     "year": 2022,
+     "value": 3.8
+    },
+    {
+     "year": 2023,
+     "value": 3.14
+    },
+    {
+     "year": 2024,
+     "value": 5.85
+    },
+    {
+     "year": 2025,
+     "value": 5.95
+    }
+   ]
+  },
+  "GIN": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 12.6
+    },
+    {
+     "year": 2022,
+     "value": 10.49
+    },
+    {
+     "year": 2023,
+     "value": 7.8
+    },
+    {
+     "year": 2024,
+     "value": 8.12
+    },
+    {
+     "year": 2025,
+     "value": 3.57
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 5.58
+    },
+    {
+     "year": 2022,
+     "value": 3.97
+    },
+    {
+     "year": 2023,
+     "value": 5.54
+    },
+    {
+     "year": 2024,
+     "value": 5.35
+    },
+    {
+     "year": 2025,
+     "value": 7.45
+    }
+   ]
+  },
+  "GMB": {
+   "inflation": [
+    {
+     "year": 2020,
+     "value": 5.93
+    },
+    {
+     "year": 2021,
+     "value": 7.37
+    },
+    {
+     "year": 2022,
+     "value": 11.51
+    },
+    {
+     "year": 2023,
+     "value": 16.97
+    },
+    {
+     "year": 2024,
+     "value": 11.56
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 5.26
+    },
+    {
+     "year": 2022,
+     "value": 5.49
+    },
+    {
+     "year": 2023,
+     "value": 5.92
+    },
+    {
+     "year": 2024,
+     "value": 5.55
+    },
+    {
+     "year": 2025,
+     "value": 5.89
+    }
+   ]
+  },
+  "GNB": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 2.24
+    },
+    {
+     "year": 2022,
+     "value": 9.39
+    },
+    {
+     "year": 2023,
+     "value": 7.1
+    },
+    {
+     "year": 2024,
+     "value": 3.77
+    },
+    {
+     "year": 2025,
+     "value": 0.87
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 5.02
+    },
+    {
+     "year": 2022,
+     "value": 5.46
+    },
+    {
+     "year": 2023,
+     "value": 4.63
+    },
+    {
+     "year": 2024,
+     "value": 4.41
+    },
+    {
+     "year": 2025,
+     "value": 5.82
+    }
+   ]
+  },
+  "GNQ": {
+   "inflation": [
+    {
+     "year": 2020,
+     "value": 4.77
+    },
+    {
+     "year": 2021,
+     "value": -0.1
+    },
+    {
+     "year": 2022,
+     "value": 4.79
+    },
+    {
+     "year": 2023,
+     "value": 2.86
+    },
+    {
+     "year": 2024,
+     "value": 2.92
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 0.86
+    },
+    {
+     "year": 2022,
+     "value": 3.22
+    },
+    {
+     "year": 2023,
+     "value": -7.43
+    },
+    {
+     "year": 2024,
+     "value": 0.4
+    },
+    {
+     "year": 2025,
+     "value": -5.85
+    }
+   ]
+  },
+  "GRC": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 1.22
+    },
+    {
+     "year": 2022,
+     "value": 9.64
+    },
+    {
+     "year": 2023,
+     "value": 3.46
+    },
+    {
+     "year": 2024,
+     "value": 2.74
+    },
+    {
+     "year": 2025,
+     "value": 2.48
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 8.65
+    },
+    {
+     "year": 2022,
+     "value": 5.52
+    },
+    {
+     "year": 2023,
+     "value": 2.14
+    },
+    {
+     "year": 2024,
+     "value": 2.09
+    },
+    {
+     "year": 2025,
+     "value": 2.07
+    }
+   ]
+  },
+  "GRD": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 1.22
+    },
+    {
+     "year": 2022,
+     "value": 2.58
+    },
+    {
+     "year": 2023,
+     "value": 2.7
+    },
+    {
+     "year": 2024,
+     "value": 1.09
+    },
+    {
+     "year": 2025,
+     "value": 0.61
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 4.7
+    },
+    {
+     "year": 2022,
+     "value": 7.31
+    },
+    {
+     "year": 2023,
+     "value": 4.53
+    },
+    {
+     "year": 2024,
+     "value": 2.4
+    },
+    {
+     "year": 2025,
+     "value": 4.41
+    }
+   ]
+  },
+  "GRL": {
+   "inflation": [],
+   "growth": [
+    {
+     "year": 2020,
+     "value": 0.25
+    },
+    {
+     "year": 2021,
+     "value": 1.63
+    },
+    {
+     "year": 2022,
+     "value": 2
+    },
+    {
+     "year": 2023,
+     "value": 0.87
+    }
+   ]
+  },
+  "GTM": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 4.26
+    },
+    {
+     "year": 2022,
+     "value": 6.89
+    },
+    {
+     "year": 2023,
+     "value": 6.21
+    },
+    {
+     "year": 2024,
+     "value": 2.87
+    },
+    {
+     "year": 2025,
+     "value": 1.49
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 8.04
+    },
+    {
+     "year": 2022,
+     "value": 4.15
+    },
+    {
+     "year": 2023,
+     "value": 3.52
+    },
+    {
+     "year": 2024,
+     "value": 3.72
+    },
+    {
+     "year": 2025,
+     "value": 4.28
+    }
+   ]
+  },
+  "GUM": {
+   "inflation": [],
+   "growth": [
+    {
+     "year": 2020,
+     "value": -10.52
+    },
+    {
+     "year": 2021,
+     "value": 2.06
+    },
+    {
+     "year": 2022,
+     "value": 5.1
+    }
+   ]
+  },
+  "GUY": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 4.51
+    },
+    {
+     "year": 2022,
+     "value": 6.93
+    },
+    {
+     "year": 2023,
+     "value": 2.82
+    },
+    {
+     "year": 2024,
+     "value": 2.9
+    },
+    {
+     "year": 2025,
+     "value": 3.33
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 20.06
+    },
+    {
+     "year": 2022,
+     "value": 63.33
+    },
+    {
+     "year": 2023,
+     "value": 33.8
+    },
+    {
+     "year": 2024,
+     "value": 43.82
+    },
+    {
+     "year": 2025,
+     "value": 19.34
+    }
+   ]
+  },
+  "HKG": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 1.57
+    },
+    {
+     "year": 2022,
+     "value": 1.88
+    },
+    {
+     "year": 2023,
+     "value": 2.1
+    },
+    {
+     "year": 2024,
+     "value": 1.73
+    },
+    {
+     "year": 2025,
+     "value": 1.44
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 6.45
+    },
+    {
+     "year": 2022,
+     "value": -3.69
+    },
+    {
+     "year": 2023,
+     "value": 3.15
+    },
+    {
+     "year": 2024,
+     "value": 2.63
+    },
+    {
+     "year": 2025,
+     "value": 3.49
+    }
+   ]
+  },
+  "HND": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 4.48
+    },
+    {
+     "year": 2022,
+     "value": 9.09
+    },
+    {
+     "year": 2023,
+     "value": 6.66
+    },
+    {
+     "year": 2024,
+     "value": 4.61
+    },
+    {
+     "year": 2025,
+     "value": 4.6
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 12.57
+    },
+    {
+     "year": 2022,
+     "value": 4.14
+    },
+    {
+     "year": 2023,
+     "value": 3.58
+    },
+    {
+     "year": 2024,
+     "value": 3.63
+    },
+    {
+     "year": 2025,
+     "value": 3.75
+    }
+   ]
+  },
+  "HRV": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 2.55
+    },
+    {
+     "year": 2022,
+     "value": 10.78
+    },
+    {
+     "year": 2023,
+     "value": 7.94
+    },
+    {
+     "year": 2024,
+     "value": 2.97
+    },
+    {
+     "year": 2025,
+     "value": 3.69
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 12.63
+    },
+    {
+     "year": 2022,
+     "value": 7.29
+    },
+    {
+     "year": 2023,
+     "value": 3.76
+    },
+    {
+     "year": 2024,
+     "value": 3.83
+    },
+    {
+     "year": 2025,
+     "value": 3.4
+    }
+   ]
+  },
+  "HTI": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 16.84
+    },
+    {
+     "year": 2022,
+     "value": 33.98
+    },
+    {
+     "year": 2023,
+     "value": 36.81
+    },
+    {
+     "year": 2024,
+     "value": 26.95
+    },
+    {
+     "year": 2025,
+     "value": 28.64
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": -1.8
+    },
+    {
+     "year": 2022,
+     "value": -1.68
+    },
+    {
+     "year": 2023,
+     "value": -1.86
+    },
+    {
+     "year": 2024,
+     "value": -4.18
+    },
+    {
+     "year": 2025,
+     "value": -2.71
+    }
+   ]
+  },
+  "HUN": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 5.11
+    },
+    {
+     "year": 2022,
+     "value": 14.61
+    },
+    {
+     "year": 2023,
+     "value": 17.12
+    },
+    {
+     "year": 2024,
+     "value": 3.7
+    },
+    {
+     "year": 2025,
+     "value": 4.41
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 7.22
+    },
+    {
+     "year": 2022,
+     "value": 4.15
+    },
+    {
+     "year": 2023,
+     "value": -0.82
+    },
+    {
+     "year": 2024,
+     "value": 0.71
+    },
+    {
+     "year": 2025,
+     "value": 0.51
+    }
+   ]
+  },
+  "IDN": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 1.56
+    },
+    {
+     "year": 2022,
+     "value": 4.21
+    },
+    {
+     "year": 2023,
+     "value": 3.67
+    },
+    {
+     "year": 2024,
+     "value": 2.18
+    },
+    {
+     "year": 2025,
+     "value": 1.91
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 3.7
+    },
+    {
+     "year": 2022,
+     "value": 5.31
+    },
+    {
+     "year": 2023,
+     "value": 5.05
+    },
+    {
+     "year": 2024,
+     "value": 5.03
+    },
+    {
+     "year": 2025,
+     "value": 5.11
+    }
+   ]
+  },
+  "IMN": {
+   "inflation": [],
+   "growth": [
+    {
+     "year": 2020,
+     "value": -8.84
+    },
+    {
+     "year": 2021,
+     "value": 3.84
+    },
+    {
+     "year": 2022,
+     "value": -4.17
+    },
+    {
+     "year": 2023,
+     "value": -2.04
+    }
+   ]
+  },
+  "IND": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 5.13
+    },
+    {
+     "year": 2022,
+     "value": 6.7
+    },
+    {
+     "year": 2023,
+     "value": 5.65
+    },
+    {
+     "year": 2024,
+     "value": 4.95
+    },
+    {
+     "year": 2025,
+     "value": 2.4
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 9.69
+    },
+    {
+     "year": 2022,
+     "value": 7.61
+    },
+    {
+     "year": 2023,
+     "value": 7.21
+    },
+    {
+     "year": 2024,
+     "value": 7.1
+    },
+    {
+     "year": 2025,
+     "value": 7.57
+    }
+   ]
+  },
+  "IRL": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 2.34
+    },
+    {
+     "year": 2022,
+     "value": 7.83
+    },
+    {
+     "year": 2023,
+     "value": 6.3
+    },
+    {
+     "year": 2024,
+     "value": 2.11
+    },
+    {
+     "year": 2025,
+     "value": 2.21
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 16.26
+    },
+    {
+     "year": 2022,
+     "value": 7.51
+    },
+    {
+     "year": 2023,
+     "value": -2.54
+    },
+    {
+     "year": 2024,
+     "value": 2.6
+    },
+    {
+     "year": 2025,
+     "value": 12.34
+    }
+   ]
+  },
+  "IRN": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 43.39
+    },
+    {
+     "year": 2022,
+     "value": 43.49
+    },
+    {
+     "year": 2023,
+     "value": 44.58
+    },
+    {
+     "year": 2024,
+     "value": 32.46
+    },
+    {
+     "year": 2025,
+     "value": 42.17
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 4.13
+    },
+    {
+     "year": 2022,
+     "value": 4.35
+    },
+    {
+     "year": 2023,
+     "value": 5.33
+    },
+    {
+     "year": 2024,
+     "value": 3.66
+    },
+    {
+     "year": 2025,
+     "value": -2.83
+    }
+   ]
+  },
+  "IRQ": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 6.04
+    },
+    {
+     "year": 2022,
+     "value": 4.99
+    },
+    {
+     "year": 2023,
+     "value": 4.36
+    },
+    {
+     "year": 2024,
+     "value": 2.61
+    },
+    {
+     "year": 2025,
+     "value": 0.3
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 1.5
+    },
+    {
+     "year": 2022,
+     "value": 7.96
+    },
+    {
+     "year": 2023,
+     "value": 0.52
+    },
+    {
+     "year": 2024,
+     "value": -1.55
+    },
+    {
+     "year": 2025,
+     "value": -2.16
+    }
+   ]
+  },
+  "ISL": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 4.44
+    },
+    {
+     "year": 2022,
+     "value": 8.31
+    },
+    {
+     "year": 2023,
+     "value": 8.74
+    },
+    {
+     "year": 2024,
+     "value": 5.86
+    },
+    {
+     "year": 2025,
+     "value": 4.09
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 5.18
+    },
+    {
+     "year": 2022,
+     "value": 8.86
+    },
+    {
+     "year": 2023,
+     "value": 5.03
+    },
+    {
+     "year": 2024,
+     "value": -1.28
+    },
+    {
+     "year": 2025,
+     "value": 1.28
+    }
+   ]
+  },
+  "ISR": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 1.48
+    },
+    {
+     "year": 2022,
+     "value": 4.41
+    },
+    {
+     "year": 2023,
+     "value": 4.23
+    },
+    {
+     "year": 2024,
+     "value": 3.07
+    },
+    {
+     "year": 2025,
+     "value": 3.04
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 9.34
+    },
+    {
+     "year": 2022,
+     "value": 6.36
+    },
+    {
+     "year": 2023,
+     "value": 2.06
+    },
+    {
+     "year": 2024,
+     "value": 0.95
+    },
+    {
+     "year": 2025,
+     "value": 2.93
+    }
+   ]
+  },
+  "ITA": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 1.87
+    },
+    {
+     "year": 2022,
+     "value": 8.2
+    },
+    {
+     "year": 2023,
+     "value": 5.62
+    },
+    {
+     "year": 2024,
+     "value": 0.98
+    },
+    {
+     "year": 2025,
+     "value": 1.53
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 8.93
+    },
+    {
+     "year": 2022,
+     "value": 4.82
+    },
+    {
+     "year": 2023,
+     "value": 0.92
+    },
+    {
+     "year": 2024,
+     "value": 0.78
+    },
+    {
+     "year": 2025,
+     "value": 0.54
+    }
+   ]
+  },
+  "JAM": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 5.86
+    },
+    {
+     "year": 2022,
+     "value": 10.35
+    },
+    {
+     "year": 2023,
+     "value": 6.47
+    },
+    {
+     "year": 2024,
+     "value": 5.41
+    },
+    {
+     "year": 2025,
+     "value": 4
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 5.7
+    },
+    {
+     "year": 2022,
+     "value": 6.44
+    },
+    {
+     "year": 2023,
+     "value": 2.75
+    },
+    {
+     "year": 2024,
+     "value": -0.54
+    },
+    {
+     "year": 2025,
+     "value": 0.08
+    }
+   ]
+  },
+  "JOR": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 1.35
+    },
+    {
+     "year": 2022,
+     "value": 4.23
+    },
+    {
+     "year": 2023,
+     "value": 2.08
+    },
+    {
+     "year": 2024,
+     "value": 1.56
+    },
+    {
+     "year": 2025,
+     "value": 1.77
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 3.75
+    },
+    {
+     "year": 2022,
+     "value": 2.75
+    },
+    {
+     "year": 2023,
+     "value": 3.13
+    },
+    {
+     "year": 2024,
+     "value": 2.56
+    },
+    {
+     "year": 2025,
+     "value": 2.83
+    }
+   ]
+  },
+  "JPN": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": -0.23
+    },
+    {
+     "year": 2022,
+     "value": 2.5
+    },
+    {
+     "year": 2023,
+     "value": 3.27
+    },
+    {
+     "year": 2024,
+     "value": 2.74
+    },
+    {
+     "year": 2025,
+     "value": 3.17
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 3.56
+    },
+    {
+     "year": 2022,
+     "value": 1.33
+    },
+    {
+     "year": 2023,
+     "value": 0.72
+    },
+    {
+     "year": 2024,
+     "value": -0.24
+    },
+    {
+     "year": 2025,
+     "value": 1.19
+    }
+   ]
+  },
+  "KAZ": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 7.96
+    },
+    {
+     "year": 2022,
+     "value": 14.99
+    },
+    {
+     "year": 2023,
+     "value": 14.52
+    },
+    {
+     "year": 2024,
+     "value": 8.68
+    },
+    {
+     "year": 2025,
+     "value": 11.38
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 4.3
+    },
+    {
+     "year": 2022,
+     "value": 3.2
+    },
+    {
+     "year": 2023,
+     "value": 5.1
+    },
+    {
+     "year": 2024,
+     "value": 5
+    },
+    {
+     "year": 2025,
+     "value": 6.5
+    }
+   ]
+  },
+  "KEN": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 6.11
+    },
+    {
+     "year": 2022,
+     "value": 7.66
+    },
+    {
+     "year": 2023,
+     "value": 7.67
+    },
+    {
+     "year": 2024,
+     "value": 4.49
+    },
+    {
+     "year": 2025,
+     "value": 4.07
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 7.59
+    },
+    {
+     "year": 2022,
+     "value": 4.86
+    },
+    {
+     "year": 2023,
+     "value": 5.72
+    },
+    {
+     "year": 2024,
+     "value": 4.66
+    },
+    {
+     "year": 2025,
+     "value": 4.63
+    }
+   ]
+  },
+  "KGZ": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 11.91
+    },
+    {
+     "year": 2022,
+     "value": 13.92
+    },
+    {
+     "year": 2023,
+     "value": 10.75
+    },
+    {
+     "year": 2024,
+     "value": 5
+    },
+    {
+     "year": 2025,
+     "value": 8.21
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 5.51
+    },
+    {
+     "year": 2022,
+     "value": 8.97
+    },
+    {
+     "year": 2023,
+     "value": 9.01
+    },
+    {
+     "year": 2024,
+     "value": 11.54
+    },
+    {
+     "year": 2025,
+     "value": 11.1
+    }
+   ]
+  },
+  "KHM": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 2.92
+    },
+    {
+     "year": 2022,
+     "value": 5.34
+    },
+    {
+     "year": 2023,
+     "value": 2.13
+    },
+    {
+     "year": 2024,
+     "value": 0.81
+    },
+    {
+     "year": 2025,
+     "value": 2.35
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 3.09
+    },
+    {
+     "year": 2022,
+     "value": 5.13
+    },
+    {
+     "year": 2023,
+     "value": 5.01
+    },
+    {
+     "year": 2024,
+     "value": 6.02
+    },
+    {
+     "year": 2025,
+     "value": 5.35
+    }
+   ]
+  },
+  "KIR": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 2.05
+    },
+    {
+     "year": 2022,
+     "value": 5.35
+    },
+    {
+     "year": 2023,
+     "value": 9.28
+    },
+    {
+     "year": 2024,
+     "value": 2.46
+    },
+    {
+     "year": 2025,
+     "value": 6.51
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 8.44
+    },
+    {
+     "year": 2022,
+     "value": 5.09
+    },
+    {
+     "year": 2023,
+     "value": 3.13
+    },
+    {
+     "year": 2024,
+     "value": 4.7
+    },
+    {
+     "year": 2025,
+     "value": 4.22
+    }
+   ]
+  },
+  "KNA": {
+   "inflation": [
+    {
+     "year": 2020,
+     "value": -1.17
+    },
+    {
+     "year": 2021,
+     "value": 1.2
+    },
+    {
+     "year": 2022,
+     "value": 2.67
+    },
+    {
+     "year": 2023,
+     "value": 3.56
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 0.37
+    },
+    {
+     "year": 2022,
+     "value": 10.48
+    },
+    {
+     "year": 2023,
+     "value": 3.02
+    },
+    {
+     "year": 2024,
+     "value": 0.31
+    },
+    {
+     "year": 2025,
+     "value": 2.69
+    }
+   ]
+  },
+  "KOR": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 2.5
+    },
+    {
+     "year": 2022,
+     "value": 5.09
+    },
+    {
+     "year": 2023,
+     "value": 3.6
+    },
+    {
+     "year": 2024,
+     "value": 2.32
+    },
+    {
+     "year": 2025,
+     "value": 2.12
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 4.61
+    },
+    {
+     "year": 2022,
+     "value": 2.73
+    },
+    {
+     "year": 2023,
+     "value": 1.58
+    },
+    {
+     "year": 2024,
+     "value": 2
+    },
+    {
+     "year": 2025,
+     "value": 1.01
+    }
+   ]
+  },
+  "KWT": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 3.42
+    },
+    {
+     "year": 2022,
+     "value": 3.98
+    },
+    {
+     "year": 2023,
+     "value": 3.64
+    },
+    {
+     "year": 2024,
+     "value": 2.9
+    },
+    {
+     "year": 2025,
+     "value": 2.36
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 1.67
+    },
+    {
+     "year": 2022,
+     "value": 6.76
+    },
+    {
+     "year": 2023,
+     "value": -1.64
+    },
+    {
+     "year": 2024,
+     "value": -1.47
+    },
+    {
+     "year": 2025,
+     "value": 2.73
+    }
+   ]
+  },
+  "LAO": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 3.76
+    },
+    {
+     "year": 2022,
+     "value": 22.96
+    },
+    {
+     "year": 2023,
+     "value": 31.23
+    },
+    {
+     "year": 2024,
+     "value": 23.13
+    },
+    {
+     "year": 2025,
+     "value": 7.74
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 2.53
+    },
+    {
+     "year": 2022,
+     "value": 2.71
+    },
+    {
+     "year": 2023,
+     "value": 3.75
+    },
+    {
+     "year": 2024,
+     "value": 4.13
+    },
+    {
+     "year": 2025,
+     "value": 4.54
+    }
+   ]
+  },
+  "LBN": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 154.76
+    },
+    {
+     "year": 2022,
+     "value": 171.21
+    },
+    {
+     "year": 2023,
+     "value": 221.34
+    },
+    {
+     "year": 2024,
+     "value": 45.24
+    },
+    {
+     "year": 2025,
+     "value": 14.6
+    }
+   ],
+   "growth": [
+    {
+     "year": 2020,
+     "value": -21.4
+    },
+    {
+     "year": 2021,
+     "value": -7
+    },
+    {
+     "year": 2022,
+     "value": -0.62
+    },
+    {
+     "year": 2023,
+     "value": -0.76
+    },
+    {
+     "year": 2024,
+     "value": -7.08
+    }
+   ]
+  },
+  "LBR": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 7.82
+    },
+    {
+     "year": 2022,
+     "value": 7.59
+    },
+    {
+     "year": 2023,
+     "value": 10.09
+    },
+    {
+     "year": 2024,
+     "value": 8.21
+    },
+    {
+     "year": 2025,
+     "value": 8.32
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 4.99
+    },
+    {
+     "year": 2022,
+     "value": 4.81
+    },
+    {
+     "year": 2023,
+     "value": 4.68
+    },
+    {
+     "year": 2024,
+     "value": 4.02
+    },
+    {
+     "year": 2025,
+     "value": 5.02
+    }
+   ]
+  },
+  "LBY": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 2.87
+    },
+    {
+     "year": 2022,
+     "value": 4.51
+    },
+    {
+     "year": 2023,
+     "value": 2.37
+    },
+    {
+     "year": 2024,
+     "value": 2.13
+    },
+    {
+     "year": 2025,
+     "value": 1.84
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 28.3
+    },
+    {
+     "year": 2022,
+     "value": -8.3
+    },
+    {
+     "year": 2023,
+     "value": 10.2
+    },
+    {
+     "year": 2024,
+     "value": 1.9
+    },
+    {
+     "year": 2025,
+     "value": 13.37
+    }
+   ]
+  },
+  "LCA": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 2.41
+    },
+    {
+     "year": 2022,
+     "value": 9.65
+    },
+    {
+     "year": 2023,
+     "value": 3.82
+    },
+    {
+     "year": 2024,
+     "value": -0.67
+    },
+    {
+     "year": 2025,
+     "value": 2.03
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 11.15
+    },
+    {
+     "year": 2022,
+     "value": 19.35
+    },
+    {
+     "year": 2023,
+     "value": 3.91
+    },
+    {
+     "year": 2024,
+     "value": 4.77
+    },
+    {
+     "year": 2025,
+     "value": -0.57
+    }
+   ]
+  },
+  "LKA": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 7.01
+    },
+    {
+     "year": 2022,
+     "value": 49.72
+    },
+    {
+     "year": 2023,
+     "value": 16.54
+    },
+    {
+     "year": 2024,
+     "value": -0.43
+    },
+    {
+     "year": 2025,
+     "value": -4.76
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 4.21
+    },
+    {
+     "year": 2022,
+     "value": -7.35
+    },
+    {
+     "year": 2023,
+     "value": -2.03
+    },
+    {
+     "year": 2024,
+     "value": 4.99
+    },
+    {
+     "year": 2025,
+     "value": 4.95
+    }
+   ]
+  },
+  "LSO": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 6.05
+    },
+    {
+     "year": 2022,
+     "value": 8.27
+    },
+    {
+     "year": 2023,
+     "value": 6.34
+    },
+    {
+     "year": 2024,
+     "value": 6.11
+    },
+    {
+     "year": 2025,
+     "value": 4.27
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 2.27
+    },
+    {
+     "year": 2022,
+     "value": 2.39
+    },
+    {
+     "year": 2023,
+     "value": 1.69
+    },
+    {
+     "year": 2024,
+     "value": 5.23
+    },
+    {
+     "year": 2025,
+     "value": 1.98
+    }
+   ]
+  },
+  "LTU": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 4.68
+    },
+    {
+     "year": 2022,
+     "value": 19.71
+    },
+    {
+     "year": 2023,
+     "value": 9.12
+    },
+    {
+     "year": 2024,
+     "value": 0.72
+    },
+    {
+     "year": 2025,
+     "value": 3.79
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 6.39
+    },
+    {
+     "year": 2022,
+     "value": 2.47
+    },
+    {
+     "year": 2023,
+     "value": 0.74
+    },
+    {
+     "year": 2024,
+     "value": 3.03
+    },
+    {
+     "year": 2025,
+     "value": 2.92
+    }
+   ]
+  },
+  "LUX": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 2.53
+    },
+    {
+     "year": 2022,
+     "value": 6.34
+    },
+    {
+     "year": 2023,
+     "value": 3.74
+    },
+    {
+     "year": 2024,
+     "value": 2.05
+    },
+    {
+     "year": 2025,
+     "value": 2.26
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 6.93
+    },
+    {
+     "year": 2022,
+     "value": -1.1
+    },
+    {
+     "year": 2023,
+     "value": 0.1
+    },
+    {
+     "year": 2024,
+     "value": 0.36
+    },
+    {
+     "year": 2025,
+     "value": 0.64
+    }
+   ]
+  },
+  "LVA": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 3.28
+    },
+    {
+     "year": 2022,
+     "value": 17.31
+    },
+    {
+     "year": 2023,
+     "value": 8.94
+    },
+    {
+     "year": 2024,
+     "value": 1.27
+    },
+    {
+     "year": 2025,
+     "value": 3.75
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 6.94
+    },
+    {
+     "year": 2022,
+     "value": 1.91
+    },
+    {
+     "year": 2023,
+     "value": -0.94
+    },
+    {
+     "year": 2024,
+     "value": -0.04
+    },
+    {
+     "year": 2025,
+     "value": 2.14
+    }
+   ]
+  },
+  "MAC": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 0.03
+    },
+    {
+     "year": 2022,
+     "value": 1.05
+    },
+    {
+     "year": 2023,
+     "value": 0.48
+    },
+    {
+     "year": 2024,
+     "value": 0.67
+    },
+    {
+     "year": 2025,
+     "value": 0.33
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 22.46
+    },
+    {
+     "year": 2022,
+     "value": -18.96
+    },
+    {
+     "year": 2023,
+     "value": 75.31
+    },
+    {
+     "year": 2024,
+     "value": 7.85
+    },
+    {
+     "year": 2025,
+     "value": 4.67
+    }
+   ]
+  },
+  "MAF": {
+   "inflation": [],
+   "growth": [
+    {
+     "year": 2020,
+     "value": -12.5
+    },
+    {
+     "year": 2021,
+     "value": 4.9
+    }
+   ]
+  },
+  "MAR": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 1.4
+    },
+    {
+     "year": 2022,
+     "value": 6.66
+    },
+    {
+     "year": 2023,
+     "value": 6.09
+    },
+    {
+     "year": 2024,
+     "value": 0.99
+    },
+    {
+     "year": 2025,
+     "value": 0.7
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 8.15
+    },
+    {
+     "year": 2022,
+     "value": 1.81
+    },
+    {
+     "year": 2023,
+     "value": 3.66
+    },
+    {
+     "year": 2024,
+     "value": 3.79
+    },
+    {
+     "year": 2025,
+     "value": 4.6
+    }
+   ]
+  },
+  "MCO": {
+   "inflation": [],
+   "growth": [
+    {
+     "year": 2020,
+     "value": -13.24
+    },
+    {
+     "year": 2021,
+     "value": 22.23
+    },
+    {
+     "year": 2022,
+     "value": 11.27
+    },
+    {
+     "year": 2023,
+     "value": 5.44
+    },
+    {
+     "year": 2024,
+     "value": 8.51
+    }
+   ]
+  },
+  "MDA": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 5.11
+    },
+    {
+     "year": 2022,
+     "value": 28.74
+    },
+    {
+     "year": 2023,
+     "value": 13.42
+    },
+    {
+     "year": 2024,
+     "value": 4.68
+    },
+    {
+     "year": 2025,
+     "value": 7.76
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 13.93
+    },
+    {
+     "year": 2022,
+     "value": -4.65
+    },
+    {
+     "year": 2023,
+     "value": 1.19
+    },
+    {
+     "year": 2024,
+     "value": 0.27
+    },
+    {
+     "year": 2025,
+     "value": 2.42
+    }
+   ]
+  },
+  "MDG": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 5.81
+    },
+    {
+     "year": 2022,
+     "value": 8.16
+    },
+    {
+     "year": 2023,
+     "value": 9.87
+    },
+    {
+     "year": 2024,
+     "value": 7.61
+    },
+    {
+     "year": 2025,
+     "value": 8.05
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 4.65
+    },
+    {
+     "year": 2022,
+     "value": 4.14
+    },
+    {
+     "year": 2023,
+     "value": 4.23
+    },
+    {
+     "year": 2024,
+     "value": 4.32
+    },
+    {
+     "year": 2025,
+     "value": 3
+    }
+   ]
+  },
+  "MDV": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 0.54
+    },
+    {
+     "year": 2022,
+     "value": 2.33
+    },
+    {
+     "year": 2023,
+     "value": 2.9
+    },
+    {
+     "year": 2024,
+     "value": 1.41
+    },
+    {
+     "year": 2025,
+     "value": 4.01
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 37.51
+    },
+    {
+     "year": 2022,
+     "value": 13.83
+    },
+    {
+     "year": 2023,
+     "value": 4.94
+    },
+    {
+     "year": 2024,
+     "value": 3.49
+    },
+    {
+     "year": 2025,
+     "value": 6.31
+    }
+   ]
+  },
+  "MEX": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 5.69
+    },
+    {
+     "year": 2022,
+     "value": 7.9
+    },
+    {
+     "year": 2023,
+     "value": 5.53
+    },
+    {
+     "year": 2024,
+     "value": 4.72
+    },
+    {
+     "year": 2025,
+     "value": 3.81
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 6.05
+    },
+    {
+     "year": 2022,
+     "value": 3.71
+    },
+    {
+     "year": 2023,
+     "value": 3.11
+    },
+    {
+     "year": 2024,
+     "value": 1.35
+    },
+    {
+     "year": 2025,
+     "value": 0.56
+    }
+   ]
+  },
+  "MHL": {
+   "inflation": [],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 2.16
+    },
+    {
+     "year": 2022,
+     "value": -0.7
+    },
+    {
+     "year": 2023,
+     "value": -5.39
+    },
+    {
+     "year": 2024,
+     "value": 3.3
+    },
+    {
+     "year": 2025,
+     "value": 2.28
+    }
+   ]
+  },
+  "MKD": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 3.23
+    },
+    {
+     "year": 2022,
+     "value": 14.2
+    },
+    {
+     "year": 2023,
+     "value": 9.36
+    },
+    {
+     "year": 2024,
+     "value": 3.49
+    },
+    {
+     "year": 2025,
+     "value": 4.07
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 4.51
+    },
+    {
+     "year": 2022,
+     "value": 2.76
+    },
+    {
+     "year": 2023,
+     "value": 2.55
+    },
+    {
+     "year": 2024,
+     "value": 2.99
+    },
+    {
+     "year": 2025,
+     "value": 3.49
+    }
+   ]
+  },
+  "MLI": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 3.93
+    },
+    {
+     "year": 2022,
+     "value": 9.62
+    },
+    {
+     "year": 2023,
+     "value": 2.06
+    },
+    {
+     "year": 2024,
+     "value": 3.21
+    },
+    {
+     "year": 2025,
+     "value": 3.28
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 3.1
+    },
+    {
+     "year": 2022,
+     "value": 3.7
+    },
+    {
+     "year": 2023,
+     "value": 4.76
+    },
+    {
+     "year": 2024,
+     "value": 5.02
+    },
+    {
+     "year": 2025,
+     "value": 5.6
+    }
+   ]
+  },
+  "MLT": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 1.5
+    },
+    {
+     "year": 2022,
+     "value": 6.15
+    },
+    {
+     "year": 2023,
+     "value": 5.09
+    },
+    {
+     "year": 2024,
+     "value": 1.65
+    },
+    {
+     "year": 2025,
+     "value": 2.36
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 13.35
+    },
+    {
+     "year": 2022,
+     "value": 2.59
+    },
+    {
+     "year": 2023,
+     "value": 10.63
+    },
+    {
+     "year": 2024,
+     "value": 6.21
+    },
+    {
+     "year": 2025,
+     "value": 3.96
+    }
+   ]
+  },
+  "MMR": {
+   "inflation": [],
+   "growth": [
+    {
+     "year": 2021,
+     "value": -12.02
+    },
+    {
+     "year": 2022,
+     "value": 4.04
+    },
+    {
+     "year": 2023,
+     "value": 0.96
+    },
+    {
+     "year": 2024,
+     "value": -0.97
+    },
+    {
+     "year": 2025,
+     "value": -2.01
+    }
+   ]
+  },
+  "MNE": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 2.41
+    },
+    {
+     "year": 2022,
+     "value": 13.04
+    },
+    {
+     "year": 2023,
+     "value": 8.58
+    },
+    {
+     "year": 2024,
+     "value": 3.34
+    },
+    {
+     "year": 2025,
+     "value": 3.9
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 13.05
+    },
+    {
+     "year": 2022,
+     "value": 7.74
+    },
+    {
+     "year": 2023,
+     "value": 6.48
+    },
+    {
+     "year": 2024,
+     "value": 3.16
+    },
+    {
+     "year": 2025,
+     "value": 2.74
+    }
+   ]
+  },
+  "MNG": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 7.36
+    },
+    {
+     "year": 2022,
+     "value": 15.15
+    },
+    {
+     "year": 2023,
+     "value": 10.35
+    },
+    {
+     "year": 2024,
+     "value": 6.2
+    },
+    {
+     "year": 2025,
+     "value": 8.61
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 1.64
+    },
+    {
+     "year": 2022,
+     "value": 5.03
+    },
+    {
+     "year": 2023,
+     "value": 7.42
+    },
+    {
+     "year": 2024,
+     "value": 5.12
+    },
+    {
+     "year": 2025,
+     "value": 6.84
+    }
+   ]
+  },
+  "MNP": {
+   "inflation": [],
+   "growth": [
+    {
+     "year": 2020,
+     "value": -29.06
+    },
+    {
+     "year": 2021,
+     "value": 4.97
+    },
+    {
+     "year": 2022,
+     "value": 16.64
+    }
+   ]
+  },
+  "MOZ": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 6.41
+    },
+    {
+     "year": 2022,
+     "value": 10.28
+    },
+    {
+     "year": 2023,
+     "value": 7.13
+    },
+    {
+     "year": 2024,
+     "value": 4.08
+    },
+    {
+     "year": 2025,
+     "value": 4.37
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 2.38
+    },
+    {
+     "year": 2022,
+     "value": 4.37
+    },
+    {
+     "year": 2023,
+     "value": 5.5
+    },
+    {
+     "year": 2024,
+     "value": 2.15
+    },
+    {
+     "year": 2025,
+     "value": -0.52
+    }
+   ]
+  },
+  "MRT": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 3.57
+    },
+    {
+     "year": 2022,
+     "value": 9.53
+    },
+    {
+     "year": 2023,
+     "value": 4.95
+    },
+    {
+     "year": 2024,
+     "value": 2.49
+    },
+    {
+     "year": 2025,
+     "value": 1.55
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 0.74
+    },
+    {
+     "year": 2022,
+     "value": 6.8
+    },
+    {
+     "year": 2023,
+     "value": 6.81
+    },
+    {
+     "year": 2024,
+     "value": 6.31
+    },
+    {
+     "year": 2025,
+     "value": 4.03
+    }
+   ]
+  },
+  "MUS": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 4.03
+    },
+    {
+     "year": 2022,
+     "value": 10.77
+    },
+    {
+     "year": 2023,
+     "value": 7.05
+    },
+    {
+     "year": 2024,
+     "value": 3.6
+    },
+    {
+     "year": 2025,
+     "value": 3.67
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 3.34
+    },
+    {
+     "year": 2022,
+     "value": 8.34
+    },
+    {
+     "year": 2023,
+     "value": 4.7
+    },
+    {
+     "year": 2024,
+     "value": 4.95
+    },
+    {
+     "year": 2025,
+     "value": 3.15
+    }
+   ]
+  },
+  "MWI": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 9.33
+    },
+    {
+     "year": 2022,
+     "value": 20.95
+    },
+    {
+     "year": 2023,
+     "value": 28.79
+    },
+    {
+     "year": 2024,
+     "value": 32.18
+    },
+    {
+     "year": 2025,
+     "value": 28.37
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 4.56
+    },
+    {
+     "year": 2022,
+     "value": 0.92
+    },
+    {
+     "year": 2023,
+     "value": 1.95
+    },
+    {
+     "year": 2024,
+     "value": 1.67
+    },
+    {
+     "year": 2025,
+     "value": 1.89
+    }
+   ]
+  },
+  "MYS": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 2.48
+    },
+    {
+     "year": 2022,
+     "value": 3.38
+    },
+    {
+     "year": 2023,
+     "value": 2.49
+    },
+    {
+     "year": 2024,
+     "value": 1.83
+    },
+    {
+     "year": 2025,
+     "value": 1.38
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 3.32
+    },
+    {
+     "year": 2022,
+     "value": 9.03
+    },
+    {
+     "year": 2023,
+     "value": 3.54
+    },
+    {
+     "year": 2024,
+     "value": 5.11
+    },
+    {
+     "year": 2025,
+     "value": 5.17
+    }
+   ]
+  },
+  "NAM": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 3.62
+    },
+    {
+     "year": 2022,
+     "value": 6.08
+    },
+    {
+     "year": 2023,
+     "value": 5.88
+    },
+    {
+     "year": 2024,
+     "value": 4.24
+    },
+    {
+     "year": 2025,
+     "value": 3.51
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 3.6
+    },
+    {
+     "year": 2022,
+     "value": 5.4
+    },
+    {
+     "year": 2023,
+     "value": 4.32
+    },
+    {
+     "year": 2024,
+     "value": 3.78
+    },
+    {
+     "year": 2025,
+     "value": 1.73
+    }
+   ]
+  },
+  "NCL": {
+   "inflation": [],
+   "growth": [
+    {
+     "year": 2020,
+     "value": -2.4
+    },
+    {
+     "year": 2021,
+     "value": -2.1
+    },
+    {
+     "year": 2022,
+     "value": 3.5
+    },
+    {
+     "year": 2023,
+     "value": 2.8
+    },
+    {
+     "year": 2024,
+     "value": -13.5
+    }
+   ]
+  },
+  "NER": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 3.84
+    },
+    {
+     "year": 2022,
+     "value": 4.23
+    },
+    {
+     "year": 2023,
+     "value": 3.7
+    },
+    {
+     "year": 2024,
+     "value": 9.07
+    },
+    {
+     "year": 2025,
+     "value": -4.45
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 1.12
+    },
+    {
+     "year": 2022,
+     "value": 12.22
+    },
+    {
+     "year": 2023,
+     "value": 2.64
+    },
+    {
+     "year": 2024,
+     "value": 8.32
+    },
+    {
+     "year": 2025,
+     "value": 7.01
+    }
+   ]
+  },
+  "NGA": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 16.95
+    },
+    {
+     "year": 2022,
+     "value": 18.85
+    },
+    {
+     "year": 2023,
+     "value": 24.66
+    },
+    {
+     "year": 2024,
+     "value": 33.24
+    },
+    {
+     "year": 2025,
+     "value": 23.01
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 1.11
+    },
+    {
+     "year": 2022,
+     "value": 4.32
+    },
+    {
+     "year": 2023,
+     "value": 3.32
+    },
+    {
+     "year": 2024,
+     "value": 4.07
+    },
+    {
+     "year": 2025,
+     "value": 4.01
+    }
+   ]
+  },
+  "NIC": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 4.93
+    },
+    {
+     "year": 2022,
+     "value": 10.47
+    },
+    {
+     "year": 2023,
+     "value": 8.39
+    },
+    {
+     "year": 2024,
+     "value": 4.62
+    },
+    {
+     "year": 2025,
+     "value": 2.08
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 10.45
+    },
+    {
+     "year": 2022,
+     "value": 3.55
+    },
+    {
+     "year": 2023,
+     "value": 4.43
+    },
+    {
+     "year": 2024,
+     "value": 3.58
+    },
+    {
+     "year": 2025,
+     "value": 4.92
+    }
+   ]
+  },
+  "NLD": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 2.68
+    },
+    {
+     "year": 2022,
+     "value": 10
+    },
+    {
+     "year": 2023,
+     "value": 3.84
+    },
+    {
+     "year": 2024,
+     "value": 3.35
+    },
+    {
+     "year": 2025,
+     "value": 3.2
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 6.28
+    },
+    {
+     "year": 2022,
+     "value": 5.01
+    },
+    {
+     "year": 2023,
+     "value": -0.6
+    },
+    {
+     "year": 2024,
+     "value": 1.07
+    },
+    {
+     "year": 2025,
+     "value": 1.78
+    }
+   ]
+  },
+  "NOR": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 3.47
+    },
+    {
+     "year": 2022,
+     "value": 5.77
+    },
+    {
+     "year": 2023,
+     "value": 5.5
+    },
+    {
+     "year": 2024,
+     "value": 3.18
+    },
+    {
+     "year": 2025,
+     "value": 3.04
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 4.14
+    },
+    {
+     "year": 2022,
+     "value": 4.08
+    },
+    {
+     "year": 2023,
+     "value": 0.35
+    },
+    {
+     "year": 2024,
+     "value": 1.42
+    },
+    {
+     "year": 2025,
+     "value": 1.09
+    }
+   ]
+  },
+  "NPL": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 4.13
+    },
+    {
+     "year": 2022,
+     "value": 7.67
+    },
+    {
+     "year": 2023,
+     "value": 7.12
+    },
+    {
+     "year": 2024,
+     "value": 4.69
+    },
+    {
+     "year": 2025,
+     "value": 2.65
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 4.84
+    },
+    {
+     "year": 2022,
+     "value": 5.63
+    },
+    {
+     "year": 2023,
+     "value": 1.98
+    },
+    {
+     "year": 2024,
+     "value": 3.68
+    },
+    {
+     "year": 2025,
+     "value": 4.43
+    }
+   ]
+  },
+  "NRU": {
+   "inflation": [],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 7.75
+    },
+    {
+     "year": 2022,
+     "value": 0
+    },
+    {
+     "year": 2023,
+     "value": -0.72
+    },
+    {
+     "year": 2024,
+     "value": 1.45
+    },
+    {
+     "year": 2025,
+     "value": 2.14
+    }
+   ]
+  },
+  "NZL": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 3.94
+    },
+    {
+     "year": 2022,
+     "value": 7.17
+    },
+    {
+     "year": 2023,
+     "value": 5.73
+    },
+    {
+     "year": 2024,
+     "value": 2.92
+    },
+    {
+     "year": 2025,
+     "value": 2.84
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 4.3
+    },
+    {
+     "year": 2022,
+     "value": 3.35
+    },
+    {
+     "year": 2023,
+     "value": 1.81
+    },
+    {
+     "year": 2024,
+     "value": -0.87
+    },
+    {
+     "year": 2025,
+     "value": 0.46
+    }
+   ]
+  },
+  "OMN": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 1.68
+    },
+    {
+     "year": 2022,
+     "value": 2.51
+    },
+    {
+     "year": 2023,
+     "value": 0.95
+    },
+    {
+     "year": 2024,
+     "value": 0.59
+    },
+    {
+     "year": 2025,
+     "value": 0.97
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 2.58
+    },
+    {
+     "year": 2022,
+     "value": 7.99
+    },
+    {
+     "year": 2023,
+     "value": 1.41
+    },
+    {
+     "year": 2024,
+     "value": 1.63
+    },
+    {
+     "year": 2025,
+     "value": 2.4
+    }
+   ]
+  },
+  "PAK": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 9.5
+    },
+    {
+     "year": 2022,
+     "value": 19.87
+    },
+    {
+     "year": 2023,
+     "value": 30.77
+    },
+    {
+     "year": 2024,
+     "value": 12.63
+    },
+    {
+     "year": 2025,
+     "value": 3.55
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 6.51
+    },
+    {
+     "year": 2022,
+     "value": 4.78
+    },
+    {
+     "year": 2023,
+     "value": -0.41
+    },
+    {
+     "year": 2024,
+     "value": 3.08
+    },
+    {
+     "year": 2025,
+     "value": 3.7
+    }
+   ]
+  },
+  "PAN": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 1.63
+    },
+    {
+     "year": 2022,
+     "value": 2.86
+    },
+    {
+     "year": 2023,
+     "value": 1.49
+    },
+    {
+     "year": 2024,
+     "value": 0.69
+    },
+    {
+     "year": 2025,
+     "value": -0.19
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 16.47
+    },
+    {
+     "year": 2022,
+     "value": 11.04
+    },
+    {
+     "year": 2023,
+     "value": 7.17
+    },
+    {
+     "year": 2024,
+     "value": 2.75
+    },
+    {
+     "year": 2025,
+     "value": 4.35
+    }
+   ]
+  },
+  "PER": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 4.27
+    },
+    {
+     "year": 2022,
+     "value": 8.33
+    },
+    {
+     "year": 2023,
+     "value": 6.46
+    },
+    {
+     "year": 2024,
+     "value": 2.01
+    },
+    {
+     "year": 2025,
+     "value": 1.53
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 13.42
+    },
+    {
+     "year": 2022,
+     "value": 2.82
+    },
+    {
+     "year": 2023,
+     "value": -0.35
+    },
+    {
+     "year": 2024,
+     "value": 3.52
+    },
+    {
+     "year": 2025,
+     "value": 3.43
+    }
+   ]
+  },
+  "PHL": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 3.93
+    },
+    {
+     "year": 2022,
+     "value": 5.82
+    },
+    {
+     "year": 2023,
+     "value": 5.98
+    },
+    {
+     "year": 2024,
+     "value": 3.21
+    },
+    {
+     "year": 2025,
+     "value": 1.66
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 5.71
+    },
+    {
+     "year": 2022,
+     "value": 7.58
+    },
+    {
+     "year": 2023,
+     "value": 5.52
+    },
+    {
+     "year": 2024,
+     "value": 5.71
+    },
+    {
+     "year": 2025,
+     "value": 4.4
+    }
+   ]
+  },
+  "PLW": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 2.61
+    },
+    {
+     "year": 2022,
+     "value": 12.35
+    },
+    {
+     "year": 2023,
+     "value": 12.82
+    },
+    {
+     "year": 2024,
+     "value": 2.23
+    },
+    {
+     "year": 2025,
+     "value": -0.42
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": -11.91
+    },
+    {
+     "year": 2022,
+     "value": -0.46
+    },
+    {
+     "year": 2023,
+     "value": 1.22
+    },
+    {
+     "year": 2024,
+     "value": 12.01
+    },
+    {
+     "year": 2025,
+     "value": 6.29
+    }
+   ]
+  },
+  "PNG": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 4.48
+    },
+    {
+     "year": 2022,
+     "value": 5.25
+    },
+    {
+     "year": 2023,
+     "value": 2.3
+    },
+    {
+     "year": 2024,
+     "value": 0.6
+    },
+    {
+     "year": 2025,
+     "value": 4.42
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": -0.51
+    },
+    {
+     "year": 2022,
+     "value": 5.71
+    },
+    {
+     "year": 2023,
+     "value": 3.81
+    },
+    {
+     "year": 2024,
+     "value": 3.89
+    },
+    {
+     "year": 2025,
+     "value": 5.64
+    }
+   ]
+  },
+  "POL": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 5.06
+    },
+    {
+     "year": 2022,
+     "value": 14.43
+    },
+    {
+     "year": 2023,
+     "value": 11.53
+    },
+    {
+     "year": 2024,
+     "value": 3.79
+    },
+    {
+     "year": 2025,
+     "value": 3.81
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 6.93
+    },
+    {
+     "year": 2022,
+     "value": 5.26
+    },
+    {
+     "year": 2023,
+     "value": 0.25
+    },
+    {
+     "year": 2024,
+     "value": 3.03
+    },
+    {
+     "year": 2025,
+     "value": 3.57
+    }
+   ]
+  },
+  "PRI": {
+   "inflation": [],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 0.39
+    },
+    {
+     "year": 2022,
+     "value": 2.96
+    },
+    {
+     "year": 2023,
+     "value": 0.73
+    },
+    {
+     "year": 2024,
+     "value": 3.18
+    },
+    {
+     "year": 2025,
+     "value": 0.32
+    }
+   ]
+  },
+  "PRT": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 1.27
+    },
+    {
+     "year": 2022,
+     "value": 7.83
+    },
+    {
+     "year": 2023,
+     "value": 4.31
+    },
+    {
+     "year": 2024,
+     "value": 2.42
+    },
+    {
+     "year": 2025,
+     "value": 2.34
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 5.56
+    },
+    {
+     "year": 2022,
+     "value": 6.99
+    },
+    {
+     "year": 2023,
+     "value": 3.1
+    },
+    {
+     "year": 2024,
+     "value": 2.21
+    },
+    {
+     "year": 2025,
+     "value": 1.86
+    }
+   ]
+  },
+  "PRY": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 4.79
+    },
+    {
+     "year": 2022,
+     "value": 9.77
+    },
+    {
+     "year": 2023,
+     "value": 4.63
+    },
+    {
+     "year": 2024,
+     "value": 3.84
+    },
+    {
+     "year": 2025,
+     "value": 4.04
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 3.99
+    },
+    {
+     "year": 2022,
+     "value": -0.03
+    },
+    {
+     "year": 2023,
+     "value": 5.29
+    },
+    {
+     "year": 2024,
+     "value": 4.67
+    },
+    {
+     "year": 2025,
+     "value": 6.64
+    }
+   ]
+  },
+  "PSE": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 1.24
+    },
+    {
+     "year": 2022,
+     "value": 3.74
+    },
+    {
+     "year": 2023,
+     "value": 5.87
+    },
+    {
+     "year": 2024,
+     "value": 53.67
+    },
+    {
+     "year": 2025,
+     "value": 9.81
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 7.01
+    },
+    {
+     "year": 2022,
+     "value": 4.08
+    },
+    {
+     "year": 2023,
+     "value": -0.97
+    },
+    {
+     "year": 2024,
+     "value": -22.86
+    },
+    {
+     "year": 2025,
+     "value": 4.34
+    }
+   ]
+  },
+  "PYF": {
+   "inflation": [],
+   "growth": [
+    {
+     "year": 2020,
+     "value": -10.57
+    },
+    {
+     "year": 2021,
+     "value": 3.37
+    },
+    {
+     "year": 2022,
+     "value": 2.94
+    },
+    {
+     "year": 2023,
+     "value": 2.77
+    },
+    {
+     "year": 2024,
+     "value": 1.13
+    }
+   ]
+  },
+  "QAT": {
+   "inflation": [
+    {
+     "year": 2020,
+     "value": -2.54
+    },
+    {
+     "year": 2021,
+     "value": 2.3
+    },
+    {
+     "year": 2022,
+     "value": 5
+    },
+    {
+     "year": 2023,
+     "value": 3.03
+    },
+    {
+     "year": 2024,
+     "value": 1.27
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 1.63
+    },
+    {
+     "year": 2022,
+     "value": 4.19
+    },
+    {
+     "year": 2023,
+     "value": 1.19
+    },
+    {
+     "year": 2024,
+     "value": 3.11
+    },
+    {
+     "year": 2025,
+     "value": 2.9
+    }
+   ]
+  },
+  "ROU": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 5.05
+    },
+    {
+     "year": 2022,
+     "value": 13.8
+    },
+    {
+     "year": 2023,
+     "value": 10.4
+    },
+    {
+     "year": 2024,
+     "value": 5.72
+    },
+    {
+     "year": 2025,
+     "value": 7.19
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 5.59
+    },
+    {
+     "year": 2022,
+     "value": 4.19
+    },
+    {
+     "year": 2023,
+     "value": 2.26
+    },
+    {
+     "year": 2024,
+     "value": 0.92
+    },
+    {
+     "year": 2025,
+     "value": 0.68
+    }
+   ]
+  },
+  "RUS": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 6.69
+    },
+    {
+     "year": 2022,
+     "value": 13.74
+    },
+    {
+     "year": 2023,
+     "value": 5.87
+    },
+    {
+     "year": 2024,
+     "value": 8.43
+    },
+    {
+     "year": 2025,
+     "value": 8.72
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 5.87
+    },
+    {
+     "year": 2022,
+     "value": -1.44
+    },
+    {
+     "year": 2023,
+     "value": 4.07
+    },
+    {
+     "year": 2024,
+     "value": 4.92
+    },
+    {
+     "year": 2025,
+     "value": 1
+    }
+   ]
+  },
+  "RWA": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": -0.39
+    },
+    {
+     "year": 2022,
+     "value": 17.69
+    },
+    {
+     "year": 2023,
+     "value": 19.79
+    },
+    {
+     "year": 2024,
+     "value": 1.77
+    },
+    {
+     "year": 2025,
+     "value": 5.91
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 8.41
+    },
+    {
+     "year": 2022,
+     "value": 9.82
+    },
+    {
+     "year": 2023,
+     "value": 8.56
+    },
+    {
+     "year": 2024,
+     "value": 7.23
+    },
+    {
+     "year": 2025,
+     "value": 9.38
+    }
+   ]
+  },
+  "SAU": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 3.13
+    },
+    {
+     "year": 2022,
+     "value": 2.54
+    },
+    {
+     "year": 2023,
+     "value": 2.47
+    },
+    {
+     "year": 2024,
+     "value": 1.5
+    },
+    {
+     "year": 2025,
+     "value": 2.04
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 6.52
+    },
+    {
+     "year": 2022,
+     "value": 12
+    },
+    {
+     "year": 2023,
+     "value": 0.54
+    },
+    {
+     "year": 2024,
+     "value": 2.65
+    },
+    {
+     "year": 2025,
+     "value": 4.5
+    }
+   ]
+  },
+  "SDN": {
+   "inflation": [
+    {
+     "year": 2020,
+     "value": 163.26
+    },
+    {
+     "year": 2021,
+     "value": 359.09
+    },
+    {
+     "year": 2022,
+     "value": 138.81
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": -1.87
+    },
+    {
+     "year": 2022,
+     "value": -0.96
+    },
+    {
+     "year": 2023,
+     "value": -29.43
+    },
+    {
+     "year": 2024,
+     "value": -13.96
+    },
+    {
+     "year": 2025,
+     "value": 3.06
+    }
+   ]
+  },
+  "SEN": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 2.18
+    },
+    {
+     "year": 2022,
+     "value": 9.7
+    },
+    {
+     "year": 2023,
+     "value": 5.94
+    },
+    {
+     "year": 2024,
+     "value": 0.8
+    },
+    {
+     "year": 2025,
+     "value": 1.46
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 6.54
+    },
+    {
+     "year": 2022,
+     "value": 3.85
+    },
+    {
+     "year": 2023,
+     "value": 4.26
+    },
+    {
+     "year": 2024,
+     "value": 6.46
+    },
+    {
+     "year": 2025,
+     "value": 6.68
+    }
+   ]
+  },
+  "SGP": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 2.32
+    },
+    {
+     "year": 2022,
+     "value": 6.13
+    },
+    {
+     "year": 2023,
+     "value": 4.83
+    },
+    {
+     "year": 2024,
+     "value": 2.39
+    },
+    {
+     "year": 2025,
+     "value": 0.9
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 10.14
+    },
+    {
+     "year": 2022,
+     "value": 4.01
+    },
+    {
+     "year": 2023,
+     "value": 1.45
+    },
+    {
+     "year": 2024,
+     "value": 5.34
+    },
+    {
+     "year": 2025,
+     "value": 5.03
+    }
+   ]
+  },
+  "SLB": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": -0.12
+    },
+    {
+     "year": 2022,
+     "value": 5.52
+    },
+    {
+     "year": 2023,
+     "value": 5.89
+    },
+    {
+     "year": 2024,
+     "value": 4.32
+    },
+    {
+     "year": 2025,
+     "value": 3.36
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": -0.23
+    },
+    {
+     "year": 2022,
+     "value": -2.58
+    },
+    {
+     "year": 2023,
+     "value": 2.84
+    },
+    {
+     "year": 2024,
+     "value": 3
+    },
+    {
+     "year": 2025,
+     "value": 3.62
+    }
+   ]
+  },
+  "SLE": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 11.87
+    },
+    {
+     "year": 2022,
+     "value": 27.21
+    },
+    {
+     "year": 2023,
+     "value": 47.64
+    },
+    {
+     "year": 2024,
+     "value": 28.63
+    },
+    {
+     "year": 2025,
+     "value": 7.49
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 5.9
+    },
+    {
+     "year": 2022,
+     "value": 5.31
+    },
+    {
+     "year": 2023,
+     "value": 5.71
+    },
+    {
+     "year": 2024,
+     "value": 4.29
+    },
+    {
+     "year": 2025,
+     "value": 4.61
+    }
+   ]
+  },
+  "SLV": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 3.47
+    },
+    {
+     "year": 2022,
+     "value": 7.2
+    },
+    {
+     "year": 2023,
+     "value": 4.05
+    },
+    {
+     "year": 2024,
+     "value": 0.85
+    },
+    {
+     "year": 2025,
+     "value": 0.26
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 11.9
+    },
+    {
+     "year": 2022,
+     "value": 2.95
+    },
+    {
+     "year": 2023,
+     "value": 3.36
+    },
+    {
+     "year": 2024,
+     "value": 2.59
+    },
+    {
+     "year": 2025,
+     "value": 3.91
+    }
+   ]
+  },
+  "SMR": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 1.62
+    },
+    {
+     "year": 2022,
+     "value": 5.33
+    },
+    {
+     "year": 2023,
+     "value": 5.93
+    },
+    {
+     "year": 2024,
+     "value": 1.24
+    },
+    {
+     "year": 2025,
+     "value": 2.3
+    }
+   ],
+   "growth": [
+    {
+     "year": 2020,
+     "value": -6.65
+    },
+    {
+     "year": 2021,
+     "value": 13.9
+    },
+    {
+     "year": 2022,
+     "value": 7.9
+    },
+    {
+     "year": 2023,
+     "value": 0.4
+    }
+   ]
+  },
+  "SOM": {
+   "inflation": [],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 3.45
+    },
+    {
+     "year": 2022,
+     "value": 2.72
+    },
+    {
+     "year": 2023,
+     "value": 4.18
+    },
+    {
+     "year": 2024,
+     "value": 4.11
+    },
+    {
+     "year": 2025,
+     "value": 2.99
+    }
+   ]
+  },
+  "SRB": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 4.09
+    },
+    {
+     "year": 2022,
+     "value": 11.98
+    },
+    {
+     "year": 2023,
+     "value": 12.37
+    },
+    {
+     "year": 2024,
+     "value": 4.67
+    },
+    {
+     "year": 2025,
+     "value": 3.89
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 7.95
+    },
+    {
+     "year": 2022,
+     "value": 2.7
+    },
+    {
+     "year": 2023,
+     "value": 3.75
+    },
+    {
+     "year": 2024,
+     "value": 3.95
+    },
+    {
+     "year": 2025,
+     "value": 2.03
+    }
+   ]
+  },
+  "SSD": {
+   "inflation": [
+    {
+     "year": 2020,
+     "value": 29.68
+    },
+    {
+     "year": 2021,
+     "value": 10.52
+    },
+    {
+     "year": 2022,
+     "value": -6.69
+    },
+    {
+     "year": 2023,
+     "value": 2.38
+    },
+    {
+     "year": 2024,
+     "value": 91.44
+    }
+   ],
+   "growth": []
+  },
+  "STP": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 8.14
+    },
+    {
+     "year": 2022,
+     "value": 18.01
+    },
+    {
+     "year": 2023,
+     "value": 21.26
+    },
+    {
+     "year": 2024,
+     "value": 14.35
+    },
+    {
+     "year": 2025,
+     "value": 11.05
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 1.9
+    },
+    {
+     "year": 2022,
+     "value": 0.17
+    },
+    {
+     "year": 2023,
+     "value": 0.37
+    },
+    {
+     "year": 2024,
+     "value": 1.48
+    },
+    {
+     "year": 2025,
+     "value": 1.03
+    }
+   ]
+  },
+  "SUR": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 59.12
+    },
+    {
+     "year": 2022,
+     "value": 52.45
+    },
+    {
+     "year": 2023,
+     "value": 51.59
+    },
+    {
+     "year": 2024,
+     "value": 16.23
+    },
+    {
+     "year": 2025,
+     "value": 9.21
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": -2.44
+    },
+    {
+     "year": 2022,
+     "value": 2.41
+    },
+    {
+     "year": 2023,
+     "value": 2.42
+    },
+    {
+     "year": 2024,
+     "value": 1.72
+    },
+    {
+     "year": 2025,
+     "value": 1.79
+    }
+   ]
+  },
+  "SVK": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 3.15
+    },
+    {
+     "year": 2022,
+     "value": 12.77
+    },
+    {
+     "year": 2023,
+     "value": 10.53
+    },
+    {
+     "year": 2024,
+     "value": 2.76
+    },
+    {
+     "year": 2025,
+     "value": 4
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 5.66
+    },
+    {
+     "year": 2022,
+     "value": 0.54
+    },
+    {
+     "year": 2023,
+     "value": 2.11
+    },
+    {
+     "year": 2024,
+     "value": 1.94
+    },
+    {
+     "year": 2025,
+     "value": 0.81
+    }
+   ]
+  },
+  "SVN": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 1.92
+    },
+    {
+     "year": 2022,
+     "value": 8.83
+    },
+    {
+     "year": 2023,
+     "value": 7.45
+    },
+    {
+     "year": 2024,
+     "value": 1.97
+    },
+    {
+     "year": 2025,
+     "value": 2.37
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 8.42
+    },
+    {
+     "year": 2022,
+     "value": 2.67
+    },
+    {
+     "year": 2023,
+     "value": 2.38
+    },
+    {
+     "year": 2024,
+     "value": 1.73
+    },
+    {
+     "year": 2025,
+     "value": 1.06
+    }
+   ]
+  },
+  "SWE": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 2.16
+    },
+    {
+     "year": 2022,
+     "value": 8.37
+    },
+    {
+     "year": 2023,
+     "value": 8.55
+    },
+    {
+     "year": 2024,
+     "value": 2.84
+    },
+    {
+     "year": 2025,
+     "value": 0.68
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 5.23
+    },
+    {
+     "year": 2022,
+     "value": 1.26
+    },
+    {
+     "year": 2023,
+     "value": -0.2
+    },
+    {
+     "year": 2024,
+     "value": 1.02
+    },
+    {
+     "year": 2025,
+     "value": 1.54
+    }
+   ]
+  },
+  "SWZ": {
+   "inflation": [],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 4.24
+    },
+    {
+     "year": 2022,
+     "value": 0.39
+    },
+    {
+     "year": 2023,
+     "value": 3.53
+    },
+    {
+     "year": 2024,
+     "value": 3.03
+    },
+    {
+     "year": 2025,
+     "value": 4.19
+    }
+   ]
+  },
+  "SXM": {
+   "inflation": [],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 4.58
+    },
+    {
+     "year": 2022,
+     "value": 13.9
+    },
+    {
+     "year": 2023,
+     "value": 3.8
+    },
+    {
+     "year": 2024,
+     "value": 3
+    },
+    {
+     "year": 2025,
+     "value": 3.4
+    }
+   ]
+  },
+  "SYC": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 9.77
+    },
+    {
+     "year": 2022,
+     "value": 2.63
+    },
+    {
+     "year": 2023,
+     "value": -1.04
+    },
+    {
+     "year": 2024,
+     "value": 0.31
+    },
+    {
+     "year": 2025,
+     "value": 0.3
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 0.55
+    },
+    {
+     "year": 2022,
+     "value": 9.88
+    },
+    {
+     "year": 2023,
+     "value": 5.18
+    },
+    {
+     "year": 2024,
+     "value": 3.35
+    },
+    {
+     "year": 2025,
+     "value": 5.8
+    }
+   ]
+  },
+  "SYR": {
+   "inflation": [],
+   "growth": [
+    {
+     "year": 2020,
+     "value": 0.95
+    },
+    {
+     "year": 2021,
+     "value": 1.79
+    },
+    {
+     "year": 2022,
+     "value": -0.2
+    }
+   ]
+  },
+  "TCA": {
+   "inflation": [],
+   "growth": [
+    {
+     "year": 2020,
+     "value": -33.82
+    },
+    {
+     "year": 2021,
+     "value": 29.63
+    },
+    {
+     "year": 2022,
+     "value": 14.09
+    },
+    {
+     "year": 2023,
+     "value": 13.73
+    },
+    {
+     "year": 2024,
+     "value": 5.64
+    }
+   ]
+  },
+  "TCD": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": -0.77
+    },
+    {
+     "year": 2022,
+     "value": 5.79
+    },
+    {
+     "year": 2023,
+     "value": 10.84
+    },
+    {
+     "year": 2024,
+     "value": 8.9
+    },
+    {
+     "year": 2025,
+     "value": -3.91
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 0.29
+    },
+    {
+     "year": 2022,
+     "value": 4.13
+    },
+    {
+     "year": 2023,
+     "value": 4
+    },
+    {
+     "year": 2024,
+     "value": 4.95
+    },
+    {
+     "year": 2025,
+     "value": 5.59
+    }
+   ]
+  },
+  "TGO": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 4.19
+    },
+    {
+     "year": 2022,
+     "value": 7.97
+    },
+    {
+     "year": 2023,
+     "value": 5.49
+    },
+    {
+     "year": 2024,
+     "value": 2.86
+    },
+    {
+     "year": 2025,
+     "value": 0.43
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 5.14
+    },
+    {
+     "year": 2022,
+     "value": 6.29
+    },
+    {
+     "year": 2023,
+     "value": 6.2
+    },
+    {
+     "year": 2024,
+     "value": 6.53
+    },
+    {
+     "year": 2025,
+     "value": 6.31
+    }
+   ]
+  },
+  "THA": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 1.23
+    },
+    {
+     "year": 2022,
+     "value": 6.08
+    },
+    {
+     "year": 2023,
+     "value": 1.23
+    },
+    {
+     "year": 2024,
+     "value": 0.4
+    },
+    {
+     "year": 2025,
+     "value": -0.13
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 1.56
+    },
+    {
+     "year": 2022,
+     "value": 2.64
+    },
+    {
+     "year": 2023,
+     "value": 2.25
+    },
+    {
+     "year": 2024,
+     "value": 2.95
+    },
+    {
+     "year": 2025,
+     "value": 2.44
+    }
+   ]
+  },
+  "TJK": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 8.97
+    },
+    {
+     "year": 2022,
+     "value": 6.61
+    },
+    {
+     "year": 2023,
+     "value": 3.58
+    },
+    {
+     "year": 2024,
+     "value": 3.48
+    },
+    {
+     "year": 2025,
+     "value": 3.39
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 9.4
+    },
+    {
+     "year": 2022,
+     "value": 8
+    },
+    {
+     "year": 2023,
+     "value": 8.3
+    },
+    {
+     "year": 2024,
+     "value": 8.4
+    },
+    {
+     "year": 2025,
+     "value": 8.4
+    }
+   ]
+  },
+  "TKM": {
+   "inflation": [],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 6.15
+    },
+    {
+     "year": 2022,
+     "value": 6.23
+    },
+    {
+     "year": 2023,
+     "value": 6.32
+    },
+    {
+     "year": 2024,
+     "value": 6.28
+    },
+    {
+     "year": 2025,
+     "value": 6.3
+    }
+   ]
+  },
+  "TLS": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 3.7
+    },
+    {
+     "year": 2022,
+     "value": 7.01
+    },
+    {
+     "year": 2023,
+     "value": 8.42
+    },
+    {
+     "year": 2024,
+     "value": 2.06
+    },
+    {
+     "year": 2025,
+     "value": 0.43
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 5.37
+    },
+    {
+     "year": 2022,
+     "value": -20.52
+    },
+    {
+     "year": 2023,
+     "value": -18.14
+    },
+    {
+     "year": 2024,
+     "value": -9.1
+    },
+    {
+     "year": 2025,
+     "value": 6.98
+    }
+   ]
+  },
+  "TON": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 5.64
+    },
+    {
+     "year": 2022,
+     "value": 10.97
+    },
+    {
+     "year": 2023,
+     "value": 6.35
+    },
+    {
+     "year": 2024,
+     "value": 3.18
+    },
+    {
+     "year": 2025,
+     "value": 5.59
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": -0.93
+    },
+    {
+     "year": 2022,
+     "value": -2.13
+    },
+    {
+     "year": 2023,
+     "value": 2.79
+    },
+    {
+     "year": 2024,
+     "value": 1.72
+    },
+    {
+     "year": 2025,
+     "value": 2.8
+    }
+   ]
+  },
+  "TTO": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 2.06
+    },
+    {
+     "year": 2022,
+     "value": 5.83
+    },
+    {
+     "year": 2023,
+     "value": 4.63
+    },
+    {
+     "year": 2024,
+     "value": 0.53
+    },
+    {
+     "year": 2025,
+     "value": 0.99
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": -0.72
+    },
+    {
+     "year": 2022,
+     "value": 0.86
+    },
+    {
+     "year": 2023,
+     "value": 1.47
+    },
+    {
+     "year": 2024,
+     "value": 2.51
+    },
+    {
+     "year": 2025,
+     "value": -0.79
+    }
+   ]
+  },
+  "TUN": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 5.71
+    },
+    {
+     "year": 2022,
+     "value": 8.31
+    },
+    {
+     "year": 2023,
+     "value": 9.33
+    },
+    {
+     "year": 2024,
+     "value": 7.21
+    },
+    {
+     "year": 2025,
+     "value": 5.15
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 4.74
+    },
+    {
+     "year": 2022,
+     "value": 2.75
+    },
+    {
+     "year": 2023,
+     "value": 0.18
+    },
+    {
+     "year": 2024,
+     "value": 1.61
+    },
+    {
+     "year": 2025,
+     "value": 2.49
+    }
+   ]
+  },
+  "TUR": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 19.6
+    },
+    {
+     "year": 2022,
+     "value": 72.31
+    },
+    {
+     "year": 2023,
+     "value": 53.86
+    },
+    {
+     "year": 2024,
+     "value": 58.51
+    },
+    {
+     "year": 2025,
+     "value": 34.88
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 11.81
+    },
+    {
+     "year": 2022,
+     "value": 5.44
+    },
+    {
+     "year": 2023,
+     "value": 5.05
+    },
+    {
+     "year": 2024,
+     "value": 3.33
+    },
+    {
+     "year": 2025,
+     "value": 3.6
+    }
+   ]
+  },
+  "TUV": {
+   "inflation": [],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 0
+    },
+    {
+     "year": 2022,
+     "value": -10.94
+    },
+    {
+     "year": 2023,
+     "value": 3.51
+    },
+    {
+     "year": 2024,
+     "value": 3.39
+    },
+    {
+     "year": 2025,
+     "value": 1.64
+    }
+   ]
+  },
+  "TZA": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 3.69
+    },
+    {
+     "year": 2022,
+     "value": 4.35
+    },
+    {
+     "year": 2023,
+     "value": 3.8
+    },
+    {
+     "year": 2024,
+     "value": 3.06
+    },
+    {
+     "year": 2025,
+     "value": 3.33
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 4.32
+    },
+    {
+     "year": 2022,
+     "value": 4.57
+    },
+    {
+     "year": 2023,
+     "value": 5.07
+    },
+    {
+     "year": 2024,
+     "value": 5.53
+    },
+    {
+     "year": 2025,
+     "value": 5.85
+    }
+   ]
+  },
+  "UGA": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 2.2
+    },
+    {
+     "year": 2022,
+     "value": 7.2
+    },
+    {
+     "year": 2023,
+     "value": 5.35
+    },
+    {
+     "year": 2024,
+     "value": 3.32
+    },
+    {
+     "year": 2025,
+     "value": 3.58
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 3.54
+    },
+    {
+     "year": 2022,
+     "value": 4.59
+    },
+    {
+     "year": 2023,
+     "value": 5.34
+    },
+    {
+     "year": 2024,
+     "value": 6.06
+    },
+    {
+     "year": 2025,
+     "value": 6.33
+    }
+   ]
+  },
+  "UKR": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 9.36
+    },
+    {
+     "year": 2022,
+     "value": 20.18
+    },
+    {
+     "year": 2023,
+     "value": 12.85
+    },
+    {
+     "year": 2024,
+     "value": 6.5
+    },
+    {
+     "year": 2025,
+     "value": 12.73
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 3.45
+    },
+    {
+     "year": 2022,
+     "value": -28.76
+    },
+    {
+     "year": 2023,
+     "value": 5.53
+    },
+    {
+     "year": 2024,
+     "value": 3.25
+    },
+    {
+     "year": 2025,
+     "value": 1.82
+    }
+   ]
+  },
+  "URY": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 7.75
+    },
+    {
+     "year": 2022,
+     "value": 9.1
+    },
+    {
+     "year": 2023,
+     "value": 5.87
+    },
+    {
+     "year": 2024,
+     "value": 4.85
+    },
+    {
+     "year": 2025,
+     "value": 4.65
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 5.84
+    },
+    {
+     "year": 2022,
+     "value": 4.61
+    },
+    {
+     "year": 2023,
+     "value": 0.76
+    },
+    {
+     "year": 2024,
+     "value": 3.33
+    },
+    {
+     "year": 2025,
+     "value": 1.78
+    }
+   ]
+  },
+  "USA": {
+   "inflation": [
+    {
+     "year": 2020,
+     "value": 1.23
+    },
+    {
+     "year": 2021,
+     "value": 4.7
+    },
+    {
+     "year": 2022,
+     "value": 8
+    },
+    {
+     "year": 2023,
+     "value": 4.12
+    },
+    {
+     "year": 2024,
+     "value": 2.95
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 6.15
+    },
+    {
+     "year": 2022,
+     "value": 2.52
+    },
+    {
+     "year": 2023,
+     "value": 2.93
+    },
+    {
+     "year": 2024,
+     "value": 2.79
+    },
+    {
+     "year": 2025,
+     "value": 2.16
+    }
+   ]
+  },
+  "UZB": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 10.85
+    },
+    {
+     "year": 2022,
+     "value": 11.45
+    },
+    {
+     "year": 2023,
+     "value": 9.96
+    },
+    {
+     "year": 2024,
+     "value": 9.63
+    },
+    {
+     "year": 2025,
+     "value": 8.8
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 8.2
+    },
+    {
+     "year": 2022,
+     "value": 6.09
+    },
+    {
+     "year": 2023,
+     "value": 6.32
+    },
+    {
+     "year": 2024,
+     "value": 6.68
+    },
+    {
+     "year": 2025,
+     "value": 7.7
+    }
+   ]
+  },
+  "VCT": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 1.57
+    },
+    {
+     "year": 2022,
+     "value": 5.66
+    },
+    {
+     "year": 2023,
+     "value": 4.56
+    },
+    {
+     "year": 2024,
+     "value": 3.63
+    },
+    {
+     "year": 2025,
+     "value": 0.82
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 2.09
+    },
+    {
+     "year": 2022,
+     "value": 3.11
+    },
+    {
+     "year": 2023,
+     "value": 5.33
+    },
+    {
+     "year": 2024,
+     "value": 4.06
+    },
+    {
+     "year": 2025,
+     "value": 3.39
+    }
+   ]
+  },
+  "VEN": {
+   "inflation": [],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 0.63
+    },
+    {
+     "year": 2022,
+     "value": 8.07
+    },
+    {
+     "year": 2023,
+     "value": 4.02
+    },
+    {
+     "year": 2024,
+     "value": 5.52
+    },
+    {
+     "year": 2025,
+     "value": 1.57
+    }
+   ]
+  },
+  "VIR": {
+   "inflation": [],
+   "growth": [
+    {
+     "year": 2020,
+     "value": -1.61
+    },
+    {
+     "year": 2021,
+     "value": 3.67
+    },
+    {
+     "year": 2022,
+     "value": -1.31
+    }
+   ]
+  },
+  "VNM": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 1.83
+    },
+    {
+     "year": 2022,
+     "value": 3.16
+    },
+    {
+     "year": 2023,
+     "value": 3.25
+    },
+    {
+     "year": 2024,
+     "value": 3.62
+    },
+    {
+     "year": 2025,
+     "value": 3.31
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 2.55
+    },
+    {
+     "year": 2022,
+     "value": 8.54
+    },
+    {
+     "year": 2023,
+     "value": 4.98
+    },
+    {
+     "year": 2024,
+     "value": 7.04
+    },
+    {
+     "year": 2025,
+     "value": 8.02
+    }
+   ]
+  },
+  "VUT": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 2.34
+    },
+    {
+     "year": 2022,
+     "value": 6.68
+    },
+    {
+     "year": 2023,
+     "value": 11.18
+    },
+    {
+     "year": 2024,
+     "value": 1.14
+    },
+    {
+     "year": 2025,
+     "value": 0.66
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": -1.16
+    },
+    {
+     "year": 2022,
+     "value": 5.59
+    },
+    {
+     "year": 2023,
+     "value": 5.83
+    },
+    {
+     "year": 2024,
+     "value": 3.77
+    },
+    {
+     "year": 2025,
+     "value": 3.05
+    }
+   ]
+  },
+  "WSM": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 3.13
+    },
+    {
+     "year": 2022,
+     "value": 10.96
+    },
+    {
+     "year": 2023,
+     "value": 7.92
+    },
+    {
+     "year": 2024,
+     "value": 2.17
+    },
+    {
+     "year": 2025,
+     "value": 2.21
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": -5.04
+    },
+    {
+     "year": 2022,
+     "value": 2.27
+    },
+    {
+     "year": 2023,
+     "value": 15.23
+    },
+    {
+     "year": 2024,
+     "value": 4.75
+    },
+    {
+     "year": 2025,
+     "value": 4.2
+    }
+   ]
+  },
+  "XKX": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 3.35
+    },
+    {
+     "year": 2022,
+     "value": 11.58
+    },
+    {
+     "year": 2023,
+     "value": 4.94
+    },
+    {
+     "year": 2024,
+     "value": 1.62
+    },
+    {
+     "year": 2025,
+     "value": 3.86
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 10.75
+    },
+    {
+     "year": 2022,
+     "value": 4.28
+    },
+    {
+     "year": 2023,
+     "value": 4.07
+    },
+    {
+     "year": 2024,
+     "value": 4.57
+    },
+    {
+     "year": 2025,
+     "value": 3.59
+    }
+   ]
+  },
+  "ZAF": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 4.62
+    },
+    {
+     "year": 2022,
+     "value": 7.04
+    },
+    {
+     "year": 2023,
+     "value": 6.08
+    },
+    {
+     "year": 2024,
+     "value": 4.36
+    },
+    {
+     "year": 2025,
+     "value": 3.21
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 4.86
+    },
+    {
+     "year": 2022,
+     "value": 2.06
+    },
+    {
+     "year": 2023,
+     "value": 0.81
+    },
+    {
+     "year": 2024,
+     "value": 0.53
+    },
+    {
+     "year": 2025,
+     "value": 1.11
+    }
+   ]
+  },
+  "ZMB": {
+   "inflation": [
+    {
+     "year": 2021,
+     "value": 22.02
+    },
+    {
+     "year": 2022,
+     "value": 10.99
+    },
+    {
+     "year": 2023,
+     "value": 10.88
+    },
+    {
+     "year": 2024,
+     "value": 14.99
+    },
+    {
+     "year": 2025,
+     "value": 13.91
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 6.23
+    },
+    {
+     "year": 2022,
+     "value": 5.21
+    },
+    {
+     "year": 2023,
+     "value": 5.37
+    },
+    {
+     "year": 2024,
+     "value": 3.82
+    },
+    {
+     "year": 2025,
+     "value": 3.76
+    }
+   ]
+  },
+  "ZWE": {
+   "inflation": [
+    {
+     "year": 2020,
+     "value": 557.2
+    },
+    {
+     "year": 2021,
+     "value": 98.55
+    },
+    {
+     "year": 2022,
+     "value": 104.71
+    }
+   ],
+   "growth": [
+    {
+     "year": 2021,
+     "value": 8.47
+    },
+    {
+     "year": 2022,
+     "value": 6.14
+    },
+    {
+     "year": 2023,
+     "value": 5.35
+    },
+    {
+     "year": 2024,
+     "value": 1.68
+    },
+    {
+     "year": 2025,
+     "value": 8.11
+    }
+   ]
+  }
+ }
 }
