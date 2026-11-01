@@ -1,45 +1,45 @@
 export interface Crosswalk {
-	generated: string;
-	companies: number;
-	sbi25: Record<string, { level: number; section: string; nl: string; en: string }>;
-	sbi25ToNace2: Record<string, string[]>;
-	nace2Titles: Record<string, string>;
-	nace2ToIsic4: Record<string, string>;
-	isic4ToIsic31: Record<string, string[]>;
-	isic31Titles: Record<string, string>;
-	isic31ToNaics: Record<string, string[]>;
-	naicsTitles: Record<string, string>;
-	naicsToSic: Record<string, string[]>;
-	sicTitles: Record<string, string>;
+	readonly generated: string;
+	readonly companies: number;
+	readonly sbi25: Readonly<Record<string, { level: number; section: string; nl: string; en: string }>>;
+	readonly sbi25ToNace2: Readonly<Record<string, readonly string[]>>;
+	readonly nace2Titles: Readonly<Record<string, string>>;
+	readonly nace2ToIsic4: Readonly<Record<string, string>>;
+	readonly isic4ToIsic31: Readonly<Record<string, readonly string[]>>;
+	readonly isic31Titles: Readonly<Record<string, string>>;
+	readonly isic31ToNaics: Readonly<Record<string, readonly string[]>>;
+	readonly naicsTitles: Readonly<Record<string, string>>;
+	readonly naicsToSic: Readonly<Record<string, readonly string[]>>;
+	readonly sicTitles: Readonly<Record<string, string>>;
 	/** Company SIC codes that are group codes (6020), mapped to the real SIC codes of the group. */
-	sicAlias: Record<string, string[]>;
+	readonly sicAlias: Readonly<Record<string, readonly string[]>>;
 	/** SIC -> [industry, company count], largest first. */
-	damodaran: Record<string, [string, number][]>;
+	readonly damodaran: Readonly<Record<string, readonly (readonly [string, number])[]>>;
 }
 
 export interface Item {
-	code: string;
-	title: string;
+	readonly code: string;
+	readonly title: string;
 }
 
 export interface Match {
-	industry: string;
-	companies: number;
-	share: number;
+	readonly industry: string;
+	readonly companies: number;
+	readonly share: number;
 }
 
 export interface Trace {
-	start: Item;
+	readonly start: Item;
 	/** SBI 2025 classes (4 digits, equal to NACE Rev. 2.1) under the chosen code. */
-	nace21: Item[];
+	readonly nace21: readonly Item[];
 	/** NACE Rev. 2 = SBI 2008 = ISIC Rev. 4 classes. Codes only: the sources give no 4-digit titles. */
-	nace2: Item[];
+	readonly nace2: readonly Item[];
 	/** ISIC Rev. 4 classes; a NACE class is an ISIC class or a subdivision of one. */
-	isic4: Item[];
-	isic31: Item[];
-	naics: Item[];
-	sic: Item[];
-	damodaran: Match[];
+	readonly isic4: readonly Item[];
+	readonly isic31: readonly Item[];
+	readonly naics: readonly Item[];
+	readonly sic: readonly Item[];
+	readonly damodaran: readonly Match[];
 }
 
 export const MAX_RESULTS = 20;
@@ -107,24 +107,24 @@ export function trace(data: Crosswalk, code: string): Trace | null {
 
 export interface Ranked extends Item {
 	/** Share of the weight that reached an SBI class, splitting evenly at every one-to-many hop. Adds up to 1. */
-	share: number;
+	readonly share: number;
 }
 
 export interface ReverseTrace {
-	industry: string;
-	companies: number;
+	readonly industry: string;
+	readonly companies: number;
 	/** Fraction of the industry's companies whose SIC code could be followed all the way to an SBI 2025 class. */
-	followed: number;
-	sic: (Item & { companies: number })[];
+	readonly followed: number;
+	readonly sic: readonly (Item & { readonly companies: number })[];
 	/** SBI 2025 classes (4 digits), best match first. */
-	sbi25: Ranked[];
+	readonly sbi25: readonly Ranked[];
 }
 
 export const MAX_REVERSE = 25;
 
 const inverseCache = new WeakMap<Crosswalk, Record<string, Record<string, string[]>>>();
 
-function invert(map: Record<string, string[]>): Record<string, string[]> {
+function invert(map: Readonly<Record<string, readonly string[]>>): Record<string, string[]> {
 	const out: Record<string, string[]> = {};
 	for (const [from, tos] of Object.entries(map)) for (const to of tos) (out[to] ??= []).push(from);
 	return out;
