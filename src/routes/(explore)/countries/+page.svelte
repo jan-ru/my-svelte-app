@@ -1,10 +1,12 @@
 <script lang="ts">
 	import type { PageProps } from './$types';
 	import LoginPrompt from '#lib/components/LoginPrompt.svelte';
+	import MacroTable from '#lib/components/MacroTable.svelte';
 	import ShareBars from '#lib/components/ShareBars.svelte';
 	import SelectionBar from '#lib/components/SelectionBar.svelte';
 	import SizeSelector from '#lib/components/SizeSelector.svelte';
 	import Treemap from '#lib/components/Treemap.svelte';
+	import { macroYearRange } from '#lib/macro';
 	import { plural } from '#lib/plural';
 	import { formatCount, formatPercent, formatUsd, formatUsdCompact, USD_COMPACT_NOTE } from '#lib/size';
 	import { sizeHref, toggle } from '#lib/size-nav';
@@ -41,6 +43,7 @@
 		const percent = view.shares.items.reduce((s, i) => s + i.percent, 0);
 		return { value, percent };
 	});
+	const macroYears = $derived(macroYearRange(data.macro));
 	const breakdown = $derived(
 		view.breakdown?.map((t) =>
 			data.interactive
@@ -113,6 +116,20 @@
 
 	<h2>{data.nav.countries.length > 0 ? 'Selected countries' : 'Largest countries'} versus global</h2>
 	<ShareBars shares={view.shares} {format} measureLabel={view.measureLabel} />
+
+	{#if data.macro.length > 0}
+		<h2>Inflation and real growth</h2>
+		<p class="note">
+			Annual rates in percent. The average smooths out single years, such as the 2022 inflation spike, and is a sanity
+			check for the long-term growth in a valuation: real growth plus inflation is roughly the nominal growth of the
+			economy.
+		</p>
+		<MacroTable rows={data.macro} />
+		<p class="note">
+			Source: World Bank, inflation (consumer prices, FP.CPI.TOTL.ZG) and GDP growth (constant prices,
+			NY.GDP.MKTP.KD.ZG){macroYears ? `, ${macroYears[0]} to ${macroYears[1]}` : ''}, CC BY 4.0.
+		</p>
+	{/if}
 
 	{#if view.cross}
 		<p role="status">

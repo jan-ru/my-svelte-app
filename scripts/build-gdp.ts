@@ -1,8 +1,10 @@
-// Builds src/lib/data/gdp.json from the World Bank API (GDP, current US$, most recent value per country).
+// Builds src/lib/data/gdp.json (GDP, current US$, most recent value per country) and src/lib/data/macro.json
+// (inflation and real GDP growth, the latest five years per country) from the World Bank API.
 // Usage: node scripts/build-gdp.ts   (needs network access)
 import fs from 'node:fs';
 import path from 'node:path';
 import { MANUAL_NAMES, matchCountries } from '../src/lib/gdp-match.ts';
+import { MACRO_INDICATORS, MACRO_YEARS, latestYears, type CountryMacro, type YearValue } from '../src/lib/macro.ts';
 
 const API = 'https://api.worldbank.org/v2';
 const dir = path.join(import.meta.dirname, '../src/lib/data');
@@ -30,6 +32,15 @@ interface WbGdpRow {
 const countryRows = await getRows<WbCountryRow>(`${API}/country?format=json&per_page=400`);
 const gdpRows = await getRows<WbGdpRow>(
 	`${API}/country/all/indicator/NY.GDP.MKTP.CD?format=json&per_page=20000&mrnev=1`
+);
+
+// One more year than the window, so a country whose newest value is a year old still gets five.
+const thisYear = new Date().getFullYear();
+const range = `${thisYear - MACRO_YEARS - 1}:${thisYear}`;
+const [inflationRows, growthRows] = await Promise.all(
+	[MACRO_INDICATORS.inflation, MACRO_INDICATORS.growth].map((code) =>
+		getRows<WbGdpRow>(`${API}/country/all/indicator/${code}?format=json&per_page=20000&date=${range}`)
+	)
 );
 
 const real = countryRows.filter((c) => c.region.id !== 'NA');
@@ -67,12 +78,39 @@ const out = {
 };
 fs.writeFileSync(path.join(dir, 'gdp.json'), `${JSON.stringify(out, null, 1)}\n`);
 
+/** The values per real country, latest window only. */
+function byCountry(rows: readonly WbGdpRow[]): Map<string, YearValue[]> {
+	const all = new Map<string, YearValue[]>();
+	for (const r of rows)
+		if (nameOf.has(r.countryiso3code) && r.value !== null)
+			all.set(r.countryiso3code, [
+				...(all.get(r.countryiso3code) ?? []),
+				{ year: Number(r.date), value: Math.round(r.value * 100) / 100 }
+			]);
+	return new Map([...all].map(([iso, values]) => [iso, latestYears(values)]));
+}
+const inflation = byCountry(inflationRows ?? []);
+const growth = byCountry(growthRows ?? []);
+const macroCountries: Record<string, CountryMacro> = {};
+for (const iso of [...nameOf.keys()].sort())
+	if (inflation.has(iso) || growth.has(iso))
+		macroCountries[iso] = { inflation: inflation.get(iso) ?? [], growth: growth.get(iso) ?? [] };
+const macro = {
+	generated: out.generated,
+	source: `World Bank, inflation (consumer prices, annual %, ${MACRO_INDICATORS.inflation}) and GDP growth (constant prices, annual %, ${MACRO_INDICATORS.growth}), latest ${MACRO_YEARS} years with a value`,
+	countries: macroCountries
+};
+fs.writeFileSync(path.join(dir, 'macro.json'), `${JSON.stringify(macro, null, 1)}\n`);
+
 const years = Object.values(countries).map((c) => c.year);
 console.log(
 	`Wrote gdp.json: ${Object.keys(countries).length} countries with a value (${Math.min(...years)} to ${Math.max(...years)}), world ${world.value} (${world.date}).`
 );
 console.log(
 	`Countries share of world total: ${((Object.values(countries).reduce((s, c) => s + c.value, 0) / world.value) * 100).toFixed(1)}%`
+);
+console.log(
+	`Wrote macro.json: ${inflation.size} countries with inflation, ${growth.size} with real growth (years ${range}).`
 );
 console.log(`NYU countries without a World Bank match (${unmatched.length}): ${unmatched.join('; ') || 'none'}`);
 console.log(`World Bank countries no NYU name maps to (${unusedWb.length}): ${unusedWb.join(' ')}`);
