@@ -133,49 +133,42 @@ interface TabContext {
 }
 type TabLoader = (ctx: TabContext) => Promise<FinancialsView>;
 
-async function loadProfile({ symbol, apiKey, source, fetchers }: TabContext): Promise<FinancialsView> {
+/** Run one fetch for a tab: its result, or `empty` and a message for the visitor when it fails (the failure is logged). */
+async function attempt<T>(what: string, ctx: TabContext, empty: T, run: () => Promise<T>): Promise<{ value: T; error: string | null }> {
 	try {
-		const profile = await fetchers.profile(symbol, apiKey);
-		return {
-			state: 'profile',
-			symbol,
-			profile,
-			message: profile ? null : `No company profile found for ${symbol}.`
-		};
+		return { value: await run(), error: null };
 	} catch (error) {
-		return { state: 'profile', symbol, profile: null, message: failure('profile', symbol, error, source) };
+		return { value: empty, error: failure(what, ctx.symbol, error, ctx.source) };
 	}
 }
 
-async function loadNews({ symbol, apiKey, source, fetchers }: TabContext): Promise<FinancialsView> {
-	try {
-		const items = await fetchers.news(symbol, apiKey);
-		return { state: 'news', symbol, items, message: items.length ? null : `No recent news found for ${symbol}.` };
-	} catch (error) {
-		return { state: 'news', symbol, items: [], message: failure('news', symbol, error, source) };
-	}
+async function loadProfile(ctx: TabContext): Promise<FinancialsView> {
+	const { symbol, apiKey, fetchers } = ctx;
+	const { value: profile, error } = await attempt('profile', ctx, null, () => fetchers.profile(symbol, apiKey));
+	return { state: 'profile', symbol, profile, message: error ?? (profile ? null : `No company profile found for ${symbol}.`) };
 }
 
-async function loadPrices({ symbol, apiKey, source, fetchers }: TabContext): Promise<FinancialsView> {
-	try {
-		const points = await fetchers.prices(symbol, apiKey);
-		return { state: 'price', symbol, points, message: points.length ? null : `No price history found for ${symbol}.` };
-	} catch (error) {
-		return { state: 'price', symbol, points: [], message: failure('price history', symbol, error, source) };
-	}
+async function loadNews(ctx: TabContext): Promise<FinancialsView> {
+	const { symbol, apiKey, fetchers } = ctx;
+	const { value: items, error } = await attempt('news', ctx, [], () => fetchers.news(symbol, apiKey));
+	return { state: 'news', symbol, items, message: error ?? (items.length ? null : `No recent news found for ${symbol}.`) };
+}
+
+async function loadPrices(ctx: TabContext): Promise<FinancialsView> {
+	const { symbol, apiKey, fetchers } = ctx;
+	const { value: points, error } = await attempt('price history', ctx, [], () => fetchers.prices(symbol, apiKey));
+	return { state: 'price', symbol, points, message: error ?? (points.length ? null : `No price history found for ${symbol}.`) };
 }
 
 const unavailable = (what: string, source: Source) =>
 	`${what} are only available from Financial Modeling Prep, not ${sourceLabel(source)}. Choose FMP for a US ticker.`;
 
-async function loadPeers({ symbol, apiKey, source, fetchers }: TabContext): Promise<FinancialsView> {
-	if (!fetchers.peers) return { state: 'peers', symbol, peers: [], message: unavailable('Peers', source) };
-	try {
-		const peers = await fetchers.peers(symbol, apiKey);
-		return { state: 'peers', symbol, peers, message: peers.length ? null : `No peers found for ${symbol}.` };
-	} catch (error) {
-		return { state: 'peers', symbol, peers: [], message: failure('peers', symbol, error, source) };
-	}
+async function loadPeers(ctx: TabContext): Promise<FinancialsView> {
+	const { symbol, apiKey, source, fetchers } = ctx;
+	const fetchPeers = fetchers.peers;
+	if (!fetchPeers) return { state: 'peers', symbol, peers: [], message: unavailable('Peers', source) };
+	const { value: peers, error } = await attempt('peers', ctx, [], () => fetchPeers(symbol, apiKey));
+	return { state: 'peers', symbol, peers, message: error ?? (peers.length ? null : `No peers found for ${symbol}.`) };
 }
 
 /** A table tab that only FMP serves: ratios, estimates and earnings. */
