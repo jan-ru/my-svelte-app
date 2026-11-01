@@ -1,3 +1,5 @@
+import { get } from './at';
+
 export interface Crosswalk {
 	readonly generated: string;
 	readonly companies: number;
@@ -65,7 +67,7 @@ export function searchSbi(data: Crosswalk, query: string): Item[] {
 /** Four-digit SBI 2025 classes at or under `code` (a section letter or a 2-4 digit code). */
 function classesUnder(data: Crosswalk, code: string): string[] {
 	return Object.keys(data.sbi25).filter(
-		(c) => c.length === 4 && (data.sbi25[code]?.level === 1 ? data.sbi25[c].section === code : c.startsWith(code))
+		(c) => c.length === 4 && (data.sbi25[code]?.level === 1 ? data.sbi25[c]?.section === code : c.startsWith(code))
 	);
 }
 
@@ -95,7 +97,7 @@ export function trace(data: Crosswalk, code: string): Trace | null {
 
 	return {
 		start: { code, title: entry.en },
-		nace21: sortByCode(classes.map((c) => ({ code: c, title: data.sbi25[c].en }))),
+		nace21: sortByCode(classes.map((c) => ({ code: c, title: get(data.sbi25, c).en }))),
 		nace2: sortByCode(nace2.map((c) => ({ code: c, title: '' }))),
 		isic4: sortByCode(isic4.map((c) => ({ code: c, title: '' }))),
 		isic31: sortByCode(isic31.map((c) => ({ code: c, title: data.isic31Titles[c] ?? '' }))),
@@ -122,7 +124,16 @@ export interface ReverseTrace {
 
 export const MAX_REVERSE = 25;
 
-const inverseCache = new WeakMap<Crosswalk, Record<string, Record<string, string[]>>>();
+type Inverse = Record<string, string[]>;
+interface Inverses {
+	readonly sicToNaics: Inverse;
+	readonly naicsToIsic31: Inverse;
+	readonly isic31ToIsic4: Inverse;
+	readonly isic4ToNace2: Inverse;
+	readonly nace2ToSbi25: Inverse;
+}
+
+const inverseCache = new WeakMap<Crosswalk, Inverses>();
 
 function invert(map: Readonly<Record<string, readonly string[]>>): Record<string, string[]> {
 	const out: Record<string, string[]> = {};
@@ -130,7 +141,7 @@ function invert(map: Readonly<Record<string, readonly string[]>>): Record<string
 	return out;
 }
 
-function inverses(data: Crosswalk) {
+function inverses(data: Crosswalk): Inverses {
 	let inv = inverseCache.get(data);
 	if (!inv) {
 		inv = {
@@ -146,7 +157,7 @@ function inverses(data: Crosswalk) {
 }
 
 /** Move weight one hop, splitting each node's weight evenly over its targets. Nodes with no target drop out. */
-function hop(weights: Map<string, number>, next: Record<string, string[]>): Map<string, number> {
+function hop(weights: Map<string, number>, next: Readonly<Inverse>): Map<string, number> {
 	const out = new Map<string, number>();
 	for (const [node, w] of weights) {
 		const targets = next[node] ?? [];
@@ -182,10 +193,13 @@ export function reverseTrace(data: Crosswalk, industry: string): ReverseTrace | 
 	weights = hop(weights, inv.isic4ToNace2);
 	weights = hop(weights, inv.nace2ToSbi25);
 
-	const reached = [...weights].filter(([code]) => data.sbi25[code]);
-	const followed = reached.reduce((sum, [, w]) => sum + w, 0);
+	const reached = [...weights].flatMap(([code, w]) => {
+		const entry = data.sbi25[code];
+		return entry ? [{ code, title: entry.en, w }] : [];
+	});
+	const followed = reached.reduce((sum, { w }) => sum + w, 0);
 	const sbi25 = reached
-		.map(([code, w]) => ({ code, title: data.sbi25[code].en, share: w / followed }))
+		.map(({ code, title, w }) => ({ code, title, share: w / followed }))
 		.sort((a, b) => b.share - a.share || a.code.localeCompare(b.code));
 
 	return {

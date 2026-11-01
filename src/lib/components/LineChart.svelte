@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { at } from '#lib/at';
 	import { PALETTE, monthTicks, priceTicks } from '#lib/chart';
 	import { formatPrice } from '#lib/prices';
 	import type { PricePoint } from '#lib/source-data';
@@ -19,9 +20,12 @@
 	const y = (v: number) => M.top + (plotH * (scale.max - v)) / (scale.max - scale.min);
 	const line = $derived(points.map((p, i) => `${x(i).toFixed(1)},${y(p.close).toFixed(1)}`).join(' '));
 	const months = $derived(monthTicks(points));
+	// the page renders this chart only when there is at least one point
+	const first = $derived(at(points, 0));
+	const last = $derived(at(points, points.length - 1));
 	const summary = $derived(
-		`Daily closing price from ${points[0].date} to ${points[points.length - 1].date}: ` +
-			`from ${formatPrice(points[0].close)} to ${formatPrice(points[points.length - 1].close)}, ` +
+		`Daily closing price from ${first.date} to ${last.date}: ` +
+			`from ${formatPrice(first.close)} to ${formatPrice(last.close)}, ` +
 			`low ${formatPrice(Math.min(...closes))}, high ${formatPrice(Math.max(...closes))}.`
 	);
 	const tickLabel = (v: number) => v.toLocaleString('en', { maximumFractionDigits: 2 });
@@ -41,7 +45,7 @@
 	{#if points.length > 1}
 		<polyline points={line} fill="none" stroke={PALETTE[0]} stroke-width="1.75" stroke-linejoin="round" />
 	{:else}
-		<circle cx={x(0)} cy={y(points[0].close)} r="4" fill={PALETTE[0]} />
+		<circle cx={x(0)} cy={y(first.close)} r="4" fill={PALETTE[0]} />
 	{/if}
 
 	{#if points.length <= MAX_HOVER_POINTS}

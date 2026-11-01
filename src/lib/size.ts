@@ -1,3 +1,4 @@
+import { at } from './at';
 import type { CompanyData } from './companies';
 
 export const MEASURES = [
@@ -32,7 +33,7 @@ export function countBy(data: CompanyData, by: Dimension, filter: SizeFilter = {
 		if (countries && !countries.has(c[4])) continue;
 		if (industries && !industries.has(c[3])) continue;
 		if (sectors && !sectors.has(c[6])) continue;
-		const name = names[c[COLUMN[by]]];
+		const name = at(names, c[COLUMN[by]]);
 		counts[name] = (counts[name] ?? 0) + 1;
 	}
 	return counts;
@@ -48,8 +49,8 @@ export function dominantSector(data: CompanyData): Record<string, string> {
 	}
 	const out: Record<string, string> = {};
 	for (const [industry, sectors] of tally) {
-		const best = [...sectors].sort((a, b) => b[1] - a[1] || data.sectors[a[0]].localeCompare(data.sectors[b[0]]))[0][0];
-		out[data.industries[industry]] = data.sectors[best];
+		const [best] = [...sectors].sort((a, b) => b[1] - a[1] || at(data.sectors, a[0]).localeCompare(at(data.sectors, b[0])));
+		if (best) out[at(data.industries, industry)] = at(data.sectors, best[0]);
 	}
 	return out;
 }
@@ -79,8 +80,10 @@ export const REST_ID = 'rest';
 export function shareOfGlobal(values: Record<string, number>, selected: readonly string[], total: number): Shares {
 	const pct = (v: number) => (total > 0 ? (100 * v) / total : 0);
 	const items = [...new Set(selected)]
-		.filter((id) => (values[id] ?? 0) > 0)
-		.map((id) => ({ id, value: values[id], percent: pct(values[id]) }))
+		.flatMap((id) => {
+			const value = values[id] ?? 0;
+			return value > 0 ? [{ id, value, percent: pct(value) }] : [];
+		})
 		.sort((a, b) => b.value - a.value || a.id.localeCompare(b.id));
 	const restValue = total - items.reduce((s, i) => s + i.value, 0);
 	const rest = restValue > total * 1e-9 ? { id: REST_ID, value: restValue, percent: pct(restValue) } : null;
@@ -139,7 +142,7 @@ export function tint(hex: string, amount: number): string {
 }
 
 const luminance = (hex: string): number => {
-	const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((c) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4));
+	const [r = 0, g = 0, b = 0] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((c) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4));
 	return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 };
 export const INK = '#1D2D3E';

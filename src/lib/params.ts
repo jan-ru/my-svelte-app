@@ -1,3 +1,4 @@
+import { at } from './at';
 import { MAX_SELECTION, MULTIPLES, REGIONS, type Role } from './catalog';
 
 export interface Selection {
@@ -56,8 +57,9 @@ function readLayout(sp: URLSearchParams): Layout {
 		return null;
 	});
 	const leftover = dims.filter((d) => !used.has(d));
-	const [panels, x, color] = slots.map((r) => r ?? leftover.shift()!);
-	return { panels, x, color };
+	let free = 0;
+	const fill = (slot: Role | null | undefined): Role => slot ?? at(leftover, free++);
+	return { panels: fill(slots[0]), x: fill(slots[1]), color: fill(slots[2]) };
 }
 
 export function parseParams(sp: URLSearchParams, knownIndustries?: readonly string[]): ViewParams {

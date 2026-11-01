@@ -40,7 +40,7 @@ describe('squarify', () => {
 		}
 	});
 	it('puts the largest item first', () => {
-		expect(squarify(items, 600, 400)[0].id).toMatch(/^[ab]$/);
+		expect(squarify(items, 600, 400)[0]?.id).toMatch(/^[ab]$/);
 	});
 	it('handles one item, zero and negative values, and an empty input', () => {
 		expect(squarify([{ id: 'x', label: 'X', value: 5 }], 100, 50)).toEqual([{ id: 'x', x: 0, y: 0, w: 100, h: 50 }]);

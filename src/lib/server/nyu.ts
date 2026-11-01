@@ -1,4 +1,5 @@
 import * as XLSX from 'xlsx';
+import { at } from '../at';
 import { workbookUrl, type Family } from '../catalog';
 
 const SHEET = 'Industry Averages';
@@ -50,10 +51,10 @@ export function parseWorkbook(data: Uint8Array): WorkbookData {
 	const dateRow = rows.slice(0, headerIndex).find((r) => normalise(r[0]) === 'Date updated:');
 	const serial = dateRow ? toNumber(dateRow[1]) : null;
 
-	const header = rows[headerIndex].map(normalise);
+	const header = at(rows, headerIndex).map(normalise);
 
 	// A group row sits directly above the header: first cell empty, some text further right.
-	const above = headerIndex > 0 ? rows[headerIndex - 1] : null;
+	const above = rows[headerIndex - 1] ?? null;
 	const hasGroups =
 		above !== null &&
 		above[0] == null &&
@@ -87,7 +88,7 @@ export function pickColumn(wb: WorkbookData, column: string, group?: string): Ma
 	if (index === -1) {
 		throw new MissingColumnError(`Column "${column}"${group ? ` in group "${group}"` : ''} not found`);
 	}
-	return new Map(wb.rows.map((r) => [r.industry, { value: r.values[index], firms: r.firms }]));
+	return new Map(wb.rows.map((r) => [r.industry, { value: r.values[index] ?? null, firms: r.firms }]));
 }
 
 export async function fetchWorkbook(

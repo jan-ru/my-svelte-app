@@ -1,3 +1,4 @@
+import { at } from './at';
 import { parseSymbol } from './symbol';
 import { yahooSymbol } from './yahoo';
 
@@ -99,10 +100,10 @@ export function queryCompanies(data: CompanyData, query: CompanyQuery): CompanyP
 		name: displayName(c[0], c[1]),
 		ticker: c[1],
 		sic: c[2],
-		industry: data.industries[c[3]],
-		country: data.countries[c[4]],
-		region: data.groups[c[5]],
-		sector: data.sectors[c[6]]
+		industry: at(data.industries, c[3]),
+		country: at(data.countries, c[4]),
+		region: at(data.groups, c[5]),
+		sector: at(data.sectors, c[6])
 	}));
 	const exchanges = new Set(matches.map((c) => exchangeOf(c[1])));
 	exchanges.delete('');

@@ -165,12 +165,12 @@ describe('loadValuation ready', () => {
 			'FMP rate limit reached. Try again in a minute.',
 			'FMP has no annual figures for EMPTY.'
 		]);
-		expect(view.peers[1].name).toBe('BROKEN');
+		expect(view.peers[1]?.name).toBe('BROKEN');
 	});
 	it('needs the FMP key for a US peer even when the company comes from Yahoo', async () => {
 		const view = await run('symbol=ASML.AS&peer=MSFT', { apiKey: undefined });
 		if (view.state !== 'ready') throw new Error(view.state);
-		expect(view.peers[0].message).toBe('The FMP key is not configured.');
+		expect(view.peers[0]?.message).toBe('The FMP key is not configured.');
 	});
 	it.each([
 		[new SourceError('config', 'x'), 'The FMP key was not accepted. Check FMP_API_KEY.'],

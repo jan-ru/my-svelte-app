@@ -46,7 +46,7 @@ describe('countriesView', () => {
 		const v = countriesView(data, gdp, nav({ countries: ['Japan'] }));
 		expect(v.shares.items).toHaveLength(1);
 		expect(v.shares.items[0]).toMatchObject({ id: 'Japan', value: 2 });
-		expect(v.shares.items[0].percent).toBeCloseTo((2 / 6) * 100, 9);
+		expect(v.shares.items[0]?.percent).toBeCloseTo((2 / 6) * 100, 9);
 		expect(v.shares.rest?.value).toBe(4);
 		// a selection also shows its industries
 		expect(v.breakdown?.map((t) => [t.id, t.value])).toEqual([['Banks', 1], ['Steel', 1]]);
@@ -87,7 +87,7 @@ describe('industriesView', () => {
 		const v = industriesView(data, nav());
 		expect(v.total).toBe(6);
 		expect(v.tiles.map((t) => [t.id, t.value])).toEqual([['Banks', 3], ['Steel', 3]]);
-		expect(v.tiles[0].fill).not.toBe(v.tiles[1].fill);
+		expect(v.tiles[0]?.fill).not.toBe(v.tiles[1]?.fill);
 		expect(v.legend.map((l) => [l.sector, l.value])).toEqual([['Financials', 3], ['Materials', 3]]);
 		expect(v.shares.items.map((i) => i.id)).toEqual(['Banks', 'Steel']);
 		expect(v.shares.rest).toBeNull();

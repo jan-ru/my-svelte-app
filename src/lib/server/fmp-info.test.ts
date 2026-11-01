@@ -102,7 +102,7 @@ describe('parseNews', () => {
 		]);
 	});
 	it('falls back to site when there is no publisher', () => {
-		expect(parseNews([{ ...item, publisher: undefined }])[0].publisher).toBe('reuters.com');
+		expect(parseNews([{ ...item, publisher: undefined }])[0]?.publisher).toBe('reuters.com');
 	});
 	it('drops items without a title and unsafe urls, and truncates long text', () => {
 		const items = parseNews([
@@ -111,9 +111,9 @@ describe('parseNews', () => {
 			{ ...item, text: 'x'.repeat(500) }
 		]);
 		expect(items).toHaveLength(2);
-		expect(items[0].url).toBeNull();
-		expect(items[1].text!.length).toBeLessThanOrEqual(301);
-		expect(items[1].text!.endsWith('…')).toBe(true);
+		expect(items[0]?.url).toBeNull();
+		expect(items[1]?.text?.length).toBeLessThanOrEqual(301);
+		expect(items[1]?.text?.endsWith('…')).toBe(true);
 	});
 	it('returns [] for an empty list and throws unavailable for a non-array', () => {
 		expect(parseNews([])).toEqual([]);
@@ -127,12 +127,12 @@ describe('fetchProfile / fetchNews', () => {
 		await fetchProfile('AAPL', 'KEY', fetchFn);
 		await fetchNews('AAPL', 'KEY', fetchFn);
 		const [a, b] = fetchFn.mock.calls.map((c) => new URL(c[0] as string));
-		expect(a.pathname).toBe('/stable/profile');
-		expect(a.searchParams.get('symbol')).toBe('AAPL');
-		expect(a.searchParams.get('apikey')).toBe('KEY');
-		expect(b.pathname).toBe('/stable/news/stock');
-		expect(b.searchParams.get('symbols')).toBe('AAPL');
-		expect(b.searchParams.get('limit')).toBe('20');
+		expect(a?.pathname).toBe('/stable/profile');
+		expect(a?.searchParams.get('symbol')).toBe('AAPL');
+		expect(a?.searchParams.get('apikey')).toBe('KEY');
+		expect(b?.pathname).toBe('/stable/news/stock');
+		expect(b?.searchParams.get('symbols')).toBe('AAPL');
+		expect(b?.searchParams.get('limit')).toBe('20');
 	});
 	it('never leak the key in an error message', async () => {
 		const secret = 'SUPERSECRETKEY';
@@ -204,7 +204,7 @@ describe('parsePrices', () => {
 		]);
 	});
 	it('treats a non-numeric volume as null', () => {
-		expect(parsePrices([{ ...row, volume: 'many' }])[0].volume).toBeNull();
+		expect(parsePrices([{ ...row, volume: 'many' }])[0]?.volume).toBeNull();
 	});
 	it('returns [] for an empty list, maps an FMP error body and rejects other shapes', () => {
 		expect(parsePrices([])).toEqual([]);
@@ -217,7 +217,7 @@ describe('fetchPrices', () => {
 	it('requests the history endpoint with symbol and date range', async () => {
 		const fetchFn = vi.fn().mockImplementation(async () => json([]));
 		await fetchPrices('AAPL', 'KEY', '2025-10-26', '2026-10-26', fetchFn);
-		const url = new URL(fetchFn.mock.calls[0][0] as string);
+		const url = new URL(fetchFn.mock.calls[0]?.[0] as string);
 		expect(url.pathname).toBe('/stable/historical-price-eod/full');
 		expect(url.searchParams.get('symbol')).toBe('AAPL');
 		expect(url.searchParams.get('from')).toBe('2025-10-26');

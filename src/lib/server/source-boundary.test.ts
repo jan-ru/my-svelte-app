@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 
 /** Every module specifier a file imports with `from '...'`. */
 const imports = (relative: string): string[] =>
-	[...readFileSync(join(import.meta.dirname, relative), 'utf8').matchAll(/from '([^']+)'/g)].map((m) => m[1]);
+	[...readFileSync(join(import.meta.dirname, relative), 'utf8').matchAll(/from '([^']+)'/g)].map((m) => m[1] ?? '');
 
 describe('source boundaries', () => {
 	it.each(['yahoo.ts', 'yahoo-parse.ts'])('%s does not import the FMP modules', (file) => {

@@ -76,7 +76,7 @@ describe('figuresFromStatements', () => {
 		})!;
 		expect(figures.currency).toBe('USD');
 		expect(figures.netDebt).toBeNull();
-		expect(figures.years[0].values.bookEquity).toBeNull();
+		expect(figures.years[0]?.values.bookEquity).toBeNull();
 	});
 	it('is null without income years', () => {
 		expect(figuresFromStatements({ name: 'X', origin: 'fmp', income: statement(), balance: null, estimates: null, currency: null })).toBeNull();

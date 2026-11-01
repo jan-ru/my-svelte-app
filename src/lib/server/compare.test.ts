@@ -54,8 +54,8 @@ describe('getComparison', () => {
 			select({ multiples: ['pe_trailing', 'ev_ebitda'] }),
 			loader()
 		);
-		expect(result.cells.pe_trailing.us.Software).toEqual({ value: 25, firms: 100 });
-		expect(result.cells.ev_ebitda.us.Steel).toEqual({ value: 6, firms: 20 });
+		expect(result.cells.pe_trailing?.us?.Software).toEqual({ value: 25, firms: 100 });
+		expect(result.cells.ev_ebitda?.us?.Steel).toEqual({ value: 6, firms: 20 });
 		expect(result.updated).toBe('2026-01-05');
 		expect(result.errors).toEqual({});
 	});
@@ -79,8 +79,8 @@ describe('getComparison', () => {
 		});
 		const result = await getComparison(select({ regions: ['us', 'europe'] }), load);
 		expect(result.errors['pe_trailing:europe']).toMatch(/down/);
-		expect(result.cells.pe_trailing.us.Software.value).toBe(25);
-		expect(result.cells.pe_trailing.europe).toBeUndefined();
+		expect(result.cells.pe_trailing?.us?.Software?.value).toBe(25);
+		expect(result.cells.pe_trailing?.europe).toBeUndefined();
 	});
 
 	it('reports a missing column', async () => {
@@ -94,7 +94,7 @@ describe('getComparison', () => {
 
 	it('gives an empty cell for an industry the workbook lacks', async () => {
 		const result = await getComparison(select({ industries: ['Nonexistent'] }), loader());
-		expect(result.cells.pe_trailing.us.Nonexistent).toEqual({ value: null, firms: null });
+		expect(result.cells.pe_trailing?.us?.Nonexistent).toEqual({ value: null, firms: null });
 	});
 });
 

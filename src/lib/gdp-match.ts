@@ -49,8 +49,9 @@ export function matchCountries(nyu: readonly string[], wb: readonly WbCountry[],
 	const owner = new Map<string, string>();
 	for (const name of nyu) {
 		let iso = byName.get(name);
-		if (iso === undefined && name in manual) {
-			iso = byName.get(manual[name]);
+		const target = manual[name];
+		if (iso === undefined && target !== undefined) {
+			iso = byName.get(target);
 			if (iso === undefined) badManual.push(name);
 		}
 		if (iso === undefined) {

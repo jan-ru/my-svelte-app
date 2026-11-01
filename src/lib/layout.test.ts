@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { buildLayout } from './layout';
 import { DEFAULT_LAYOUT, type Selection } from './params';
 import type { Comparison } from './server/compare';
+import { at, get } from '#lib/at';
 
 const selection: Selection = {
 	multiples: ['ev_ebitda', 'pe_trailing'],
@@ -30,14 +31,14 @@ describe('buildLayout', () => {
 		expect(model.panels.map((p) => p.title)).toEqual(['EV/EBITDA', 'P/E (trailing)']);
 		expect(model.series).toEqual(['US', 'Europe']);
 
-		const first = model.panels[0];
+		const first = at(model.panels, 0);
 		expect(first.categories).toEqual(['Software', 'Steel']);
 		expect(first.series).toEqual(['US', 'Europe']);
 		expect(first.bars[0]).toEqual([
 			{ value: 18, firms: 100 },
 			{ value: 14, firms: 80 }
 		]);
-		expect(first.bars[1][1]).toEqual({ value: null, firms: 3 });
+		expect(first.bars[1]?.[1]).toEqual({ value: null, firms: 3 });
 	});
 
 	it('follows a pivoted layout', () => {
@@ -49,7 +50,7 @@ describe('buildLayout', () => {
 		expect(model.panels.map((p) => p.title)).toEqual(['US', 'Europe']);
 		expect(model.series).toEqual(['Software', 'Steel']);
 
-		const us = model.panels[0];
+		const us = at(model.panels, 0);
 		expect(us.categories).toEqual(['EV/EBITDA', 'P/E (trailing)']);
 		expect(us.bars[0]).toEqual([
 			{ value: 18, firms: 100 },
@@ -64,15 +65,15 @@ describe('buildLayout', () => {
 	it('marks bars whose multiple and region failed to load', () => {
 		const failed: Comparison = {
 			...comparison,
-			cells: { ...comparison.cells, ev_ebitda: { us: comparison.cells.ev_ebitda.us } },
+			cells: { ...comparison.cells, ev_ebitda: { us: get(get(comparison.cells, 'ev_ebitda'), 'us') } },
 			errors: { 'ev_ebitda:europe': 'Data unavailable: down' }
 		};
 		const model = buildLayout(selection, DEFAULT_LAYOUT, failed);
-		expect(model.panels[0].bars[0][1]).toEqual({
+		expect(model.panels[0]?.bars[0]?.[1]).toEqual({
 			value: null,
 			firms: null,
 			error: 'Data unavailable: down'
 		});
-		expect(model.panels[1].bars[0][1]).toEqual({ value: 20, firms: 80 });
+		expect(model.panels[1]?.bars[0]?.[1]).toEqual({ value: 20, firms: 80 });
 	});
 });

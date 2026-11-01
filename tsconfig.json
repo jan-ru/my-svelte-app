@@ -10,7 +10,8 @@
 			"$app/types"
 		],
 		"erasableSyntaxOnly": true,
-		"allowArbitraryExtensions": true
+		"allowArbitraryExtensions": true,
+		"noUncheckedIndexedAccess": true
 	},
 	"include": [
 		"src",

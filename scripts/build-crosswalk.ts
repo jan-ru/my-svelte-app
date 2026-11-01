@@ -26,7 +26,10 @@ if (!dir) {
 const file = (key: Key): string => path.join(dir, FILES[key]);
 const sheetRows = (key: Key, sheet?: string): Row[] => {
 	const wb = XLSX.read(fs.readFileSync(file(key)), { type: 'buffer', sheets: sheet });
-	return XLSX.utils.sheet_to_json<Row>(wb.Sheets[sheet ?? wb.SheetNames[0]], { header: 1, defval: null });
+	const name = sheet ?? wb.SheetNames[0];
+	const ws = name === undefined ? undefined : wb.Sheets[name];
+	if (!ws) throw new Error(`No sheet ${name ?? ''} in ${file(key)}`);
+	return XLSX.utils.sheet_to_json<Row>(ws, { header: 1, defval: null });
 };
 
 function parseCsv(text: string): string[][] {

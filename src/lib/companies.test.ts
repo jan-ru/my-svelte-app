@@ -148,7 +148,7 @@ describe('displayName', () => {
 	});
 	it('is applied to the rows', () => {
 		const d: CompanyData = { ...data, companies: [['ING Groep N.V. (ENXTAM:INGA)', 'ENXTAM:INGA', '6022', 0, 0, 0, 0, 0]] };
-		expect(queryCompanies(d, {}).rows[0].name).toBe('ING Groep N.V.');
+		expect(queryCompanies(d, {}).rows[0]?.name).toBe('ING Groep N.V.');
 	});
 });
 
@@ -162,7 +162,7 @@ describe('previewOf', () => {
 		const preview = previewOf(full);
 		expect(PREVIEW_ROWS).toBe(20);
 		expect(preview.rows).toHaveLength(20);
-		expect(preview.rows[0].name).toBe('Co 000');
+		expect(preview.rows[0]?.name).toBe('Co 000');
 		expect(preview.total).toBe(PAGE_SIZE + 5);
 		expect([preview.page, preview.pages]).toEqual([1, 1]);
 	});

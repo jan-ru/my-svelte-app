@@ -19,7 +19,7 @@ export type QuoteLink = {
 export function quoteLink(ticker: string, name = ''): QuoteLink | null {
 	const yahoo = yahooQuote(ticker);
 	if (yahoo) return { url: yahoo, source: 'YF', search: false };
-	const [exchange, symbol] = ticker.split(':', 2);
+	const [exchange = '', symbol] = ticker.split(':', 2);
 	const google = GOOGLE[exchange];
 	if (google && symbol && SYMBOL.test(symbol)) {
 		return { url: `https://www.google.com/finance/quote/${encodeURIComponent(symbol)}:${google}`, source: 'GF', search: false };

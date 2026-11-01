@@ -24,7 +24,7 @@ describe('encodeCompany and decodeCompany', () => {
 	});
 	it('fill missing figures with null', () => {
 		const sparse: CompanyFigures = { ...company, years: [{ fiscalYear: '2025', kind: 'actual', values: { revenue: 5 } }] };
-		expect(decodeCompany(encodeCompany(sparse))?.years[0].values).toEqual({ revenue: 5, ebitda: null, ebit: null, netIncome: null, bookEquity: null, investedCapital: null });
+		expect(decodeCompany(encodeCompany(sparse))?.years[0]?.values).toEqual({ revenue: 5, ebitda: null, ebit: null, netIncome: null, bookEquity: null, investedCapital: null });
 	});
 	it.each([
 		['nothing', null],

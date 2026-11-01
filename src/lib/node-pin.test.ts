@@ -18,7 +18,7 @@ describe('Node LTS pin', () => {
 	});
 	it('is the same major in .nvmrc and in @types/node', () => {
 		expect(major(read('.nvmrc'))).toBe(pinned);
-		expect(major(pkg.devDependencies['@types/node'])).toBe(pinned);
+		expect(major(pkg.devDependencies['@types/node'] ?? '')).toBe(pinned);
 	});
 	it('is the same major in every CI workflow', () => {
 		const workflows = fs.readdirSync(path.join(root, '.github/workflows')).filter((f) => f.endsWith('.yml'));

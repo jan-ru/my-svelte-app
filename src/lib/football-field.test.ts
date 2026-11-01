@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { describeRow, fieldModel } from './football-field';
 import { valuationView } from './valuation';
 import type { CompanyFigures, PeerRow } from './valuation-data';
+import { at } from '#lib/at';
 
 const figures: CompanyFigures = {
 	name: 'Example',
@@ -51,7 +52,7 @@ describe('describeRow', () => {
 		const model = fieldModel(
 			valuationView({ figures, multiples: ['ev_ebitda', 'ev_sales'], peers, sectors: { ev_ebitda: 12 }, overrides: { ev_sales: { low: 2, high: 4 } } })
 		)!;
-		expect(describeRow(model.rows[0], model)).toBe('EV/EBITDA (EBITDA 2025, 7.0x to 9.0x): 1,300 to 1,700, mid 1,500, at sector 2,300');
-		expect(describeRow(model.rows[1], model)).toBe('EV/Sales (Revenue 2025, 2.0x to 4.0x, manual): 1,900 to 3,900, mid 2,900');
+		expect(describeRow(at(model.rows, 0), model)).toBe('EV/EBITDA (EBITDA 2025, 7.0x to 9.0x): 1,300 to 1,700, mid 1,500, at sector 2,300');
+		expect(describeRow(at(model.rows, 1), model)).toBe('EV/Sales (Revenue 2025, 2.0x to 4.0x, manual): 1,900 to 3,900, mid 2,900');
 	});
 });

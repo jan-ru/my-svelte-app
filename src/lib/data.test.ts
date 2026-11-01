@@ -44,7 +44,7 @@ describe('crosswalk.json', () => {
 	it('links every SBI class to NACE codes', () => {
 		for (const code of Object.keys(xw.sbi25ToNace2)) {
 			expect(xw.sbi25[code], code).toBeDefined();
-			expect(xw.sbi25ToNace2[code].length).toBeGreaterThan(0);
+			expect(xw.sbi25ToNace2[code]?.length).toBeGreaterThan(0);
 		}
 	});
 

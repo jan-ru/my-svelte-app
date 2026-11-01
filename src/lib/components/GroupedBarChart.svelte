@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { at } from '#lib/at';
 	import { LOW_FIRMS_THRESHOLD, formatMultiple, niceTicks } from '#lib/chart';
 	import type { PanelModel } from '#lib/layout';
 
@@ -29,6 +30,7 @@
 	const barX = (ci: number, si: number) => M.left + ci * groupW + (groupW - inner) / 2 + si * barW;
 	const short = (s: string) => (s.length > 18 ? `${s.slice(0, 17)}…` : s);
 	const isLow = (firms: number | null) => firms !== null && firms < LOW_FIRMS_THRESHOLD;
+	const barAt = (ci: number, si: number) => at(at(panel.bars, ci), si);
 
 	const summary = $derived(
 		`${panel.title}. ` +
@@ -36,7 +38,7 @@
 				.map(
 					(cat, ci) =>
 						`${cat}: ` +
-						panel.series.map((name, si) => `${name} ${formatMultiple(panel.bars[ci][si].value)}`).join(', ')
+						panel.series.map((name, si) => `${name} ${formatMultiple(barAt(ci, si).value)}`).join(', ')
 				)
 				.join('; ')
 	);
@@ -65,7 +67,7 @@
 
 	{#each panel.categories as category, ci}
 		{#each panel.series as name, si}
-			{@const bar = panel.bars[ci][si]}
+			{@const bar = barAt(ci, si)}
 			<g>
 				<title>
 					{name} · {category}: {bar.error ?? formatMultiple(bar.value)}{bar.firms !== null

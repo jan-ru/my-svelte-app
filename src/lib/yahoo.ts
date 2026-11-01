@@ -15,7 +15,7 @@ const SYMBOL = /^[A-Za-z0-9.&-]+$/;
 
 /** Yahoo Finance symbol for a Capital IQ style ticker such as `ENXTAM:ABN` (`ABN.AS`); null when Yahoo has no such listing. */
 export function yahooSymbol(ticker: string): string | null {
-	const [exchange, symbol] = ticker.split(':', 2);
+	const [exchange = '', symbol] = ticker.split(':', 2);
 	if (!symbol) return null;
 	const suffix = SUFFIX[exchange];
 	let s = symbol;

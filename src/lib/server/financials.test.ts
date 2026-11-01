@@ -91,7 +91,7 @@ describe('loadFinancials', () => {
 			const view = await loadFinancials({ ...base, nav: ratiosNav, fmp: { statement: fetcher, ratios: ratiosFetcher } });
 			if (view.state !== 'ready' || !view.table) throw new Error('unexpected state');
 			expect(view.title).toBe('Financial ratios');
-			expect(view.table.rows[0].cells).toEqual(['28.46']);
+			expect(view.table.rows[0]?.cells).toEqual(['28.46']);
 			expect(view.table.currency).toBeNull();
 			expect(ratiosFetcher).toHaveBeenCalledWith('AAPL', 'KEY');
 			expect(fetcher).not.toHaveBeenCalled();
@@ -270,7 +270,7 @@ describe('loadFinancials', () => {
 		if (view.state !== 'ready') throw new Error('expected ready');
 		expect(view.symbol).toBe('AAPL');
 		expect(view.title).toBe('Latest balance sheet');
-		expect(view.table?.columns[0].year).toBe('TTM');
+		expect(view.table?.columns[0]?.year).toBe('TTM');
 		expect(view.message).toBeNull();
 	});
 	it('shows the annual income statement by default', async () => {
@@ -278,7 +278,7 @@ describe('loadFinancials', () => {
 		const view = await loadFinancials({ ...base, fmp: { statement: fetcher } });
 		if (view.state !== 'ready') throw new Error('expected ready');
 		expect(view.title).toBe('Income statement');
-		expect(view.table?.columns[0].year).toBe('2024');
+		expect(view.table?.columns[0]?.year).toBe('2024');
 	});
 	it('reports a failure for the selected statement only', async () => {
 		vi.spyOn(console, 'error').mockImplementation(() => {});
@@ -459,14 +459,14 @@ describe('sources', () => {
 		expect(fmp.statement).toHaveBeenCalledWith('income', 'AAPL', 'KEY', 'annual');
 		if (view.state !== 'ready') throw new Error('expected ready');
 		expect(view.title).toBe('Income statement');
-		expect(view.table?.columns[0].year).toBe('2024');
+		expect(view.table?.columns[0]?.year).toBe('2024');
 	});
 	it('asks Yahoo for TTM when it is the source', async () => {
 		const { fmp, yahoo } = fakes();
 		const view = await loadFinancials({ ...base, rawSymbol: 'ABN.AS', nav: { ...nav, period: 'ttm' }, fmp, yahoo });
 		expect(yahoo.statement).toHaveBeenCalledWith('income', 'ABN.AS', '', 'ttm');
 		if (view.state !== 'ready') throw new Error('expected ready');
-		expect(view.table?.columns[0].year).toBe('TTM');
+		expect(view.table?.columns[0]?.year).toBe('TTM');
 		expect(view.table?.currency).toBe('EUR');
 	});
 	it('still requires a session first, and a valid ticker', async () => {

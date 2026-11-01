@@ -1,3 +1,5 @@
+import { at } from './at';
+
 export interface TreemapItem {
 	id: string;
 	label: string;
@@ -62,11 +64,11 @@ export function squarify<T extends { id: string; value: number }>(items: readonl
 		}
 	};
 
-	while (queue.length > 0) {
+	for (let next = queue[0]; next !== undefined; next = queue[0]) {
 		const side = Math.min(w, h);
-		const next = queue[0];
 		if (row.length === 0 || worst([...row, next], side) <= worst(row, side)) {
-			row.push(queue.shift()!);
+			row.push(next);
+			queue.shift();
 		} else {
 			layout(row);
 			row = [];
@@ -102,7 +104,7 @@ export function wrap(label: string, width: number, maxLines: number, charWidth =
 	if (cur) lines.push(cur);
 	if (lines.length <= maxLines) return lines;
 	const kept = lines.slice(0, maxLines);
-	const last = kept[maxLines - 1];
+	const last = at(kept, maxLines - 1);
 	kept[maxLines - 1] = `${last.length >= max ? last.slice(0, max - 1) : last}…`;
 	return kept;
 }

@@ -28,7 +28,7 @@ describe('parseWorkbook', () => {
 
 	it('turns NA and blank cells into null', () => {
 		const wb = parseWorkbook(makeWorkbook({ header: PE_HEADER, rows: PE_ROWS }));
-		expect(wb.rows[1].values).toEqual([null, 30, null, 10, null]);
+		expect(wb.rows[1]?.values).toEqual([null, 30, null, 10, null]);
 	});
 
 	it('aliases Grand Total to Total Market', () => {

@@ -97,7 +97,7 @@ describe('monthTicks', () => {
 	});
 	it('drops a first label that would sit right next to the second', () => {
 		const ticks = monthTicks(days('2025-10-28', 365));
-		expect(ticks[0].label).toBe("Nov '25");
+		expect(ticks[0]?.label).toBe("Nov '25");
 		expect(ticks).toHaveLength(12);
 	});
 	it('keeps a first label that has room', () => {

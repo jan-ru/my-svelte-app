@@ -93,7 +93,7 @@ describe('reverseTrace', () => {
 		const r = reverseTrace(data, 'Food Processing')!;
 		// Both SIC codes lead to NAICS 311611 -> ISIC 1511 -> ISIC 1010 -> SBI 1011 and 1012, half each.
 		expect(r.sbi25.map((s) => s.code)).toEqual(['1011', '1012']);
-		expect(r.sbi25[0].share).toBeCloseTo(0.5);
+		expect(r.sbi25[0]?.share).toBeCloseTo(0.5);
 		expect(r.sbi25.reduce((s, x) => s + x.share, 0)).toBeCloseTo(1);
 		expect(r.followed).toBeCloseTo(1);
 	});

@@ -26,7 +26,7 @@ export function verifySession(value: string | undefined, secret: string, now = D
 	const parts = value.split('.');
 	if (parts.length !== 2) return false;
 	const [expires, signature] = parts;
-	if (!/^\d+$/.test(expires) || !signature) return false;
+	if (expires === undefined || !/^\d+$/.test(expires) || !signature) return false;
 	if (!safeEqual(Buffer.from(signature), Buffer.from(sign(secret, expires)))) return false;
 	return Number(expires) > now;
 }

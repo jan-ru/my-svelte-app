@@ -1,11 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { parseTemplateRows, templateRows, type Cell } from './valuation-template';
+import { at } from '#lib/at';
 
 /** The blank template with figures typed in, as a sheet would come back. */
 function filled(): Cell[][] {
 	const rows = templateRows(2026).map((r) => [...r]);
-	rows[0][1] = 'ACCENSS BV';
-	rows[2][1] = 25_000;
+	at(rows, 0)[1] = 'ACCENSS BV';
+	at(rows, 2)[1] = 25_000;
 	const set = (label: string, ...values: Cell[]) => {
 		const r = rows.find((x) => x[0] === label)!;
 		r.push(...values);
@@ -37,8 +38,8 @@ describe('parseTemplateRows', () => {
 			['2026', 'forecast'],
 			['2027', 'forecast']
 		]);
-		expect(figures.years[2].values).toEqual({ revenue: 180_677, ebitda: 4_340, ebit: null, netIncome: 3_057, bookEquity: null, investedCapital: null });
-		expect(figures.years[0].values.netIncome).toBeNull();
+		expect(figures.years[2]?.values).toEqual({ revenue: 180_677, ebitda: 4_340, ebit: null, netIncome: 3_057, bookEquity: null, investedCapital: null });
+		expect(figures.years[0]?.values.netIncome).toBeNull();
 	});
 	it('accepts Dutch labels, any row order, lower-case currency, years as text and an empty net debt', () => {
 		const rows: Cell[][] = [

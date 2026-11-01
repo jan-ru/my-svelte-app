@@ -2,6 +2,7 @@
 import { describe, expect, it } from 'vitest';
 import { buildTable, formatEstimate, formatRatio, formatValue, humanise } from './statements';
 import type { Statement } from './source-data';
+import { at } from '#lib/at';
 
 describe('humanise', () => {
 	it('turns camelCase into a sentence', () => {
@@ -62,8 +63,8 @@ describe('buildTable period', () => {
 		expect(buildTable(statement, 'ttm').columns).toEqual([{ year: 'TTM', date: '2025-06-30' }]);
 	});
 	it('keeps the fiscal year for annual', () => {
-		const annual = { ...statement, years: [{ ...statement.years[0], fiscalYear: '2024' }] };
-		expect(buildTable(annual).columns[0].year).toBe('2024');
+		const annual = { ...statement, years: [{ ...at(statement.years, 0), fiscalYear: '2024' }] };
+		expect(buildTable(annual).columns[0]?.year).toBe('2024');
 	});
 });
 
@@ -90,7 +91,7 @@ describe('formatRatio', () => {
 			'annual',
 			formatRatio
 		);
-		expect(table.rows[0].cells).toEqual(['25.00']);
+		expect(table.rows[0]?.cells).toEqual(['25.00']);
 	});
 });
 

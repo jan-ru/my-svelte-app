@@ -1,3 +1,5 @@
+import { at } from './at';
+
 /** Colour-blind-safe palette (Okabe-Ito), one colour per series position. */
 export const PALETTE: readonly string[] = ['#0072B2', '#E69F00', '#009E73', '#CC79A7'];
 
@@ -27,7 +29,7 @@ export function niceTicks(
 	const niceMax = Math.ceil(hi / step) * step;
 	const n = Math.round((niceMax - niceMin) / step);
 	const ticks = Array.from({ length: n + 1 }, (_, i) => Number((niceMin + i * step).toFixed(10)));
-	return { ticks, min: ticks[0], max: ticks[ticks.length - 1] };
+	return { ticks, min: at(ticks, 0), max: at(ticks, ticks.length - 1) };
 }
 
 /** Round tick values covering [min, max] with a little padding; unlike `niceTicks` the range need not include 0. */
@@ -50,7 +52,7 @@ export function priceTicks(
 	const niceMax = Math.ceil(hi / step) * step;
 	const n = Math.round((niceMax - niceMin) / step);
 	const ticks = Array.from({ length: n + 1 }, (_, i) => Number((niceMin + i * step).toFixed(10)));
-	return { ticks, min: ticks[0], max: ticks[ticks.length - 1] };
+	return { ticks, min: at(ticks, 0), max: at(ticks, ticks.length - 1) };
 }
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -61,12 +63,14 @@ export function monthTicks(points: readonly { date: string }[]): { index: number
 	let starts: { index: number; month: number; year: string }[] = [];
 	points.forEach((p, index) => {
 		const month = Number(p.date.slice(5, 7)) - 1;
-		if (index === 0 || month !== Number(points[index - 1].date.slice(5, 7)) - 1) {
+		const previous = points[index - 1];
+		if (previous === undefined || month !== Number(previous.date.slice(5, 7)) - 1) {
 			starts.push({ index, month, year: p.date.slice(2, 4) });
 		}
 	});
 	// a partial first month would put two labels almost on top of each other
-	if (starts.length > 1 && starts[1].index - starts[0].index < points.length / 24) starts = starts.slice(1);
+	const [first, second] = starts;
+	if (first && second && second.index - first.index < points.length / 24) starts = starts.slice(1);
 	const excess = starts.length - MAX_MONTH_TICKS;
 	if (excess === 1) starts = starts.slice(1);
 	else if (excess > 1) {
@@ -75,6 +79,6 @@ export function monthTicks(points: readonly { date: string }[]): { index: number
 	}
 	return starts.map((s, i) => ({
 		index: s.index,
-		label: i === 0 || s.month === 0 ? `${MONTHS[s.month]} '${s.year}` : MONTHS[s.month]
+		label: i === 0 || s.month === 0 ? `${at(MONTHS, s.month)} '${s.year}` : at(MONTHS, s.month)
 	}));
 }

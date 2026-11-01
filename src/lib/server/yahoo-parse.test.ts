@@ -47,8 +47,8 @@ describe('parseYahooPrices', () => {
 	it('dates a quote in the exchange timezone', () => {
 		// Sydney opens at 10:00 local on 27 October, which is 23:00 UTC on the 26th
 		const quotes = [q('2026-10-26T23:00:00Z', 5)];
-		expect(parseYahooPrices(quotes)[0].date).toBe('2026-10-26');
-		expect(parseYahooPrices(quotes, 39600)[0].date).toBe('2026-10-27');
+		expect(parseYahooPrices(quotes)[0]?.date).toBe('2026-10-26');
+		expect(parseYahooPrices(quotes, 39600)[0]?.date).toBe('2026-10-27');
 	});
 	it('returns [] for an empty list and rejects other shapes', () => {
 		expect(parseYahooPrices([])).toEqual([]);
@@ -154,11 +154,11 @@ describe('parseYahooStatement', () => {
 	it('lists key lines first, then the rest in Yahoo order, newest year first', () => {
 		const s = parseYahooStatement('income', annual, null, 'annual', 'EUR');
 		expect(s.years.map((y) => y.fiscalYear)).toEqual(['2025', '2024', '2023']);
-		expect(s.years[0].date).toBe('2025-12-31');
-		expect(s.years[0].currency).toBe('EUR');
+		expect(s.years[0]?.date).toBe('2025-12-31');
+		expect(s.years[0]?.currency).toBe('EUR');
 		expect(s.lines).toEqual(['totalRevenue', 'netIncome', 'dilutedEPS', 'operatingExpense', 'interestIncome']);
-		expect(s.years[0].values.totalRevenue).toBe(130);
-		expect(s.years[2].values.interestIncome).toBeUndefined();
+		expect(s.years[0]?.values.totalRevenue).toBe(130);
+		expect(s.years[2]?.values.interestIncome).toBeUndefined();
 	});
 	it('leaves out metadata and non-numeric fields', () => {
 		const s = parseYahooStatement('income', [row(2025, { totalRevenue: 1, note: 'x', junk: null })], null, 'annual', null);
@@ -167,7 +167,7 @@ describe('parseYahooStatement', () => {
 		expect(s.lines).not.toContain('date');
 		expect(s.lines).not.toContain('note');
 		expect(s.lines).not.toContain('junk');
-		expect(s.years[0].currency).toBeNull();
+		expect(s.years[0]?.currency).toBeNull();
 	});
 	it('keeps at most five years', () => {
 		const rows = [2019, 2020, 2021, 2022, 2023, 2024, 2025].map((y) => row(y, { totalRevenue: y }));
@@ -177,8 +177,8 @@ describe('parseYahooStatement', () => {
 	it('uses only the newest trailing point for TTM income and cash flow', () => {
 		const s = parseYahooStatement('income', [], trailing, 'ttm', 'EUR');
 		expect(s.years).toHaveLength(1);
-		expect(s.years[0].date).toBe('2025-12-31');
-		expect(s.years[0].values.totalRevenue).toBe(120);
+		expect(s.years[0]?.date).toBe('2025-12-31');
+		expect(s.years[0]?.values.totalRevenue).toBe(120);
 		const cf = parseYahooStatement('cashflow', [], [{ date: 1767139200, operatingCashFlow: 5 }], 'ttm', null);
 		expect(cf.lines).toEqual(['operatingCashFlow']);
 	});
@@ -189,7 +189,7 @@ describe('parseYahooStatement', () => {
 		];
 		const s = parseYahooStatement('balance', balance, null, 'ttm', null);
 		expect(s.years).toHaveLength(1);
-		expect(s.years[0].values.totalAssets).toBe(2);
+		expect(s.years[0]?.values.totalAssets).toBe(2);
 		expect(s.lines).toEqual(['totalAssets', 'totalDebt']);
 	});
 	it('returns an empty statement when there are no rows, and rejects other shapes', () => {

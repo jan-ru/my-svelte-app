@@ -1,5 +1,6 @@
 // src/lib/valuation.ts
 // Values a company with multiples from its peers and its Damodaran sector. Pure: data in, data out.
+import { at } from './at';
 import { multipleById } from './catalog';
 import type {
 	Band,
@@ -38,7 +39,8 @@ export function percentile(sorted: readonly number[], p: number): number | null 
 	const rank = (sorted.length - 1) * p;
 	const lower = Math.floor(rank);
 	const upper = Math.ceil(rank);
-	return sorted[lower] + (sorted[upper] - sorted[lower]) * (rank - lower);
+	const low = at(sorted, lower);
+	return low + (at(sorted, upper) - low) * (rank - lower);
 }
 
 const usable = (v: number | null | undefined): v is number => typeof v === 'number' && Number.isFinite(v) && v > 0;

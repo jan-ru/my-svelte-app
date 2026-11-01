@@ -29,18 +29,18 @@ describe('fetchYahooPrices', () => {
 		const client = fake();
 		const points = await fetchYahooPrices('ABN.AS', '2025-10-26', '2026-10-26', client);
 		expect(points).toEqual([{ date: '2026-10-23', close: 39.5, volume: 10 }]);
-		const [symbol, options, moduleOptions] = vi.mocked(client.chart).mock.calls[0];
+		const [symbol, options, moduleOptions] = vi.mocked(client.chart).mock.calls[0] ?? [];
 		expect(symbol).toBe('ABN.AS');
-		expect(options.interval).toBe('1d');
-		expect(options.period1.toISOString().slice(0, 10)).toBe('2025-10-26');
-		expect(options.period2.toISOString().slice(0, 10)).toBe('2026-10-26');
+		expect(options?.interval).toBe('1d');
+		expect(options?.period1.toISOString().slice(0, 10)).toBe('2025-10-26');
+		expect(options?.period2.toISOString().slice(0, 10)).toBe('2026-10-26');
 		expect(moduleOptions).toEqual({ validateResult: false });
 	});
 	it('puts quotes on the exchange-local date', async () => {
 		const client = fake({
 			chart: vi.fn(async () => ({ meta: { gmtoffset: 39600 }, quotes: [{ date: new Date('2026-10-26T23:00:00Z'), close: 5, volume: 1 }] }))
 		});
-		expect((await fetchYahooPrices('BHP.AX', '2026-10-01', '2026-10-27', client))[0].date).toBe('2026-10-27');
+		expect((await fetchYahooPrices('BHP.AX', '2026-10-01', '2026-10-27', client))[0]?.date).toBe('2026-10-27');
 	});
 });
 
@@ -50,8 +50,8 @@ describe('fetchYahooProfile', () => {
 		const profile = await fetchYahooProfile('ABN.AS', client);
 		expect(profile?.name).toBe('ABN AMRO Bank N.V.');
 		expect(profile?.sector).toBe('Financial Services');
-		const [, options, moduleOptions] = vi.mocked(client.quoteSummary).mock.calls[0];
-		expect(options.modules).toEqual(['assetProfile', 'price']);
+		const [, options, moduleOptions] = vi.mocked(client.quoteSummary).mock.calls[0] ?? [];
+		expect(options?.modules).toEqual(['assetProfile', 'price']);
 		expect(moduleOptions).toEqual({ validateResult: false });
 	});
 });
@@ -61,12 +61,12 @@ describe('fetchYahooNews', () => {
 		const client = fake();
 		const items = await fetchYahooNews('ABN.AS', client);
 		expect(items).toHaveLength(1);
-		expect(vi.mocked(client.search).mock.calls[0][0]).toBe('ABN AMRO Bank N.V.');
-		expect(vi.mocked(client.search).mock.calls[0][1]).toEqual({ newsCount: 20, quotesCount: 0 });
+		expect(vi.mocked(client.search).mock.calls[0]?.[0]).toBe('ABN AMRO Bank N.V.');
+		expect(vi.mocked(client.search).mock.calls[0]?.[1]).toEqual({ newsCount: 20, quotesCount: 0 });
 
 		const noName = fake({ quoteSummary: vi.fn(async () => { throw new Error('boom'); }) });
 		await fetchYahooNews('ABN.AS', noName);
-		expect(vi.mocked(noName.search).mock.calls[0][0]).toBe('ABN.AS');
+		expect(vi.mocked(noName.search).mock.calls[0]?.[0]).toBe('ABN.AS');
 	});
 	it('returns [] when Yahoo has no news', async () => {
 		expect(await fetchYahooNews('X.AS', fake({ search: vi.fn(async () => ({})) }))).toEqual([]);
@@ -77,31 +77,31 @@ describe('fetchYahooStatement', () => {
 	it('fetches the annual series and the reporting currency', async () => {
 		const client = fake();
 		const s = await fetchYahooStatement('income', 'ABN.AS', 'annual', client);
-		expect(s.years[0].values.totalRevenue).toBe(130);
-		expect(s.years[0].currency).toBe('EUR');
+		expect(s.years[0]?.values.totalRevenue).toBe(130);
+		expect(s.years[0]?.currency).toBe('EUR');
 		expect(vi.mocked(client.fundamentalsTimeSeries)).toHaveBeenCalledTimes(1);
-		const [, options, moduleOptions] = vi.mocked(client.fundamentalsTimeSeries).mock.calls[0];
+		const [, options, moduleOptions] = vi.mocked(client.fundamentalsTimeSeries).mock.calls[0] ?? [];
 		expect(options).toMatchObject({ type: 'annual', module: 'financials' });
 		expect(moduleOptions).toEqual({ validateResult: false });
 	});
 	it('uses the trailing series, and only that, for TTM income and cash flow', async () => {
 		const client = fake();
 		const s = await fetchYahooStatement('cashflow', 'ABN.AS', 'ttm', client);
-		expect(s.years[0].values.totalRevenue).toBe(120);
+		expect(s.years[0]?.values.totalRevenue).toBe(120);
 		const calls = vi.mocked(client.fundamentalsTimeSeries).mock.calls;
 		expect(calls).toHaveLength(1);
-		expect(calls[0][1]).toMatchObject({ type: 'trailing', module: 'cash-flow' });
+		expect(calls[0]?.[1]).toMatchObject({ type: 'trailing', module: 'cash-flow' });
 	});
 	it('uses only the annual series for the TTM balance sheet', async () => {
 		const client = fake();
 		await fetchYahooStatement('balance', 'ABN.AS', 'ttm', client);
 		const calls = vi.mocked(client.fundamentalsTimeSeries).mock.calls;
 		expect(calls).toHaveLength(1);
-		expect(calls[0][1]).toMatchObject({ type: 'annual', module: 'balance-sheet' });
+		expect(calls[0]?.[1]).toMatchObject({ type: 'annual', module: 'balance-sheet' });
 	});
 	it('carries on without a currency when the lookup fails', async () => {
 		const client = fake({ quoteSummary: vi.fn(async () => { throw new Error('boom'); }) });
-		expect((await fetchYahooStatement('income', 'ABN.AS', 'annual', client)).years[0].currency).toBeNull();
+		expect((await fetchYahooStatement('income', 'ABN.AS', 'annual', client)).years[0]?.currency).toBeNull();
 	});
 });
 
