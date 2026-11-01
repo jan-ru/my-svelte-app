@@ -20,7 +20,9 @@ describe('parseValuationNav', () => {
 	});
 	it('reads a full query', () => {
 		const nav = parseValuationNav(
-			sp('symbol=asml.as&peer=besi.as&peer=nvda&m=pe_forward&m=ev_ebitda&region=europe&industry=Semiconductor&source=yahoo'),
+			sp(
+				'symbol=asml.as&peer=besi.as&peer=nvda&m=pe_forward&m=ev_ebitda&region=europe&industry=Semiconductor&source=yahoo'
+			),
 			INDUSTRIES
 		);
 		expect(nav).toEqual({
@@ -81,7 +83,10 @@ describe('manual bands', () => {
 
 describe('valuationHref', () => {
 	it('round-trips through parseValuationNav', () => {
-		const nav = parseValuationNav(sp('symbol=ASML.AS&peer=NVDA&m=ps&lo.ps=1.5&hi.ps=3&region=europe&industry=Semiconductor&source=yahoo'), INDUSTRIES);
+		const nav = parseValuationNav(
+			sp('symbol=ASML.AS&peer=NVDA&m=ps&lo.ps=1.5&hi.ps=3&region=europe&industry=Semiconductor&source=yahoo'),
+			INDUSTRIES
+		);
 		expect(nav.overrides).toEqual({ ps: { low: 1.5, high: 3 } });
 		const href = valuationHref(nav);
 		expect(href.startsWith('/financials/valuation?')).toBe(true);
@@ -99,7 +104,13 @@ describe('private company in the URL', () => {
 		currency: 'EUR',
 		origin: 'manual',
 		netDebt: 1000,
-		years: [{ fiscalYear: '2025', kind: 'actual', values: { revenue: 238251, ebitda: 67208, ebit: null, netIncome: null, bookEquity: null, investedCapital: null } }]
+		years: [
+			{
+				fiscalYear: '2025',
+				kind: 'actual',
+				values: { revenue: 238251, ebitda: 67208, ebit: null, netIncome: null, bookEquity: null, investedCapital: null }
+			}
+		]
 	};
 	it('reads co and writes it in place of the ticker', () => {
 		const nav = parseValuationNav(sp(`co=${encodeCompany(company)}&symbol=AAPL&peer=MSFT`));

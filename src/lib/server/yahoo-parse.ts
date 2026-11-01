@@ -83,7 +83,13 @@ export function parseYahooNews(items: unknown): NewsItem[] {
 /** Lines shown first, in this order, when the company reports them. */
 export const KEY_LINES: Record<Kind, string[]> = {
 	income: ['totalRevenue', 'grossProfit', 'operatingIncome', 'ebitda', 'netIncome', 'dilutedEPS'],
-	balance: ['totalAssets', 'totalLiabilitiesNetMinorityInterest', 'stockholdersEquity', 'cashAndCashEquivalents', 'totalDebt'],
+	balance: [
+		'totalAssets',
+		'totalLiabilitiesNetMinorityInterest',
+		'stockholdersEquity',
+		'cashAndCashEquivalents',
+		'totalDebt'
+	],
 	cashflow: ['operatingCashFlow', 'investingCashFlow', 'financingCashFlow', 'capitalExpenditure', 'freeCashFlow']
 };
 

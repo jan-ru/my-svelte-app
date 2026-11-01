@@ -95,8 +95,16 @@ describe('cached', () => {
 		expect(load).toHaveBeenCalledTimes(2);
 	});
 	it('keeps a separate cache for each wrapped function', async () => {
-		const a = cached(1000, (key: string) => key, async (key: string) => `a:${key}`);
-		const b = cached(1000, (key: string) => key, async (key: string) => `b:${key}`);
+		const a = cached(
+			1000,
+			(key: string) => key,
+			async (key: string) => `a:${key}`
+		);
+		const b = cached(
+			1000,
+			(key: string) => key,
+			async (key: string) => `b:${key}`
+		);
 		expect(await a('x')).toBe('a:x');
 		expect(await b('x')).toBe('b:x');
 	});

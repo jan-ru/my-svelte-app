@@ -16,7 +16,9 @@
 				<tr>
 					<th scope="col"></th>
 					{#each figures.years as y (y.fiscalYear)}
-						<th scope="col" class="num" class:forecast={y.kind === 'forecast'}>{y.fiscalYear}<br /><small>{y.kind === 'actual' ? 'Actual' : 'Forecast'}</small></th>
+						<th scope="col" class="num" class:forecast={y.kind === 'forecast'}
+							>{y.fiscalYear}<br /><small>{y.kind === 'actual' ? 'Actual' : 'Forecast'}</small></th
+						>
 					{/each}
 				</tr>
 			</thead>
@@ -36,11 +38,36 @@
 </section>
 
 <style>
-	h2 { font-size: var(--text-lg); margin: var(--space-4) 0 var(--space-2); }
-	small { font-weight: var(--weight-regular); color: var(--text-secondary); }
-	table { width: 100%; font-size: var(--text-sm); }
-	.num { text-align: right; font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
-	.forecast { background: var(--surface-group); font-style: italic; }
-	.scroll { overflow-x: auto; background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
-	.meta { margin: var(--space-2) 0; color: var(--text-secondary); font-size: var(--text-sm); }
+	h2 {
+		font-size: var(--text-lg);
+		margin: var(--space-4) 0 var(--space-2);
+	}
+	small {
+		font-weight: var(--weight-regular);
+		color: var(--text-secondary);
+	}
+	table {
+		width: 100%;
+		font-size: var(--text-sm);
+	}
+	.num {
+		text-align: right;
+		font-family: var(--font-mono);
+		font-variant-numeric: tabular-nums;
+	}
+	.forecast {
+		background: var(--surface-group);
+		font-style: italic;
+	}
+	.scroll {
+		overflow-x: auto;
+		background: var(--surface-card);
+		border: 1px solid var(--border-subtle);
+		border-radius: var(--radius-md);
+	}
+	.meta {
+		margin: var(--space-2) 0;
+		color: var(--text-secondary);
+		font-size: var(--text-sm);
+	}
 </style>

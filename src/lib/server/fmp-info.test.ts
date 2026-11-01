@@ -237,9 +237,13 @@ describe('fetchPrices', () => {
 			async () => new Response('not json', { status: 200 })
 		];
 		for (const make of cases) {
-			const error = await fetchPrices('AAPL', secret, '2025-10-26', '2026-10-26', vi.fn().mockImplementation(make)).catch(
-				(e: unknown) => e
-			);
+			const error = await fetchPrices(
+				'AAPL',
+				secret,
+				'2025-10-26',
+				'2026-10-26',
+				vi.fn().mockImplementation(make)
+			).catch((e: unknown) => e);
 			expect(error).toBeInstanceOf(SourceError);
 			expect((error as Error).message).not.toContain(secret);
 		}
@@ -248,7 +252,11 @@ describe('fetchPrices', () => {
 
 describe('parsePriceTarget', () => {
 	it('reads the four targets', () => {
-		expect(parsePriceTarget([{ symbol: 'AAPL', targetHigh: 250, targetLow: 150, targetConsensus: 205.5, targetMedian: '210' }])).toEqual({
+		expect(
+			parsePriceTarget([
+				{ symbol: 'AAPL', targetHigh: 250, targetLow: 150, targetConsensus: 205.5, targetMedian: '210' }
+			])
+		).toEqual({
 			consensus: 205.5,
 			median: 210,
 			high: 250,
@@ -267,9 +275,13 @@ describe('parsePriceTarget', () => {
 
 describe('parsePeers', () => {
 	it('keeps symbol, name, price and market cap, and skips entries without a symbol', () => {
-		expect(parsePeers([{ symbol: 'MSFT', companyName: 'Microsoft', price: 400, mktCap: 3e12 }, { companyName: 'No symbol' }, null])).toEqual([
-			{ symbol: 'MSFT', name: 'Microsoft', price: 400, marketCap: 3e12 }
-		]);
+		expect(
+			parsePeers([
+				{ symbol: 'MSFT', companyName: 'Microsoft', price: 400, mktCap: 3e12 },
+				{ companyName: 'No symbol' },
+				null
+			])
+		).toEqual([{ symbol: 'MSFT', name: 'Microsoft', price: 400, marketCap: 3e12 }]);
 	});
 	it('keeps at most 20', () => {
 		const many = Array.from({ length: 30 }, (_, i) => ({ symbol: `T${i}` }));

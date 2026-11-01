@@ -71,7 +71,8 @@ describe('fetchStatement', () => {
 	});
 	it('uses the three statement endpoints', async () => {
 		const fetchFn = vi.fn().mockImplementation(async () => json([]));
-		for (const kind of ['income', 'balance', 'cashflow'] as const) await fetchStatement(kind, 'AAPL', 'K', 'annual', fetchFn);
+		for (const kind of ['income', 'balance', 'cashflow'] as const)
+			await fetchStatement(kind, 'AAPL', 'K', 'annual', fetchFn);
 		const paths = fetchFn.mock.calls.map((c) => new URL(c[0] as string).pathname);
 		expect(paths).toEqual([
 			'/stable/income-statement',
@@ -163,7 +164,9 @@ describe('fetchStatement', () => {
 	});
 	it('rejects a response that is too large', async () => {
 		const fetchFn = vi.fn().mockResolvedValue(json([], 200, { 'content-length': String(6 * 1024 * 1024) }));
-		await expect(fetchStatement('income', 'AAPL', 'K', 'annual', fetchFn)).rejects.toMatchObject({ kind: 'unavailable' });
+		await expect(fetchStatement('income', 'AAPL', 'K', 'annual', fetchFn)).rejects.toMatchObject({
+			kind: 'unavailable'
+		});
 	});
 	it('uses the -ttm endpoint with limit 1 and no period for TTM', async () => {
 		const fetchFn = vi.fn().mockImplementation(async () => new Response('[]'));
@@ -219,7 +222,11 @@ describe('fetchRatios', () => {
 
 describe('fetchEstimates', () => {
 	it('requests annual analyst estimates with a five-year limit', async () => {
-		const fetchFn = vi.fn().mockResolvedValue(json([{ symbol: 'AAPL', date: '2027-09-30', revenueAvg: 5e11, epsAvg: 8.1, numAnalystsEps: 31 }]));
+		const fetchFn = vi
+			.fn()
+			.mockResolvedValue(
+				json([{ symbol: 'AAPL', date: '2027-09-30', revenueAvg: 5e11, epsAvg: 8.1, numAnalystsEps: 31 }])
+			);
 		const result = await fetchEstimates('AAPL', 'KEY123', fetchFn);
 		const url = new URL(fetchFn.mock.calls[0]?.[0] as string);
 		expect(url.pathname).toBe('/stable/analyst-estimates');
@@ -233,8 +240,24 @@ describe('fetchEarnings', () => {
 	it('labels each column by its report date, since several reports share a fiscal year', async () => {
 		const fetchFn = vi.fn().mockResolvedValue(
 			json([
-				{ symbol: 'AAPL', date: '2026-01-29', epsActual: null, epsEstimated: 2.4, revenueActual: null, revenueEstimated: 1e11, lastUpdated: '2025-12-01' },
-				{ symbol: 'AAPL', date: '2025-10-30', epsActual: 1.85, epsEstimated: 1.8, revenueActual: 1.02e11, revenueEstimated: 1e11, lastUpdated: '2025-10-31' }
+				{
+					symbol: 'AAPL',
+					date: '2026-01-29',
+					epsActual: null,
+					epsEstimated: 2.4,
+					revenueActual: null,
+					revenueEstimated: 1e11,
+					lastUpdated: '2025-12-01'
+				},
+				{
+					symbol: 'AAPL',
+					date: '2025-10-30',
+					epsActual: 1.85,
+					epsEstimated: 1.8,
+					revenueActual: 1.02e11,
+					revenueEstimated: 1e11,
+					lastUpdated: '2025-10-31'
+				}
 			])
 		);
 		const result = await fetchEarnings('AAPL', 'KEY123', fetchFn);

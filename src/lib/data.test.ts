@@ -34,8 +34,14 @@ describe('companies.json', () => {
 describe('crosswalk.json', () => {
 	it('has every table filled in', () => {
 		for (const table of [
-			xw.sbi25, xw.sbi25ToNace2, xw.nace2ToIsic4, xw.isic4ToIsic31,
-			xw.isic31ToNaics, xw.naicsToSic, xw.sicTitles, xw.damodaran
+			xw.sbi25,
+			xw.sbi25ToNace2,
+			xw.nace2ToIsic4,
+			xw.isic4ToIsic31,
+			xw.isic31ToNaics,
+			xw.naicsToSic,
+			xw.sicTitles,
+			xw.damodaran
 		]) {
 			expect(Object.keys(table).length).toBeGreaterThan(50);
 		}

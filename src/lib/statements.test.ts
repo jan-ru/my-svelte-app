@@ -87,7 +87,10 @@ describe('formatRatio', () => {
 	});
 	it('is used by buildTable when passed in', () => {
 		const table = buildTable(
-			{ lines: ['peRatio'], years: [{ fiscalYear: '2024', date: '2024-12-31', currency: 'USD', values: { peRatio: 25 } }] },
+			{
+				lines: ['peRatio'],
+				years: [{ fiscalYear: '2024', date: '2024-12-31', currency: 'USD', values: { peRatio: 25 } }]
+			},
 			'annual',
 			formatRatio
 		);

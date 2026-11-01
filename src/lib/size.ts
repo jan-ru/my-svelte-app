@@ -49,7 +49,9 @@ export function dominantSector(data: CompanyData): Record<string, string> {
 	}
 	const out: Record<string, string> = {};
 	for (const [industry, sectors] of tally) {
-		const [best] = [...sectors].sort((a, b) => b[1] - a[1] || at(data.sectors, a[0]).localeCompare(at(data.sectors, b[0])));
+		const [best] = [...sectors].sort(
+			(a, b) => b[1] - a[1] || at(data.sectors, a[0]).localeCompare(at(data.sectors, b[0]))
+		);
 		if (best) out[at(data.industries, industry)] = at(data.sectors, best[0]);
 	}
 	return out;
@@ -138,11 +140,16 @@ export const sectorStrong = (sector: string): string => SECTOR_STRONG[sector] ??
 /** `hex` blended with white; `amount` is the share of white. */
 export function tint(hex: string, amount: number): string {
 	const mixed = [1, 3, 5].map((i) => Math.round(parseInt(hex.slice(i, i + 2), 16) * (1 - amount) + 255 * amount));
-	return `#${mixed.map((c) => c.toString(16).padStart(2, '0')).join('').toUpperCase()}`;
+	return `#${mixed
+		.map((c) => c.toString(16).padStart(2, '0'))
+		.join('')
+		.toUpperCase()}`;
 }
 
 const luminance = (hex: string): number => {
-	const [r = 0, g = 0, b = 0] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((c) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4));
+	const [r = 0, g = 0, b = 0] = [1, 3, 5]
+		.map((i) => parseInt(hex.slice(i, i + 2), 16) / 255)
+		.map((c) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4));
 	return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 };
 export const INK = '#1D2D3E';
@@ -153,23 +160,35 @@ export function readableOn(hex: string): string {
 }
 
 /** Light tile fills: the strong colour thinned out, so the dark label text keeps at least a 4.5:1 contrast (tested). */
-export const SECTOR_FILLS: Record<string, string> = Object.fromEntries(Object.entries(SECTOR_STRONG).map(([k, v]) => [k, tint(v, 0.62)]));
+export const SECTOR_FILLS: Record<string, string> = Object.fromEntries(
+	Object.entries(SECTOR_STRONG).map(([k, v]) => [k, tint(v, 0.62)])
+);
 export const COUNTRY_FILL = '#B3D6FF';
 export const sectorFill = (sector: string): string => SECTOR_FILLS[sector] ?? tint(SECTOR_FALLBACK, 0.62);
 
 export const formatCount = (n: number): string => n.toLocaleString('en');
 
 export function formatUsd(n: number): string {
-	for (const [size, name] of [[1e12, 'trillion'], [1e9, 'billion'], [1e6, 'million']] as const) {
-		if (n >= size) return `US$ ${(n / size).toLocaleString('en', { maximumFractionDigits: n / size >= 100 ? 0 : 1 })} ${name}`;
+	for (const [size, name] of [
+		[1e12, 'trillion'],
+		[1e9, 'billion'],
+		[1e6, 'million']
+	] as const) {
+		if (n >= size)
+			return `US$ ${(n / size).toLocaleString('en', { maximumFractionDigits: n / size >= 100 ? 0 : 1 })} ${name}`;
 	}
 	return `US$ ${Math.round(n).toLocaleString('en')}`;
 }
 
 /** Short form for tiles: the unit is explained once in the treemap caption, so no currency and no spelled-out unit. */
 export function formatUsdCompact(n: number): string {
-	for (const [size, suffix] of [[1e12, 'T'], [1e9, 'B'], [1e6, 'M']] as const) {
-		if (n >= size) return `${(n / size).toLocaleString('en', { maximumFractionDigits: n / size >= 100 ? 0 : 1 })}${suffix}`;
+	for (const [size, suffix] of [
+		[1e12, 'T'],
+		[1e9, 'B'],
+		[1e6, 'M']
+	] as const) {
+		if (n >= size)
+			return `${(n / size).toLocaleString('en', { maximumFractionDigits: n / size >= 100 ? 0 : 1 })}${suffix}`;
 	}
 	return Math.round(n).toLocaleString('en');
 }

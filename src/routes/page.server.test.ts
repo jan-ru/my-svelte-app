@@ -22,7 +22,10 @@ function comparison(selection: Selection, errors: Comparison['errors'] = {}): Co
 			selection.multiples.map((m) => [
 				m,
 				Object.fromEntries(
-					selection.regions.map((r) => [r, Object.fromEntries(selection.industries.map((i) => [i, { value: 10, firms: 5 }]))])
+					selection.regions.map((r) => [
+						r,
+						Object.fromEntries(selection.industries.map((i) => [i, { value: 10, firms: 5 }]))
+					])
 				)
 			])
 		)
@@ -35,7 +38,11 @@ const run = async (query: string, interactive: boolean) => {
 		url: new URL(`http://x.test/${query}`),
 		locals: { authed: interactive, interactive },
 		setHeaders
-	} as unknown as Parameters<typeof load>[0])) as unknown as { view: { selection: Selection }; loadError: string | null; model: unknown };
+	} as unknown as Parameters<typeof load>[0])) as unknown as {
+		view: { selection: Selection };
+		loadError: string | null;
+		model: unknown;
+	};
 	return { data, setHeaders };
 };
 
@@ -51,12 +58,17 @@ describe('home loader', () => {
 		const asked = await run('?i=Steel&i=Banks%20(Regional)&m=pe_trailing&r=japan', false);
 		expect(asked.data).toEqual(plain.data);
 		expect(asked.data.view.selection).toEqual(DEFAULT_SELECTION);
-		expect(nyu.getComparison.mock.calls.map(([selection]) => selection)).toEqual([DEFAULT_SELECTION, DEFAULT_SELECTION]);
+		expect(nyu.getComparison.mock.calls.map(([selection]) => selection)).toEqual([
+			DEFAULT_SELECTION,
+			DEFAULT_SELECTION
+		]);
 	});
 
 	it('caches a complete anonymous result publicly', async () => {
 		const { setHeaders } = await run('', false);
-		expect(setHeaders).toHaveBeenCalledWith({ 'cache-control': 'public, s-maxage=86400, stale-while-revalidate=86400' });
+		expect(setHeaders).toHaveBeenCalledWith({
+			'cache-control': 'public, s-maxage=86400, stale-while-revalidate=86400'
+		});
 	});
 
 	it('reads the query for interactive requests', async () => {
@@ -66,7 +78,9 @@ describe('home loader', () => {
 	});
 
 	it('never caches a partial result', async () => {
-		nyu.getComparison.mockImplementation(async (selection: Selection) => comparison(selection, { 'pe_trailing:us': 'Data unavailable: x' }));
+		nyu.getComparison.mockImplementation(async (selection: Selection) =>
+			comparison(selection, { 'pe_trailing:us': 'Data unavailable: x' })
+		);
 		const { setHeaders } = await run('', false);
 		expect(setHeaders).toHaveBeenCalledWith({ 'cache-control': 'no-store' });
 	});

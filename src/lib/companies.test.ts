@@ -41,7 +41,10 @@ describe('queryCompanies', () => {
 		});
 	});
 	it('filters by industry and by SIC code', () => {
-		expect(queryCompanies(data, { industry: 'Steel' }).rows.map((c) => c.name)).toEqual(['Tata Steel Nederland', 'Nippon Steel']);
+		expect(queryCompanies(data, { industry: 'Steel' }).rows.map((c) => c.name)).toEqual([
+			'Tata Steel Nederland',
+			'Nippon Steel'
+		]);
 		expect(queryCompanies(data, { sic: '6020' }).rows.map((c) => c.name)).toEqual(['Mizuho Financial Group']);
 	});
 	it('matches search words against name or ticker, case-insensitively', () => {
@@ -51,22 +54,51 @@ describe('queryCompanies', () => {
 	it('filters by country but keeps the country counts of the other filters', () => {
 		const r = queryCompanies(data, { industry: 'Banks', country: 'Japan' });
 		expect(r.rows.map((c) => c.name)).toEqual(['Mizuho Financial Group']);
-		expect(r.countries).toEqual([['Netherlands', 2], ['Japan', 1]]);
+		expect(r.countries).toEqual([
+			['Netherlands', 2],
+			['Japan', 1]
+		]);
 	});
 	it('counts the distinct industries, sectors, regions, sub groups and exchanges among the matches', () => {
-		expect(queryCompanies(data, {}).distinct).toEqual({ industries: 2, sectors: 2, regions: 2, subGroups: 2, exchanges: 3 });
+		expect(queryCompanies(data, {}).distinct).toEqual({
+			industries: 2,
+			sectors: 2,
+			regions: 2,
+			subGroups: 2,
+			exchanges: 3
+		});
 		// the country filter narrows the counts, like the company total
-		expect(queryCompanies(data, { country: 'Japan' }).distinct).toEqual({ industries: 2, sectors: 2, regions: 1, subGroups: 1, exchanges: 1 });
-		expect(queryCompanies(data, { industry: 'Nope' }).distinct).toEqual({ industries: 0, sectors: 0, regions: 0, subGroups: 0, exchanges: 0 });
+		expect(queryCompanies(data, { country: 'Japan' }).distinct).toEqual({
+			industries: 2,
+			sectors: 2,
+			regions: 1,
+			subGroups: 1,
+			exchanges: 1
+		});
+		expect(queryCompanies(data, { industry: 'Nope' }).distinct).toEqual({
+			industries: 0,
+			sectors: 0,
+			regions: 0,
+			subGroups: 0,
+			exchanges: 0
+		});
 	});
 	it('does not count a ticker without an exchange as one', () => {
 		const bare: CompanyData = { ...data, companies: [['No Exchange Ltd', 'NOCODE', '', 0, 0, 0, 0, 0]] };
 		expect(queryCompanies(bare, {}).distinct.exchanges).toBe(0);
 	});
 	it('filters by region and by sector, alone and together with the other filters', () => {
-		expect(queryCompanies(data, { region: 'Japan' }).rows.map((c) => c.name)).toEqual(['Mizuho Financial Group', 'Nippon Steel']);
-		expect(queryCompanies(data, { sector: 'Materials' }).rows.map((c) => c.name)).toEqual(['Tata Steel Nederland', 'Nippon Steel']);
-		expect(queryCompanies(data, { region: 'Japan', sector: 'Materials' }).rows.map((c) => c.name)).toEqual(['Nippon Steel']);
+		expect(queryCompanies(data, { region: 'Japan' }).rows.map((c) => c.name)).toEqual([
+			'Mizuho Financial Group',
+			'Nippon Steel'
+		]);
+		expect(queryCompanies(data, { sector: 'Materials' }).rows.map((c) => c.name)).toEqual([
+			'Tata Steel Nederland',
+			'Nippon Steel'
+		]);
+		expect(queryCompanies(data, { region: 'Japan', sector: 'Materials' }).rows.map((c) => c.name)).toEqual([
+			'Nippon Steel'
+		]);
 		expect(queryCompanies(data, { region: 'Nope' }).total).toBe(0);
 		expect(queryCompanies(data, { sector: 'Nope' }).total).toBe(0);
 	});
@@ -77,7 +109,16 @@ describe('queryCompanies', () => {
 	it('pages the results and clamps the page number', () => {
 		const many: CompanyData = {
 			...data,
-			companies: Array.from({ length: PAGE_SIZE + 5 }, (_, i) => [`Co ${String(i).padStart(3, '0')}`, '', '', 0, 0, 0, 0, 0])
+			companies: Array.from({ length: PAGE_SIZE + 5 }, (_, i) => [
+				`Co ${String(i).padStart(3, '0')}`,
+				'',
+				'',
+				0,
+				0,
+				0,
+				0,
+				0
+			])
 		};
 		const second = queryCompanies(many, { page: 2 });
 		expect(second.pages).toBe(2);
@@ -147,7 +188,10 @@ describe('displayName', () => {
 		expect(displayName('Everlert, Inc.', '')).toBe('Everlert, Inc.');
 	});
 	it('is applied to the rows', () => {
-		const d: CompanyData = { ...data, companies: [['ING Groep N.V. (ENXTAM:INGA)', 'ENXTAM:INGA', '6022', 0, 0, 0, 0, 0]] };
+		const d: CompanyData = {
+			...data,
+			companies: [['ING Groep N.V. (ENXTAM:INGA)', 'ENXTAM:INGA', '6022', 0, 0, 0, 0, 0]]
+		};
 		expect(queryCompanies(d, {}).rows[0]?.name).toBe('ING Groep N.V.');
 	});
 });
@@ -156,7 +200,16 @@ describe('previewOf', () => {
 	it('keeps the first 20 rows as a single page and the total', () => {
 		const many: CompanyData = {
 			...data,
-			companies: Array.from({ length: PAGE_SIZE + 5 }, (_, i) => [`Co ${String(i).padStart(3, '0')}`, '', '', 0, 0, 0, 0, 0])
+			companies: Array.from({ length: PAGE_SIZE + 5 }, (_, i) => [
+				`Co ${String(i).padStart(3, '0')}`,
+				'',
+				'',
+				0,
+				0,
+				0,
+				0,
+				0
+			])
 		};
 		const full = queryCompanies(many, {});
 		const preview = previewOf(full);

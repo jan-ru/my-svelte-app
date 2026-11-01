@@ -3,7 +3,11 @@ import type { Statement, StatementYear } from './source-data';
 import { figuresFromStatements, netDebtOf, peerMultiples } from './valuation-figures';
 import type { CompanyFigures } from './valuation-data';
 
-const year = (fiscalYear: string, values: Record<string, number | null>, currency: string | null = 'EUR'): StatementYear => ({
+const year = (
+	fiscalYear: string,
+	values: Record<string, number | null>,
+	currency: string | null = 'EUR'
+): StatementYear => ({
 	fiscalYear,
 	date: `${fiscalYear}-12-31`,
 	currency,
@@ -29,7 +33,10 @@ describe('figuresFromStatements', () => {
 				year('2025', { revenue: 1000, ebitda: 200, ebit: 150, netIncome: 90 }),
 				year('2024', { revenue: 900, ebitda: null, ebit: 120, netIncome: 70 })
 			),
-			balance: statement(year('2025', { totalStockholdersEquity: 400, netDebt: 100 }), year('2024', { totalStockholdersEquity: 350 })),
+			balance: statement(
+				year('2025', { totalStockholdersEquity: 400, netDebt: 100 }),
+				year('2024', { totalStockholdersEquity: 350 })
+			),
 			estimates: statement(
 				year('2027', { revenueAvg: 1300, ebitdaAvg: 280, ebitAvg: 210, netIncomeAvg: 120 }),
 				year('2026', { revenueAvg: 1150, ebitdaAvg: 240, ebitAvg: 180, netIncomeAvg: 100 }),
@@ -43,8 +50,16 @@ describe('figuresFromStatements', () => {
 			origin: 'fmp',
 			netDebt: 100,
 			years: [
-				{ fiscalYear: '2024', kind: 'actual', values: { revenue: 900, ebitda: null, ebit: 120, netIncome: 70, bookEquity: 350, investedCapital: null } },
-				{ fiscalYear: '2025', kind: 'actual', values: { revenue: 1000, ebitda: 200, ebit: 150, netIncome: 90, bookEquity: 400, investedCapital: 500 } },
+				{
+					fiscalYear: '2024',
+					kind: 'actual',
+					values: { revenue: 900, ebitda: null, ebit: 120, netIncome: 70, bookEquity: 350, investedCapital: null }
+				},
+				{
+					fiscalYear: '2025',
+					kind: 'actual',
+					values: { revenue: 1000, ebitda: 200, ebit: 150, netIncome: 90, bookEquity: 400, investedCapital: 500 }
+				},
 				{ fiscalYear: '2026', kind: 'forecast', values: { revenue: 1150, ebitda: 240, ebit: 180, netIncome: 100 } },
 				{ fiscalYear: '2027', kind: 'forecast', values: { revenue: 1300, ebitda: 280, ebit: 210, netIncome: 120 } }
 			]
@@ -62,7 +77,11 @@ describe('figuresFromStatements', () => {
 		expect(figures.currency).toBe('JPY');
 		expect(figures.netDebt).toBe(100);
 		expect(figures.years).toEqual([
-			{ fiscalYear: '2025', kind: 'actual', values: { revenue: 500, ebitda: 80, ebit: 60, netIncome: 40, bookEquity: 300, investedCapital: 400 } }
+			{
+				fiscalYear: '2025',
+				kind: 'actual',
+				values: { revenue: 500, ebitda: 80, ebit: 60, netIncome: 40, bookEquity: 300, investedCapital: 400 }
+			}
 		]);
 	});
 	it('defaults the currency to USD and works without a balance sheet', () => {
@@ -79,7 +98,16 @@ describe('figuresFromStatements', () => {
 		expect(figures.years[0]?.values.bookEquity).toBeNull();
 	});
 	it('is null without income years', () => {
-		expect(figuresFromStatements({ name: 'X', origin: 'fmp', income: statement(), balance: null, estimates: null, currency: null })).toBeNull();
+		expect(
+			figuresFromStatements({
+				name: 'X',
+				origin: 'fmp',
+				income: statement(),
+				balance: null,
+				estimates: null,
+				currency: null
+			})
+		).toBeNull();
 	});
 });
 
@@ -90,7 +118,11 @@ describe('peerMultiples', () => {
 		origin: 'fmp',
 		netDebt: 200,
 		years: [
-			{ fiscalYear: '2025', kind: 'actual', values: { revenue: 1000, ebitda: 100, ebit: -5, netIncome: 50, bookEquity: 400, investedCapital: 600 } },
+			{
+				fiscalYear: '2025',
+				kind: 'actual',
+				values: { revenue: 1000, ebitda: 100, ebit: -5, netIncome: 50, bookEquity: 400, investedCapital: 600 }
+			},
 			{ fiscalYear: '2026', kind: 'forecast', values: { netIncome: 80 } }
 		]
 	};

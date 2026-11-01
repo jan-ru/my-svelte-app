@@ -81,11 +81,7 @@ export async function fetchProfile(
 	return parseProfile(await fmpGet('profile', { symbol }, apiKey, fetchFn));
 }
 
-export async function fetchNews(
-	symbol: string,
-	apiKey: string,
-	fetchFn: typeof fetch = fetch
-): Promise<NewsItem[]> {
+export async function fetchNews(symbol: string, apiKey: string, fetchFn: typeof fetch = fetch): Promise<NewsItem[]> {
 	return parseNews(await fmpGet(NEWS_PATH, { symbols: symbol, limit: String(NEWS_LIMIT) }, apiKey, fetchFn));
 }
 

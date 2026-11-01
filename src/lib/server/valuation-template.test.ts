@@ -9,7 +9,10 @@ describe('writeTemplate and readTemplate', () => {
 		expect(blank[0]).toBe(0x50); // a zip, which an xlsx is
 		const result = readTemplate(blank);
 		// the example rows have no figures yet, but every label and year is there
-		expect(result).toEqual({ ok: true, figures: expect.objectContaining({ name: 'Example BV', currency: 'EUR', netDebt: 0 }) });
+		expect(result).toEqual({
+			ok: true,
+			figures: expect.objectContaining({ name: 'Example BV', currency: 'EUR', netDebt: 0 })
+		});
 
 		const wb = XLSX.read(blank, { type: 'array' });
 		XLSX.utils.sheet_add_aoa(get(wb.Sheets, 'Figures'), [[100, 110, 120, 130]], { origin: 'B7' });

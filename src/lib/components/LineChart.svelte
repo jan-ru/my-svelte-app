@@ -58,10 +58,28 @@
 </svg>
 
 <style>
-	svg { width: 100%; height: auto; display: block; font-family: var(--font-sans); }
-	.gridline { stroke: var(--border-subtle); stroke-width: 1; }
-	.month { stroke-dasharray: 2 4; }
-	.tick { font-size: 11px; fill: var(--text-secondary); font-variant-numeric: tabular-nums; }
-	.hit { fill: transparent; }
-	.hit:hover { fill: rgba(0, 114, 178, 0.35); }
+	svg {
+		width: 100%;
+		height: auto;
+		display: block;
+		font-family: var(--font-sans);
+	}
+	.gridline {
+		stroke: var(--border-subtle);
+		stroke-width: 1;
+	}
+	.month {
+		stroke-dasharray: 2 4;
+	}
+	.tick {
+		font-size: 11px;
+		fill: var(--text-secondary);
+		font-variant-numeric: tabular-nums;
+	}
+	.hit {
+		fill: transparent;
+	}
+	.hit:hover {
+		fill: rgba(0, 114, 178, 0.35);
+	}
 </style>

@@ -22,11 +22,15 @@ describe('Node LTS pin', () => {
 	});
 	it('is the same major in every CI workflow', () => {
 		const workflows = fs.readdirSync(path.join(root, '.github/workflows')).filter((f) => f.endsWith('.yml'));
-		const versions = workflows.flatMap((f) => [...read(`.github/workflows/${f}`).matchAll(/node-version:\s*['"]?(\d+)/g)].map((m) => Number(m[1])));
+		const versions = workflows.flatMap((f) =>
+			[...read(`.github/workflows/${f}`).matchAll(/node-version:\s*['"]?(\d+)/g)].map((m) => Number(m[1]))
+		);
 		expect(versions.length).toBeGreaterThan(0);
 		for (const v of versions) expect(v).toBe(pinned);
 	});
 	it('keeps Dependabot from proposing a newer @types/node major', () => {
-		expect(read('.github/dependabot.yml')).toMatch(/dependency-name:\s*"@types\/node"[\s\S]*?version-update:semver-major/);
+		expect(read('.github/dependabot.yml')).toMatch(
+			/dependency-name:\s*"@types\/node"[\s\S]*?version-update:semver-major/
+		);
 	});
 });

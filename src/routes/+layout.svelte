@@ -35,7 +35,11 @@
 			<button type="submit" class="link">Log out</button>
 		</form>
 	{:else}
-		<a href={page.url.pathname === '/financials' ? '#login' : `/financials?from=${encodeURIComponent(page.url.pathname)}`}>Log in</a>
+		<a
+			href={page.url.pathname === '/financials'
+				? '#login'
+				: `/financials?from=${encodeURIComponent(page.url.pathname)}`}>Log in</a
+		>
 	{/if}
 </nav>
 
@@ -44,13 +48,56 @@
 <SiteFooter />
 
 <style>
-	nav { display: flex; align-items: stretch; gap: var(--space-1); height: var(--shell-header-height); padding: 0 var(--space-4); background: var(--surface-shell); border-bottom: 1px solid var(--border-subtle); box-shadow: var(--shadow-1); }
-	nav a { display: flex; align-items: center; padding: 0 var(--space-3); color: var(--text-primary); text-decoration: none; border-bottom: 3px solid transparent; }
-	.brand { margin-right: var(--space-4); padding-left: 0; font-weight: var(--weight-bold); color: var(--grey-08); letter-spacing: var(--tracking-tight); }
-	nav a:hover { color: var(--color-primary); background: var(--surface-group); }
-	nav a[aria-current='page'] { font-weight: var(--weight-semibold); color: var(--color-primary); border-bottom-color: var(--color-primary); }
-	.spacer { margin-left: auto; }
-	nav form { display: flex; align-items: center; }
-	button.link { padding: 0 var(--space-3); font: inherit; color: var(--text-primary); background: none; border: 0; cursor: pointer; }
-	button.link:hover { color: var(--color-primary); }
+	nav {
+		display: flex;
+		align-items: stretch;
+		gap: var(--space-1);
+		height: var(--shell-header-height);
+		padding: 0 var(--space-4);
+		background: var(--surface-shell);
+		border-bottom: 1px solid var(--border-subtle);
+		box-shadow: var(--shadow-1);
+	}
+	nav a {
+		display: flex;
+		align-items: center;
+		padding: 0 var(--space-3);
+		color: var(--text-primary);
+		text-decoration: none;
+		border-bottom: 3px solid transparent;
+	}
+	.brand {
+		margin-right: var(--space-4);
+		padding-left: 0;
+		font-weight: var(--weight-bold);
+		color: var(--grey-08);
+		letter-spacing: var(--tracking-tight);
+	}
+	nav a:hover {
+		color: var(--color-primary);
+		background: var(--surface-group);
+	}
+	nav a[aria-current='page'] {
+		font-weight: var(--weight-semibold);
+		color: var(--color-primary);
+		border-bottom-color: var(--color-primary);
+	}
+	.spacer {
+		margin-left: auto;
+	}
+	nav form {
+		display: flex;
+		align-items: center;
+	}
+	button.link {
+		padding: 0 var(--space-3);
+		font: inherit;
+		color: var(--text-primary);
+		background: none;
+		border: 0;
+		cursor: pointer;
+	}
+	button.link:hover {
+		color: var(--color-primary);
+	}
 </style>

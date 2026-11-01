@@ -27,8 +27,24 @@ describe('fieldModel', () => {
 		});
 		const model = fieldModel(view)!;
 		expect(model.rows).toEqual([
-			{ label: 'EV/EBITDA', detail: 'EBITDA 2025, 7.0x to 9.0x', manual: false, low: 1300, mid: 1500, high: 1700, sector: 2300 },
-			{ label: 'EV/Sales', detail: 'Revenue 2025, 2.0x to 4.0x', manual: true, low: 1900, mid: 2900, high: 3900, sector: null }
+			{
+				label: 'EV/EBITDA',
+				detail: 'EBITDA 2025, 7.0x to 9.0x',
+				manual: false,
+				low: 1300,
+				mid: 1500,
+				high: 1700,
+				sector: 2300
+			},
+			{
+				label: 'EV/Sales',
+				detail: 'Revenue 2025, 2.0x to 4.0x',
+				manual: true,
+				low: 1900,
+				mid: 2900,
+				high: 3900,
+				sector: null
+			}
 		]);
 		expect(model.skipped).toEqual(['P/B']);
 		expect(model.average).toBe(2200);
@@ -42,7 +58,9 @@ describe('fieldModel', () => {
 		expect(fieldModel(valuationView({ figures, multiples: ['pbv'], peers, sectors: {} }))).toBeNull();
 	});
 	it('spans negative equity values', () => {
-		const model = fieldModel(valuationView({ figures: { ...figures, netDebt: 2000 }, multiples: ['ev_ebitda'], peers, sectors: {} }))!;
+		const model = fieldModel(
+			valuationView({ figures: { ...figures, netDebt: 2000 }, multiples: ['ev_ebitda'], peers, sectors: {} })
+		)!;
 		expect(model.min).toBeLessThan(0);
 	});
 });
@@ -50,9 +68,19 @@ describe('fieldModel', () => {
 describe('describeRow', () => {
 	it('reads a row as one line, with the sector and manual markers when present', () => {
 		const model = fieldModel(
-			valuationView({ figures, multiples: ['ev_ebitda', 'ev_sales'], peers, sectors: { ev_ebitda: 12 }, overrides: { ev_sales: { low: 2, high: 4 } } })
+			valuationView({
+				figures,
+				multiples: ['ev_ebitda', 'ev_sales'],
+				peers,
+				sectors: { ev_ebitda: 12 },
+				overrides: { ev_sales: { low: 2, high: 4 } }
+			})
 		)!;
-		expect(describeRow(at(model.rows, 0), model)).toBe('EV/EBITDA (EBITDA 2025, 7.0x to 9.0x): 1,300 to 1,700, mid 1,500, at sector 2,300');
-		expect(describeRow(at(model.rows, 1), model)).toBe('EV/Sales (Revenue 2025, 2.0x to 4.0x, manual): 1,900 to 3,900, mid 2,900');
+		expect(describeRow(at(model.rows, 0), model)).toBe(
+			'EV/EBITDA (EBITDA 2025, 7.0x to 9.0x): 1,300 to 1,700, mid 1,500, at sector 2,300'
+		);
+		expect(describeRow(at(model.rows, 1), model)).toBe(
+			'EV/Sales (Revenue 2025, 2.0x to 4.0x, manual): 1,900 to 3,900, mid 2,900'
+		);
 	});
 });

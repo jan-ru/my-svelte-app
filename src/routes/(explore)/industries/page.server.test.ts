@@ -3,7 +3,10 @@ import companies from '#lib/data/companies.json';
 import { load } from './+page.server';
 import { at } from '#lib/at';
 
-type Data = { nav: { industries: string[]; sectors: string[] }; view: { tiles: unknown[]; breakdown: unknown; total: number } };
+type Data = {
+	nav: { industries: string[]; sectors: string[] };
+	view: { tiles: unknown[]; breakdown: unknown; total: number };
+};
 const run = async (query: string, interactive: boolean) =>
 	(await load({
 		url: new URL(`http://x.test/industries${query}`),

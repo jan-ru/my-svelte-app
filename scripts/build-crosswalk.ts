@@ -70,7 +70,12 @@ const addTo = (map: Table, key: string, value: string): void => {
 	if (!map[key]) map[key] = [];
 	if (!map[key].includes(value)) map[key].push(value);
 };
-const sorted = (map: Table): Table => Object.fromEntries(Object.entries(map).sort(([a], [b]) => a.localeCompare(b)).map(([k, v]) => [k, [...v].sort()]));
+const sorted = (map: Table): Table =>
+	Object.fromEntries(
+		Object.entries(map)
+			.sort(([a], [b]) => a.localeCompare(b))
+			.map(([k, v]) => [k, [...v].sort()])
+	);
 
 // 1. SBI 2025 structure (levels 1-4 = sections, divisions, groups, classes; first four levels equal NACE Rev. 2.1).
 const sbi25: Record<string, { level: number; section: string; nl: string; en: string }> = {};
@@ -118,7 +123,9 @@ for (const nace of new Set(Object.values(sbi25ToNace2).flat())) {
 	if (isic) nace2ToIsic4[nace] = isic;
 	else unmappedNace2.push(nace);
 }
-console.log(`NACE Rev. 2 -> ISIC Rev. 4: ${Object.keys(nace2ToIsic4).length - approximated.length} exact or same group, ${approximated.length} by nearest code`);
+console.log(
+	`NACE Rev. 2 -> ISIC Rev. 4: ${Object.keys(nace2ToIsic4).length - approximated.length} exact or same group, ${approximated.length} by nearest code`
+);
 if (unmappedNace2.length) console.warn('NACE Rev. 2 codes without an ISIC Rev. 4 class:', unmappedNace2.join(' '));
 
 // 4. ISIC Rev. 3.1 -> NAICS 2002 US (UN).
@@ -178,7 +185,9 @@ for (const [sic, counts] of Object.entries(sicToDamodaran)) {
 		aliased += total;
 	} else unresolved += total;
 }
-console.log(`SIC group codes: ${Object.keys(sicAlias).length} aliased (${aliased} companies), ${unresolved} companies unresolved`);
+console.log(
+	`SIC group codes: ${Object.keys(sicAlias).length} aliased (${aliased} companies), ${unresolved} companies unresolved`
+);
 
 const out = {
 	generated: new Date().toISOString().slice(0, 10),

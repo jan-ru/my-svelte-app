@@ -20,9 +20,29 @@
 {/if}
 
 <style>
-	.bar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin: var(--space-3) 0; }
-	.title { color: var(--text-secondary); font-size: var(--text-sm); }
-	.chip { padding: 2px var(--space-3); background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: 999px; font-size: var(--text-sm); text-decoration: none; }
-	.chip:hover { border-color: var(--text-secondary); }
-	.clear { font-size: var(--text-sm); }
+	.bar {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: var(--space-2);
+		margin: var(--space-3) 0;
+	}
+	.title {
+		color: var(--text-secondary);
+		font-size: var(--text-sm);
+	}
+	.chip {
+		padding: 2px var(--space-3);
+		background: var(--surface-card);
+		border: 1px solid var(--border-subtle);
+		border-radius: 999px;
+		font-size: var(--text-sm);
+		text-decoration: none;
+	}
+	.chip:hover {
+		border-color: var(--text-secondary);
+	}
+	.clear {
+		font-size: var(--text-sm);
+	}
 </style>

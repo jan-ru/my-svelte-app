@@ -2,7 +2,11 @@ import { describe, expect, it, vi } from 'vitest';
 import { PAGE_SIZE, PREVIEW_ROWS } from '#lib/companies';
 import { load } from './+page.server';
 
-type Data = { result: { rows: unknown[]; total: number; page: number; pages: number }; filters: Record<string, string>; preview: boolean };
+type Data = {
+	result: { rows: unknown[]; total: number; page: number; pages: number };
+	filters: Record<string, string>;
+	preview: boolean;
+};
 const run = async (query: string, interactive: boolean) =>
 	(await load({
 		url: new URL(`http://x.test/companies${query}`),

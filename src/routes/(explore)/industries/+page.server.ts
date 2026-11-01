@@ -13,7 +13,11 @@ export const config = isrConfig(process.env.ISR_BYPASS_TOKEN);
 export const load: PageServerLoad = ({ url, locals, setHeaders }) => {
 	// Anonymous requests get an empty query, so what the cache stores never depends on who asked first.
 	const params = pageParams(locals.interactive, url);
-	const nav = parseSizeNav(params, { countries: data.countries, industries: data.industries, sectors: data.sectors }, '/industries');
+	const nav = parseSizeNav(
+		params,
+		{ countries: data.countries, industries: data.industries, sectors: data.sectors },
+		'/industries'
+	);
 	setHeaders({ 'cache-control': 'public, s-maxage=86400, stale-while-revalidate=86400' });
 	return {
 		nav,

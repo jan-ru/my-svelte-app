@@ -21,7 +21,13 @@ const peer = (symbol: string, multiples: Record<string, number | null>): PeerMul
 	multiples
 });
 
-const bench = (multiple: string, p25: number | null, median: number | null, p75: number | null, sector: number | null = null): Benchmark => ({
+const bench = (
+	multiple: string,
+	p25: number | null,
+	median: number | null,
+	p75: number | null,
+	sector: number | null = null
+): Benchmark => ({
 	multiple,
 	count: 4,
 	p25,
@@ -76,7 +82,14 @@ describe('benchmark', () => {
 		});
 	});
 	it('has no quartiles without peers and ignores an unusable sector value', () => {
-		expect(benchmark('ps', [], -1)).toEqual({ multiple: 'ps', count: 0, p25: null, median: null, p75: null, sector: null });
+		expect(benchmark('ps', [], -1)).toEqual({
+			multiple: 'ps',
+			count: 0,
+			p25: null,
+			median: null,
+			p75: null,
+			sector: null
+		});
 	});
 });
 
@@ -112,10 +125,20 @@ describe('valueMethod', () => {
 	});
 	it('uses a manual band, in either order, with its midpoint', () => {
 		const r = valueMethod(figures, bench('ev_sales', 1, 2, 3), { low: 5, high: 3 });
-		expect(r).toMatchObject({ ok: true, band: { low: 3, high: 5 }, bandSource: 'manual', low: 2900, mid: 3900, high: 4900 });
+		expect(r).toMatchObject({
+			ok: true,
+			band: { low: 3, high: 5 },
+			bandSource: 'manual',
+			low: 2900,
+			mid: 3900,
+			high: 4900
+		});
 	});
 	it('accepts a manual band when there are no peers', () => {
-		expect(valueMethod(figures, bench('ps', null, null, null), { low: 1, high: 2 })).toMatchObject({ ok: true, mid: 1500 });
+		expect(valueMethod(figures, bench('ps', null, null, null), { low: 1, high: 2 })).toMatchObject({
+			ok: true,
+			mid: 1500
+		});
 	});
 	it('falls back to the band midpoint when the median is missing', () => {
 		expect(valueMethod(figures, bench('ps', 1, null, 3))).toMatchObject({ ok: true, mid: 2000 });
@@ -157,7 +180,13 @@ describe('valuationView', () => {
 		expect(view.average).toBe(1750);
 	});
 	it('applies overrides per multiple', () => {
-		const view = valuationView({ figures, multiples: ['ps'], peers, sectors: {}, overrides: { ps: { low: 3, high: 5 } } });
+		const view = valuationView({
+			figures,
+			multiples: ['ps'],
+			peers,
+			sectors: {},
+			overrides: { ps: { low: 3, high: 5 } }
+		});
 		expect(view.methods[0]).toMatchObject({ ok: true, bandSource: 'manual', mid: 4000 });
 	});
 	it('has no average when no method has a range', () => {

@@ -15,24 +15,36 @@ async function getRows<T>(url: string): Promise<T[]> {
 	return rows;
 }
 
-interface WbCountryRow { id: string; name: string; region: { id: string } }
-interface WbGdpRow { countryiso3code: string; date: string; value: number | null }
+interface WbCountryRow {
+	id: string;
+	name: string;
+	region: { id: string };
+}
+interface WbGdpRow {
+	countryiso3code: string;
+	date: string;
+	value: number | null;
+}
 
 // The indicator call has no region field, so aggregates (region id "NA") are told apart through the country list.
 const countryRows = await getRows<WbCountryRow>(`${API}/country?format=json&per_page=400`);
-const gdpRows = await getRows<WbGdpRow>(`${API}/country/all/indicator/NY.GDP.MKTP.CD?format=json&per_page=20000&mrnev=1`);
+const gdpRows = await getRows<WbGdpRow>(
+	`${API}/country/all/indicator/NY.GDP.MKTP.CD?format=json&per_page=20000&mrnev=1`
+);
 
 const real = countryRows.filter((c) => c.region.id !== 'NA');
 const nameOf = new Map(real.map((c) => [c.id, c.name]));
 const countries: Record<string, { name: string; value: number; year: number }> = {};
 for (const r of gdpRows) {
 	const name = nameOf.get(r.countryiso3code);
-	if (name !== undefined && r.value !== null) countries[r.countryiso3code] = { name, value: r.value, year: Number(r.date) };
+	if (name !== undefined && r.value !== null)
+		countries[r.countryiso3code] = { name, value: r.value, year: Number(r.date) };
 }
 const world = gdpRows.find((r) => r.countryiso3code === 'WLD');
 if (!world || world.value === null) throw new Error('No World Bank world total (WLD)');
 
-const nyuNames = (JSON.parse(fs.readFileSync(path.join(dir, 'companies.json'), 'utf8')) as { countries: string[] }).countries;
+const nyuNames = (JSON.parse(fs.readFileSync(path.join(dir, 'companies.json'), 'utf8')) as { countries: string[] })
+	.countries;
 const { mapping, unmatched, unusedWb, badManual } = matchCountries(
 	nyuNames,
 	real.map((c) => ({ iso3: c.id, name: c.name })),
@@ -56,7 +68,11 @@ const out = {
 fs.writeFileSync(path.join(dir, 'gdp.json'), `${JSON.stringify(out, null, 1)}\n`);
 
 const years = Object.values(countries).map((c) => c.year);
-console.log(`Wrote gdp.json: ${Object.keys(countries).length} countries with a value (${Math.min(...years)} to ${Math.max(...years)}), world ${world.value} (${world.date}).`);
-console.log(`Countries share of world total: ${((Object.values(countries).reduce((s, c) => s + c.value, 0) / world.value) * 100).toFixed(1)}%`);
+console.log(
+	`Wrote gdp.json: ${Object.keys(countries).length} countries with a value (${Math.min(...years)} to ${Math.max(...years)}), world ${world.value} (${world.date}).`
+);
+console.log(
+	`Countries share of world total: ${((Object.values(countries).reduce((s, c) => s + c.value, 0) / world.value) * 100).toFixed(1)}%`
+);
 console.log(`NYU countries without a World Bank match (${unmatched.length}): ${unmatched.join('; ') || 'none'}`);
 console.log(`World Bank countries no NYU name maps to (${unusedWb.length}): ${unusedWb.join(' ')}`);

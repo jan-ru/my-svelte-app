@@ -41,7 +41,8 @@ export interface CountriesView {
 function crossOf(data: CompanyData, nav: SizeNav): CrossCell | null {
 	const [country, ...otherCountries] = nav.countries;
 	const [industry, ...otherIndustries] = nav.industries;
-	if (country === undefined || industry === undefined || otherCountries.length > 0 || otherIndustries.length > 0) return null;
+	if (country === undefined || industry === undefined || otherCountries.length > 0 || otherIndustries.length > 0)
+		return null;
 	return crossCell(data, country, industry);
 }
 
@@ -63,7 +64,9 @@ export function countriesView(data: CompanyData, gdp: GdpData, nav: SizeNav): Co
 	// GDP has no industry split, so the industry breakdown belongs to the companies measure only
 	const breakdown =
 		nav.countries.length > 0 && !gdpMeasure
-			? tilesOf(countBy(data, 'industry', { countries: nav.countries, sectors: nav.sectors }), (industry) => sectorFill(get(sectorOf, industry)))
+			? tilesOf(countBy(data, 'industry', { countries: nav.countries, sectors: nav.sectors }), (industry) =>
+					sectorFill(get(sectorOf, industry))
+				)
 			: null;
 	const cross = crossOf(data, nav);
 
@@ -105,7 +108,10 @@ export function industriesView(data: CompanyData, nav: SizeNav): IndustriesView 
 	const values = countBy(data, 'industry', { countries: nav.countries, sectors: nav.sectors });
 	const total = data.companies.length;
 	const sectorOf = dominantSector(data);
-	const tiles = tilesOf(values, (industry) => sectorFill(get(sectorOf, industry))).map((t) => ({ ...t, group: get(sectorOf, t.id) }));
+	const tiles = tilesOf(values, (industry) => sectorFill(get(sectorOf, industry))).map((t) => ({
+		...t,
+		group: get(sectorOf, t.id)
+	}));
 	const legendCounts = new Map<string, number>();
 	for (const t of tiles) legendCounts.set(t.group, (legendCounts.get(t.group) ?? 0) + t.value);
 	const legend = [...legendCounts]
@@ -113,7 +119,17 @@ export function industriesView(data: CompanyData, nav: SizeNav): IndustriesView 
 		.sort((a, b) => b.value - a.value || a.sector.localeCompare(b.sector));
 	const selected = nav.industries.length > 0 ? nav.industries : topIds(values, TOP_N);
 	const breakdown =
-		nav.industries.length > 0 ? tilesOf(countBy(data, 'country', { industries: nav.industries, sectors: nav.sectors }), () => COUNTRY_FILL) : null;
+		nav.industries.length > 0
+			? tilesOf(countBy(data, 'country', { industries: nav.industries, sectors: nav.sectors }), () => COUNTRY_FILL)
+			: null;
 	const cross = crossOf(data, nav);
-	return { measureLabel: 'companies', total, tiles, legend, shares: shareOfGlobal(values, selected, total), breakdown, cross };
+	return {
+		measureLabel: 'companies',
+		total,
+		tiles,
+		legend,
+		shares: shareOfGlobal(values, selected, total),
+		breakdown,
+		cross
+	};
 }

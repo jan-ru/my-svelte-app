@@ -31,7 +31,12 @@
 	const HEADER = 18;
 	const layout = $derived(
 		groups
-			? nest(items.map((i) => ({ id: i.id, value: i.value, group: i.group ?? '' })), W, H, HEADER)
+			? nest(
+					items.map((i) => ({ id: i.id, value: i.value, group: i.group ?? '' })),
+					W,
+					H,
+					HEADER
+				)
 			: { groups: [], tiles: squarify(items, W, H) }
 	);
 	const rects = $derived(layout.tiles);
@@ -43,7 +48,10 @@
 		sorted.length === 0
 			? `No ${measureLabel} data for this selection.`
 			: `Treemap of ${sorted.length} items by ${measureLabel}. The largest are ` +
-					sorted.slice(0, 3).map((i) => `${i.label} (${format(i.value)})`).join(', ') +
+					sorted
+						.slice(0, 3)
+						.map((i) => `${i.label} (${format(i.value)})`)
+						.join(', ') +
 					'.'
 	);
 	const percent = (value: number) => formatPercent(total > 0 ? (100 * value) / total : 0);
@@ -57,7 +65,9 @@
 	const readout = $derived(
 		activeItem
 			? `${activeItem.label}${groupLabel(activeItem.id) ? ` (${groupLabel(activeItem.id)})` : ''}: ${format(activeItem.value)} ${activeItem.value === 1 && measureLabel === 'companies' ? 'company' : measureLabel} (${percent(activeItem.value)} of global)`
-			: (linked ? 'Click a tile to select it, or a selected tile to remove it. Hover or focus a tile for its name and share.' : 'Hover over, focus or tap a tile for its name and share.')
+			: linked
+				? 'Click a tile to select it, or a selected tile to remove it. Hover or focus a tile for its name and share.'
+				: 'Hover over, focus or tap a tile for its name and share.'
 	);
 	const LINE = 12;
 </script>
@@ -80,7 +90,11 @@
 	{#if r.w > 6 && r.h > 6}
 		<rect class="edge" x={r.x + 1.5} y={r.y + 1.5} width={r.w - 3} height={r.h - 3} fill="none" stroke="#1D2D3E" />
 	{/if}
-	<title>{item.label}{groupLabel(item.id) ? ` (${groupLabel(item.id)})` : ''}: {format(item.value)} ({percent(item.value)})</title>
+	<title
+		>{item.label}{groupLabel(item.id) ? ` (${groupLabel(item.id)})` : ''}: {format(item.value)} ({percent(
+			item.value
+		)})</title
+	>
 	{#each lines as line, i (i)}
 		<text x={r.x + 5} y={r.y + 5 + LINE * (i + 1) - 2} fill="#1D2D3E" font-size="11" font-weight="600">{line}</text>
 	{/each}
@@ -89,7 +103,11 @@
 	{/if}
 {/snippet}
 
-{#snippet block(g: { x: number; y: number; w: number; h: number; value: number }, meta: { label: string; fill: string }, head: string)}
+{#snippet block(
+	g: { x: number; y: number; w: number; h: number; value: number },
+	meta: { label: string; fill: string },
+	head: string
+)}
 	<rect x={g.x} y={g.y} width={g.w} height={g.h} fill={meta.fill} stroke="#FFFFFF" stroke-width="2" />
 	<title>{meta.label}: {format(g.value)} ({percent(g.value)})</title>
 	{#if head}
@@ -105,7 +123,9 @@
 			{#if meta}
 				{@const head = fit(`${meta.label} · ${format(g.value)}`, g.w, 6.4) || fit(meta.label, g.w, 6.4)}
 				{#if meta.href}
-					<a href={meta.href} class="tile" aria-label="{meta.label}: {format(g.value)}">{@render block(g, meta, head)}</a>
+					<a href={meta.href} class="tile" aria-label="{meta.label}: {format(g.value)}"
+						>{@render block(g, meta, head)}</a
+					>
 				{:else}
 					<g class="tile">{@render block(g, meta, head)}</g>
 				{/if}
@@ -121,11 +141,13 @@
 					class="tile"
 					onmouseover={() => (active = r.id)}
 					onpointerdown={() => (active = r.id)}
-					onfocus={() => (active = r.id)}
-				>{@render tile(r, item)}</a>
+					onfocus={() => (active = r.id)}>{@render tile(r, item)}</a
+				>
 			{:else}
 				<!-- svelte-ignore a11y_no_static_element_interactions, a11y_mouse_events_have_key_events -->
-				<g class="tile" onmouseover={() => (active = r.id)} onpointerdown={() => (active = r.id)}>{@render tile(r, item)}</g>
+				<g class="tile" onmouseover={() => (active = r.id)} onpointerdown={() => (active = r.id)}
+					>{@render tile(r, item)}</g
+				>
 			{/if}
 		{/each}
 	</svg>
@@ -133,7 +155,10 @@
 	<details>
 		<summary>Show data</summary>
 		<table>
-			<thead><tr><th scope="col">Name</th><th scope="col">{measureLabel}</th><th scope="col">Share of global</th></tr></thead>
+			<thead
+				><tr><th scope="col">Name</th><th scope="col">{measureLabel}</th><th scope="col">Share of global</th></tr
+				></thead
+			>
 			<tbody>
 				{#each sorted as item (item.id)}
 					<tr><th scope="row">{item.label}</th><td>{format(item.value)}</td><td>{percent(item.value)}</td></tr>
@@ -144,17 +169,61 @@
 </figure>
 
 <style>
-	figure { margin: var(--space-4) 0; }
-	svg { width: 100%; height: auto; display: block; background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
-	.edge { stroke-opacity: 0.25; stroke-width: 1; pointer-events: none; }
-	.tile:hover .edge { stroke-opacity: 0.8; stroke-width: 2; }
-	.tile:focus-visible { outline: none; }
-	.tile:focus-visible .edge { stroke: var(--border-focus); stroke-opacity: 1; stroke-width: 3; }
-	text { pointer-events: none; }
-	.readout { margin: var(--space-2) 0; min-height: 1.5em; color: var(--text-secondary); font-size: var(--text-sm); }
-	figcaption { margin-bottom: var(--space-2); color: var(--text-secondary); font-size: var(--text-sm); }
-	details { margin: var(--space-2) 0; }
-	table { width: 100%; font-size: var(--text-sm); background: var(--surface-card); }
-	th[scope='row'] { text-align: left; font-weight: var(--weight-regular); }
-	td { text-align: right; }
+	figure {
+		margin: var(--space-4) 0;
+	}
+	svg {
+		width: 100%;
+		height: auto;
+		display: block;
+		background: var(--surface-card);
+		border: 1px solid var(--border-subtle);
+		border-radius: var(--radius-md);
+	}
+	.edge {
+		stroke-opacity: 0.25;
+		stroke-width: 1;
+		pointer-events: none;
+	}
+	.tile:hover .edge {
+		stroke-opacity: 0.8;
+		stroke-width: 2;
+	}
+	.tile:focus-visible {
+		outline: none;
+	}
+	.tile:focus-visible .edge {
+		stroke: var(--border-focus);
+		stroke-opacity: 1;
+		stroke-width: 3;
+	}
+	text {
+		pointer-events: none;
+	}
+	.readout {
+		margin: var(--space-2) 0;
+		min-height: 1.5em;
+		color: var(--text-secondary);
+		font-size: var(--text-sm);
+	}
+	figcaption {
+		margin-bottom: var(--space-2);
+		color: var(--text-secondary);
+		font-size: var(--text-sm);
+	}
+	details {
+		margin: var(--space-2) 0;
+	}
+	table {
+		width: 100%;
+		font-size: var(--text-sm);
+		background: var(--surface-card);
+	}
+	th[scope='row'] {
+		text-align: left;
+		font-weight: var(--weight-regular);
+	}
+	td {
+		text-align: right;
+	}
 </style>

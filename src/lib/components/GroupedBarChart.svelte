@@ -3,11 +3,7 @@
 	import { LOW_FIRMS_THRESHOLD, formatMultiple, niceTicks } from '#lib/chart';
 	import type { PanelModel } from '#lib/layout';
 
-	let {
-		panel,
-		colors,
-		uid
-	}: { panel: PanelModel; colors: readonly string[]; uid: number } = $props();
+	let { panel, colors, uid }: { panel: PanelModel; colors: readonly string[]; uid: number } = $props();
 
 	const W = 520;
 	const H = 300;
@@ -37,8 +33,7 @@
 			panel.categories
 				.map(
 					(cat, ci) =>
-						`${cat}: ` +
-						panel.series.map((name, si) => `${name} ${formatMultiple(barAt(ci, si).value)}`).join(', ')
+						`${cat}: ` + panel.series.map((name, si) => `${name} ${formatMultiple(barAt(ci, si).value)}`).join(', ')
 				)
 				.join('; ')
 	);
@@ -47,13 +42,7 @@
 <svg viewBox="0 0 {W} {H}" role="img" aria-label={summary}>
 	<defs>
 		{#each panel.series as _, si (si)}
-			<pattern
-				id="hatch-{uid}-{si}"
-				width="6"
-				height="6"
-				patternUnits="userSpaceOnUse"
-				patternTransform="rotate(45)"
-			>
+			<pattern id="hatch-{uid}-{si}" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
 				<rect width="6" height="6" fill={colors[si]} />
 				<line x1="3" y1="0" x2="3" y2="6" stroke="#fff" stroke-width="2.5" />
 			</pattern>
@@ -75,7 +64,9 @@
 						: ''}
 				</title>
 				{#if bar.value === null}
-					<text class="na" x={barX(ci, si) + barW / 2} y={y(0) - 4} text-anchor="middle">{bar.error ? 'unavailable' : 'n/a'}</text>
+					<text class="na" x={barX(ci, si) + barW / 2} y={y(0) - 4} text-anchor="middle"
+						>{bar.error ? 'unavailable' : 'n/a'}</text
+					>
 				{:else}
 					<rect
 						x={barX(ci, si)}
@@ -95,10 +86,30 @@
 </svg>
 
 <style>
-	svg { width: 100%; height: auto; display: block; font-family: var(--font-sans); }
-	.gridline { stroke: var(--border-subtle); stroke-width: 1; }
-	.gridline.zero { stroke: var(--grey-07); }
-	.tick { font-size: 11px; fill: var(--text-secondary); font-variant-numeric: tabular-nums; }
-	.category { font-size: 11px; fill: var(--text-primary); }
-	.na { font-size: 9px; fill: var(--text-disabled); }
+	svg {
+		width: 100%;
+		height: auto;
+		display: block;
+		font-family: var(--font-sans);
+	}
+	.gridline {
+		stroke: var(--border-subtle);
+		stroke-width: 1;
+	}
+	.gridline.zero {
+		stroke: var(--grey-07);
+	}
+	.tick {
+		font-size: 11px;
+		fill: var(--text-secondary);
+		font-variant-numeric: tabular-nums;
+	}
+	.category {
+		font-size: 11px;
+		fill: var(--text-primary);
+	}
+	.na {
+		font-size: 9px;
+		fill: var(--text-disabled);
+	}
 </style>

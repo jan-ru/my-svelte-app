@@ -21,10 +21,7 @@ export const loadWorkbook: WorkbookLoader = (family, regionId) =>
 
 const messageOf = (error: unknown): string => (error instanceof Error ? error.message : String(error));
 
-export async function getComparison(
-	selection: Selection,
-	load: WorkbookLoader = loadWorkbook
-): Promise<Comparison> {
+export async function getComparison(selection: Selection, load: WorkbookLoader = loadWorkbook): Promise<Comparison> {
 	const multiples = MULTIPLES.filter((m) => selection.multiples.includes(m.id));
 
 	const wanted = new Map<string, { family: Family; regionId: string }>();

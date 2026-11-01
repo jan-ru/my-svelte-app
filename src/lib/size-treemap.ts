@@ -20,7 +20,11 @@ export interface Rect {
 }
 
 /** Squarified treemap (Bruls, Huizing, van Wijk): rectangles with areas proportional to the values, as square as it can. Zero and negative values are dropped. */
-export function squarify(items: readonly { readonly id: string; readonly value: number }[], width: number, height: number): Rect[] {
+export function squarify(
+	items: readonly { readonly id: string; readonly value: number }[],
+	width: number,
+	height: number
+): Rect[] {
 	const sorted = items.filter((i) => Number.isFinite(i.value) && i.value > 0).sort((a, b) => b.value - a.value);
 	if (sorted.length === 0 || width <= 0 || height <= 0) return [];
 	const total = sorted.reduce((s, i) => s + i.value, 0);
@@ -116,10 +120,21 @@ export interface NestedLayout {
 }
 
 /** Two levels: groups laid out by their totals, each group's items squarified inside it below a header strip. */
-export function nest(items: readonly { readonly id: string; readonly value: number; readonly group: string }[], width: number, height: number, header = 18, pad = 2): NestedLayout {
+export function nest(
+	items: readonly { readonly id: string; readonly value: number; readonly group: string }[],
+	width: number,
+	height: number,
+	header = 18,
+	pad = 2
+): NestedLayout {
 	const sums = new Map<string, number>();
-	for (const i of items) if (Number.isFinite(i.value) && i.value > 0) sums.set(i.group, (sums.get(i.group) ?? 0) + i.value);
-	const blocks = squarify([...sums].map(([id, value]) => ({ id, value })), width, height);
+	for (const i of items)
+		if (Number.isFinite(i.value) && i.value > 0) sums.set(i.group, (sums.get(i.group) ?? 0) + i.value);
+	const blocks = squarify(
+		[...sums].map(([id, value]) => ({ id, value })),
+		width,
+		height
+	);
 	const groups = blocks.map((b) => ({ ...b, value: sums.get(b.id) ?? 0 }));
 	const tiles: Rect[] = [];
 	for (const g of groups) {

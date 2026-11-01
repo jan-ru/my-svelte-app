@@ -3,8 +3,7 @@ import { createHash, createHmac, timingSafeEqual } from 'node:crypto';
 export const SESSION_COOKIE = 'fin_session';
 export const SESSION_MS = 7 * 24 * 60 * 60 * 1000;
 
-const sign = (secret: string, payload: string): string =>
-	createHmac('sha256', secret).update(payload).digest('hex');
+const sign = (secret: string, payload: string): string => createHmac('sha256', secret).update(payload).digest('hex');
 
 const safeEqual = (a: Buffer, b: Buffer): boolean => a.length === b.length && timingSafeEqual(a, b);
 

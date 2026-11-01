@@ -63,7 +63,13 @@ describe('countBy', () => {
 describe('dominantSector', () => {
 	it('takes the sector most of an industry belongs to, alphabetical on a tie', () => {
 		expect(dominantSector(data)).toEqual({ Banks: 'Financials', Steel: 'Materials' });
-		const tie: CompanyData = { ...data, companies: [['A', '', '', 0, 0, 0, 1, 0], ['B', '', '', 0, 0, 0, 0, 0]] };
+		const tie: CompanyData = {
+			...data,
+			companies: [
+				['A', '', '', 0, 0, 0, 1, 0],
+				['B', '', '', 0, 0, 0, 0, 0]
+			]
+		};
 		expect(dominantSector(tie)).toEqual({ Banks: 'Financials' });
 	});
 	it('covers all 94 industries of the real file with a sector that has a colour', () => {
@@ -76,7 +82,9 @@ describe('dominantSector', () => {
 
 describe('sector colours', () => {
 	const luminance = (hex: string) => {
-		const [r = 0, g = 0, b = 0] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((c) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4));
+		const [r = 0, g = 0, b = 0] = [1, 3, 5]
+			.map((i) => parseInt(hex.slice(i, i + 2), 16) / 255)
+			.map((c) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4));
 		return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 	};
 	const ink = luminance('#1D2D3E');
@@ -114,7 +122,10 @@ describe('shareOfGlobal', () => {
 	const values = { A: 50, B: 30, C: 20 };
 	it('gives absolute and percent of the global total, plus the rest of the world', () => {
 		const s = shareOfGlobal(values, ['A', 'C'], 100);
-		expect(s.items).toEqual([{ id: 'A', value: 50, percent: 50 }, { id: 'C', value: 20, percent: 20 }]);
+		expect(s.items).toEqual([
+			{ id: 'A', value: 50, percent: 50 },
+			{ id: 'C', value: 20, percent: 20 }
+		]);
 		expect(s.rest).toEqual({ id: 'rest', value: 30, percent: 30 });
 		expect(s.items.reduce((t, i) => t + i.percent, 0) + s.rest!.percent).toBeCloseTo(100, 9);
 	});

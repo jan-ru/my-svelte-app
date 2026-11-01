@@ -23,9 +23,25 @@
 {/if}
 
 <style>
-	h2 { font-size: var(--text-lg); margin: var(--space-4) 0 var(--space-2); }
-	.facts { display: grid; grid-template-columns: max-content 1fr; gap: var(--space-1) var(--space-4); margin: var(--space-4) 0; }
-	.facts dt { font-weight: var(--weight-semibold); color: var(--text-secondary); }
-	.facts dd { margin: 0; }
-	.desc { max-width: 60rem; line-height: var(--leading-normal); }
+	h2 {
+		font-size: var(--text-lg);
+		margin: var(--space-4) 0 var(--space-2);
+	}
+	.facts {
+		display: grid;
+		grid-template-columns: max-content 1fr;
+		gap: var(--space-1) var(--space-4);
+		margin: var(--space-4) 0;
+	}
+	.facts dt {
+		font-weight: var(--weight-semibold);
+		color: var(--text-secondary);
+	}
+	.facts dd {
+		margin: 0;
+	}
+	.desc {
+		max-width: 60rem;
+		line-height: var(--leading-normal);
+	}
 </style>

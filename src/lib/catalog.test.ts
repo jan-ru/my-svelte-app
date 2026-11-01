@@ -47,9 +47,7 @@ describe('catalog', () => {
 	});
 
 	it('builds the NYU URL', () => {
-		expect(workbookUrl('pe', 'europe')).toBe(
-			'https://pages.stern.nyu.edu/~adamodar/pc/datasets/peEurope.xls'
-		);
+		expect(workbookUrl('pe', 'europe')).toBe('https://pages.stern.nyu.edu/~adamodar/pc/datasets/peEurope.xls');
 	});
 
 	it('looks items up by id', () => {

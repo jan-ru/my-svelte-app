@@ -88,7 +88,8 @@ export function trace(data: Crosswalk, code: string): Trace | null {
 	// a group code such as 6020 counts for the real codes it stands for, split evenly
 	for (const [alias, children] of Object.entries(data.sicAlias)) {
 		const hit = children.filter((c) => sic.includes(c));
-		if (hit.length > 0) for (const [industry, n] of data.damodaran[alias] ?? []) add(industry, (n * hit.length) / children.length);
+		if (hit.length > 0)
+			for (const [industry, n] of data.damodaran[alias] ?? []) add(industry, (n * hit.length) / children.length);
 	}
 	const total = [...counts.values()].reduce((a, b) => a + b, 0);
 	const damodaran = [...counts]
@@ -207,7 +208,11 @@ export function reverseTrace(data: Crosswalk, industry: string): ReverseTrace | 
 		companies,
 		followed,
 		sic: [...sicCounts]
-			.map(([code, n]) => ({ code, title: data.sicTitles[code] ?? (data.sicAlias[code] ? `group code for ${data.sicAlias[code].join(', ')}` : ''), companies: n }))
+			.map(([code, n]) => ({
+				code,
+				title: data.sicTitles[code] ?? (data.sicAlias[code] ? `group code for ${data.sicAlias[code].join(', ')}` : ''),
+				companies: n
+			}))
 			.sort((a, b) => b.companies - a.companies || a.code.localeCompare(b.code)),
 		sbi25
 	};

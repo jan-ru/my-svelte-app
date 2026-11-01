@@ -81,7 +81,11 @@ describe('NewsList', () => {
 		expect(html(NewsList, { items: [item()], message: null, source: 'fmp' })).not.toContain('Matched by company name');
 	});
 	it('escapes text that came from an API', () => {
-		const out = html(NewsList, { items: [item({ title: '<script>alert(1)</script>', text: '<img src=x onerror=alert(1)>' })], message: null, source: 'fmp' });
+		const out = html(NewsList, {
+			items: [item({ title: '<script>alert(1)</script>', text: '<img src=x onerror=alert(1)>' })],
+			message: null,
+			source: 'fmp'
+		});
 		// escaping `<` is what stops an element from starting, so that is what is checked
 		expect(out).not.toContain('<script');
 		expect(out).not.toContain('<img');
@@ -89,7 +93,9 @@ describe('NewsList', () => {
 		expect(out).toContain('&lt;img src=x onerror=alert(1)>');
 	});
 	it('shows the message when there are no headlines', () => {
-		expect(html(NewsList, { items: [], message: 'No recent news found for ZZZ.', source: 'fmp' })).toContain('No recent news found for ZZZ.');
+		expect(html(NewsList, { items: [], message: 'No recent news found for ZZZ.', source: 'fmp' })).toContain(
+			'No recent news found for ZZZ.'
+		);
 	});
 });
 
@@ -153,7 +159,9 @@ describe('FinancialTable', () => {
 		expect(out).toContain('5.0');
 	});
 	it('has no currency note when the table has no currency', () => {
-		expect(html(FinancialTable, { title: 'Financial ratios', table: { ...table, currency: null }, message: null })).not.toContain('millions of');
+		expect(
+			html(FinancialTable, { title: 'Financial ratios', table: { ...table, currency: null }, message: null })
+		).not.toContain('millions of');
 	});
 	it('shows the message instead of a table', () => {
 		const out = html(FinancialTable, { title: 'Earnings', table: null, message: 'FMP has no earnings for ZZZ.' });
@@ -170,7 +178,9 @@ describe('FinancialTable', () => {
 	});
 	it('shows no price target block without one', () => {
 		for (const t of [undefined, null]) {
-			expect(html(FinancialTable, { title: 'Analyst estimates', table, message: null, target: t })).not.toContain('Price target');
+			expect(html(FinancialTable, { title: 'Analyst estimates', table, message: null, target: t })).not.toContain(
+				'Price target'
+			);
 		}
 	});
 });

@@ -57,9 +57,7 @@ function actualYear(income: StatementYear, balance: StatementYear | undefined): 
 const forecastYear = (estimate: StatementYear): FigureYear => ({
 	fiscalYear: estimate.fiscalYear,
 	kind: 'forecast',
-	values: Object.fromEntries(
-		Object.entries(ESTIMATE_LINES).map(([metric, line]) => [metric, first(estimate, [line])])
-	)
+	values: Object.fromEntries(Object.entries(ESTIMATE_LINES).map(([metric, line]) => [metric, first(estimate, [line])]))
 });
 
 /**
@@ -107,7 +105,8 @@ export function peerMultiples(
 		Object.entries(BASIS).map(([id, basis]) => {
 			if (!figures || marketCap === null || marketCap <= 0) return [id, null];
 			const value = pickYear(figures, basis.year)?.values[basis.metric];
-			const base = basis.target === 'equity' ? marketCap : figures.netDebt === null ? null : marketCap + figures.netDebt;
+			const base =
+				basis.target === 'equity' ? marketCap : figures.netDebt === null ? null : marketCap + figures.netDebt;
 			const usable = typeof value === 'number' && value > 0 && base !== null && base > 0;
 			return [id, usable ? base / value : null];
 		})

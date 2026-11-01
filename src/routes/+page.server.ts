@@ -22,14 +22,11 @@ export const load: PageServerLoad = async ({ url, locals, setHeaders }) => {
 	// filtered, so drop any default the data does not know.
 	const view = parseParams(pageParams(locals.interactive, url), industries.length > 0 ? industries : undefined);
 	if (industries.length > 0) {
-		view.selection.industries = view.selection.industries.filter((name) =>
-			industries.includes(name)
-		);
+		view.selection.industries = view.selection.industries.filter((name) => industries.includes(name));
 	}
 
 	const { selection, layout } = view;
-	const ready =
-		selection.multiples.length > 0 && selection.regions.length > 0 && selection.industries.length > 0;
+	const ready = selection.multiples.length > 0 && selection.regions.length > 0 && selection.industries.length > 0;
 
 	if (loadError || !ready) {
 		setHeaders({ 'cache-control': 'no-store' });

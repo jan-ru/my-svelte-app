@@ -1,11 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-	parseYahooNews,
-	parseYahooPrices,
-	parseYahooProfile,
-	parseYahooStatement,
-	toDate
-} from './yahoo-parse';
+import { parseYahooNews, parseYahooPrices, parseYahooProfile, parseYahooStatement, toDate } from './yahoo-parse';
 import { SourceError } from './source-error';
 
 describe('toDate', () => {
@@ -17,7 +11,9 @@ describe('toDate', () => {
 		expect(toDate(iso)?.toISOString()).toBe(iso);
 	});
 	it('returns null for anything else', () => {
-		[null, undefined, '', 'soon', NaN, {}].forEach((v, i) => { expect(toDate(v), `case ${i}`).toBeNull(); });
+		[null, undefined, '', 'soon', NaN, {}].forEach((v, i) => {
+			expect(toDate(v), `case ${i}`).toBeNull();
+		});
 	});
 });
 
@@ -116,14 +112,25 @@ describe('parseYahooProfile', () => {
 describe('parseYahooNews', () => {
 	it('maps items, formats the time and keeps safe links only', () => {
 		const items = parseYahooNews([
-			{ title: 'Dutch state dilutes ABN', publisher: 'RBI', link: 'https://finance.yahoo.com/news/a', providerPublishTime: new Date('2026-10-25T14:30:00Z') },
+			{
+				title: 'Dutch state dilutes ABN',
+				publisher: 'RBI',
+				link: 'https://finance.yahoo.com/news/a',
+				providerPublishTime: new Date('2026-10-25T14:30:00Z')
+			},
 			{ title: 'Epoch time', publisher: 'X', link: 'javascript:alert(1)', providerPublishTime: 1767139200 },
 			{ title: '', link: 'https://x.test' },
 			{ publisher: 'no title' },
 			null
 		]);
 		expect(items).toEqual([
-			{ title: 'Dutch state dilutes ABN', publisher: 'RBI', date: '2026-10-25 14:30:00', text: null, url: 'https://finance.yahoo.com/news/a' },
+			{
+				title: 'Dutch state dilutes ABN',
+				publisher: 'RBI',
+				date: '2026-10-25 14:30:00',
+				text: null,
+				url: 'https://finance.yahoo.com/news/a'
+			},
 			{ title: 'Epoch time', publisher: 'X', date: '2025-12-31 00:00:00', text: null, url: null }
 		]);
 	});
@@ -161,7 +168,13 @@ describe('parseYahooStatement', () => {
 		expect(s.years[2]?.values.interestIncome).toBeUndefined();
 	});
 	it('leaves out metadata and non-numeric fields', () => {
-		const s = parseYahooStatement('income', [row(2025, { totalRevenue: 1, note: 'x', junk: null })], null, 'annual', null);
+		const s = parseYahooStatement(
+			'income',
+			[row(2025, { totalRevenue: 1, note: 'x', junk: null })],
+			null,
+			'annual',
+			null
+		);
 		expect(s.lines).not.toContain('TYPE');
 		expect(s.lines).not.toContain('periodType');
 		expect(s.lines).not.toContain('date');
@@ -198,7 +211,13 @@ describe('parseYahooStatement', () => {
 		expect(() => parseYahooStatement('income', [], { nope: 1 }, 'ttm', null)).toThrow(SourceError);
 	});
 	it('skips rows without a usable date', () => {
-		const s = parseYahooStatement('income', [{ date: 'soon', totalRevenue: 1 }, row(2025, { totalRevenue: 2 })], null, 'annual', null);
+		const s = parseYahooStatement(
+			'income',
+			[{ date: 'soon', totalRevenue: 1 }, row(2025, { totalRevenue: 2 })],
+			null,
+			'annual',
+			null
+		);
 		expect(s.years).toHaveLength(1);
 	});
 });

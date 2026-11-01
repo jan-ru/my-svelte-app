@@ -32,7 +32,11 @@ export interface YahooClient {
 
 // Our parsers check every field, so the library's own (strict, often outdated) result validation stays off.
 const OPTIONS: ModuleOptions = { validateResult: false };
-const MODULES: Record<Kind, StatementModule> = { income: 'financials', balance: 'balance-sheet', cashflow: 'cash-flow' };
+const MODULES: Record<Kind, StatementModule> = {
+	income: 'financials',
+	balance: 'balance-sheet',
+	cashflow: 'cash-flow'
+};
 
 let shared: Promise<YahooClient> | undefined;
 
@@ -47,7 +51,8 @@ export function defaultClient(): Promise<YahooClient> {
 			chart: (symbol, options, moduleOptions) => yf.chart(symbol, options, moduleOptions),
 			quoteSummary: (symbol, options, moduleOptions) => yf.quoteSummary(symbol, options, moduleOptions),
 			search: (query, options, moduleOptions) => yf.search(query, options, moduleOptions),
-			fundamentalsTimeSeries: (symbol, options, moduleOptions) => yf.fundamentalsTimeSeries(symbol, options, moduleOptions)
+			fundamentalsTimeSeries: (symbol, options, moduleOptions) =>
+				yf.fundamentalsTimeSeries(symbol, options, moduleOptions)
 		} satisfies YahooClient;
 	});
 	return shared;
@@ -73,7 +78,12 @@ async function tolerant<T>(run: () => Promise<T>, empty: T): Promise<T> {
 	}
 }
 
-export function fetchYahooPrices(symbol: string, from: string, to: string, client?: YahooClient): Promise<PricePoint[]> {
+export function fetchYahooPrices(
+	symbol: string,
+	from: string,
+	to: string,
+	client?: YahooClient
+): Promise<PricePoint[]> {
 	return tolerant(async () => {
 		const c = client ?? (await defaultClient());
 		const result = await c.chart(
@@ -117,19 +127,35 @@ async function reportingCurrency(c: YahooClient, symbol: string): Promise<string
 	}
 }
 
-export function fetchYahooStatement(kind: Kind, symbol: string, period: Period, client?: YahooClient): Promise<Statement> {
-	return tolerant(async () => {
-		const c = client ?? (await defaultClient());
-		const module = MODULES[kind];
-		const year = new Date().getUTCFullYear();
-		// TTM income and cash flow come from the trailing series; the balance sheet has none and uses the latest annual one
-		const wantsTrailing = period === 'ttm' && kind !== 'balance';
-		const annual = wantsTrailing
-			? []
-			: await c.fundamentalsTimeSeries(symbol, { period1: new Date(Date.UTC(year - 7, 0, 1)), type: 'annual', module }, OPTIONS);
-		const trailing = wantsTrailing
-			? await c.fundamentalsTimeSeries(symbol, { period1: new Date(Date.UTC(year - 2, 0, 1)), type: 'trailing', module }, OPTIONS)
-			: null;
-		return parseYahooStatement(kind, annual, trailing, period, await reportingCurrency(c, symbol));
-	}, { lines: [], years: [] });
+export function fetchYahooStatement(
+	kind: Kind,
+	symbol: string,
+	period: Period,
+	client?: YahooClient
+): Promise<Statement> {
+	return tolerant(
+		async () => {
+			const c = client ?? (await defaultClient());
+			const module = MODULES[kind];
+			const year = new Date().getUTCFullYear();
+			// TTM income and cash flow come from the trailing series; the balance sheet has none and uses the latest annual one
+			const wantsTrailing = period === 'ttm' && kind !== 'balance';
+			const annual = wantsTrailing
+				? []
+				: await c.fundamentalsTimeSeries(
+						symbol,
+						{ period1: new Date(Date.UTC(year - 7, 0, 1)), type: 'annual', module },
+						OPTIONS
+					);
+			const trailing = wantsTrailing
+				? await c.fundamentalsTimeSeries(
+						symbol,
+						{ period1: new Date(Date.UTC(year - 2, 0, 1)), type: 'trailing', module },
+						OPTIONS
+					)
+				: null;
+			return parseYahooStatement(kind, annual, trailing, period, await reportingCurrency(c, symbol));
+		},
+		{ lines: [], years: [] }
+	);
 }

@@ -42,11 +42,7 @@ describe('buildLayout', () => {
 	});
 
 	it('follows a pivoted layout', () => {
-		const model = buildLayout(
-			selection,
-			{ panels: 'regions', x: 'multiples', color: 'industries' },
-			comparison
-		);
+		const model = buildLayout(selection, { panels: 'regions', x: 'multiples', color: 'industries' }, comparison);
 		expect(model.panels.map((p) => p.title)).toEqual(['US', 'Europe']);
 		expect(model.series).toEqual(['Software', 'Steel']);
 

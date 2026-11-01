@@ -17,11 +17,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 	response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
 	// Interactive pages are per person and /financials is always dynamic. Without a usable token ISR is off,
 	// and a public header would still let the CDN cache by URL and show the anonymous copy to logged-in users.
-	if (
-		event.locals.interactive ||
-		event.url.pathname.startsWith('/financials') ||
-		!bypassToken(ISR_BYPASS_TOKEN)
-	) {
+	if (event.locals.interactive || event.url.pathname.startsWith('/financials') || !bypassToken(ISR_BYPASS_TOKEN)) {
 		response.headers.set('Cache-Control', 'private, no-store');
 	}
 	return response;

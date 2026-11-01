@@ -25,9 +25,29 @@ describe('bypassToken', () => {
 
 describe('isrConfig', () => {
 	it('turns ISR on for a usable token, one day, keying only on the SvelteKit data-request parameters', () => {
-		expect(isrConfig(TOKEN)).toEqual({ isr: { expiration: ISR_EXPIRATION_SECONDS, bypassToken: TOKEN, allowQuery: [...ISR_ALLOW_QUERY] } });
+		expect(isrConfig(TOKEN)).toEqual({
+			isr: { expiration: ISR_EXPIRATION_SECONDS, bypassToken: TOKEN, allowQuery: [...ISR_ALLOW_QUERY] }
+		});
 		// Vercel drops every parameter not listed, so each parameter a page reads must be in the list.
-		for (const name of ['m', 'r', 'i', 'p', 'x', 'c', 'q', 'code', 'industry', 'sic', 'country', 'region', 'sector', 'page', 'measure', 'x-sveltekit-invalidated', 'x-sveltekit-trailing-slash']) {
+		for (const name of [
+			'm',
+			'r',
+			'i',
+			'p',
+			'x',
+			'c',
+			'q',
+			'code',
+			'industry',
+			'sic',
+			'country',
+			'region',
+			'sector',
+			'page',
+			'measure',
+			'x-sveltekit-invalidated',
+			'x-sveltekit-trailing-slash'
+		]) {
 			expect(ISR_ALLOW_QUERY).toContain(name);
 		}
 		expect(ISR_EXPIRATION_SECONDS).toBe(86400);

@@ -24,7 +24,10 @@
 
 <svelte:head>
 	<title>Companies – Fetch valuation multiples</title>
-	<meta name="description" content="Listed companies in the NYU Stern (Damodaran) industry data, by industry, SIC code and country." />
+	<meta
+		name="description"
+		content="Listed companies in the NYU Stern (Damodaran) industry data, by industry, SIC code and country."
+	/>
 </svelte:head>
 
 {#snippet cell(key: string, value: string)}
@@ -94,7 +97,8 @@
 		<p role="status">Unknown industry “{data.filters.industry}”.</p>
 	{:else}
 		<p role="status" class="note">
-			{data.result.total.toLocaleString('en')} {data.result.total === 1 ? 'company' : 'companies'}{#if data.result.total > 0}
+			{data.result.total.toLocaleString('en')}
+			{data.result.total === 1 ? 'company' : 'companies'}{#if data.result.total > 0}
 				in {plural(data.result.distinct.industries, 'industry', 'industries')},
 				{plural(data.result.distinct.sectors, 'sector', 'sectors')},
 				{plural(data.result.distinct.regions, 'region', 'regions')},
@@ -121,14 +125,27 @@
 							<td>
 								{#if q}
 									<a href={q.url} target="_blank" rel="noopener noreferrer">{c.ticker}</a>
-									<small class="src" title={`${q.source === 'YF' ? 'Yahoo' : 'Google'} Finance${q.search ? ' search' : ''}`}>{q.source}{q.search ? ' search' : ''}</small>
+									<small
+										class="src"
+										title={`${q.source === 'YF' ? 'Yahoo' : 'Google'} Finance${q.search ? ' search' : ''}`}
+										>{q.source}{q.search ? ' search' : ''}</small
+									>
 								{:else}{c.ticker}{/if}
 							</td>
-							<td>{#if c.sic}{#if data.interactive}<a href={narrow('sic', c.sic)}><code>{c.sic}</code></a>{:else}<code>{c.sic}</code>{/if}{/if}</td>
+							<td
+								>{#if c.sic}{#if data.interactive}<a href={narrow('sic', c.sic)}><code>{c.sic}</code></a>{:else}<code
+											>{c.sic}</code
+										>{/if}{/if}</td
+							>
 							<td>
 								{@render cell('industry', c.industry)}
 								{#if data.interactive}
-									<a class="src" href={`/?i=${encodeURIComponent(c.industry)}`} aria-label={`Multiples for ${c.industry}`} title="Valuation multiples for this industry">multiples</a>
+									<a
+										class="src"
+										href={`/?i=${encodeURIComponent(c.industry)}`}
+										aria-label={`Multiples for ${c.industry}`}
+										title="Valuation multiples for this industry">multiples</a
+									>
 								{/if}
 							</td>
 							<td>{@render cell('sector', c.sector)}</td>
@@ -157,19 +174,62 @@
 	{/if}
 
 	<p class="note">
-		Source: <a href="https://pages.stern.nyu.edu/~adamodar/New_Home_Page/data.html" rel="noreferrer">NYU Stern (Damodaran) data</a>,
-		file built on {data.generated}. The industry shown is the one NYU assigns, not one derived here.
+		Source: <a href="https://pages.stern.nyu.edu/~adamodar/New_Home_Page/data.html" rel="noreferrer"
+			>NYU Stern (Damodaran) data</a
+		>, file built on {data.generated}. The industry shown is the one NYU assigns, not one derived here.
 	</p>
 </main>
 
 <style>
-	.src { margin-left: var(--space-1); color: var(--text-secondary); font-size: var(--text-xs); }
-	main { max-width: 64rem; margin: 0 auto; padding: 0 var(--space-4) var(--space-12); }
-	form { display: flex; gap: var(--space-2) var(--space-4); align-items: center; flex-wrap: wrap; margin: var(--space-4) 0; padding: var(--space-3) var(--space-4); background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
-	select, input[type='search'] { max-width: 100%; }
-	table { width: 100%; font-size: var(--text-sm); background: var(--surface-card); }
-	.note { color: var(--text-secondary); }
-	.pager { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-4) 0; }
-	.pager a { padding: 5px 14px; font-weight: var(--weight-semibold); text-decoration: none; background: var(--white); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); }
-	.pager a:hover { background: var(--blue-05); border-color: var(--color-primary); }
+	.src {
+		margin-left: var(--space-1);
+		color: var(--text-secondary);
+		font-size: var(--text-xs);
+	}
+	main {
+		max-width: 64rem;
+		margin: 0 auto;
+		padding: 0 var(--space-4) var(--space-12);
+	}
+	form {
+		display: flex;
+		gap: var(--space-2) var(--space-4);
+		align-items: center;
+		flex-wrap: wrap;
+		margin: var(--space-4) 0;
+		padding: var(--space-3) var(--space-4);
+		background: var(--surface-card);
+		border: 1px solid var(--border-subtle);
+		border-radius: var(--radius-md);
+	}
+	select,
+	input[type='search'] {
+		max-width: 100%;
+	}
+	table {
+		width: 100%;
+		font-size: var(--text-sm);
+		background: var(--surface-card);
+	}
+	.note {
+		color: var(--text-secondary);
+	}
+	.pager {
+		display: flex;
+		align-items: center;
+		gap: var(--space-3);
+		padding: var(--space-4) 0;
+	}
+	.pager a {
+		padding: 5px 14px;
+		font-weight: var(--weight-semibold);
+		text-decoration: none;
+		background: var(--white);
+		border: 1px solid var(--border-strong);
+		border-radius: var(--radius-sm);
+	}
+	.pager a:hover {
+		background: var(--blue-05);
+		border-color: var(--color-primary);
+	}
 </style>

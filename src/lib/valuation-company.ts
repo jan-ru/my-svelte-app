@@ -14,7 +14,10 @@ export const MAX_ENCODED = 4000;
 type Packed = [name: string, currency: string, netDebt: number | null, years: [string, 0 | 1, ...(number | null)[]][]];
 
 const toBase64Url = (text: string): string =>
-	btoa(String.fromCharCode(...new TextEncoder().encode(text))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+	btoa(String.fromCharCode(...new TextEncoder().encode(text)))
+		.replace(/\+/g, '-')
+		.replace(/\//g, '_')
+		.replace(/=+$/, '');
 
 function fromBase64Url(raw: string): string | null {
 	try {

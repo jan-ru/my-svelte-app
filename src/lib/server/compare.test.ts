@@ -38,8 +38,7 @@ const ebitdaBook = book(
 	['', '', 'Only positive EBITDA firms', 'Only positive EBITDA firms']
 );
 
-const loader = (): WorkbookLoader =>
-	vi.fn(async (family) => (family === 'pe' ? peBook : ebitdaBook));
+const loader = (): WorkbookLoader => vi.fn(async (family) => (family === 'pe' ? peBook : ebitdaBook));
 
 const select = (over: Partial<Selection>): Selection => ({
 	multiples: ['pe_trailing'],
@@ -50,10 +49,7 @@ const select = (over: Partial<Selection>): Selection => ({
 
 describe('getComparison', () => {
 	it('maps each multiple, region and industry to a cell', async () => {
-		const result = await getComparison(
-			select({ multiples: ['pe_trailing', 'ev_ebitda'] }),
-			loader()
-		);
+		const result = await getComparison(select({ multiples: ['pe_trailing', 'ev_ebitda'] }), loader());
 		expect(result.cells.pe_trailing?.us?.Software).toEqual({ value: 25, firms: 100 });
 		expect(result.cells.ev_ebitda?.us?.Steel).toEqual({ value: 6, firms: 20 });
 		expect(result.updated).toBe('2026-01-05');
@@ -84,10 +80,7 @@ describe('getComparison', () => {
 	});
 
 	it('reports a missing column', async () => {
-		const noForward = book(
-			['Industry Name', 'Number of firms', 'Trailing PE'],
-			[['Software', 100, 25]]
-		);
+		const noForward = book(['Industry Name', 'Number of firms', 'Trailing PE'], [['Software', 100, 25]]);
 		const result = await getComparison(select({ multiples: ['pe_forward'] }), async () => noForward);
 		expect(result.errors['pe_forward:us']).toMatch(/Forward PE/);
 	});

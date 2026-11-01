@@ -28,14 +28,24 @@ const gdp: GdpData = {
 	nyu: { Netherlands: 'NLD', Japan: 'JPN' },
 	unmatched: ['Taiwan']
 };
-const nav = (over: Partial<SizeNav> = {}): SizeNav => ({ measure: 'companies', countries: [], industries: [], sectors: [], ...over });
+const nav = (over: Partial<SizeNav> = {}): SizeNav => ({
+	measure: 'companies',
+	countries: [],
+	industries: [],
+	sectors: [],
+	...over
+});
 
 describe('countriesView', () => {
 	it('defaults to every country by company count, the top ten against the global total', () => {
 		const v = countriesView(data, gdp, nav());
 		expect(v.measureLabel).toBe('companies');
 		expect(v.total).toBe(6);
-		expect(v.tiles.map((t) => [t.id, t.value])).toEqual([['Netherlands', 3], ['Japan', 2], ['Taiwan', 1]]);
+		expect(v.tiles.map((t) => [t.id, t.value])).toEqual([
+			['Netherlands', 3],
+			['Japan', 2],
+			['Taiwan', 1]
+		]);
 		expect(v.shares.items.map((i) => i.id)).toEqual(['Netherlands', 'Japan', 'Taiwan']);
 		expect(v.shares.rest).toBeNull();
 		expect(v.breakdown).toBeNull();
@@ -49,12 +59,18 @@ describe('countriesView', () => {
 		expect(v.shares.items[0]?.percent).toBeCloseTo((2 / 6) * 100, 9);
 		expect(v.shares.rest?.value).toBe(4);
 		// a selection also shows its industries
-		expect(v.breakdown?.map((t) => [t.id, t.value])).toEqual([['Banks', 1], ['Steel', 1]]);
+		expect(v.breakdown?.map((t) => [t.id, t.value])).toEqual([
+			['Banks', 1],
+			['Steel', 1]
+		]);
 		expect(v.breakdownTotal).toBe(6);
 	});
 	it('restricts the counts by industry and keeps percentages of the global total', () => {
 		const v = countriesView(data, gdp, nav({ industries: ['Banks'] }));
-		expect(v.tiles.map((t) => [t.id, t.value])).toEqual([['Netherlands', 2], ['Japan', 1]]);
+		expect(v.tiles.map((t) => [t.id, t.value])).toEqual([
+			['Netherlands', 2],
+			['Japan', 1]
+		]);
 		expect(v.total).toBe(6);
 	});
 	it('gives the cross cell for one country and one industry', () => {
@@ -86,9 +102,15 @@ describe('industriesView', () => {
 	it('defaults to every industry by company count, coloured by sector, with a legend', () => {
 		const v = industriesView(data, nav());
 		expect(v.total).toBe(6);
-		expect(v.tiles.map((t) => [t.id, t.value])).toEqual([['Banks', 3], ['Steel', 3]]);
+		expect(v.tiles.map((t) => [t.id, t.value])).toEqual([
+			['Banks', 3],
+			['Steel', 3]
+		]);
 		expect(v.tiles[0]?.fill).not.toBe(v.tiles[1]?.fill);
-		expect(v.legend.map((l) => [l.sector, l.value])).toEqual([['Financials', 3], ['Materials', 3]]);
+		expect(v.legend.map((l) => [l.sector, l.value])).toEqual([
+			['Financials', 3],
+			['Materials', 3]
+		]);
 		expect(v.shares.items.map((i) => i.id)).toEqual(['Banks', 'Steel']);
 		expect(v.shares.rest).toBeNull();
 		expect(v.breakdown).toBeNull();
@@ -101,11 +123,18 @@ describe('industriesView', () => {
 	});
 	it('shows the countries of the selected industries, and restricts by country', () => {
 		const v = industriesView(data, nav({ industries: ['Steel'] }));
-		expect(v.breakdown?.map((t) => [t.id, t.value])).toEqual([['Japan', 1], ['Netherlands', 1], ['Taiwan', 1]]);
+		expect(v.breakdown?.map((t) => [t.id, t.value])).toEqual([
+			['Japan', 1],
+			['Netherlands', 1],
+			['Taiwan', 1]
+		]);
 		expect(v.shares.items).toEqual([{ id: 'Steel', value: 3, percent: 50 }]);
 		expect(v.shares.rest?.value).toBe(3);
 		const jp = industriesView(data, nav({ countries: ['Japan'] }));
-		expect(jp.tiles.map((t) => [t.id, t.value])).toEqual([['Banks', 1], ['Steel', 1]]);
+		expect(jp.tiles.map((t) => [t.id, t.value])).toEqual([
+			['Banks', 1],
+			['Steel', 1]
+		]);
 	});
 	it('gives the cross cell for one country and one industry', () => {
 		const v = industriesView(data, nav({ countries: ['Japan'], industries: ['Banks'] }));

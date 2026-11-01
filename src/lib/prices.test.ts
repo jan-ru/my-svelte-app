@@ -8,7 +8,12 @@ describe('summarise', () => {
 		expect(summarise([])).toBeNull();
 	});
 	it('computes last close, day change and the range of closes', () => {
-		const s = summarise([p('2026-10-20', 100, 5), p('2026-10-21', 120, 6), p('2026-10-22', 80, 7), p('2026-10-23', 90, 8)])!;
+		const s = summarise([
+			p('2026-10-20', 100, 5),
+			p('2026-10-21', 120, 6),
+			p('2026-10-22', 80, 7),
+			p('2026-10-23', 90, 8)
+		])!;
 		expect(s.date).toBe('2026-10-23');
 		expect(s.close).toBe(90);
 		expect(s.change).toBe(10);

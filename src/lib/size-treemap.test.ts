@@ -44,7 +44,16 @@ describe('squarify', () => {
 	});
 	it('handles one item, zero and negative values, and an empty input', () => {
 		expect(squarify([{ id: 'x', value: 5 }], 100, 50)).toEqual([{ id: 'x', x: 0, y: 0, w: 100, h: 50 }]);
-		expect(squarify([{ id: 'x', value: 0 }, { id: 'y', value: -3 }], 100, 50)).toEqual([]);
+		expect(
+			squarify(
+				[
+					{ id: 'x', value: 0 },
+					{ id: 'y', value: -3 }
+				],
+				100,
+				50
+			)
+		).toEqual([]);
 		expect(squarify([], 100, 50)).toEqual([]);
 		expect(squarify(items, 0, 50)).toEqual([]);
 	});
@@ -102,7 +111,16 @@ describe('nest', () => {
 		expect(area('a') / area('b')).toBeCloseTo(3, 6);
 	});
 	it('drops the tiles of a group that is too small for them but keeps its block', () => {
-		const r = nest([{ id: 'a', value: 1000, group: 'X' }, { id: 'b', value: 1, group: 'Y' }], 100, 100, 18, 2);
+		const r = nest(
+			[
+				{ id: 'a', value: 1000, group: 'X' },
+				{ id: 'b', value: 1, group: 'Y' }
+			],
+			100,
+			100,
+			18,
+			2
+		);
 		expect(r.groups).toHaveLength(2);
 		expect(r.tiles.map((t) => t.id)).toEqual(['a']);
 	});

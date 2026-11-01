@@ -68,7 +68,12 @@ export function parseParams(sp: URLSearchParams, knownIndustries?: readonly stri
 		selection: {
 			multiples: readList(sp, 'm', (v) => MULTIPLE_IDS.has(v), DEFAULT_SELECTION.multiples),
 			regions: readList(sp, 'r', (v) => REGION_IDS.has(v), DEFAULT_SELECTION.regions),
-			industries: readList(sp, 'i', (v) => v.length <= MAX_NAME_LENGTH && (!known || known.has(v)), DEFAULT_SELECTION.industries)
+			industries: readList(
+				sp,
+				'i',
+				(v) => v.length <= MAX_NAME_LENGTH && (!known || known.has(v)),
+				DEFAULT_SELECTION.industries
+			)
 		},
 		layout: readLayout(sp)
 	};
@@ -92,9 +97,7 @@ export function toSearchParams({ selection, layout }: ViewParams): URLSearchPara
 /** Assign `dim` to `key`; whichever role had `dim` takes over the old value. */
 export function applyRole(layout: Layout, key: keyof Layout, dim: Role): Layout {
 	const next: Layout = { ...layout, [key]: dim };
-	const other = (Object.keys(layout) as (keyof Layout)[]).find(
-		(k) => k !== key && layout[k] === dim
-	);
+	const other = (Object.keys(layout) as (keyof Layout)[]).find((k) => k !== key && layout[k] === dim);
 	if (other) next[other] = layout[key];
 	return next;
 }

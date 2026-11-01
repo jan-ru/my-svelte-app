@@ -53,9 +53,7 @@ describe('parseWorkbook', () => {
 	});
 
 	it('carries each header group across the columns it spans', () => {
-		const wb = parseWorkbook(
-			makeWorkbook({ groupRow: GROUP_ROW, header: EBITDA_HEADER, rows: EBITDA_ROWS })
-		);
+		const wb = parseWorkbook(makeWorkbook({ groupRow: GROUP_ROW, header: EBITDA_HEADER, rows: EBITDA_ROWS }));
 		expect(wb.groups).toEqual([
 			'',
 			'',
@@ -78,8 +76,7 @@ describe('parseWorkbook', () => {
 });
 
 describe('pickColumn', () => {
-	const grouped = () =>
-		parseWorkbook(makeWorkbook({ groupRow: GROUP_ROW, header: EBITDA_HEADER, rows: EBITDA_ROWS }));
+	const grouped = () => parseWorkbook(makeWorkbook({ groupRow: GROUP_ROW, header: EBITDA_HEADER, rows: EBITDA_ROWS }));
 
 	it('uses the requested group', () => {
 		expect(pickColumn(grouped(), 'EV/EBITDA', 'Only positive EBITDA firms').get('Advertising')).toEqual({

@@ -55,10 +55,7 @@ export function parseWorkbook(data: Uint8Array): WorkbookData {
 
 	// A group row sits directly above the header: first cell empty, some text further right.
 	const above = rows[headerIndex - 1] ?? null;
-	const hasGroups =
-		above !== null &&
-		above[0] == null &&
-		above.some((c) => typeof c === 'string' && c.trim() !== '');
+	const hasGroups = above !== null && above[0] == null && above.some((c) => typeof c === 'string' && c.trim() !== '');
 	let current = '';
 	const groups = header.map((_, i) => {
 		if (hasGroups) {

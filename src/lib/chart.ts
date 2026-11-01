@@ -11,11 +11,7 @@ export function formatMultiple(value: number | null): string {
 }
 
 /** Round tick values covering [min, max]; the range always includes 0. */
-export function niceTicks(
-	min: number,
-	max: number,
-	count = 5
-): { ticks: number[]; min: number; max: number } {
+export function niceTicks(min: number, max: number, count = 5): { ticks: number[]; min: number; max: number } {
 	const lo = Math.min(0, min);
 	const hi = Math.max(0, max);
 	if (hi === lo) return { ticks: [0, 1], min: 0, max: 1 };
@@ -33,11 +29,7 @@ export function niceTicks(
 }
 
 /** Round tick values covering [min, max] with a little padding; unlike `niceTicks` the range need not include 0. */
-export function priceTicks(
-	min: number,
-	max: number,
-	count = 5
-): { ticks: number[]; min: number; max: number } {
+export function priceTicks(min: number, max: number, count = 5): { ticks: number[]; min: number; max: number } {
 	const pad = max === min ? Math.abs(min) * 0.05 || 1 : (max - min) * 0.05;
 	let lo = min - pad;
 	const hi = max + pad;
