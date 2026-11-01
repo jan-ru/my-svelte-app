@@ -91,6 +91,10 @@ The code is TypeScript only (`.ts` files and `<script lang="ts">`), type-checked
 
 CI also enforces a coverage floor on `src/lib` (`npm run test:coverage`) and runs `npm audit --omit=dev --audit-level=high` on runtime dependencies. A separate, non-required `lighthouse` job audits the public pages (home, classification, companies, about) on the production build with Lighthouse CI (`lighthouserc.json`): accessibility, best practices and SEO must score at least 0.9 for the job to pass, performance at least 0.8 as a warning. The `is-crawlable` audit is skipped (`skipAudits` in `lighthouserc.json`) because `robots.txt` deliberately disallows all crawlers, which would otherwise fail the SEO score.
 
+## Releases and design docs
+
+[`docs/overview.md`](docs/overview.md) gives the design at a glance, the design decisions, the release history, the quality review and the roadmap. The decisions are recorded one per file in [`docs/adr/`](docs/adr/README.md), the quality review is in [`docs/quality/`](docs/quality/README.md), and [`CHANGELOG.md`](CHANGELOG.md) lists what each release brought. [`RELEASING.md`](RELEASING.md) describes how a release is cut (CalVer `YYYY.0M.0D` tags).
+
 ## Getting started
 
 Prerequisites: [Node.js](https://nodejs.org) 24.x (pinned in `package.json` under `engines`, and in `.nvmrc`, so `nvm use` picks it) and npm. The project stays on one Node LTS line; moving to the next one means changing `engines`, `.nvmrc`, the CI workflows and `@types/node` together (a test checks they agree).
@@ -161,7 +165,7 @@ src/
     +layout.*           Nav with Log in / Log out, passes the interactive flag
     about/+page.svelte  About page
 scripts/                Builds the classification data (see docs/crosswalk.md)
-docs/                   Crosswalk notes, design spec and implementation plan
+docs/                   Overview, design decisions (adr/), quality review, crosswalk notes, specs and plans
 ```
 
 ## Deployment
