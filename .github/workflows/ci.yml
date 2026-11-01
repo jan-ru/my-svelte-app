@@ -20,6 +20,7 @@ jobs:
       - run: npm ci
       - run: npm run check
       - run: npm run lint
+      - run: npm run format:check
       - run: npm run check:ts-only
       - run: npm run test:coverage
       - run: npm run build
