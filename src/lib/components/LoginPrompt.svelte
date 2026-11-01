@@ -1,11 +1,12 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import { loginHref } from '#lib/return-path';
 
 	let { from, children }: { from: string; children: Snippet } = $props();
 </script>
 
 <p class="login-prompt" role="note">
-	<a href={`/financials?from=${encodeURIComponent(from)}`}>Log in</a>
+	<a href={loginHref(from)}>Log in</a>
 	{@render children()}
 </p>
 

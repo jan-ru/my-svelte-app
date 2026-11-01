@@ -1,5 +1,6 @@
 <!-- src/routes/financials/valuation/+page.svelte -->
 <script lang="ts">
+	import { page } from '$app/state';
 	import { MAX_SELECTION, MULTIPLES, REGIONS } from '#lib/catalog';
 	import BandOverrides from '#lib/components/BandOverrides.svelte';
 	import CompanyFigures from '#lib/components/CompanyFigures.svelte';
@@ -43,7 +44,7 @@
 
 	{#if view.state === 'locked'}
 		{#if data.configured}
-			<LoginPrompt from={VALUATION_PATH}>to value a company.</LoginPrompt>
+			<LoginPrompt from={page.url.pathname + page.url.search}>to value a company.</LoginPrompt>
 		{:else}
 			<p class="error" role="alert">This page is not configured on this deployment.</p>
 		{/if}

@@ -1,6 +1,4 @@
-import { parseSymbol } from './symbol';
 import { parseSource, type Source } from './source';
-import { returnPath, type ReturnPath } from './return-path';
 
 export const TABS = [
 	{ id: 'financials', label: 'Financials' },
@@ -54,18 +52,4 @@ export function navHref(nav: Nav, symbol: string): string {
 	sp.set('period', nav.period);
 	if (nav.source) sp.set('source', nav.source);
 	return `/financials?${sp}`;
-}
-
-/** Form action for the login form that keeps the page state in the URL (`?/login&symbol=...&from=...`). */
-export function loginAction(nav: Nav, symbol: string, from: ReturnPath | null = null): string {
-	const tail = symbol ? navHref(nav, symbol).split('?')[1] : '';
-	const parts = [tail, from ? `from=${encodeURIComponent(from)}` : ''].filter(Boolean);
-	return parts.length ? `?/login&${parts.join('&')}` : '?/login';
-}
-
-/** Where to go after logging in: the ticker that was asked for, else the page the visitor came from, else the plain page. Always local. */
-export function afterLogin(params: URLSearchParams): string {
-	const symbol = parseSymbol(params.get('symbol'));
-	if (symbol) return navHref(parseNav(params), symbol);
-	return returnPath(params.get('from')) ?? '/financials';
 }
