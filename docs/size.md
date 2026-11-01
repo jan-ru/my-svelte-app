@@ -34,6 +34,15 @@ The year differs per country: the latest values range from 2011 to 2025 (as of 2
 
 NYU country names are matched to World Bank names exactly, then through `MANUAL_NAMES` in `src/lib/gdp-match.ts`. The script prints any manual target that no longer exists and exits with an error, and the matching refuses two NYU names for one World Bank country.
 
+## Inflation and real growth
+
+When countries are selected, `/countries` shows a table with their inflation and real GDP growth: the latest value and the average of the latest five years (no average with fewer than three values). Rates do not add up to a world total, so they are not a tile measure. The table is a sanity check for the long-term growth in a valuation: real growth plus inflation is roughly the nominal growth of the economy.
+
+- Inflation: World Bank `FP.CPI.TOTL.ZG` (consumer prices, annual %).
+- Real growth: World Bank `NY.GDP.MKTP.KD.ZG` (GDP growth, constant prices, annual %).
+
+`npm run build:gdp` also writes `src/lib/data/macro.json`, with the same country list and NYU mapping as `gdp.json`. It asks for the last seven calendar years and keeps the latest five years per country, counting back from that country's newest value, so a gap in the data stays visible as fewer years. Values are rounded to two decimals. The logic is in `src/lib/macro.ts`.
+
 ## Colours
 
 An industry takes the colour of the sector most of its companies belong to (alphabetical on a tie). Ten industries span several sectors; this is used for colour only. Fills are light so the dark label text keeps a 4.5:1 contrast.

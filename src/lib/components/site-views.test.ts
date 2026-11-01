@@ -10,6 +10,7 @@ import ClassificationGlossary from './ClassificationGlossary.svelte';
 import CrosswalkTrace from './CrosswalkTrace.svelte';
 import ErrorMessage from './ErrorMessage.svelte';
 import IndustryPicker from './IndustryPicker.svelte';
+import MacroTable from './MacroTable.svelte';
 import ReverseTraceView from './ReverseTraceView.svelte';
 
 type Renderer = (component: unknown, options: { props: unknown }) => { body: string };
@@ -168,5 +169,22 @@ describe('classification views', () => {
 		expect(body).toContain('<code>6210</code>');
 		expect(body).not.toContain('<code>5821</code>');
 		expect(body).toContain('90.0%');
+	});
+});
+
+describe('MacroTable', () => {
+	const rows = [
+		{
+			country: 'Netherlands',
+			inflation: { latest: { year: 2025, value: 2.9 }, average: 4.9, from: 2021 },
+			growth: { latest: { year: 2025, value: -0.4 }, average: null, from: 2024 }
+		},
+		{ country: 'Taiwan', inflation: null, growth: null }
+	];
+	it('shows the latest value and the average per rate, with their years', () => {
+		const t = text(html(MacroTable, { rows }));
+		expect(t).toContain('Netherlands 2.9% (2025) 4.9% (2021–2025) −0.4% (2025) n/a');
+		expect(t).toContain('Taiwan n/a n/a n/a n/a');
+		expect(t).toContain('5-year average');
 	});
 });
