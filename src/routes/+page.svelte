@@ -1,8 +1,10 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { MAX_SELECTION, MULTIPLES, REGIONS, type Role } from '#lib/catalog';
-	import { LOW_FIRMS_THRESHOLD, PALETTE, formatMultiple } from '#lib/chart';
-	import GroupedBarChart from '#lib/components/GroupedBarChart.svelte';
+	import { LOW_FIRMS_THRESHOLD, PALETTE } from '#lib/chart';
+	import ChartPanel from '#lib/components/ChartPanel.svelte';
+	import CheckGroup from '#lib/components/CheckGroup.svelte';
+	import IndustryPicker from '#lib/components/IndustryPicker.svelte';
 	import LoginPrompt from '#lib/components/LoginPrompt.svelte';
 	import { applyRole } from '#lib/params';
 	import type { PageProps } from './$types';
@@ -22,11 +24,6 @@
 		{ name: 'x', label: 'X axis', key: 'x' },
 		{ name: 'c', label: 'Colour', key: 'color' }
 	] as const;
-
-	let filter = $state('');
-	const unselected = $derived(data.industries.filter((n) => !selection.industries.includes(n)));
-	const visible = $derived(unselected.filter((n) => n.toLowerCase().includes(filter.trim().toLowerCase())));
-	const isFull = (list: string[]) => list.length >= MAX_SELECTION;
 
 	const ready = $derived(
 		selection.multiples.length > 0 && selection.regions.length > 0 && selection.industries.length > 0
@@ -71,71 +68,15 @@
 	{#if data.interactive}
 		<form method="GET" data-sveltekit-replacestate data-sveltekit-keepfocus data-sveltekit-noscroll {onchange}>
 			<div class="controls">
-				<fieldset class="industries">
-					<legend>Industries <span class="count">{selection.industries.length} of {MAX_SELECTION}</span></legend>
-					<input type="hidden" name="i" value="" />
-					<div class="chips">
-						{#each selection.industries as name (name)}
-							<label class="chip">
-								<input type="checkbox" name="i" value={name} checked />
-								{name} <span aria-hidden="true">✕</span><span class="sr-only">remove</span>
-							</label>
-						{/each}
-					</div>
-					<input
-						type="search"
-						placeholder="Search industries…"
-						aria-label="Search industries"
-						data-nosubmit
-						bind:value={filter}
-					/>
-					<div class="list">
-						{#each visible as name (name)}
-							<label>
-								<input type="checkbox" name="i" value={name} disabled={isFull(selection.industries)} />
-								{name}
-							</label>
-						{:else}
-							<p class="hint">No matching industries.</p>
-						{/each}
-					</div>
-					<p class="hint"><a href="/classification">Don't know the industry? Find it from an SBI code.</a></p>
-				</fieldset>
-				<fieldset>
-					<legend>Regions <span class="count">{selection.regions.length} of {MAX_SELECTION}</span></legend>
-					<input type="hidden" name="r" value="" />
-					{#each REGIONS as region (region.id)}
-						{@const checked = selection.regions.includes(region.id)}
-						<label>
-							<input
-								type="checkbox"
-								name="r"
-								value={region.id}
-								{checked}
-								disabled={!checked && isFull(selection.regions)}
-							/>
-							{region.label}
-						</label>
-					{/each}
-				</fieldset>
-
-				<fieldset>
-					<legend>Multiples <span class="count">{selection.multiples.length} of {MAX_SELECTION}</span></legend>
-					<input type="hidden" name="m" value="" />
-					{#each MULTIPLES as multiple (multiple.id)}
-						{@const checked = selection.multiples.includes(multiple.id)}
-						<label>
-							<input
-								type="checkbox"
-								name="m"
-								value={multiple.id}
-								{checked}
-								disabled={!checked && isFull(selection.multiples)}
-							/>
-							{multiple.label}
-						</label>
-					{/each}
-				</fieldset>
+				<IndustryPicker industries={data.industries} selected={selection.industries} max={MAX_SELECTION} />
+				<CheckGroup legend="Regions" name="r" options={REGIONS} selected={selection.regions} max={MAX_SELECTION} />
+				<CheckGroup
+					legend="Multiples"
+					name="m"
+					options={MULTIPLES}
+					selected={selection.multiples}
+					max={MAX_SELECTION}
+				/>
 			</div>
 
 			<details class="pivot">
@@ -183,31 +124,7 @@
 
 		<div class="panels" class:single={data.model.panels.length === 1}>
 			{#each data.model.panels as panel, index (panel.key)}
-				<section>
-					<h2>{panel.title}</h2>
-					<GroupedBarChart {panel} colors={PALETTE} uid={index} />
-					<details>
-						<summary>Show data</summary>
-						<table>
-							<thead>
-								<tr>
-									<th></th>
-									{#each panel.series as name (name)}<th>{name}</th>{/each}
-								</tr>
-							</thead>
-							<tbody>
-								{#each panel.categories as category, ci (category)}
-									<tr>
-										<th scope="row">{category}</th>
-										{#each panel.bars[ci] as bar, si (si)}
-											<td title={bar.error}>{bar.error ? 'unavailable' : formatMultiple(bar.value)}</td>
-										{/each}
-									</tr>
-								{/each}
-							</tbody>
-						</table>
-					</details>
-				</section>
+				<ChartPanel {panel} colors={PALETTE} uid={index} />
 			{/each}
 		</div>
 
@@ -238,71 +155,6 @@
 		grid-template-columns: 1.4fr 1fr 1fr;
 		gap: var(--space-4);
 		align-items: start;
-	}
-	fieldset {
-		padding: var(--space-2) var(--space-3) var(--space-3);
-	}
-	fieldset > label {
-		display: block;
-		line-height: 1.8;
-	}
-	.count,
-	.hint {
-		color: var(--text-secondary);
-		font-size: var(--text-sm);
-		font-weight: var(--weight-regular);
-	}
-	.chips {
-		display: flex;
-		flex-wrap: wrap;
-		gap: var(--space-2);
-		margin-bottom: var(--space-2);
-	}
-	.sr-only {
-		position: absolute;
-		width: 1px;
-		height: 1px;
-		overflow: hidden;
-		clip-path: inset(50%);
-		white-space: nowrap;
-	}
-	.chip {
-		position: relative;
-		display: inline-flex;
-		align-items: center;
-		gap: var(--space-1);
-		padding: 2px 10px;
-		font-size: var(--text-sm);
-		color: var(--blue-80);
-		background: var(--information-bg);
-		border: 1px solid var(--information-border);
-		border-radius: var(--radius-pill);
-		cursor: pointer;
-	}
-	.chip:hover {
-		background: var(--blue-10);
-	}
-	.chip:focus-within {
-		outline: var(--focus-ring) solid var(--border-focus);
-		outline-offset: 2px;
-	}
-	.chip input {
-		position: absolute;
-		opacity: 0;
-		pointer-events: none;
-	}
-	.industries input[type='search'] {
-		width: 100%;
-		margin-bottom: var(--space-2);
-	}
-	.list {
-		max-height: 11rem;
-		overflow-y: auto;
-		border-top: 1px solid var(--border-subtle);
-	}
-	.list label {
-		display: block;
-		line-height: 1.7;
 	}
 	.pivot {
 		margin: var(--space-4) 0;
@@ -352,31 +204,6 @@
 	}
 	.panels.single {
 		grid-template-columns: minmax(0, 40rem);
-	}
-	section {
-		padding: var(--space-4);
-		background: var(--surface-card);
-		border: 1px solid var(--border-subtle);
-		border-radius: var(--radius-md);
-		box-shadow: var(--shadow-1);
-	}
-	h2 {
-		font-size: var(--text-md);
-		margin: 0 0 var(--space-1);
-	}
-	details {
-		margin-top: var(--space-2);
-	}
-	table {
-		margin-top: var(--space-2);
-		font-size: var(--text-sm);
-	}
-	th,
-	td {
-		text-align: right;
-	}
-	th:first-child {
-		text-align: left;
 	}
 	.notice {
 		padding: var(--space-3) var(--space-4);

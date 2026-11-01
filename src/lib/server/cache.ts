@@ -6,11 +6,33 @@ export interface Cache<T> {
 	get(key: string, load: () => Promise<T>): Promise<T>;
 }
 
-export function createCache<T>(options: { ttlMs: number; now?: () => number }): Cache<T> {
+/** Entries kept per cache before the oldest are dropped; a warm instance otherwise grows with every ticker asked. */
+export const MAX_ENTRIES = 500;
+
+/**
+ * Make room for one more entry: drop the expired ones, then the oldest (a Map keeps insertion order, and a refresh
+ * re-inserts, so the first key is the least recently loaded).
+ */
+function makeRoom<V>(map: Map<string, V>, max: number, expired: (value: V) => boolean): void {
+	if (map.size < max) return;
+	for (const [key, value] of map) if (expired(value)) map.delete(key);
+	for (const key of map.keys()) {
+		if (map.size < max) return;
+		map.delete(key);
+	}
+}
+
+export function createCache<T>(options: { ttlMs: number; now?: () => number; maxEntries?: number }): Cache<T> {
 	const now = options.now ?? Date.now;
+	const max = options.maxEntries ?? MAX_ENTRIES;
 	const store = new Map<string, { value: T; expires: number }>();
 	const inflight = new Map<string, Promise<T>>();
 	const failures = new Map<string, { error: unknown; until: number }>();
+	const put = (key: string, value: T, ttl: number) => {
+		store.delete(key);
+		makeRoom(store, max, (entry) => entry.expires <= now());
+		store.set(key, { value, expires: now() + ttl });
+	};
 
 	return {
 		async get(key, load) {
@@ -25,7 +47,7 @@ export function createCache<T>(options: { ttlMs: number; now?: () => number }): 
 
 			const promise = load()
 				.then((value) => {
-					store.set(key, { value, expires: now() + options.ttlMs });
+					put(key, value, options.ttlMs);
 					failures.delete(key);
 					return value;
 				})
@@ -33,9 +55,10 @@ export function createCache<T>(options: { ttlMs: number; now?: () => number }): 
 					if (hit) {
 						// Serve the stale copy and back off so later requests don't each re-pay the timeout.
 						console.warn(`cache refresh failed for "${key}", serving stale value`, error);
-						store.set(key, { value: hit.value, expires: now() + RETRY_MS });
+						put(key, hit.value, RETRY_MS);
 						return hit.value;
 					}
+					makeRoom(failures, max, (failure) => failure.until <= now());
 					failures.set(key, { error, until: now() + FAILURE_MS });
 					throw error;
 				})

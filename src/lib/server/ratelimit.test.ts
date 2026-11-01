@@ -29,6 +29,25 @@ describe('createRateLimiter', () => {
 	});
 });
 
+describe('createRateLimiter key limit', () => {
+	it('forgets keys without recent failures first, then the oldest, past maxKeys', () => {
+		let t = 0;
+		const limiter = createRateLimiter({ max: 2, windowMs: 1000, now: () => t, maxKeys: 2 });
+		limiter.recordFailure('old');
+		t = 900;
+		limiter.recordFailure('kept');
+		limiter.recordFailure('kept');
+		t = 1500; // old's failure is out of the window, kept's are not
+		limiter.recordFailure('new');
+		expect(limiter.isLimited('kept')).toBe(true);
+		// both remaining keys are recent, so the oldest (kept) goes
+		limiter.recordFailure('newer');
+		expect(limiter.isLimited('kept')).toBe(false);
+		limiter.recordFailure('newer');
+		expect(limiter.isLimited('newer')).toBe(true);
+	});
+});
+
 describe('checkLogin', () => {
 	const limiter = () => createRateLimiter({ max: 2, windowMs: 1000, now: () => 0 });
 

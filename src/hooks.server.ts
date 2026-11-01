@@ -1,7 +1,8 @@
 import { ISR_BYPASS_TOKEN, SESSION_SECRET } from '$app/env/private';
 import { SESSION_COOKIE, verifySession } from '#lib/server/auth';
 import { BYPASS_COOKIE, bypassToken, isInteractive, isRevalidation } from '#lib/server/access';
-import type { Handle } from '@sveltejs/kit/hooks';
+import { randomUUID } from 'node:crypto';
+import type { Handle, HandleServerError } from '@sveltejs/kit/hooks';
 
 export const handle: Handle = async ({ event, resolve }) => {
 	// Fails closed: with no SESSION_SECRET configured, verifySession is always false.
@@ -21,4 +22,15 @@ export const handle: Handle = async ({ event, resolve }) => {
 		response.headers.set('Cache-Control', 'private, no-store');
 	}
 	return response;
+};
+
+/**
+ * Unexpected errors are logged with a reference and the visitor gets only a generic message and that reference,
+ * never the error text (which could hold an upstream URL). Expected and framework errors keep their safe message.
+ */
+export const handleError: HandleServerError = ({ kind, error, event }) => {
+	if (kind !== 'unknown') return;
+	const errorId = randomUUID();
+	console.error(`unexpected error ${errorId} on ${event.request.method} ${event.url.pathname}`, error);
+	return { message: 'Something went wrong.', errorId };
 };

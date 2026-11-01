@@ -17,6 +17,7 @@ What keeps the code healthy, what CI enforces and what to watch. The block marke
 | TypeScript only | No `.js`, `.mjs`, `.cjs` or `.jsx` files | 🟢 | `npm run check:ts-only` in CI |
 | Tests | Coverage floor on `src/lib`: 95% statements, lines and functions, 85% branches | 🟢 | `npm run test:coverage` in CI |
 | Dependencies | No high or critical advisories in runtime dependencies | 🟢 | `npm audit --omit=dev --audit-level=high` in CI |
+| Browser | Every page loads in Chromium without page or CSP errors and with no serious axe violations; login and upload work | 🟢 | `npm run test:e2e` (Playwright) in CI |
 | Public pages | Accessibility, best practices and SEO at least 0.9, performance 0.8 (warning) | 🟡 | Lighthouse CI, a non-required job |
 | Live data | The NYU workbooks still resolve every multiple | 🟡 | `check-data.yml`, monthly, not on PRs |
 | API docs | TypeDoc builds `src/lib` with warnings as errors | 🟢 | `docs.yml`, on PRs and `main` |
@@ -44,4 +45,6 @@ The rules bind new and changed code; existing code is not rewritten only to matc
 - **Yahoo Finance** goes through the unofficial yahoo-finance2 package and can break without notice. Issue #33 holds the follow-ups from its review.
 - **TypeDoc** supports TypeScript up to 6.0.x, so TypeScript 7 waits for it.
 - **The login rate limit** is per serverless instance, so best effort only ([ADR-003](../adr/0003-public-pages-isr-login-unlocks.md)).
-- **Svelte components** are covered by render tests but not by TypeDoc, and there is no DOM test library.
+- **Svelte components** are covered by render tests but not by TypeDoc, and there is no DOM test library; behaviour in a browser is covered by the Playwright smoke tests in `e2e/`.
+- **Vercel Analytics and Speed Insights** are loaded through their generic entry points in `+layout.svelte`, because their `/sveltekit` entry points import `$app/stores`, which SvelteKit 3 removed. Switch back when they support SvelteKit 3.
+- **Playwright** is pinned exactly, and `playwright-core` follows it through `overrides`, so `@axe-core/playwright` uses the same copy.

@@ -8,7 +8,19 @@ import globals from 'globals';
 import ts from 'typescript-eslint';
 
 export default defineConfig(
-	{ ignores: ['.lighthouseci/', '.svelte-kit/', '.vercel/', 'build/', 'coverage/', 'docs/api/', 'node_modules/'] },
+	{
+		ignores: [
+			'.lighthouseci/',
+			'.svelte-kit/',
+			'.vercel/',
+			'build/',
+			'coverage/',
+			'docs/api/',
+			'node_modules/',
+			'playwright-report/',
+			'test-results/'
+		]
+	},
 	js.configs.recommended,
 	ts.configs.strictTypeChecked,
 	svelte.configs.recommended,

@@ -217,3 +217,6 @@ export function reverseTrace(data: Crosswalk, industry: string): ReverseTrace | 
 		sbi25
 	};
 }
+
+/** A share between 0 and 1 as a percentage with one decimal, such as "12.5%". */
+export const formatShare = (share: number): string => `${(share * 100).toFixed(1)}%`;

@@ -78,6 +78,28 @@ export function parseStatement(body: unknown): Statement {
 	return { lines: lines.filter((key) => years.some((y) => key in y.values)), years: years.slice(0, 5) };
 }
 
+/**
+ * The body as text, or null as soon as it passes `maxBytes`. Reads the stream, so a body with no or a wrong
+ * content-length is never held in memory past the cap.
+ */
+export async function readCapped(response: Response, maxBytes: number): Promise<string | null> {
+	if (!response.body) return '';
+	const reader = response.body.getReader();
+	const decoder = new TextDecoder();
+	let size = 0;
+	let text = '';
+	for (;;) {
+		const { done, value } = await reader.read();
+		if (done) return text + decoder.decode();
+		size += value.byteLength;
+		if (size > maxBytes) {
+			await reader.cancel();
+			return null;
+		}
+		text += decoder.decode(value, { stream: true });
+	}
+}
+
 /** GET an FMP stable endpoint and return the parsed JSON body (undefined when it is not JSON). */
 export async function fmpGet(
 	path: string,
@@ -98,14 +120,15 @@ export async function fmpGet(
 
 	const declared = Number(response.headers.get('content-length'));
 	if (declared > MAX_BYTES) throw new SourceError('unavailable', 'FMP response too large');
-	let text: string;
+	let read: string | null;
 	try {
-		text = await response.text();
+		read = await readCapped(response, MAX_BYTES);
 	} catch {
 		// a timeout or reset mid-body; the raw error can carry the request URL
 		throw new SourceError('unavailable', 'FMP response could not be read');
 	}
-	if (text.length > MAX_BYTES) throw new SourceError('unavailable', 'FMP response too large');
+	if (read === null) throw new SourceError('unavailable', 'FMP response too large');
+	let text = read;
 	// FMP may echo the key in an error message, bare or encoded; remove it before anything is parsed
 	text = redactKey(text, apiKey);
 

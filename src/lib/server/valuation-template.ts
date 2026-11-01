@@ -5,6 +5,17 @@ import { parseTemplateRows, templateRows, type Cell, type TemplateResult } from 
 
 /** Larger uploads are refused before they are parsed. */
 export const MAX_UPLOAD_BYTES = 1_000_000;
+/** Room for the multipart boundaries, headers and other fields around the file. */
+const FORM_OVERHEAD_BYTES = 64 * 1024;
+
+/**
+ * True when the request says up front that its body is too large for a template, so it is refused before the form is
+ * parsed. A body without a content-length is still checked by file size after parsing.
+ */
+export function uploadTooLarge(headers: Headers): boolean {
+	const declared = Number(headers.get('content-length'));
+	return Number.isFinite(declared) && declared > MAX_UPLOAD_BYTES + FORM_OVERHEAD_BYTES;
+}
 
 export function readTemplate(data: Uint8Array): TemplateResult {
 	let rows: Cell[][];

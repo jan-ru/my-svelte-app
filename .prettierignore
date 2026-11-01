@@ -11,3 +11,5 @@ coverage/
 static/
 # prose is wrapped by hand
 *.md
+playwright-report/
+test-results/

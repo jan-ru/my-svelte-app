@@ -2,7 +2,7 @@ import { FMP_API_KEY, SESSION_SECRET, SITE_PASSWORD } from '$app/env/private';
 import { fail, redirect } from '@sveltejs/kit';
 import { getIndustries } from '#lib/server/compare';
 import { loadValuation } from '#lib/server/valuation';
-import { MAX_UPLOAD_BYTES, readTemplate } from '#lib/server/valuation-template';
+import { MAX_UPLOAD_BYTES, readTemplate, uploadTooLarge } from '#lib/server/valuation-template';
 import { encodeCompany, MAX_ENCODED } from '#lib/valuation-company';
 import { parseValuationNav, valuationHref } from '#lib/valuation-nav';
 import type { Actions, PageServerLoad } from './$types';
@@ -34,6 +34,7 @@ export const actions: Actions = {
 	/** Reads an uploaded template once and sends the figures on in the URL; the file itself is never stored. */
 	upload: async ({ locals, request, url }) => {
 		if (!locals.authed) return fail(401, { message: 'Log in to upload figures.' });
+		if (uploadTooLarge(request.headers)) return fail(413, { message: 'That file is too large for a template.' });
 		const file = (await request.formData()).get('file');
 		if (!(file instanceof File) || file.size === 0)
 			return fail(400, { message: 'Choose a filled-in template to upload.' });
