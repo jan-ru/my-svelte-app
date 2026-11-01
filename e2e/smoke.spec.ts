@@ -139,3 +139,21 @@ test('a logged-in browser that lost the bypass cookie gets it back from the Log 
 	await countryTile(page, 'China').click();
 	await expect(page).toHaveURL(/\/countries\?country=China$/);
 });
+
+for (const [menu, param] of [
+	['Countries', 'country'],
+	['Industries', 'industry']
+] as const) {
+	const query = new RegExp(`\\?${param}=`);
+	test(`after opening ${menu} from the menu, clicking a tile selects it`, async ({ page }) => {
+		const errors = watchErrors(page);
+		await logIn(page);
+		// client-side navigation renders the treemap in the browser instead of hydrating server HTML
+		await page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Explore' }).click();
+		await page.getByRole('link', { name: menu, exact: true }).first().click();
+		await expect(page.locator('h1')).toHaveText(menu);
+		await page.locator(`svg a.tile[href*="?${param}="]`).first().click();
+		await expect(page).toHaveURL(query);
+		expect(errors).toEqual([]);
+	});
+}
