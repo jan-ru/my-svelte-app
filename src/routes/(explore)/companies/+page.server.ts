@@ -4,8 +4,8 @@ import { previewOf, queryCompanies, type CompanyData } from '#lib/companies';
 import { isrConfig, pageParams } from '#lib/server/access';
 import type { PageServerLoad } from './$types';
 
-const data = companies as unknown as CompanyData;
-const sicTitles = (crosswalk as unknown as { sicTitles: Record<string, string> }).sicTitles;
+const data: CompanyData = companies;
+const { sicTitles } = crosswalk;
 
 const text = (value: string | null, max: number) => (value ?? '').slice(0, max);
 

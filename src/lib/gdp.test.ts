@@ -28,8 +28,8 @@ describe('gdp helpers', () => {
 });
 
 describe('the generated gdp.json', () => {
-	const gdp = real as unknown as GdpData;
-	const names = (companies as { countries: string[] }).countries;
+	const gdp = real;
+	const names = companies.countries;
 	it('accounts for every NYU country, mapped or listed as unmatched', () => {
 		expect(names.filter((n) => !(n in gdp.nyu) && !gdp.unmatched.includes(n))).toEqual([]);
 	});
