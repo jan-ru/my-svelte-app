@@ -74,8 +74,8 @@ describe('parseProfile', () => {
 		expect(parseProfile([{ companyName: 'X', website: 'javascript:alert(1)' }])!.website).toBeNull();
 	});
 	it('maps an FMP error body and rejects other shapes', () => {
-		expect(() => parseProfile({ 'Error Message': 'Invalid API KEY.' })).toThrowError(SourceError);
-		expect(() => parseProfile({ nope: 1 })).toThrowError(/Unexpected response/);
+		expect(() => parseProfile({ 'Error Message': 'Invalid API KEY.' })).toThrow(SourceError);
+		expect(() => parseProfile({ nope: 1 })).toThrow(/Unexpected response/);
 	});
 });
 
@@ -117,7 +117,7 @@ describe('parseNews', () => {
 	});
 	it('returns [] for an empty list and throws unavailable for a non-array', () => {
 		expect(parseNews([])).toEqual([]);
-		expect(() => parseNews({ nope: 1 })).toThrowError(/Unexpected response/);
+		expect(() => parseNews({ nope: 1 })).toThrow(/Unexpected response/);
 	});
 });
 
@@ -155,8 +155,11 @@ describe('fetchProfile / fetchNews', () => {
 		}
 	});
 	it('maps HTTP statuses', async () => {
-		const kind = async (status: number) =>
-			(await fetchProfile('AAPL', 'K', vi.fn().mockResolvedValue(json({}, status))).catch((e) => e)).kind;
+		const kind = (status: number) =>
+			fetchProfile('AAPL', 'K', vi.fn().mockResolvedValue(json({}, status))).then(
+				() => null,
+				(e: unknown) => (e instanceof SourceError ? e.kind : null)
+			);
 		expect(await kind(402)).toBe('plan');
 		expect(await kind(429)).toBe('limit');
 		expect(await kind(500)).toBe('unavailable');
@@ -208,8 +211,8 @@ describe('parsePrices', () => {
 	});
 	it('returns [] for an empty list, maps an FMP error body and rejects other shapes', () => {
 		expect(parsePrices([])).toEqual([]);
-		expect(() => parsePrices({ 'Error Message': 'Invalid API KEY.' })).toThrowError(SourceError);
-		expect(() => parsePrices({ nope: 1 })).toThrowError(/Unexpected response/);
+		expect(() => parsePrices({ 'Error Message': 'Invalid API KEY.' })).toThrow(SourceError);
+		expect(() => parsePrices({ nope: 1 })).toThrow(/Unexpected response/);
 	});
 });
 

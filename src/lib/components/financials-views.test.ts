@@ -17,6 +17,7 @@ type Renderer = (component: unknown, options: { props: unknown }) => { body: str
  * `render` has a conditional signature that a generic call cannot satisfy, hence the cast; `props` is still checked
  * against the component. `any` is what `ComponentProps` itself requires of the constraint.
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- see above: ComponentProps needs it
 const html = <C extends Component<any>>(component: C, props: ComponentProps<C>): string =>
 	(render as unknown as Renderer)(component, { props }).body;
 

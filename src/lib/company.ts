@@ -10,7 +10,7 @@ function scaled(value: number): string {
 	const abs = Math.abs(value);
 	const [n, unit] =
 		abs >= 1e12 ? [value / 1e12, ' trillion'] : abs >= 1e9 ? [value / 1e9, ' billion'] : abs >= 1e6 ? [value / 1e6, ' million'] : [value, ''];
-	return `${(n as number).toLocaleString('en-US', { maximumFractionDigits: 1 })}${unit}`;
+	return `${n.toLocaleString('en-US', { maximumFractionDigits: 1 })}${unit}`;
 }
 
 export function profileFields(p: Profile): Field[] {

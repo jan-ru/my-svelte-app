@@ -252,7 +252,7 @@ export async function loadFinancials(input: {
 		source === 'fmp' ? { ...fmpFetchers, ...input.fmp } : { ...yahooFetchers, ...input.yahoo };
 	return TAB_LOADERS[input.nav.tab]({
 		symbol,
-		apiKey: source === 'fmp' ? input.apiKey! : '',
+		apiKey: source === 'fmp' ? (input.apiKey ?? '') : '',
 		source,
 		fetchers,
 		nav: input.nav

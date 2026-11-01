@@ -38,26 +38,34 @@ function parseCsv(text: string): string[][] {
 	let cell = '';
 	let quoted = false;
 	for (let i = 0; i < text.length; i++) {
-		const c = text[i];
+		const c = text.charAt(i);
 		if (quoted) {
-			if (c === '"' && text[i + 1] === '"') (cell += '"'), i++;
-			else if (c === '"') quoted = false;
+			if (c === '"' && text.charAt(i + 1) === '"') {
+				cell += '"';
+				i++;
+			} else if (c === '"') quoted = false;
 			else cell += c;
 		} else if (c === '"') quoted = true;
-		else if (c === ',') (row.push(cell), (cell = ''));
-		else if (c === '\n' || c === '\r') {
-			if (c === '\r' && text[i + 1] === '\n') i++;
+		else if (c === ',') {
+			row.push(cell);
+			cell = '';
+		} else if (c === '\n' || c === '\r') {
+			if (c === '\r' && text.charAt(i + 1) === '\n') i++;
 			row.push(cell);
 			cell = '';
 			if (row.length > 1 || row[0] !== '') rows.push(row);
 			row = [];
 		} else cell += c;
 	}
-	if (cell !== '' || row.length) (row.push(cell), rows.push(row));
+	if (cell !== '' || row.length) {
+		row.push(cell);
+		rows.push(row);
+	}
 	return rows.slice(1); // header
 }
 
-const clean = (v: unknown): string => String(v ?? '').replace(/\s+/g, ' ').trim();
+const clean = (v: unknown): string =>
+	(typeof v === 'string' || typeof v === 'number' ? String(v) : '').replace(/\s+/g, ' ').trim();
 const addTo = (map: Table, key: string, value: string): void => {
 	if (!map[key]) map[key] = [];
 	if (!map[key].includes(value)) map[key].push(value);
@@ -143,7 +151,7 @@ const sicToDamodaran: Record<string, Record<string, number>> = {};
 let companies = 0;
 for (const r of sheetRows('indname', 'By industry').slice(1)) {
 	const industry = clean(r[2]);
-	const sic = String(clean(r[4])).padStart(4, '0');
+	const sic = clean(r[4]).padStart(4, '0');
 	if (!industry || !/^\d{4}$/.test(sic)) continue;
 	companies++;
 	sicToDamodaran[sic] ??= {};
@@ -165,8 +173,10 @@ for (const [sic, counts] of Object.entries(sicToDamodaran)) {
 	if (sicTitles[sic]) continue;
 	const total = Object.values(counts).reduce((a, b) => a + b, 0);
 	const children = realSic.filter((c) => c.slice(0, 3) === sic.slice(0, 3)).sort();
-	if (children.length) (sicAlias[sic] = children), (aliased += total);
-	else unresolved += total;
+	if (children.length) {
+		sicAlias[sic] = children;
+		aliased += total;
+	} else unresolved += total;
 }
 console.log(`SIC group codes: ${Object.keys(sicAlias).length} aliased (${aliased} companies), ${unresolved} companies unresolved`);
 

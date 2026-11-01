@@ -126,7 +126,7 @@ describe('fetchWorkbook', () => {
 	it('downloads and parses the right file', async () => {
 		const seen: string[] = [];
 		const fakeFetch = (async (url: string | URL | Request) => {
-			seen.push(String(url));
+			seen.push(url instanceof Request ? url.url : url.toString());
 			return new Response(bytes, { status: 200 });
 		}) as typeof fetch;
 

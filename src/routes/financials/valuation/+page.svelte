@@ -103,7 +103,7 @@
 			<p class="error" role="alert">That is not a valid ticker. Use letters, digits, dots and dashes, for example BRK-B.</p>
 		{:else if view.state === 'idle'}
 			<p>Enter a ticker to start.</p>
-		{:else if view.state === 'ready'}
+		{:else}
 			<p class="meta">
 				{#if view.source === 'manual'}Company figures from your upload.{:else}Source for {view.symbol}: {sourceLabel(view.source)}.{/if}
 				Peers with a dot in the ticker come from Yahoo Finance.

@@ -62,8 +62,7 @@
 	const LINE = 12;
 </script>
 
-{#snippet tile(r: { id: string; x: number; y: number; w: number; h: number })}
-	{@const item = byId.get(r.id)!}
+{#snippet tile(r: { id: string; x: number; y: number; w: number; h: number }, item: TreemapItem)}
 	{@const room = Math.floor((r.h - 6) / LINE)}
 	{@const lines = wrap(item.label, r.w, Math.min(2, room))}
 	{@const value = lines.length > 0 && room > lines.length ? fit(tileFormat(item.value), r.w, 5.8) : ''}
@@ -113,18 +112,20 @@
 			{/if}
 		{/each}
 		{#each rects as r (r.id)}
-			{@const item = byId.get(r.id)!}
-			{#if item.href}
+			{@const item = byId.get(r.id)}
+			{#if !item}
+				<!-- every rect comes from an item, so this never renders -->
+			{:else if item.href}
 				<a
 					href={item.href}
 					class="tile"
 					onmouseover={() => (active = r.id)}
 					onpointerdown={() => (active = r.id)}
 					onfocus={() => (active = r.id)}
-				>{@render tile(r)}</a>
+				>{@render tile(r, item)}</a>
 			{:else}
 				<!-- svelte-ignore a11y_no_static_element_interactions, a11y_mouse_events_have_key_events -->
-				<g class="tile" onmouseover={() => (active = r.id)} onpointerdown={() => (active = r.id)}>{@render tile(r)}</g>
+				<g class="tile" onmouseover={() => (active = r.id)} onpointerdown={() => (active = r.id)}>{@render tile(r, item)}</g>
 			{/if}
 		{/each}
 	</svg>

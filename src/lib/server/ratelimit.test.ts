@@ -3,7 +3,7 @@ import { checkLogin, createRateLimiter } from './ratelimit';
 
 describe('createRateLimiter', () => {
 	it('limits a key after max failures inside the window', () => {
-		let t = 0;
+		const t = 0;
 		const limiter = createRateLimiter({ max: 3, windowMs: 1000, now: () => t });
 		for (let i = 0; i < 2; i++) limiter.recordFailure('ip');
 		expect(limiter.isLimited('ip')).toBe(false);

@@ -4,10 +4,10 @@
 	import type { PricePoint } from '#lib/source-data';
 
 	let { points, message }: { points: PricePoint[]; message: string | null } = $props();
+	const s = $derived(summarise(points));
 </script>
 
-{#if points.length > 0}
-	{@const s = summarise(points)!}
+{#if s}
 	<p class="meta">Last close, {s.date}. End-of-day prices, not live.</p>
 	<dl class="quote">
 		<div><dt>Close</dt><dd>{formatPrice(s.close)}</dd></div>

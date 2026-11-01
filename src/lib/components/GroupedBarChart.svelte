@@ -46,7 +46,7 @@
 
 <svg viewBox="0 0 {W} {H}" role="img" aria-label={summary}>
 	<defs>
-		{#each panel.series as _, si}
+		{#each panel.series as _, si (si)}
 			<pattern
 				id="hatch-{uid}-{si}"
 				width="6"
@@ -65,8 +65,8 @@
 		<text class="tick" x={M.left - 6} y={y(tick) + 4} text-anchor="end">{tick}</text>
 	{/each}
 
-	{#each panel.categories as category, ci}
-		{#each panel.series as name, si}
+	{#each panel.categories as category, ci (ci)}
+		{#each panel.series as name, si (si)}
 			{@const bar = barAt(ci, si)}
 			<g>
 				<title>

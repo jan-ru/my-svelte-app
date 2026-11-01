@@ -13,6 +13,7 @@ import ValuationTable from './ValuationTable.svelte';
 
 type Renderer = (component: unknown, options: { props: unknown }) => { body: string };
 /** Server-render a component to HTML (see financials-views.test.ts for why the cast). */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- see above: ComponentProps needs it
 const html = <C extends Component<any>>(component: C, props: ComponentProps<C>): string =>
 	(render as unknown as Renderer)(component, { props }).body;
 const text = (body: string) => body.replace(/<!--[^]*?-->/g, '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');

@@ -1,11 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const env = vi.hoisted(() => ({
-	SITE_PASSWORD: 'pw' as string | undefined,
-	SESSION_SECRET: 's'.repeat(32) as string | undefined,
-	ISR_BYPASS_TOKEN: 't'.repeat(40) as string | undefined,
-	FMP_API_KEY: undefined as string | undefined
-}));
+type Env = Record<'SITE_PASSWORD' | 'SESSION_SECRET' | 'ISR_BYPASS_TOKEN' | 'FMP_API_KEY', string | undefined>;
+const env = vi.hoisted(
+	(): Env => ({
+		SITE_PASSWORD: 'pw',
+		SESSION_SECRET: 's'.repeat(32),
+		ISR_BYPASS_TOKEN: 't'.repeat(40),
+		FMP_API_KEY: undefined
+	})
+);
 vi.mock('$app/env/private', () => env);
 vi.mock('#lib/server/financials', () => ({ loadFinancials: vi.fn(async () => ({ kind: 'stub' })) }));
 

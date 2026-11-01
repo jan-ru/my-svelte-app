@@ -47,8 +47,8 @@
 		const target = event.target;
 		if (target instanceof HTMLElement && target.dataset.nosubmit !== undefined) return;
 
-		if (target instanceof HTMLSelectElement && layoutControls.some((c) => c.name === target.name)) {
-			const control = layoutControls.find((c) => c.name === target.name)!;
+		const control = target instanceof HTMLSelectElement ? layoutControls.find((c) => c.name === target.name) : undefined;
+		if (target instanceof HTMLSelectElement && control) {
 			const next = applyRole(layout, control.key, target.value as Role);
 			for (const c of layoutControls) {
 				(form.elements.namedItem(c.name) as HTMLSelectElement).value = next[c.key];

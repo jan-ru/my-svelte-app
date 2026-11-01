@@ -419,7 +419,7 @@ describe('sources', () => {
 		},
 		yahoo: {
 			statement: vi.fn<StatementFetcher>().mockResolvedValue(yahooStatement),
-			profile: vi.fn().mockResolvedValue({ name: 'ABN AMRO' } as Profile),
+			profile: vi.fn().mockResolvedValue({ name: 'ABN AMRO' }),
 			news: vi.fn().mockResolvedValue([] as NewsItem[]),
 			prices: vi.fn().mockResolvedValue(yahooPoints)
 		} satisfies SourceFetchers

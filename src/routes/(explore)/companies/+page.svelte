@@ -8,19 +8,16 @@
 
 	/** The current filters with one more (or changed) value, back on page 1: clicking a cell narrows the list. */
 	const narrow = (key: string, value: string) => {
-		const sp = new URLSearchParams();
-		for (const [k, v] of Object.entries({ ...data.filters, [key]: value })) if (v) sp.set(k, v);
-		return `/companies?${sp}`;
+		const sp = new URLSearchParams(Object.entries({ ...data.filters, [key]: value }).filter(([, v]) => v));
+		return `/companies?${sp.toString()}`;
 	};
 	const filtered = $derived(Object.values(data.filters).some(Boolean));
 
 	const plural = (n: number, one: string, many: string) => `${n.toLocaleString('en')} ${n === 1 ? one : many}`;
 
 	const href = (page: number, without?: string) => {
-		const sp = new URLSearchParams();
-		for (const [key, value] of Object.entries(data.filters)) if (value && key !== without) sp.set(key, value);
-		if (page > 1) sp.set('page', String(page));
-		const query = sp.toString();
+		const kept = Object.entries(data.filters).filter(([key, value]) => value && key !== without);
+		const query = new URLSearchParams(page > 1 ? [...kept, ['page', String(page)]] : kept).toString();
 		return query ? `/companies?${query}` : '/companies';
 	};
 </script>
@@ -118,11 +115,11 @@
 				</thead>
 				<tbody>
 					{#each data.result.rows as c (c.ticker + c.name)}
+						{@const q = quoteLink(c.ticker, c.name)}
 						<tr>
 							<th scope="row">{c.name}</th>
 							<td>
-								{#if quoteLink(c.ticker, c.name)}
-									{@const q = quoteLink(c.ticker, c.name)!}
+								{#if q}
 									<a href={q.url} target="_blank" rel="noopener noreferrer">{c.ticker}</a>
 									<small class="src" title={`${q.source === 'YF' ? 'Yahoo' : 'Google'} Finance${q.search ? ' search' : ''}`}>{q.source}{q.search ? ' search' : ''}</small>
 								{:else}{c.ticker}{/if}

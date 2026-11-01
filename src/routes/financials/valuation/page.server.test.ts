@@ -1,10 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const env = vi.hoisted(() => ({
-	SITE_PASSWORD: 'pw' as string | undefined,
-	SESSION_SECRET: 's'.repeat(32) as string | undefined,
-	FMP_API_KEY: 'KEY' as string | undefined
-}));
+type Env = Record<'SITE_PASSWORD' | 'SESSION_SECRET' | 'FMP_API_KEY', string | undefined>;
+const env = vi.hoisted((): Env => ({ SITE_PASSWORD: 'pw', SESSION_SECRET: 's'.repeat(32), FMP_API_KEY: 'KEY' }));
 vi.mock('$app/env/private', () => env);
 vi.mock('#lib/server/valuation', () => ({ loadValuation: vi.fn(async () => ({ state: 'stub' })) }));
 vi.mock('#lib/server/compare', () => ({ getIndustries: vi.fn(async () => ['Semiconductor']) }));

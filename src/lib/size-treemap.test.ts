@@ -43,8 +43,8 @@ describe('squarify', () => {
 		expect(squarify(items, 600, 400)[0]?.id).toMatch(/^[ab]$/);
 	});
 	it('handles one item, zero and negative values, and an empty input', () => {
-		expect(squarify([{ id: 'x', label: 'X', value: 5 }], 100, 50)).toEqual([{ id: 'x', x: 0, y: 0, w: 100, h: 50 }]);
-		expect(squarify([{ id: 'x', label: 'X', value: 0 }, { id: 'y', label: 'Y', value: -3 }], 100, 50)).toEqual([]);
+		expect(squarify([{ id: 'x', value: 5 }], 100, 50)).toEqual([{ id: 'x', x: 0, y: 0, w: 100, h: 50 }]);
+		expect(squarify([{ id: 'x', value: 0 }, { id: 'y', value: -3 }], 100, 50)).toEqual([]);
 		expect(squarify([], 100, 50)).toEqual([]);
 		expect(squarify(items, 0, 50)).toEqual([]);
 	});

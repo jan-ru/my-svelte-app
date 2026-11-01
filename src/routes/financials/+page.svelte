@@ -105,8 +105,8 @@
 				{:else if view.state === 'price'}
 					<PriceView points={view.points} message={view.message} />
 				{:else if view.state === 'peers'}
-					<PeersList peers={view.peers} message={view.message} hrefFor={(symbol) => navHref({ ...nav, period, tab: 'ratios' }, symbol)} />
-				{:else if view.state === 'ready'}
+					<PeersList peers={view.peers} message={view.message} hrefFor={(symbol: string) => navHref({ ...nav, period, tab: 'ratios' }, symbol)} />
+				{:else}
 					<FinancialTable title={view.title} table={view.table} message={view.message} target={view.target} />
 				{/if}
 	{/if}

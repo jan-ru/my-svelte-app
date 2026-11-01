@@ -10,7 +10,8 @@ if (!input) {
 	process.exit(1);
 }
 
-const clean = (v: unknown): string => String(v ?? '').replace(/\s+/g, ' ').trim();
+const clean = (v: unknown): string =>
+	(typeof v === 'string' || typeof v === 'number' ? String(v) : '').replace(/\s+/g, ' ').trim();
 const wb = XLSX.read(fs.readFileSync(input), { type: 'buffer', sheets: 'By industry' });
 const sheet = wb.Sheets['By industry'];
 if (!sheet) {
