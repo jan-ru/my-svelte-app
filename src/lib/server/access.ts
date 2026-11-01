@@ -76,6 +76,19 @@ export function isRevalidation(headers: Headers): boolean {
 	return headers.has('x-prerender-revalidate');
 }
 
+/**
+ * The bypass cookie a private (never cached) page should give back: the token when the browser is logged in but lost
+ * the cookie (cleared, or the token was rotated), so the public pages become interactive again. Hooks never set
+ * cookies, so /login, /financials and /financials/valuation do it.
+ */
+export function bypassToRestore(
+	authed: boolean,
+	interactive: boolean,
+	rawToken: string | undefined
+): string | undefined {
+	return authed && !interactive ? bypassToken(rawToken) : undefined;
+}
+
 /** Anonymous requests never read the real query string, so a bot's first request cannot change what is cached. */
 export function pageParams(interactive: boolean, url: URL): URLSearchParams {
 	return interactive ? url.searchParams : new URLSearchParams();

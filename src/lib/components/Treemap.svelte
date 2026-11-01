@@ -77,30 +77,34 @@
 	{@const lines = wrap(item.label, r.w, Math.min(2, room))}
 	{@const value = lines.length > 0 && room > lines.length ? fit(tileFormat(item.value), r.w, 5.8) : ''}
 	{@const on = selected.includes(r.id)}
-	<rect
-		x={r.x}
-		y={r.y}
-		width={r.w}
-		height={r.h}
-		fill={item.fill ?? '#B3D6FF'}
-		fill-opacity={selected.length > 0 && !on ? 0.45 : 1}
-		stroke={on ? '#1D2D3E' : '#FFFFFF'}
-		stroke-width={on ? 3 : 2}
-	/>
-	{#if r.w > 6 && r.h > 6}
-		<rect class="edge" x={r.x + 1.5} y={r.y + 1.5} width={r.w - 3} height={r.h - 3} fill="none" stroke="#1D2D3E" />
-	{/if}
-	<title
-		>{item.label}{groupLabel(item.id) ? ` (${groupLabel(item.id)})` : ''}: {format(item.value)} ({percent(
-			item.value
-		)})</title
-	>
-	{#each lines as line, i (i)}
-		<text x={r.x + 5} y={r.y + 5 + LINE * (i + 1) - 2} fill="#1D2D3E" font-size="11" font-weight="600">{line}</text>
-	{/each}
-	{#if value}
-		<text x={r.x + 5} y={r.y + 5 + LINE * (lines.length + 1) - 2} fill="#1D2D3E" font-size="10">{value}</text>
-	{/if}
+	<!-- a <g> root keeps the snippet in the SVG namespace: with <title> in it, Svelte would otherwise build HTML
+	elements on client-side navigation, which draw nothing and cannot be clicked -->
+	<g>
+		<rect
+			x={r.x}
+			y={r.y}
+			width={r.w}
+			height={r.h}
+			fill={item.fill ?? '#B3D6FF'}
+			fill-opacity={selected.length > 0 && !on ? 0.45 : 1}
+			stroke={on ? '#1D2D3E' : '#FFFFFF'}
+			stroke-width={on ? 3 : 2}
+		/>
+		{#if r.w > 6 && r.h > 6}
+			<rect class="edge" x={r.x + 1.5} y={r.y + 1.5} width={r.w - 3} height={r.h - 3} fill="none" stroke="#1D2D3E" />
+		{/if}
+		<title
+			>{item.label}{groupLabel(item.id) ? ` (${groupLabel(item.id)})` : ''}: {format(item.value)} ({percent(
+				item.value
+			)})</title
+		>
+		{#each lines as line, i (i)}
+			<text x={r.x + 5} y={r.y + 5 + LINE * (i + 1) - 2} fill="#1D2D3E" font-size="11" font-weight="600">{line}</text>
+		{/each}
+		{#if value}
+			<text x={r.x + 5} y={r.y + 5 + LINE * (lines.length + 1) - 2} fill="#1D2D3E" font-size="10">{value}</text>
+		{/if}
+	</g>
 {/snippet}
 
 {#snippet block(
@@ -108,11 +112,13 @@
 	meta: { label: string; fill: string },
 	head: string
 )}
-	<rect x={g.x} y={g.y} width={g.w} height={g.h} fill={meta.fill} stroke="#FFFFFF" stroke-width="2" />
-	<title>{meta.label}: {format(g.value)} ({percent(g.value)})</title>
-	{#if head}
-		<text x={g.x + 5} y={g.y + 13} fill={readableOn(meta.fill)} font-size="11" font-weight="700">{head}</text>
-	{/if}
+	<g>
+		<rect x={g.x} y={g.y} width={g.w} height={g.h} fill={meta.fill} stroke="#FFFFFF" stroke-width="2" />
+		<title>{meta.label}: {format(g.value)} ({percent(g.value)})</title>
+		{#if head}
+			<text x={g.x + 5} y={g.y + 13} fill={readableOn(meta.fill)} font-size="11" font-weight="700">{head}</text>
+		{/if}
+	</g>
 {/snippet}
 
 <figure>

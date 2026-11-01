@@ -106,3 +106,54 @@ test('an uploaded template values a private company', async ({ page }) => {
 	await expectAccessible(page);
 	expect(errors).toEqual([]);
 });
+
+/** The country tiles of the first treemap on /countries. */
+const countryTile = (page: Page, country: string) =>
+	page
+		.getByRole('group', { name: /^Treemap of/ })
+		.first()
+		.locator('a.tile', { has: page.locator('title', { hasText: new RegExp(`^${country}:`) }) });
+
+test('clicking a country tile selects it and clicking it again removes it', async ({ page }) => {
+	const errors = watchErrors(page);
+	await logIn(page);
+	await page.goto('/countries');
+	await countryTile(page, 'China').click();
+	await expect(page).toHaveURL(/\/countries\?country=China$/);
+	await expect(page.getByRole('heading', { name: 'Selected countries versus global' })).toBeVisible();
+	await countryTile(page, 'Japan').click();
+	await expect(page).toHaveURL(/\/countries\?country=China&country=Japan$/);
+	await countryTile(page, 'Japan').click();
+	await expect(page).toHaveURL(/\/countries\?country=China$/);
+	expect(errors).toEqual([]);
+});
+
+test('a logged-in browser that lost the bypass cookie gets it back from the Log in link', async ({ page, context }) => {
+	await logIn(page);
+	await context.clearCookies({ name: '__prerender_bypass' });
+	await page.goto('/countries');
+	await expect(page.locator('svg a.tile')).toHaveCount(0);
+	await page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Log in' }).click();
+	await expect(page).toHaveURL(/\/countries$/);
+	await expect(page.getByRole('button', { name: 'Log out' })).toBeVisible();
+	await countryTile(page, 'China').click();
+	await expect(page).toHaveURL(/\/countries\?country=China$/);
+});
+
+for (const [menu, param] of [
+	['Countries', 'country'],
+	['Industries', 'industry']
+] as const) {
+	const query = new RegExp(`\\?${param}=`);
+	test(`after opening ${menu} from the menu, clicking a tile selects it`, async ({ page }) => {
+		const errors = watchErrors(page);
+		await logIn(page);
+		// client-side navigation renders the treemap in the browser instead of hydrating server HTML
+		await page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Explore' }).click();
+		await page.getByRole('link', { name: menu, exact: true }).first().click();
+		await expect(page.locator('h1')).toHaveText(menu);
+		await page.locator(`svg a.tile[href*="?${param}="]`).first().click();
+		await expect(page).toHaveURL(query);
+		expect(errors).toEqual([]);
+	});
+}

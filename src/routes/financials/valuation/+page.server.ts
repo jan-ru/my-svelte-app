@@ -1,4 +1,5 @@
-import { FMP_API_KEY, SESSION_SECRET, SITE_PASSWORD } from '$app/env/private';
+import { FMP_API_KEY, ISR_BYPASS_TOKEN, SESSION_SECRET, SITE_PASSWORD } from '$app/env/private';
+import { BYPASS_COOKIE, bypassToRestore, sessionCookieOptions } from '#lib/server/access';
 import { fail, redirect } from '@sveltejs/kit';
 import { getIndustries } from '#lib/server/compare';
 import { loadValuation } from '#lib/server/valuation';
@@ -7,8 +8,11 @@ import { encodeCompany, MAX_ENCODED } from '#lib/valuation-company';
 import { parseValuationNav, valuationHref } from '#lib/valuation-nav';
 import type { Actions, PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ locals, url, setHeaders }) => {
+export const load: PageServerLoad = async ({ locals, url, setHeaders, cookies }) => {
 	setHeaders({ 'cache-control': 'private, no-store' });
+	// a logged-in browser that lost the bypass cookie gets it back here, so the public pages are interactive again
+	const bypass = bypassToRestore(locals.authed, locals.interactive, ISR_BYPASS_TOKEN);
+	if (bypass) cookies.set(BYPASS_COOKIE, bypass, sessionCookieOptions());
 	// the industry list is only needed once someone can use the page
 	const industries = locals.authed
 		? await getIndustries().catch((error: unknown) => {

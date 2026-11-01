@@ -2,7 +2,13 @@ import { ISR_BYPASS_TOKEN, SESSION_SECRET, SITE_PASSWORD } from '$app/env/privat
 import { fail, redirect } from '@sveltejs/kit';
 import { SESSION_COOKIE, createSession, passwordMatches } from '#lib/server/auth';
 import { returnPath } from '#lib/return-path';
-import { BYPASS_COOKIE, LEGACY_COOKIE_PATH, bypassToken, sessionCookieOptions } from '#lib/server/access';
+import {
+	BYPASS_COOKIE,
+	LEGACY_COOKIE_PATH,
+	bypassToRestore,
+	bypassToken,
+	sessionCookieOptions
+} from '#lib/server/access';
 import { checkLogin, createRateLimiter } from '#lib/server/ratelimit';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -24,8 +30,8 @@ export const load: PageServerLoad = ({ locals, url, setHeaders, cookies }) => {
 	if (locals.authed) {
 		// Logged in but without the bypass cookie (cleared, or the token was rotated): give it back here, where
 		// nothing is cached. Hooks never set cookies.
-		const token = bypassToken(ISR_BYPASS_TOKEN);
-		if (token && !locals.interactive) cookies.set(BYPASS_COOKIE, token, sessionCookieOptions());
+		const token = bypassToRestore(locals.authed, locals.interactive, ISR_BYPASS_TOKEN);
+		if (token) cookies.set(BYPASS_COOKIE, token, sessionCookieOptions());
 		redirect(303, from ?? HOME);
 	}
 

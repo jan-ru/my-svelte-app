@@ -6,7 +6,8 @@
 </script>
 
 <p class="login-prompt" role="note">
-	<a href={loginHref(from)}>Log in</a>
+	<!-- a full load: /login may only restore a cookie and redirect back, which client-side routing would not re-render -->
+	<a href={loginHref(from)} data-sveltekit-reload>Log in</a>
 	{@render children()}
 </p>
 
