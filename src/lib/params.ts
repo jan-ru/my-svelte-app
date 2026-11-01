@@ -26,6 +26,7 @@ export const DEFAULT_SELECTION: Selection = {
 export const DEFAULT_LAYOUT: Layout = { panels: 'multiples', x: 'industries', color: 'regions' };
 
 const ROLES: readonly Role[] = ['multiples', 'regions', 'industries'];
+const isRole = (value: string | null): value is Role => ROLES.some((r) => r === value);
 const MULTIPLE_IDS = new Set(MULTIPLES.map((m) => m.id));
 const REGION_IDS = new Set(REGIONS.map((r) => r.id));
 const MAX_NAME_LENGTH = 100;
@@ -48,9 +49,9 @@ function readLayout(sp: URLSearchParams): Layout {
 	const dims = [DEFAULT_LAYOUT.panels, DEFAULT_LAYOUT.x, DEFAULT_LAYOUT.color];
 	const used = new Set<Role>();
 	const slots = asked.map((r) => {
-		if (r !== null && ROLES.includes(r as Role) && !used.has(r as Role)) {
-			used.add(r as Role);
-			return r as Role;
+		if (isRole(r) && !used.has(r)) {
+			used.add(r);
+			return r;
 		}
 		return null;
 	});
