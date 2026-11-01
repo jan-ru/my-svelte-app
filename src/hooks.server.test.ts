@@ -8,7 +8,7 @@ vi.mock('$app/env/private', () => env);
 
 import { BYPASS_COOKIE } from '#lib/server/access';
 import { SESSION_COOKIE, createSession } from '#lib/server/auth';
-import { handle } from './hooks.server';
+import { handle, handleError } from './hooks.server';
 
 const SECRET = 's'.repeat(32);
 const TOKEN = 't'.repeat(40);
@@ -93,5 +93,25 @@ describe('handle', () => {
 		env.SESSION_SECRET = undefined;
 		const { locals } = await run('/companies', { cookies: { [SESSION_COOKIE]: session(), [BYPASS_COOKIE]: TOKEN } });
 		expect(locals).toEqual({ authed: false, interactive: false });
+	});
+});
+
+describe('handleError', () => {
+	type Input = Parameters<typeof handleError>[0];
+	const event = { request: new Request('http://x.test/financials'), url: new URL('http://x.test/financials') };
+	const call = (input: object) => handleError({ ...input, event } as unknown as Input);
+
+	it('logs an unexpected error with a reference and hides its text', () => {
+		const log = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+		const result = call({ kind: 'unknown', error: new Error('https://api.example?apikey=secret') });
+		expect(result).toEqual({ message: 'Something went wrong.', errorId: expect.any(String) });
+		const errorId = (result as { errorId: string }).errorId;
+		expect(log).toHaveBeenCalledWith(`unexpected error ${errorId} on GET /financials`, expect.any(Error));
+		log.mockRestore();
+	});
+
+	it('leaves expected and framework errors as they are', () => {
+		expect(call({ kind: 'app', error: { status: 401, message: 'Log in' } })).toBeUndefined();
+		expect(call({ kind: 'framework', error: { status: 404, message: 'Not Found' } })).toBeUndefined();
 	});
 });

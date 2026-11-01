@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { searchSbi, trace, type Crosswalk } from './crosswalk';
+import { formatShare, searchSbi, trace, type Crosswalk } from './crosswalk';
 
 const data: Crosswalk = {
 	generated: '2026-10-25',
@@ -139,5 +139,12 @@ describe('SIC group codes', () => {
 		const r = reverseTrace({ ...grouped, damodaran: { '2010': [['Grouped', 4]] } }, 'Grouped')!;
 		expect(r.followed).toBeCloseTo(1);
 		expect(r.sbi25.map((x) => x.code)).toEqual(['1011', '1012']);
+	});
+});
+
+describe('formatShare', () => {
+	it('shows a share as a percentage with one decimal', () => {
+		expect(formatShare(0.125)).toBe('12.5%');
+		expect(formatShare(1)).toBe('100.0%');
 	});
 });

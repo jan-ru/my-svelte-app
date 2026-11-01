@@ -77,6 +77,21 @@ describe('upload action', () => {
 		});
 		expect(await upload('', new File([new Uint8Array(1_000_001)], 'big.xlsx'))).toMatchObject({ status: 413 });
 	});
+	it('refuses a body that declares a large size before reading the form', async () => {
+		const request = new Request('http://x.test/financials/valuation?/upload', {
+			method: 'POST',
+			headers: { 'content-length': '5000000' },
+			body: 'x'
+		});
+		const formData = vi.spyOn(request, 'formData');
+		const result = await (actions.upload as unknown as (e: unknown) => Promise<unknown>)({
+			locals: { authed: true },
+			request,
+			url: new URL('http://x.test/financials/valuation')
+		});
+		expect(result).toMatchObject({ status: 413 });
+		expect(formData).not.toHaveBeenCalled();
+	});
 	it('explains a template it cannot read', async () => {
 		const r = await upload('', new File(['Company,\n'], 'x.csv'));
 		expect(r).toMatchObject({ status: 400, data: { message: 'Fill in the company name next to "Company".' } });

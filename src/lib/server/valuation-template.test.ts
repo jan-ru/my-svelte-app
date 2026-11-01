@@ -1,6 +1,6 @@
 import * as XLSX from 'xlsx';
 import { describe, expect, it } from 'vitest';
-import { readTemplate, writeTemplate } from './valuation-template';
+import { MAX_UPLOAD_BYTES, readTemplate, uploadTooLarge, writeTemplate } from './valuation-template';
 import { get } from '#lib/at';
 
 describe('writeTemplate and readTemplate', () => {
@@ -31,5 +31,18 @@ describe('writeTemplate and readTemplate', () => {
 		XLSX.utils.book_append_sheet(book, XLSX.utils.aoa_to_sheet([]), 'Empty');
 		const empty = readTemplate(new Uint8Array(XLSX.write(book, { type: 'array', bookType: 'xlsx' }) as ArrayBuffer));
 		expect(empty).toEqual({ ok: false, error: 'Fill in the company name next to "Company".' });
+	});
+});
+
+describe('uploadTooLarge', () => {
+	const headers = (length?: number) => new Headers(length === undefined ? {} : { 'content-length': String(length) });
+
+	it('refuses a body that declares more than a template plus the form around it', () => {
+		expect(uploadTooLarge(headers(MAX_UPLOAD_BYTES * 2))).toBe(true);
+	});
+	it('lets through a template-sized body and one with no or a broken content-length', () => {
+		expect(uploadTooLarge(headers(MAX_UPLOAD_BYTES))).toBe(false);
+		expect(uploadTooLarge(headers())).toBe(false);
+		expect(uploadTooLarge(new Headers({ 'content-length': 'lots' }))).toBe(false);
 	});
 });

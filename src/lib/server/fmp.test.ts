@@ -1,6 +1,14 @@
 // src/lib/server/fmp.test.ts
 import { describe, expect, it, vi } from 'vitest';
-import { fetchEarnings, fetchEstimates, fetchRatios, fetchStatement, parseStatement } from './fmp';
+import {
+	MAX_BYTES,
+	fetchEarnings,
+	fetchEstimates,
+	fetchRatios,
+	fetchStatement,
+	parseStatement,
+	readCapped
+} from './fmp';
 import { SourceError } from './source-error';
 
 const record = (year: number, extra: Record<string, unknown> = {}) => ({
@@ -168,6 +176,35 @@ describe('fetchStatement', () => {
 			kind: 'unavailable'
 		});
 	});
+	it('rejects a body larger than the cap even without a content-length', async () => {
+		const chunk = new Uint8Array(1024 * 1024).fill(0x20);
+		let sent = 0;
+		const body = new ReadableStream<Uint8Array>({
+			pull(controller) {
+				sent += 1;
+				controller.enqueue(chunk);
+			}
+		});
+		const fetchFn = vi.fn().mockResolvedValue(new Response(body));
+		await expect(fetchStatement('income', 'AAPL', 'K', 'annual', fetchFn)).rejects.toMatchObject({
+			kind: 'unavailable',
+			message: 'FMP response too large'
+		});
+		// stopped just past the cap instead of reading on
+		expect(sent).toBeLessThanOrEqual(MAX_BYTES / chunk.byteLength + 2);
+	});
+	it('maps a body that breaks off mid-stream to a safe error', async () => {
+		const body = new ReadableStream<Uint8Array>({
+			pull(controller) {
+				controller.error(new Error('reset https://financialmodelingprep.com/?apikey=K'));
+			}
+		});
+		const fetchFn = vi.fn().mockResolvedValue(new Response(body));
+		await expect(fetchStatement('income', 'AAPL', 'K', 'annual', fetchFn)).rejects.toMatchObject({
+			kind: 'unavailable',
+			message: 'FMP response could not be read'
+		});
+	});
 	it('uses the -ttm endpoint with limit 1 and no period for TTM', async () => {
 		const fetchFn = vi.fn().mockImplementation(async () => new Response('[]'));
 		for (const [kind, path] of [
@@ -267,5 +304,24 @@ describe('fetchEarnings', () => {
 		expect(result.years.map((y) => y.fiscalYear)).toEqual(['2026-01-29', '2025-10-30']);
 		expect(result.lines).toEqual(['epsActual', 'epsEstimated', 'revenueActual', 'revenueEstimated']);
 		expect(result.years[0]?.values.epsActual).toBeNull();
+	});
+});
+
+describe('readCapped', () => {
+	it('decodes a multi-byte character split across chunks', async () => {
+		const bytes = new TextEncoder().encode('€uro');
+		const body = new ReadableStream<Uint8Array>({
+			start(controller) {
+				controller.enqueue(bytes.slice(0, 2));
+				controller.enqueue(bytes.slice(2));
+				controller.close();
+			}
+		});
+		expect(await readCapped(new Response(body), 100)).toBe('€uro');
+	});
+	it('reads an empty body as empty text and counts bytes, not characters', async () => {
+		expect(await readCapped(new Response(null), 10)).toBe('');
+		expect(await readCapped(new Response('€€'), 5)).toBeNull();
+		expect(await readCapped(new Response('€€'), 6)).toBe('€€');
 	});
 });

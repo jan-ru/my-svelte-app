@@ -85,6 +85,38 @@ describe('createCache', () => {
 	});
 });
 
+describe('createCache size limit', () => {
+	const value = (v: string) => async () => v;
+
+	it('drops expired entries first, then the oldest, to stay within maxEntries', async () => {
+		let t = 0;
+		const cache = createCache<string>({ ttlMs: 1000, now: () => t, maxEntries: 2 });
+		await cache.get('a', value('a'));
+		t = 600;
+		await cache.get('b', value('b'));
+		t = 1100; // a has expired, b has not
+		await cache.get('c', value('c'));
+		const load = vi.fn(value('again'));
+		expect(await cache.get('b', load)).toBe('b');
+		expect(load).not.toHaveBeenCalled();
+		// nothing has expired now, so the oldest (b) makes way for d
+		await cache.get('d', value('d'));
+		expect(await cache.get('c', load)).toBe('c');
+		expect(await cache.get('b', load)).toBe('again');
+	});
+
+	it('bounds the remembered failures the same way', async () => {
+		const cache = createCache<string>({ ttlMs: 1000, now: () => 0, maxEntries: 1 });
+		const failing = async () => {
+			throw new Error('down');
+		};
+		await expect(cache.get('a', failing)).rejects.toThrow('down');
+		await expect(cache.get('b', failing)).rejects.toThrow('down');
+		// a's failure was dropped to make room, so a loads again instead of rethrowing
+		expect(await cache.get('a', value('up'))).toBe('up');
+	});
+});
+
 describe('cached', () => {
 	it('loads once per key and passes every argument through', async () => {
 		const load = vi.fn(async (symbol: string, apiKey: string) => `${symbol}:${apiKey}`);

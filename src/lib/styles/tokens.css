@@ -40,15 +40,17 @@
 	--neutral-status: #5b738b;
 
 	/* ---- Semantic aliases ---- */
-	--color-primary: var(--blue-60);
-	--color-primary-hover: var(--blue-70);
-	--color-primary-active: var(--blue-80);
+	/* blue-70, not blue-60: primary is also used as text, and blue-60 is below the WCAG AA 4.5:1 contrast on the
+	   page and card backgrounds (4.37 on #fafafa); blue-70 is 5.3 there and 4.8 on the error background */
+	--color-primary: var(--blue-70);
+	--color-primary-hover: var(--blue-80);
+	--color-primary-active: var(--blue-90);
 
 	--text-primary: var(--ink);
 	--text-secondary: var(--grey-07);
 	--text-disabled: var(--grey-06);
 	--text-on-primary: var(--white);
-	--text-link: var(--blue-60);
+	--text-link: var(--blue-70);
 
 	--surface-page: var(--grey-01);
 	--surface-group: var(--grey-02);
