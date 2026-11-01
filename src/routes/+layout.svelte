@@ -60,7 +60,8 @@
 			<button type="submit" class="link">Log out</button>
 		</form>
 	{:else}
-		<a href={page.url.pathname === '/login' ? here : loginHref(here)}>Log in</a>
+		<!-- a full load: /login may only restore a cookie and redirect back, which client-side routing would not re-render -->
+		<a href={page.url.pathname === '/login' ? here : loginHref(here)} data-sveltekit-reload>Log in</a>
 	{/if}
 </nav>
 

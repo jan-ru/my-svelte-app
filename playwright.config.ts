@@ -16,7 +16,13 @@ export default defineConfig({
 		command: `npm run preview -- --port ${PORT} --strictPort`,
 		port: PORT,
 		reuseExistingServer: !process.env.CI,
-		// test-only values: the login works and the FMP key is set, but no test calls FMP
-		env: { SITE_PASSWORD: 'e2e-password', SESSION_SECRET: 'e2e-session-secret-0123456789abcdef', FMP_API_KEY: 'e2e' }
+		// test-only values: the login works and the FMP key is set, but no test calls FMP. The bypass token makes
+		// "interactive" need the bypass cookie, as in production.
+		env: {
+			SITE_PASSWORD: 'e2e-password',
+			SESSION_SECRET: 'e2e-session-secret-0123456789abcdef',
+			FMP_API_KEY: 'e2e',
+			ISR_BYPASS_TOKEN: 'e2e-bypass-token-0123456789abcdefghij'
+		}
 	}
 });

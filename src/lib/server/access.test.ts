@@ -4,6 +4,7 @@ import {
 	ISR_ALLOW_QUERY,
 	ISR_EXPIRATION_SECONDS,
 	LEGACY_COOKIE_PATH,
+	bypassToRestore,
 	bypassToken,
 	isInteractive,
 	isRevalidation,
@@ -72,6 +73,18 @@ describe('isInteractive', () => {
 	it('follows the session alone when the cache is off', () => {
 		expect(isInteractive(true, undefined, undefined)).toBe(true);
 		expect(isInteractive(true, undefined, 'short')).toBe(true);
+	});
+});
+
+describe('bypassToRestore', () => {
+	it('gives the token back to a logged-in browser that is not interactive', () => {
+		expect(bypassToRestore(true, false, TOKEN)).toBe(TOKEN);
+	});
+	it('gives nothing when anonymous, already interactive or without a usable token', () => {
+		expect(bypassToRestore(false, false, TOKEN)).toBeUndefined();
+		expect(bypassToRestore(true, true, TOKEN)).toBeUndefined();
+		expect(bypassToRestore(true, false, 'short')).toBeUndefined();
+		expect(bypassToRestore(true, false, undefined)).toBeUndefined();
 	});
 });
 

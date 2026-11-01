@@ -1,7 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-type Env = Record<'SITE_PASSWORD' | 'SESSION_SECRET' | 'FMP_API_KEY', string | undefined>;
-const env = vi.hoisted((): Env => ({ SITE_PASSWORD: 'pw', SESSION_SECRET: 's'.repeat(32), FMP_API_KEY: 'KEY' }));
+type Env = Record<'SITE_PASSWORD' | 'SESSION_SECRET' | 'ISR_BYPASS_TOKEN' | 'FMP_API_KEY', string | undefined>;
+const env = vi.hoisted((): Env => ({
+	SITE_PASSWORD: 'pw',
+	SESSION_SECRET: 's'.repeat(32),
+	ISR_BYPASS_TOKEN: undefined,
+	FMP_API_KEY: 'KEY'
+}));
 vi.mock('$app/env/private', () => env);
 vi.mock('#lib/server/valuation', () => ({ loadValuation: vi.fn(async () => ({ state: 'stub' })) }));
 vi.mock('#lib/server/compare', () => ({ getIndustries: vi.fn(async () => ['Semiconductor']) }));
@@ -12,24 +17,36 @@ import { writeTemplate } from '#lib/server/valuation-template';
 import { decodeCompany } from '#lib/valuation-company';
 import { actions, load } from './+page.server';
 import { GET } from './template/+server';
+import { BYPASS_COOKIE } from '#lib/server/access';
 
-const run = async (query: string, authed: boolean) => {
+const run = async (query: string, authed: boolean, interactive = authed) => {
 	const headers: Record<string, string> = {};
+	const set = vi.fn();
 	const data = await (load as unknown as (e: unknown) => Promise<Record<string, unknown>>)({
-		locals: { authed, interactive: authed },
+		locals: { authed, interactive },
 		url: new URL(`http://x.test/financials/valuation${query}`),
-		setHeaders: (h: Record<string, string>) => Object.assign(headers, h)
+		setHeaders: (h: Record<string, string>) => Object.assign(headers, h),
+		cookies: { set }
 	});
-	return { data, headers };
+	return { data, headers, set };
 };
 
 beforeEach(() => {
 	vi.clearAllMocks();
 	env.SITE_PASSWORD = 'pw';
 	env.SESSION_SECRET = 's'.repeat(32);
+	env.ISR_BYPASS_TOKEN = undefined;
 });
 
 describe('valuation load', () => {
+	it('gives a logged-in browser that lost the bypass cookie its cookie back, and nobody else', async () => {
+		env.ISR_BYPASS_TOKEN = 't'.repeat(40);
+		const lost = await run('', true, false);
+		expect(lost.set).toHaveBeenCalledWith(BYPASS_COOKIE, 't'.repeat(40), expect.objectContaining({ path: '/' }));
+		expect((await run('', true)).set).not.toHaveBeenCalled();
+		expect((await run('', false)).set).not.toHaveBeenCalled();
+	});
+
 	it('is never cached and passes the parsed state and the key to the loader', async () => {
 		const { data, headers } = await run('?symbol=asml.as&industry=Semiconductor&peer=nvda', true);
 		expect(headers['cache-control']).toBe('private, no-store');
