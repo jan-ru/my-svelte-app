@@ -28,7 +28,7 @@ async function expectAccessible(page: Page): Promise<void> {
 }
 
 async function logIn(page: Page): Promise<void> {
-	await page.goto('/financials');
+	await page.goto('/login?from=%2Ffinancials');
 	await page.getByLabel('Password').fill('e2e-password');
 	await page.getByRole('button', { name: 'Log in' }).click();
 	await expect(page.getByRole('button', { name: 'Log out' })).toBeVisible();
@@ -54,7 +54,7 @@ test('an unknown address shows the site error page', async ({ page }) => {
 });
 
 test('a wrong password is refused', async ({ page }) => {
-	await page.goto('/financials');
+	await page.goto('/login');
 	await page.getByLabel('Password').fill('wrong');
 	await page.getByRole('button', { name: 'Log in' }).click();
 	await expect(page.getByRole('alert')).toHaveText('Wrong password.');
@@ -67,7 +67,20 @@ test('logging in opens /financials and logging out locks it again', async ({ pag
 	await expectAccessible(page);
 	await page.getByRole('button', { name: 'Log out' }).click();
 	await page.goto('/financials');
-	await expect(page.getByLabel('Password')).toBeVisible();
+	await expect(page.getByRole('note').getByRole('link', { name: 'Log in' })).toBeVisible();
+	expect(errors).toEqual([]);
+});
+
+test('the menubar login returns to the page it was opened from', async ({ page }) => {
+	const errors = watchErrors(page);
+	await page.goto('/companies');
+	await page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Log in' }).click();
+	await expect(page).toHaveURL(/\/login\?from=%2Fcompanies$/);
+	await expectAccessible(page);
+	await page.getByLabel('Password').fill('e2e-password');
+	await page.getByRole('button', { name: 'Log in' }).click();
+	await expect(page).toHaveURL(/\/companies$/);
+	await expect(page.getByRole('button', { name: 'Log out' })).toBeVisible();
 	expect(errors).toEqual([]);
 });
 

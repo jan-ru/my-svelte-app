@@ -1,6 +1,8 @@
 <!-- src/routes/financials/+page.svelte -->
 <script lang="ts">
+	import { page } from '$app/state';
 	import type { PageProps } from './$types';
+	import LoginPrompt from '#lib/components/LoginPrompt.svelte';
 	import FinancialTable from '#lib/components/FinancialTable.svelte';
 	import NewsList from '#lib/components/NewsList.svelte';
 	import PeersList from '#lib/components/PeersList.svelte';
@@ -9,9 +11,9 @@
 	import SideLayout from '#lib/components/SideLayout.svelte';
 	import SideMenu from '#lib/components/SideMenu.svelte';
 	import { SOURCES, effectivePeriod, isUsListing, periodAvailable, resolveSource, sourceLabel } from '#lib/source';
-	import { PERIODS, STATEMENTS, TABS, loginAction, navHref } from '#lib/financials-nav';
+	import { PERIODS, STATEMENTS, TABS, navHref } from '#lib/financials-nav';
 
-	let { data, form }: PageProps = $props();
+	let { data }: PageProps = $props();
 	const view = $derived(data.view);
 	const nav = $derived(data.nav);
 	const source = $derived(resolveSource(nav.source, data.symbol));
@@ -47,14 +49,8 @@
 			{#if !data.configured}
 				<p class="error" role="alert">This page is not configured on this deployment.</p>
 			{:else}
-				<form id="login" class="login" method="POST" action={loginAction(nav, data.symbol, data.from)}>
-					<label for="password">Password</label>
-					<input id="password" name="password" type="password" autocomplete="current-password" required />
-					<button type="submit">Log in</button>
-					<span class="hint">to look up a company; the other pages show their data without a login.</span>
-				</form>
+				<LoginPrompt from={page.url.pathname + page.url.search}>to look up a company.</LoginPrompt>
 			{/if}
-			{#if form?.message}<p class="error" role="alert">{form.message}</p>{/if}
 		{:else}
 			<div class="bar">
 				<form method="GET">
@@ -157,16 +153,8 @@
 		min-width: 0;
 		padding: 0 0 var(--space-12);
 	}
-	.note,
-	.hint {
+	.note {
 		color: var(--text-secondary);
-	}
-	.login {
-		margin: var(--space-4) 0;
-		padding: var(--space-3) var(--space-4);
-		background: var(--surface-card);
-		border: 1px solid var(--border-subtle);
-		border-radius: var(--radius-md);
 	}
 	.bar {
 		display: flex;

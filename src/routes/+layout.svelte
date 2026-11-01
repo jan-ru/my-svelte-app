@@ -13,11 +13,14 @@
 	import { onMount } from 'svelte';
 	import { EXPLORE_HOME, inExplore } from '#lib/nav';
 	import SiteFooter from '#lib/components/SiteFooter.svelte';
+	import { loginHref, logoutAction } from '#lib/return-path';
 	import type { Snippet } from 'svelte';
 
 	let { children, data }: { children: Snippet; data: { interactive: boolean } } = $props();
 
 	const APP_NAME = 'Fetch valuation multiples';
+	// The page to come back to after logging in or out, with its query so a selection or ticker survives.
+	const here = $derived(page.url.pathname + page.url.search);
 
 	// Vercel Analytics and Speed Insights through their generic entry points: the `/sveltekit` ones import
 	// `$app/stores`, which SvelteKit 3 removed, so they threw on every page load. Route changes are reported here instead.
@@ -53,15 +56,11 @@
 	{/each}
 	<span class="spacer"></span>
 	{#if data.interactive}
-		<form method="POST" action={`/financials?/logout&from=${encodeURIComponent(page.url.pathname)}`}>
+		<form method="POST" action={logoutAction(here)}>
 			<button type="submit" class="link">Log out</button>
 		</form>
 	{:else}
-		<a
-			href={page.url.pathname === '/financials'
-				? '#login'
-				: `/financials?from=${encodeURIComponent(page.url.pathname)}`}>Log in</a
-		>
+		<a href={page.url.pathname === '/login' ? here : loginHref(here)}>Log in</a>
 	{/if}
 </nav>
 
