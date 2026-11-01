@@ -13,7 +13,9 @@
 <footer>
 	<p class="sources">
 		Data:
-		{#each sources as s, i (s.href)}<a href={s.href} rel="noreferrer">{s.label}</a>{i < sources.length - 1 ? ' · ' : ''}{/each}
+		{#each sources as s, i (s.href)}<a href={s.href} rel="noreferrer">{s.label}</a>{i < sources.length - 1
+				? ' · '
+				: ''}{/each}
 	</p>
 	<p class="links">
 		<a href="/about">About</a> · <a href="https://github.com/jan-ru/my-svelte-app" rel="noreferrer">GitHub</a>
@@ -25,8 +27,27 @@
 </footer>
 
 <style>
-	footer { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--space-2) var(--space-6); max-width: 84rem; margin: var(--space-12) auto 0; padding: var(--space-4); color: var(--text-secondary); font-size: var(--text-sm); border-top: 1px solid var(--border-subtle); }
-	p { margin: 0; }
-	footer a { color: inherit; text-decoration: underline; }
-	footer a:hover { color: var(--color-primary); }
+	footer {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: var(--space-2) var(--space-6);
+		max-width: 84rem;
+		margin: var(--space-12) auto 0;
+		padding: var(--space-4);
+		color: var(--text-secondary);
+		font-size: var(--text-sm);
+		border-top: 1px solid var(--border-subtle);
+	}
+	p {
+		margin: 0;
+	}
+	footer a {
+		color: inherit;
+		text-decoration: underline;
+	}
+	footer a:hover {
+		color: var(--color-primary);
+	}
 </style>

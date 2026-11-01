@@ -25,9 +25,7 @@
 
 	let filter = $state('');
 	const unselected = $derived(data.industries.filter((n) => !selection.industries.includes(n)));
-	const visible = $derived(
-		unselected.filter((n) => n.toLowerCase().includes(filter.trim().toLowerCase()))
-	);
+	const visible = $derived(unselected.filter((n) => n.toLowerCase().includes(filter.trim().toLowerCase())));
 	const isFull = (list: string[]) => list.length >= MAX_SELECTION;
 
 	const ready = $derived(
@@ -37,9 +35,7 @@
 	const hasLowFirms = $derived(bars.some((b) => b.firms !== null && b.firms < LOW_FIRMS_THRESHOLD));
 	const errors = $derived([...new Set(bars.map((b) => b.error).filter((e): e is string => !!e))]);
 	const updatedLabel = $derived(
-		data.updated
-			? new Date(data.updated).toLocaleDateString('en-GB', { dateStyle: 'long', timeZone: 'UTC' })
-			: null
+		data.updated ? new Date(data.updated).toLocaleDateString('en-GB', { dateStyle: 'long', timeZone: 'UTC' }) : null
 	);
 
 	function onchange(event: Event & { currentTarget: HTMLFormElement }) {
@@ -47,8 +43,9 @@
 		const target = event.target;
 		if (target instanceof HTMLElement && target.dataset.nosubmit !== undefined) return;
 
-		if (target instanceof HTMLSelectElement && layoutControls.some((c) => c.name === target.name)) {
-			const control = layoutControls.find((c) => c.name === target.name)!;
+		const control =
+			target instanceof HTMLSelectElement ? layoutControls.find((c) => c.name === target.name) : undefined;
+		if (target instanceof HTMLSelectElement && control) {
 			const next = applyRole(layout, control.key, target.value as Role);
 			for (const c of layoutControls) {
 				(form.elements.namedItem(c.name) as HTMLSelectElement).value = next[c.key];
@@ -67,8 +64,8 @@
 	<h1>Valuation multiples</h1>
 	<p class="source">
 		Source:
-		<a href="https://pages.stern.nyu.edu/~adamodar/New_Home_Page/data.html" rel="noreferrer">NYU Stern</a>{#if updatedLabel},
-			data updated {updatedLabel}{/if}.
+		<a href="https://pages.stern.nyu.edu/~adamodar/New_Home_Page/data.html" rel="noreferrer">NYU Stern</a
+		>{#if updatedLabel}, data updated {updatedLabel}{/if}.
 	</p>
 
 	{#if data.interactive}
@@ -139,22 +136,21 @@
 						</label>
 					{/each}
 				</fieldset>
-
 			</div>
 
 			<details class="pivot">
 				<summary>Chart options</summary>
 				<div class="pivot-controls">
-				{#each layoutControls as control (control.name)}
-					<label>
-						{control.label}
-						<select name={control.name}>
-							{#each roles as role (role.id)}
-								<option value={role.id} selected={layout[control.key] === role.id}>{role.label}</option>
-							{/each}
-						</select>
-					</label>
-				{/each}
+					{#each layoutControls as control (control.name)}
+						<label>
+							{control.label}
+							<select name={control.name}>
+								{#each roles as role (role.id)}
+									<option value={role.id} selected={layout[control.key] === role.id}>{role.label}</option>
+								{/each}
+							</select>
+						</label>
+					{/each}
 				</div>
 			</details>
 
@@ -180,7 +176,9 @@
 
 		<p class="peers">
 			Companies in
-			{#each selection.industries as name, i (name)}{i > 0 ? ', ' : ''}{#if data.interactive}<a href={`/companies?industry=${encodeURIComponent(name)}`}>{name}</a>{:else}{name}{/if}{/each}
+			{#each selection.industries as name, i (name)}{i > 0 ? ', ' : ''}{#if data.interactive}<a
+						href={`/companies?industry=${encodeURIComponent(name)}`}>{name}</a
+					>{:else}{name}{/if}{/each}
 		</p>
 
 		<div class="panels" class:single={data.model.panels.length === 1}>
@@ -223,37 +221,177 @@
 </main>
 
 <style>
-	main { max-width: 80rem; margin: 0 auto; padding: 0 var(--space-4) var(--space-12); }
-	h1 { margin-bottom: var(--space-1); }
-	.source { margin-top: 0; color: var(--text-secondary); }
-	.controls { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: var(--space-4); align-items: start; }
-	fieldset { padding: var(--space-2) var(--space-3) var(--space-3); }
-	fieldset > label { display: block; line-height: 1.8; }
-	.count, .hint { color: var(--text-secondary); font-size: var(--text-sm); font-weight: var(--weight-regular); }
-	.chips { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-2); }
-	.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-	.chip { position: relative; display: inline-flex; align-items: center; gap: var(--space-1); padding: 2px 10px; font-size: var(--text-sm); color: var(--blue-80); background: var(--information-bg); border: 1px solid var(--information-border); border-radius: var(--radius-pill); cursor: pointer; }
-	.chip:hover { background: var(--blue-10); }
-	.chip:focus-within { outline: var(--focus-ring) solid var(--border-focus); outline-offset: 2px; }
-	.chip input { position: absolute; opacity: 0; pointer-events: none; }
-	.industries input[type='search'] { width: 100%; margin-bottom: var(--space-2); }
-	.list { max-height: 11rem; overflow-y: auto; border-top: 1px solid var(--border-subtle); }
-	.list label { display: block; line-height: 1.7; }
-	.pivot { margin: var(--space-4) 0; padding: var(--space-2) var(--space-4); background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
-	.pivot-controls { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-4); padding-top: var(--space-2); }
-	.pivot label { display: inline-flex; align-items: center; gap: var(--space-2); font-size: var(--text-sm); }
-	.peers { margin: 0 0 var(--space-3); font-size: var(--text-sm); color: var(--text-secondary); }
-	.legend { display: flex; flex-wrap: wrap; gap: var(--space-5); list-style: none; padding: 0; font-size: var(--text-sm); }
-	.swatch { display: inline-block; width: 0.9rem; height: 0.9rem; margin-right: 0.4rem; vertical-align: -0.1rem; border-radius: var(--radius-xs); }
-	.panels { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-6); }
-	.panels.single { grid-template-columns: minmax(0, 40rem); }
-	section { padding: var(--space-4); background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); box-shadow: var(--shadow-1); }
-	h2 { font-size: var(--text-md); margin: 0 0 var(--space-1); }
-	details { margin-top: var(--space-2); }
-	table { margin-top: var(--space-2); font-size: var(--text-sm); }
-	th, td { text-align: right; }
-	th:first-child { text-align: left; }
-	.notice { padding: var(--space-3) var(--space-4); background: var(--information-bg); border: 1px solid var(--information-border); border-left: 4px solid var(--information); border-radius: var(--radius-sm); }
-	.notice[role='alert'] { background: var(--negative-bg); border-color: var(--negative-border); border-left-color: var(--negative); }
-	.footnote { color: var(--text-secondary); font-size: var(--text-sm); }
+	main {
+		max-width: 80rem;
+		margin: 0 auto;
+		padding: 0 var(--space-4) var(--space-12);
+	}
+	h1 {
+		margin-bottom: var(--space-1);
+	}
+	.source {
+		margin-top: 0;
+		color: var(--text-secondary);
+	}
+	.controls {
+		display: grid;
+		grid-template-columns: 1.4fr 1fr 1fr;
+		gap: var(--space-4);
+		align-items: start;
+	}
+	fieldset {
+		padding: var(--space-2) var(--space-3) var(--space-3);
+	}
+	fieldset > label {
+		display: block;
+		line-height: 1.8;
+	}
+	.count,
+	.hint {
+		color: var(--text-secondary);
+		font-size: var(--text-sm);
+		font-weight: var(--weight-regular);
+	}
+	.chips {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-2);
+		margin-bottom: var(--space-2);
+	}
+	.sr-only {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		overflow: hidden;
+		clip-path: inset(50%);
+		white-space: nowrap;
+	}
+	.chip {
+		position: relative;
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-1);
+		padding: 2px 10px;
+		font-size: var(--text-sm);
+		color: var(--blue-80);
+		background: var(--information-bg);
+		border: 1px solid var(--information-border);
+		border-radius: var(--radius-pill);
+		cursor: pointer;
+	}
+	.chip:hover {
+		background: var(--blue-10);
+	}
+	.chip:focus-within {
+		outline: var(--focus-ring) solid var(--border-focus);
+		outline-offset: 2px;
+	}
+	.chip input {
+		position: absolute;
+		opacity: 0;
+		pointer-events: none;
+	}
+	.industries input[type='search'] {
+		width: 100%;
+		margin-bottom: var(--space-2);
+	}
+	.list {
+		max-height: 11rem;
+		overflow-y: auto;
+		border-top: 1px solid var(--border-subtle);
+	}
+	.list label {
+		display: block;
+		line-height: 1.7;
+	}
+	.pivot {
+		margin: var(--space-4) 0;
+		padding: var(--space-2) var(--space-4);
+		background: var(--surface-card);
+		border: 1px solid var(--border-subtle);
+		border-radius: var(--radius-md);
+	}
+	.pivot-controls {
+		display: flex;
+		align-items: center;
+		flex-wrap: wrap;
+		gap: var(--space-4);
+		padding-top: var(--space-2);
+	}
+	.pivot label {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-2);
+		font-size: var(--text-sm);
+	}
+	.peers {
+		margin: 0 0 var(--space-3);
+		font-size: var(--text-sm);
+		color: var(--text-secondary);
+	}
+	.legend {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-5);
+		list-style: none;
+		padding: 0;
+		font-size: var(--text-sm);
+	}
+	.swatch {
+		display: inline-block;
+		width: 0.9rem;
+		height: 0.9rem;
+		margin-right: 0.4rem;
+		vertical-align: -0.1rem;
+		border-radius: var(--radius-xs);
+	}
+	.panels {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: var(--space-6);
+	}
+	.panels.single {
+		grid-template-columns: minmax(0, 40rem);
+	}
+	section {
+		padding: var(--space-4);
+		background: var(--surface-card);
+		border: 1px solid var(--border-subtle);
+		border-radius: var(--radius-md);
+		box-shadow: var(--shadow-1);
+	}
+	h2 {
+		font-size: var(--text-md);
+		margin: 0 0 var(--space-1);
+	}
+	details {
+		margin-top: var(--space-2);
+	}
+	table {
+		margin-top: var(--space-2);
+		font-size: var(--text-sm);
+	}
+	th,
+	td {
+		text-align: right;
+	}
+	th:first-child {
+		text-align: left;
+	}
+	.notice {
+		padding: var(--space-3) var(--space-4);
+		background: var(--information-bg);
+		border: 1px solid var(--information-border);
+		border-left: 4px solid var(--information);
+		border-radius: var(--radius-sm);
+	}
+	.notice[role='alert'] {
+		background: var(--negative-bg);
+		border-color: var(--negative-border);
+		border-left-color: var(--negative);
+	}
+	.footnote {
+		color: var(--text-secondary);
+		font-size: var(--text-sm);
+	}
 </style>

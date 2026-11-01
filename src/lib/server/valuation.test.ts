@@ -50,8 +50,16 @@ const COMPANIES: Record<string, Co> = {
 		balance: st('2025', { totalStockholdersEquity: 60, netDebt: 40 }),
 		estimates: st('2026', { netIncomeAvg: 120 })
 	},
-	MSFT: { profile: profile('Microsoft', 3600), income: st('2025', { revenue: 300, ebitda: 160, netIncome: 90 }), balance: st('2025', { netDebt: 0 }) },
-	GOOG: { profile: profile('Alphabet', 2400), income: st('2025', { revenue: 350, ebitda: 150, netIncome: 100 }), balance: st('2025', { netDebt: -100 }) },
+	MSFT: {
+		profile: profile('Microsoft', 3600),
+		income: st('2025', { revenue: 300, ebitda: 160, netIncome: 90 }),
+		balance: st('2025', { netDebt: 0 })
+	},
+	GOOG: {
+		profile: profile('Alphabet', 2400),
+		income: st('2025', { revenue: 350, ebitda: 150, netIncome: 100 }),
+		balance: st('2025', { netDebt: -100 })
+	},
 	NOCAP: { profile: profile('No cap', null), income: st('2025', { revenue: 10 }) },
 	BROKEN: { profile: null, income: new SourceError('limit', 'limit') },
 	EMPTY: { profile: profile('Empty', 10), income: { lines: [], years: [] } }
@@ -124,7 +132,10 @@ describe('loadValuation states', () => {
 describe('loadValuation ready', () => {
 	it('values the company against the picked peers and the sector', async () => {
 		const sector = vi.fn(async () => ({ ev_ebitda: 14 }));
-		const view = await run('symbol=aapl&peer=MSFT&peer=GOOG&m=ev_ebitda&m=pe_trailing&region=europe&industry=Semiconductor', { sector });
+		const view = await run(
+			'symbol=aapl&peer=MSFT&peer=GOOG&m=ev_ebitda&m=pe_trailing&region=europe&industry=Semiconductor',
+			{ sector }
+		);
 		if (view.state !== 'ready') throw new Error(view.state);
 		expect(sector).toHaveBeenCalledWith(['ev_ebitda', 'pe_trailing'], 'europe', 'Semiconductor');
 		expect(view.symbol).toBe('AAPL');
@@ -134,7 +145,9 @@ describe('loadValuation ready', () => {
 		expect(view.sectorMessage).toBeNull();
 		// MSFT and AAPL are picked or the company itself, so only AMZN is still a suggestion
 		expect(view.suggestions.map((p) => p.symbol)).toEqual(['AMZN']);
-		expect(view.peers.map((p) => [p.symbol, p.name, p.multiples.ev_ebitda, p.multiples.pe_trailing, p.message])).toEqual([
+		expect(
+			view.peers.map((p) => [p.symbol, p.name, p.multiples.ev_ebitda, p.multiples.pe_trailing, p.message])
+		).toEqual([
 			['MSFT', 'Microsoft', 22.5, 40, null],
 			['GOOG', 'Alphabet', 2300 / 150, 24, null]
 		]);
@@ -165,12 +178,12 @@ describe('loadValuation ready', () => {
 			'FMP rate limit reached. Try again in a minute.',
 			'FMP has no annual figures for EMPTY.'
 		]);
-		expect(view.peers[1].name).toBe('BROKEN');
+		expect(view.peers[1]?.name).toBe('BROKEN');
 	});
 	it('needs the FMP key for a US peer even when the company comes from Yahoo', async () => {
 		const view = await run('symbol=ASML.AS&peer=MSFT', { apiKey: undefined });
 		if (view.state !== 'ready') throw new Error(view.state);
-		expect(view.peers[0].message).toBe('The FMP key is not configured.');
+		expect(view.peers[0]?.message).toBe('The FMP key is not configured.');
 	});
 	it.each([
 		[new SourceError('config', 'x'), 'The FMP key was not accepted. Check FMP_API_KEY.'],
@@ -223,6 +236,10 @@ describe('loadValuation for a private company', () => {
 describe('loadSector', () => {
 	it('reads one region and industry from the Damodaran comparison', async () => {
 		expect(await loadSector(['ev_ebitda', 'ps'], 'europe', 'Semiconductor')).toEqual({ ev_ebitda: 14, ps: null });
-		expect(getComparison).toHaveBeenCalledWith({ multiples: ['ev_ebitda', 'ps'], regions: ['europe'], industries: ['Semiconductor'] });
+		expect(getComparison).toHaveBeenCalledWith({
+			multiples: ['ev_ebitda', 'ps'],
+			regions: ['europe'],
+			industries: ['Semiconductor']
+		});
 	});
 });

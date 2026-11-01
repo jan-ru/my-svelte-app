@@ -51,7 +51,9 @@ describe('login round trip', () => {
 		expect(loginAction(nav, '')).toBe('?/login');
 	});
 	it('sends the visitor back to the ticker they asked for', () => {
-		expect(afterLogin(q('symbol=aapl&tab=news'))).toBe('/financials?symbol=AAPL&tab=news&statement=income&period=annual');
+		expect(afterLogin(q('symbol=aapl&tab=news'))).toBe(
+			'/financials?symbol=AAPL&tab=news&statement=income&period=annual'
+		);
 	});
 	it('goes to the plain page without a usable ticker', () => {
 		expect(afterLogin(q(''))).toBe('/financials');
@@ -63,7 +65,9 @@ describe('login round trip', () => {
 	});
 	it('carries the page to come back to on the login action', () => {
 		expect(loginAction(nav, '', '/companies')).toBe('?/login&from=%2Fcompanies');
-		expect(loginAction(nav, 'AAPL', '/about')).toBe('?/login&symbol=AAPL&tab=price&statement=balance&period=ttm&from=%2Fabout');
+		expect(loginAction(nav, 'AAPL', '/about')).toBe(
+			'?/login&symbol=AAPL&tab=price&statement=balance&period=ttm&from=%2Fabout'
+		);
 		expect(loginAction(nav, '', null)).toBe('?/login');
 	});
 	it('goes back to an allowed page without a ticker, never to an unlisted one', () => {
@@ -71,7 +75,9 @@ describe('login round trip', () => {
 		expect(afterLogin(q('from=//evil.com'))).toBe('/financials');
 		expect(afterLogin(q('from=https://evil.com'))).toBe('/financials');
 		// the ticker still wins when both are present
-		expect(afterLogin(q('symbol=aapl&from=%2Fcompanies'))).toBe('/financials?symbol=AAPL&tab=financials&statement=income&period=annual');
+		expect(afterLogin(q('symbol=aapl&from=%2Fcompanies'))).toBe(
+			'/financials?symbol=AAPL&tab=financials&statement=income&period=annual'
+		);
 	});
 });
 

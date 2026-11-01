@@ -74,8 +74,8 @@ describe('parseProfile', () => {
 		expect(parseProfile([{ companyName: 'X', website: 'javascript:alert(1)' }])!.website).toBeNull();
 	});
 	it('maps an FMP error body and rejects other shapes', () => {
-		expect(() => parseProfile({ 'Error Message': 'Invalid API KEY.' })).toThrowError(SourceError);
-		expect(() => parseProfile({ nope: 1 })).toThrowError(/Unexpected response/);
+		expect(() => parseProfile({ 'Error Message': 'Invalid API KEY.' })).toThrow(SourceError);
+		expect(() => parseProfile({ nope: 1 })).toThrow(/Unexpected response/);
 	});
 });
 
@@ -102,7 +102,7 @@ describe('parseNews', () => {
 		]);
 	});
 	it('falls back to site when there is no publisher', () => {
-		expect(parseNews([{ ...item, publisher: undefined }])[0].publisher).toBe('reuters.com');
+		expect(parseNews([{ ...item, publisher: undefined }])[0]?.publisher).toBe('reuters.com');
 	});
 	it('drops items without a title and unsafe urls, and truncates long text', () => {
 		const items = parseNews([
@@ -111,13 +111,13 @@ describe('parseNews', () => {
 			{ ...item, text: 'x'.repeat(500) }
 		]);
 		expect(items).toHaveLength(2);
-		expect(items[0].url).toBeNull();
-		expect(items[1].text!.length).toBeLessThanOrEqual(301);
-		expect(items[1].text!.endsWith('…')).toBe(true);
+		expect(items[0]?.url).toBeNull();
+		expect(items[1]?.text?.length).toBeLessThanOrEqual(301);
+		expect(items[1]?.text?.endsWith('…')).toBe(true);
 	});
 	it('returns [] for an empty list and throws unavailable for a non-array', () => {
 		expect(parseNews([])).toEqual([]);
-		expect(() => parseNews({ nope: 1 })).toThrowError(/Unexpected response/);
+		expect(() => parseNews({ nope: 1 })).toThrow(/Unexpected response/);
 	});
 });
 
@@ -127,12 +127,12 @@ describe('fetchProfile / fetchNews', () => {
 		await fetchProfile('AAPL', 'KEY', fetchFn);
 		await fetchNews('AAPL', 'KEY', fetchFn);
 		const [a, b] = fetchFn.mock.calls.map((c) => new URL(c[0] as string));
-		expect(a.pathname).toBe('/stable/profile');
-		expect(a.searchParams.get('symbol')).toBe('AAPL');
-		expect(a.searchParams.get('apikey')).toBe('KEY');
-		expect(b.pathname).toBe('/stable/news/stock');
-		expect(b.searchParams.get('symbols')).toBe('AAPL');
-		expect(b.searchParams.get('limit')).toBe('20');
+		expect(a?.pathname).toBe('/stable/profile');
+		expect(a?.searchParams.get('symbol')).toBe('AAPL');
+		expect(a?.searchParams.get('apikey')).toBe('KEY');
+		expect(b?.pathname).toBe('/stable/news/stock');
+		expect(b?.searchParams.get('symbols')).toBe('AAPL');
+		expect(b?.searchParams.get('limit')).toBe('20');
 	});
 	it('never leak the key in an error message', async () => {
 		const secret = 'SUPERSECRETKEY';
@@ -155,8 +155,11 @@ describe('fetchProfile / fetchNews', () => {
 		}
 	});
 	it('maps HTTP statuses', async () => {
-		const kind = async (status: number) =>
-			(await fetchProfile('AAPL', 'K', vi.fn().mockResolvedValue(json({}, status))).catch((e) => e)).kind;
+		const kind = (status: number) =>
+			fetchProfile('AAPL', 'K', vi.fn().mockResolvedValue(json({}, status))).then(
+				() => null,
+				(e: unknown) => (e instanceof SourceError ? e.kind : null)
+			);
 		expect(await kind(402)).toBe('plan');
 		expect(await kind(429)).toBe('limit');
 		expect(await kind(500)).toBe('unavailable');
@@ -204,12 +207,12 @@ describe('parsePrices', () => {
 		]);
 	});
 	it('treats a non-numeric volume as null', () => {
-		expect(parsePrices([{ ...row, volume: 'many' }])[0].volume).toBeNull();
+		expect(parsePrices([{ ...row, volume: 'many' }])[0]?.volume).toBeNull();
 	});
 	it('returns [] for an empty list, maps an FMP error body and rejects other shapes', () => {
 		expect(parsePrices([])).toEqual([]);
-		expect(() => parsePrices({ 'Error Message': 'Invalid API KEY.' })).toThrowError(SourceError);
-		expect(() => parsePrices({ nope: 1 })).toThrowError(/Unexpected response/);
+		expect(() => parsePrices({ 'Error Message': 'Invalid API KEY.' })).toThrow(SourceError);
+		expect(() => parsePrices({ nope: 1 })).toThrow(/Unexpected response/);
 	});
 });
 
@@ -217,7 +220,7 @@ describe('fetchPrices', () => {
 	it('requests the history endpoint with symbol and date range', async () => {
 		const fetchFn = vi.fn().mockImplementation(async () => json([]));
 		await fetchPrices('AAPL', 'KEY', '2025-10-26', '2026-10-26', fetchFn);
-		const url = new URL(fetchFn.mock.calls[0][0] as string);
+		const url = new URL(fetchFn.mock.calls[0]?.[0] as string);
 		expect(url.pathname).toBe('/stable/historical-price-eod/full');
 		expect(url.searchParams.get('symbol')).toBe('AAPL');
 		expect(url.searchParams.get('from')).toBe('2025-10-26');
@@ -234,9 +237,13 @@ describe('fetchPrices', () => {
 			async () => new Response('not json', { status: 200 })
 		];
 		for (const make of cases) {
-			const error = await fetchPrices('AAPL', secret, '2025-10-26', '2026-10-26', vi.fn().mockImplementation(make)).catch(
-				(e: unknown) => e
-			);
+			const error = await fetchPrices(
+				'AAPL',
+				secret,
+				'2025-10-26',
+				'2026-10-26',
+				vi.fn().mockImplementation(make)
+			).catch((e: unknown) => e);
 			expect(error).toBeInstanceOf(SourceError);
 			expect((error as Error).message).not.toContain(secret);
 		}
@@ -245,7 +252,11 @@ describe('fetchPrices', () => {
 
 describe('parsePriceTarget', () => {
 	it('reads the four targets', () => {
-		expect(parsePriceTarget([{ symbol: 'AAPL', targetHigh: 250, targetLow: 150, targetConsensus: 205.5, targetMedian: '210' }])).toEqual({
+		expect(
+			parsePriceTarget([
+				{ symbol: 'AAPL', targetHigh: 250, targetLow: 150, targetConsensus: 205.5, targetMedian: '210' }
+			])
+		).toEqual({
 			consensus: 205.5,
 			median: 210,
 			high: 250,
@@ -264,9 +275,13 @@ describe('parsePriceTarget', () => {
 
 describe('parsePeers', () => {
 	it('keeps symbol, name, price and market cap, and skips entries without a symbol', () => {
-		expect(parsePeers([{ symbol: 'MSFT', companyName: 'Microsoft', price: 400, mktCap: 3e12 }, { companyName: 'No symbol' }, null])).toEqual([
-			{ symbol: 'MSFT', name: 'Microsoft', price: 400, marketCap: 3e12 }
-		]);
+		expect(
+			parsePeers([
+				{ symbol: 'MSFT', companyName: 'Microsoft', price: 400, mktCap: 3e12 },
+				{ companyName: 'No symbol' },
+				null
+			])
+		).toEqual([{ symbol: 'MSFT', name: 'Microsoft', price: 400, marketCap: 3e12 }]);
 	});
 	it('keeps at most 20', () => {
 		const many = Array.from({ length: 30 }, (_, i) => ({ symbol: `T${i}` }));

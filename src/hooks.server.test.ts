@@ -1,6 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const env = vi.hoisted(() => ({ SESSION_SECRET: undefined as string | undefined, ISR_BYPASS_TOKEN: undefined as string | undefined }));
+const env = vi.hoisted(() => ({
+	SESSION_SECRET: undefined as string | undefined,
+	ISR_BYPASS_TOKEN: undefined as string | undefined
+}));
 vi.mock('$app/env/private', () => env);
 
 import { BYPASS_COOKIE } from '#lib/server/access';
@@ -43,7 +46,9 @@ describe('handle', () => {
 	});
 
 	it('treats a session plus the matching bypass cookie as interactive and private', async () => {
-		const { locals, cache } = await run('/companies', { cookies: { [SESSION_COOKIE]: session(), [BYPASS_COOKIE]: TOKEN } });
+		const { locals, cache } = await run('/companies', {
+			cookies: { [SESSION_COOKIE]: session(), [BYPASS_COOKIE]: TOKEN }
+		});
 		expect(locals).toEqual({ authed: true, interactive: true });
 		expect(cache).toBe('private, no-store');
 	});

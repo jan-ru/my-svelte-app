@@ -17,6 +17,7 @@ import {
 	shareOfGlobal,
 	topIds
 } from './size';
+import { at } from '#lib/at';
 
 const data: CompanyData = {
 	generated: '2026-10-25',
@@ -62,7 +63,13 @@ describe('countBy', () => {
 describe('dominantSector', () => {
 	it('takes the sector most of an industry belongs to, alphabetical on a tie', () => {
 		expect(dominantSector(data)).toEqual({ Banks: 'Financials', Steel: 'Materials' });
-		const tie: CompanyData = { ...data, companies: [['A', '', '', 0, 0, 0, 1, 0], ['B', '', '', 0, 0, 0, 0, 0]] };
+		const tie: CompanyData = {
+			...data,
+			companies: [
+				['A', '', '', 0, 0, 0, 1, 0],
+				['B', '', '', 0, 0, 0, 0, 0]
+			]
+		};
 		expect(dominantSector(tie)).toEqual({ Banks: 'Financials' });
 	});
 	it('covers all 94 industries of the real file with a sector that has a colour', () => {
@@ -75,12 +82,14 @@ describe('dominantSector', () => {
 
 describe('sector colours', () => {
 	const luminance = (hex: string) => {
-		const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((c) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4));
+		const [r = 0, g = 0, b = 0] = [1, 3, 5]
+			.map((i) => parseInt(hex.slice(i, i + 2), 16) / 255)
+			.map((c) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4));
 		return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 	};
 	const ink = luminance('#1D2D3E');
 	it('has a colour for every real sector and a fallback', () => {
-		for (const s of (real).sectors) expect(SECTOR_FILLS).toHaveProperty(s);
+		for (const s of real.sectors) expect(SECTOR_FILLS).toHaveProperty(s);
 		expect(sectorFill('Nonsense')).toMatch(/^#/);
 	});
 	it('keeps the dark label text readable (WCAG AA, 4.5:1) on every fill', () => {
@@ -94,18 +103,18 @@ describe('sector colours', () => {
 	it('keeps every pair of strong sector colours well apart, and the header text readable on each', () => {
 		const rgb = (hex: string) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
 		const colours = Object.values(SECTOR_STRONG);
-		for (let i = 0; i < colours.length; i++) {
-			for (let j = i + 1; j < colours.length; j++) {
-				const [a, b] = [rgb(colours[i]), rgb(colours[j])];
-				expect(Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2])).toBeGreaterThanOrEqual(45);
+		colours.forEach((colour, i) => {
+			for (const other of colours.slice(i + 1)) {
+				const [a, b] = [rgb(colour), rgb(other)];
+				expect(Math.hypot(...a.map((v, k) => v - at(b, k)))).toBeGreaterThanOrEqual(45);
 			}
-			const text = readableOn(colours[i]);
-			const [hi, lo] = [Math.max(luminance(text), luminance(colours[i])), Math.min(luminance(text), luminance(colours[i]))];
+			const text = readableOn(colour);
+			const [hi, lo] = [Math.max(luminance(text), luminance(colour)), Math.min(luminance(text), luminance(colour))];
 			expect((hi + 0.05) / (lo + 0.05)).toBeGreaterThanOrEqual(4.5);
-		}
+		});
 	});
 	it('has a strong colour for every real sector', () => {
-		for (const s of (real).sectors) expect(SECTOR_STRONG).toHaveProperty(s);
+		for (const s of real.sectors) expect(SECTOR_STRONG).toHaveProperty(s);
 	});
 });
 
@@ -113,7 +122,10 @@ describe('shareOfGlobal', () => {
 	const values = { A: 50, B: 30, C: 20 };
 	it('gives absolute and percent of the global total, plus the rest of the world', () => {
 		const s = shareOfGlobal(values, ['A', 'C'], 100);
-		expect(s.items).toEqual([{ id: 'A', value: 50, percent: 50 }, { id: 'C', value: 20, percent: 20 }]);
+		expect(s.items).toEqual([
+			{ id: 'A', value: 50, percent: 50 },
+			{ id: 'C', value: 20, percent: 20 }
+		]);
 		expect(s.rest).toEqual({ id: 'rest', value: 30, percent: 30 });
 		expect(s.items.reduce((t, i) => t + i.percent, 0) + s.rest!.percent).toBeCloseTo(100, 9);
 	});
@@ -127,7 +139,7 @@ describe('shareOfGlobal', () => {
 	it('ignores unknown and duplicate ids and survives a zero total', () => {
 		expect(shareOfGlobal(values, ['A', 'A', 'Z'], 100).items).toHaveLength(1);
 		const z = shareOfGlobal(values, ['A'], 0);
-		expect(z.items[0].percent).toBe(0);
+		expect(z.items[0]?.percent).toBe(0);
 		expect(z.rest).toBeNull();
 	});
 	it('orders the items largest first', () => {
@@ -155,7 +167,7 @@ describe('crossCell', () => {
 		expect(crossCell(data, 'Japan', 'Nope')).toBeNull();
 	});
 	it('can be empty for a real pair with no companies', () => {
-		const c = crossCell({ ...data, companies: [data.companies[0]] }, 'Japan', 'Steel')!;
+		const c = crossCell({ ...data, companies: [at(data.companies, 0)] }, 'Japan', 'Steel')!;
 		expect(c.count).toBe(0);
 		expect(c.percentOfGlobal).toBe(0);
 	});

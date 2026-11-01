@@ -24,9 +24,15 @@ const data: Crosswalk = {
 	sicAlias: {},
 	damodaran: {
 		'2011': [['Food Processing', 3]],
-		'2015': [['Food Processing', 1], ['Farming/Agriculture', 1]],
+		'2015': [
+			['Food Processing', 1],
+			['Farming/Agriculture', 1]
+		],
 		'2731': [['Publshing & Newspapers', 2]],
-		'2711': [['Publshing & Newspapers', 2], ['Entertainment', 1]]
+		'2711': [
+			['Publshing & Newspapers', 2],
+			['Entertainment', 1]
+		]
 	}
 };
 
@@ -76,7 +82,12 @@ import { industries, reverseTrace } from './crosswalk';
 
 describe('industries', () => {
 	it('lists each Damodaran industry once, sorted', () => {
-		expect(industries(data)).toEqual(['Entertainment', 'Farming/Agriculture', 'Food Processing', 'Publshing & Newspapers']);
+		expect(industries(data)).toEqual([
+			'Entertainment',
+			'Farming/Agriculture',
+			'Food Processing',
+			'Publshing & Newspapers'
+		]);
 	});
 });
 
@@ -87,13 +98,16 @@ describe('reverseTrace', () => {
 	it('lists the industry SIC codes with company counts', () => {
 		const r = reverseTrace(data, 'Food Processing')!;
 		expect(r.companies).toBe(4);
-		expect(r.sic.map((s) => [s.code, s.companies])).toEqual([['2011', 3], ['2015', 1]]);
+		expect(r.sic.map((s) => [s.code, s.companies])).toEqual([
+			['2011', 3],
+			['2015', 1]
+		]);
 	});
 	it('ranks SBI 2025 classes by share, splitting evenly at one-to-many hops', () => {
 		const r = reverseTrace(data, 'Food Processing')!;
 		// Both SIC codes lead to NAICS 311611 -> ISIC 1511 -> ISIC 1010 -> SBI 1011 and 1012, half each.
 		expect(r.sbi25.map((s) => s.code)).toEqual(['1011', '1012']);
-		expect(r.sbi25[0].share).toBeCloseTo(0.5);
+		expect(r.sbi25[0]?.share).toBeCloseTo(0.5);
 		expect(r.sbi25.reduce((s, x) => s + x.share, 0)).toBeCloseTo(1);
 		expect(r.followed).toBeCloseTo(1);
 	});

@@ -1,10 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const env = vi.hoisted(() => ({
-	SITE_PASSWORD: 'pw' as string | undefined,
-	SESSION_SECRET: 's'.repeat(32) as string | undefined,
-	ISR_BYPASS_TOKEN: 't'.repeat(40) as string | undefined,
-	FMP_API_KEY: undefined as string | undefined
+type Env = Record<'SITE_PASSWORD' | 'SESSION_SECRET' | 'ISR_BYPASS_TOKEN' | 'FMP_API_KEY', string | undefined>;
+const env = vi.hoisted((): Env => ({
+	SITE_PASSWORD: 'pw',
+	SESSION_SECRET: 's'.repeat(32),
+	ISR_BYPASS_TOKEN: 't'.repeat(40),
+	FMP_API_KEY: undefined
 }));
 vi.mock('$app/env/private', () => env);
 vi.mock('#lib/server/financials', () => ({ loadFinancials: vi.fn(async () => ({ kind: 'stub' })) }));
@@ -32,7 +33,8 @@ async function redirected(run: () => unknown): Promise<{ status: number; locatio
 		await run();
 	} catch (e) {
 		const r = e as { status?: number; location?: string };
-		if (typeof r.status === 'number' && typeof r.location === 'string') return { status: r.status, location: r.location };
+		if (typeof r.status === 'number' && typeof r.location === 'string')
+			return { status: r.status, location: r.location };
 		throw e;
 	}
 	throw new Error('expected a redirect');
@@ -41,7 +43,10 @@ async function redirected(run: () => unknown): Promise<{ status: number; locatio
 let ip = 0;
 const login = (query: string, password: string, cookies: ReturnType<typeof fakeCookies>['cookies']) =>
 	(actions.login as unknown as (e: unknown) => unknown)({
-		request: new Request('http://x.test/financials?/login', { method: 'POST', body: new URLSearchParams({ password }) }),
+		request: new Request('http://x.test/financials?/login', {
+			method: 'POST',
+			body: new URLSearchParams({ password })
+		}),
 		cookies,
 		// each test gets its own address so the rate limiter never interferes
 		getClientAddress: () => `10.0.0.${++ip}`,
@@ -125,7 +130,12 @@ describe('load', () => {
 		const setHeaders = vi.fn();
 		return {
 			setHeaders,
-			result: load({ locals, url: new URL(`http://x.test/financials${query}`), setHeaders, cookies } as unknown as Parameters<typeof load>[0])
+			result: load({
+				locals,
+				url: new URL(`http://x.test/financials${query}`),
+				setHeaders,
+				cookies
+			} as unknown as Parameters<typeof load>[0])
 		};
 	};
 
@@ -140,7 +150,11 @@ describe('load', () => {
 		const r = await redirected(() => run('?from=%2Fcompanies', { authed: true, interactive: false }, c.cookies).result);
 		expect(r).toEqual({ status: 303, location: '/companies' });
 		expect(c.sets).toHaveLength(1);
-		expect(c.sets[0]).toMatchObject({ name: BYPASS_COOKIE, value: 't'.repeat(40), options: { path: '/', httpOnly: true } });
+		expect(c.sets[0]).toMatchObject({
+			name: BYPASS_COOKIE,
+			value: 't'.repeat(40),
+			options: { path: '/', httpOnly: true }
+		});
 	});
 
 	it('sets the cookie but stays on the page without a from (M1)', async () => {

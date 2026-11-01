@@ -1,10 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const env = vi.hoisted(() => ({
-	SITE_PASSWORD: 'pw' as string | undefined,
-	SESSION_SECRET: 's'.repeat(32) as string | undefined,
-	FMP_API_KEY: 'KEY' as string | undefined
-}));
+type Env = Record<'SITE_PASSWORD' | 'SESSION_SECRET' | 'FMP_API_KEY', string | undefined>;
+const env = vi.hoisted((): Env => ({ SITE_PASSWORD: 'pw', SESSION_SECRET: 's'.repeat(32), FMP_API_KEY: 'KEY' }));
 vi.mock('$app/env/private', () => env);
 vi.mock('#lib/server/valuation', () => ({ loadValuation: vi.fn(async () => ({ state: 'stub' })) }));
 vi.mock('#lib/server/compare', () => ({ getIndustries: vi.fn(async () => ['Semiconductor']) }));
@@ -38,7 +35,9 @@ describe('valuation load', () => {
 		expect(headers['cache-control']).toBe('private, no-store');
 		expect(data).toMatchObject({ configured: true, industries: ['Semiconductor'], view: { state: 'stub' } });
 		expect(data.nav).toMatchObject({ symbol: 'ASML.AS', industry: 'Semiconductor', peers: ['NVDA'] });
-		expect(loadValuation).toHaveBeenCalledWith(expect.objectContaining({ authed: true, rawSymbol: 'asml.as', apiKey: 'KEY' }));
+		expect(loadValuation).toHaveBeenCalledWith(
+			expect.objectContaining({ authed: true, rawSymbol: 'asml.as', apiKey: 'KEY' })
+		);
 	});
 	it('does not load the industry list for a visitor without a session', async () => {
 		const { data } = await run('?industry=Semiconductor', false);
@@ -72,7 +71,10 @@ const xlsx = (bytes: Uint8Array<ArrayBuffer>) => new File([bytes], 'figures.xlsx
 describe('upload action', () => {
 	it('refuses a visitor without a session, a missing file and an oversized one', async () => {
 		expect(await upload('', xlsx(writeTemplate(2026)), false)).toMatchObject({ status: 401 });
-		expect(await upload('', null)).toMatchObject({ status: 400, data: { message: 'Choose a filled-in template to upload.' } });
+		expect(await upload('', null)).toMatchObject({
+			status: 400,
+			data: { message: 'Choose a filled-in template to upload.' }
+		});
 		expect(await upload('', new File([new Uint8Array(1_000_001)], 'big.xlsx'))).toMatchObject({ status: 413 });
 	});
 	it('explains a template it cannot read', async () => {
@@ -80,7 +82,10 @@ describe('upload action', () => {
 		expect(r).toMatchObject({ status: 400, data: { message: 'Fill in the company name next to "Company".' } });
 	});
 	it('sends the figures on in the URL and keeps the rest of the page state', async () => {
-		const r = (await upload('?/upload&symbol=AAPL&peer=MSFT&m=ps&industry=Semiconductor', xlsx(writeTemplate(2026)))) as { status: number; location: string };
+		const r = (await upload(
+			'?/upload&symbol=AAPL&peer=MSFT&m=ps&industry=Semiconductor',
+			xlsx(writeTemplate(2026))
+		)) as { status: number; location: string };
 		expect(r.status).toBe(303);
 		const url = new URL(r.location, 'http://x.test');
 		expect(url.pathname).toBe('/financials/valuation');

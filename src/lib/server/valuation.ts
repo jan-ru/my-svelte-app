@@ -113,7 +113,12 @@ async function loadCompany(
 		estimates,
 		currency: profile?.currency ?? null
 	});
-	return { figures, name, marketCap, message: figures ? null : `${sourceLabel(source)} has no annual figures for ${symbol}.` };
+	return {
+		figures,
+		name,
+		marketCap,
+		message: figures ? null : `${sourceLabel(source)} has no annual figures for ${symbol}.`
+	};
 }
 
 export async function loadValuation(input: {

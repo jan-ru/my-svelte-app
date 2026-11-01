@@ -13,13 +13,26 @@ export const ISR_EXPIRATION_SECONDS = 86400;
  */
 export const ISR_ALLOW_QUERY = [
 	// Home
-	'm', 'r', 'i', 'p', 'x', 'c',
+	'm',
+	'r',
+	'i',
+	'p',
+	'x',
+	'c',
 	// Find industry and Companies
-	'q', 'code', 'industry', 'sic', 'country', 'region', 'sector', 'page',
+	'q',
+	'code',
+	'industry',
+	'sic',
+	'country',
+	'region',
+	'sector',
+	'page',
 	// Countries and Industries
 	'measure',
 	// SvelteKit data requests
-	'x-sveltekit-invalidated', 'x-sveltekit-trailing-slash'
+	'x-sveltekit-invalidated',
+	'x-sveltekit-trailing-slash'
 ] as const;
 export const MIN_BYPASS_TOKEN_LENGTH = 32;
 /** The session cookie used to be scoped to /financials; login and logout also clear that one. */
@@ -44,7 +57,11 @@ const digest = (value: string) => createHash('sha256').update(value).digest();
  * Interactive = a valid session and, when the cache is on, the bypass cookie equal to the token. A request that
  * can fill the ISR cache has no bypass cookie, so what gets cached is always the anonymous view.
  */
-export function isInteractive(authed: boolean, bypassCookie: string | undefined, rawToken: string | undefined): boolean {
+export function isInteractive(
+	authed: boolean,
+	bypassCookie: string | undefined,
+	rawToken: string | undefined
+): boolean {
 	if (!authed) return false;
 	const token = bypassToken(rawToken);
 	if (!token) return true;

@@ -34,8 +34,14 @@ describe('companies.json', () => {
 describe('crosswalk.json', () => {
 	it('has every table filled in', () => {
 		for (const table of [
-			xw.sbi25, xw.sbi25ToNace2, xw.nace2ToIsic4, xw.isic4ToIsic31,
-			xw.isic31ToNaics, xw.naicsToSic, xw.sicTitles, xw.damodaran
+			xw.sbi25,
+			xw.sbi25ToNace2,
+			xw.nace2ToIsic4,
+			xw.isic4ToIsic31,
+			xw.isic31ToNaics,
+			xw.naicsToSic,
+			xw.sicTitles,
+			xw.damodaran
 		]) {
 			expect(Object.keys(table).length).toBeGreaterThan(50);
 		}
@@ -44,7 +50,7 @@ describe('crosswalk.json', () => {
 	it('links every SBI class to NACE codes', () => {
 		for (const code of Object.keys(xw.sbi25ToNace2)) {
 			expect(xw.sbi25[code], code).toBeDefined();
-			expect(xw.sbi25ToNace2[code].length).toBeGreaterThan(0);
+			expect(xw.sbi25ToNace2[code]?.length).toBeGreaterThan(0);
 		}
 	});
 

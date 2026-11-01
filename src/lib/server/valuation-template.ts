@@ -10,7 +10,8 @@ export function readTemplate(data: Uint8Array): TemplateResult {
 	let rows: Cell[][];
 	try {
 		const workbook = XLSX.read(data, { type: 'array' });
-		const sheet = workbook.Sheets[workbook.SheetNames[0]];
+		const first = workbook.SheetNames[0];
+		const sheet = first === undefined ? undefined : workbook.Sheets[first];
 		rows = sheet ? XLSX.utils.sheet_to_json<Cell[]>(sheet, { header: 1, defval: null, raw: true }) : [];
 	} catch {
 		return { ok: false, error: 'That file could not be read as a spreadsheet.' };

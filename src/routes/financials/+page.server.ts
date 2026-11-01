@@ -11,6 +11,12 @@ import type { Actions, PageServerLoad } from './$types';
 
 const limiter = createRateLimiter({ max: 5, windowMs: 15 * 60 * 1000 });
 
+/** The submitted password; a file upload in its place counts as empty. */
+const passwordOf = (form: FormData): string => {
+	const value = form.get('password');
+	return typeof value === 'string' ? value : '';
+};
+
 export const load: PageServerLoad = async ({ locals, url, setHeaders, cookies }) => {
 	setHeaders({ 'cache-control': 'private, no-store' });
 	const nav = parseNav(url.searchParams);
@@ -48,7 +54,7 @@ export const actions: Actions = {
 		// check-and-record is atomic per instance (the limiter itself is per instance, best effort).
 		const form = await request.formData();
 		// The key is getClientAddress(), i.e. x-forwarded-for, which Vercel overwrites with the real client IP.
-		const result = checkLogin(limiter, getClientAddress(), String(form.get('password') ?? ''), (submitted) =>
+		const result = checkLogin(limiter, getClientAddress(), passwordOf(form), (submitted) =>
 			passwordMatches(submitted, password)
 		);
 		if (result === 'limited') return fail(429, { message: 'Too many attempts. Try again later.' });
@@ -61,7 +67,7 @@ export const actions: Actions = {
 		redirect(303, afterLogin(url.searchParams));
 	},
 
-	logout: async ({ cookies, url }) => {
+	logout: ({ cookies, url }) => {
 		cookies.delete(SESSION_COOKIE, { path: '/' });
 		cookies.delete(SESSION_COOKIE, { path: LEGACY_COOKIE_PATH });
 		cookies.delete(BYPASS_COOKIE, { path: '/' });

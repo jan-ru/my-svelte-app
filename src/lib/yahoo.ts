@@ -1,21 +1,62 @@
 /** Yahoo Finance symbol suffix per S&P Capital IQ exchange code ('' = none). */
 const SUFFIX: Record<string, string> = {
-	NYSE: '', NYSEAM: '', NasdaqGS: '', NasdaqGM: '', NasdaqCM: '', OTCPK: '',
-	TSE: '.T', NSEI: '.NS', SZSE: '.SZ', SHSE: '.SS', SEHK: '.HK',
-	KOSDAQ: '.KQ', KOSE: '.KS', ASX: '.AX', TSXV: '.V', TSX: '.TO', CNSX: '.CN',
-	TPEX: '.TWO', TWSE: '.TW', SET: '.BK', IDX: '.JK', OM: '.ST',
-	NGM: '.ST', WSE: '.WA', ENXTPA: '.PA', ENXTAM: '.AS', ENXTBR: '.BR',
-	ENXTLS: '.LS', IBSE: '.IS', AIM: '.L', LSE: '.L', TASE: '.TA', BIT: '.MI',
-	XTRA: '.DE', DB: '.F', SGX: '.SI', Catalist: '.SI', OB: '.OL', BOVESPA: '.SA',
-	SWX: '.SW', JSE: '.JO', BME: '.MC', HLSE: '.HE', CPSE: '.CO', ATSE: '.AT',
-	NZSE: '.NZ', BMV: '.MX', WBAG: '.VI', SASE: '.SR', MUN: '.MU'
+	NYSE: '',
+	NYSEAM: '',
+	NasdaqGS: '',
+	NasdaqGM: '',
+	NasdaqCM: '',
+	OTCPK: '',
+	TSE: '.T',
+	NSEI: '.NS',
+	SZSE: '.SZ',
+	SHSE: '.SS',
+	SEHK: '.HK',
+	KOSDAQ: '.KQ',
+	KOSE: '.KS',
+	ASX: '.AX',
+	TSXV: '.V',
+	TSX: '.TO',
+	CNSX: '.CN',
+	TPEX: '.TWO',
+	TWSE: '.TW',
+	SET: '.BK',
+	IDX: '.JK',
+	OM: '.ST',
+	NGM: '.ST',
+	WSE: '.WA',
+	ENXTPA: '.PA',
+	ENXTAM: '.AS',
+	ENXTBR: '.BR',
+	ENXTLS: '.LS',
+	IBSE: '.IS',
+	AIM: '.L',
+	LSE: '.L',
+	TASE: '.TA',
+	BIT: '.MI',
+	XTRA: '.DE',
+	DB: '.F',
+	SGX: '.SI',
+	Catalist: '.SI',
+	OB: '.OL',
+	BOVESPA: '.SA',
+	SWX: '.SW',
+	JSE: '.JO',
+	BME: '.MC',
+	HLSE: '.HE',
+	CPSE: '.CO',
+	ATSE: '.AT',
+	NZSE: '.NZ',
+	BMV: '.MX',
+	WBAG: '.VI',
+	SASE: '.SR',
+	MUN: '.MU'
 };
 
 const SYMBOL = /^[A-Za-z0-9.&-]+$/;
 
 /** Yahoo Finance symbol for a Capital IQ style ticker such as `ENXTAM:ABN` (`ABN.AS`); null when Yahoo has no such listing. */
 export function yahooSymbol(ticker: string): string | null {
-	const [exchange, symbol] = ticker.split(':', 2);
+	const [exchange = '', symbol] = ticker.split(':', 2);
 	if (!symbol) return null;
 	const suffix = SUFFIX[exchange];
 	let s = symbol;

@@ -29,7 +29,8 @@ export function parseSizeNav(params: URLSearchParams, known: SizeKnown, page: Si
 	const sectors = clean(params.getAll('sector'), known.sectors);
 	const asked = MEASURES.find((m) => m.id === params.get('measure'))?.id ?? 'companies';
 	// GDP exists only for countries, so it needs the countries page and no industry or sector restriction
-	const measure: Measure = asked === 'gdp' && page === '/countries' && industries.length === 0 && sectors.length === 0 ? 'gdp' : 'companies';
+	const measure: Measure =
+		asked === 'gdp' && page === '/countries' && industries.length === 0 && sectors.length === 0 ? 'gdp' : 'companies';
 	return { measure, countries, industries, sectors };
 }
 
@@ -44,4 +45,5 @@ export function sizeHref(page: SizePage, nav: SizeNav): string {
 	return query ? `${page}?${query}` : page;
 }
 
-export const toggle = (list: string[], value: string): string[] => (list.includes(value) ? list.filter((v) => v !== value) : [...list, value]);
+export const toggle = (list: string[], value: string): string[] =>
+	list.includes(value) ? list.filter((v) => v !== value) : [...list, value];

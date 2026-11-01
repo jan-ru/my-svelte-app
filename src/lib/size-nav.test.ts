@@ -11,7 +11,12 @@ const q = (s: string) => new URLSearchParams(s);
 
 describe('parseSizeNav', () => {
 	it('defaults to companies with nothing selected', () => {
-		expect(parseSizeNav(q(''), known, '/countries')).toEqual({ measure: 'companies', countries: [], industries: [], sectors: [] });
+		expect(parseSizeNav(q(''), known, '/countries')).toEqual({
+			measure: 'companies',
+			countries: [],
+			industries: [],
+			sectors: []
+		});
 	});
 	it('reads repeated parameters, sorted and without duplicates', () => {
 		const nav = parseSizeNav(q('country=Netherlands&country=Japan&country=Japan&industry=Steel'), known, '/countries');
@@ -31,7 +36,11 @@ describe('parseSizeNav', () => {
 	});
 	it('caps each selection', () => {
 		const many = Array.from({ length: MAX_SELECTED + 5 }, (_, i) => `C${String(i).padStart(2, '0')}`);
-		const nav = parseSizeNav(new URLSearchParams(many.map((c) => ['country', c])), { ...known, countries: many }, '/countries');
+		const nav = parseSizeNav(
+			new URLSearchParams(many.map((c) => ['country', c])),
+			{ ...known, countries: many },
+			'/countries'
+		);
 		expect(nav.countries).toHaveLength(MAX_SELECTED);
 	});
 });
@@ -44,8 +53,12 @@ describe('sizeHref', () => {
 		expect(sizeHref('/countries', a)).toBe(sizeHref('/countries', b));
 	});
 	it('leaves out defaults', () => {
-		expect(sizeHref('/industries', { measure: 'companies', countries: [], industries: [], sectors: [] })).toBe('/industries');
-		expect(sizeHref('/countries', { measure: 'gdp', countries: [], industries: [], sectors: [] })).toBe('/countries?measure=gdp');
+		expect(sizeHref('/industries', { measure: 'companies', countries: [], industries: [], sectors: [] })).toBe(
+			'/industries'
+		);
+		expect(sizeHref('/countries', { measure: 'gdp', countries: [], industries: [], sectors: [] })).toBe(
+			'/countries?measure=gdp'
+		);
 	});
 	it('round trips', () => {
 		const nav = { measure: 'gdp' as const, countries: ['Japan', 'Netherlands'], industries: [], sectors: [] };

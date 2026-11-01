@@ -3,8 +3,20 @@ import { formatNewsDate, profileFields } from './company';
 import type { Profile } from './source-data';
 
 const empty: Profile = {
-	name: null, exchange: null, sector: null, industry: null, country: null, ceo: null, website: null,
-	ipoDate: null, currency: null, description: null, employees: null, price: null, marketCap: null, beta: null
+	name: null,
+	exchange: null,
+	sector: null,
+	industry: null,
+	country: null,
+	ceo: null,
+	website: null,
+	ipoDate: null,
+	currency: null,
+	description: null,
+	employees: null,
+	price: null,
+	marketCap: null,
+	beta: null
 };
 
 describe('profileFields', () => {
@@ -30,14 +42,25 @@ describe('profileFields', () => {
 			beta: 1.2345
 		});
 		expect(fields.map((f) => f.label)).toEqual([
-			'Company', 'Exchange', 'Sector', 'Industry', 'Country', 'CEO', 'Employees', 'Website',
-			'IPO date', 'Currency', 'Price', 'Market cap', 'Beta'
+			'Company',
+			'Exchange',
+			'Sector',
+			'Industry',
+			'Country',
+			'CEO',
+			'Employees',
+			'Website',
+			'IPO date',
+			'Currency',
+			'Price',
+			'Market cap',
+			'Beta'
 		]);
 		const by = Object.fromEntries(fields.map((f) => [f.label, f]));
-		expect(by.Employees.value).toBe('164,000');
-		expect(by.Price.value).toBe('189.50 USD');
-		expect(by['Market cap'].value).toBe('2.9 trillion USD');
-		expect(by.Beta.value).toBe('1.23');
+		expect(by.Employees?.value).toBe('164,000');
+		expect(by.Price?.value).toBe('189.50 USD');
+		expect(by['Market cap']?.value).toBe('2.9 trillion USD');
+		expect(by.Beta?.value).toBe('1.23');
 		expect(by.Website).toEqual({ label: 'Website', value: 'www.apple.com', href: 'https://www.apple.com/' });
 	});
 	it('skips missing values', () => {
@@ -45,7 +68,7 @@ describe('profileFields', () => {
 		expect(profileFields(empty)).toEqual([]);
 	});
 	it('scales market cap', () => {
-		const cap = (v: number) => profileFields({ ...empty, marketCap: v })[0].value;
+		const cap = (v: number) => profileFields({ ...empty, marketCap: v })[0]?.value;
 		expect(cap(5_500_000_000)).toBe('5.5 billion');
 		expect(cap(250_000_000)).toBe('250 million');
 		expect(cap(12_345)).toBe('12,345');

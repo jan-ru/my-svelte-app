@@ -1,11 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-	parseYahooNews,
-	parseYahooPrices,
-	parseYahooProfile,
-	parseYahooStatement,
-	toDate
-} from './yahoo-parse';
+import { parseYahooNews, parseYahooPrices, parseYahooProfile, parseYahooStatement, toDate } from './yahoo-parse';
 import { SourceError } from './source-error';
 
 describe('toDate', () => {
@@ -17,7 +11,9 @@ describe('toDate', () => {
 		expect(toDate(iso)?.toISOString()).toBe(iso);
 	});
 	it('returns null for anything else', () => {
-		for (const v of [null, undefined, '', 'soon', NaN, {}]) expect(toDate(v), String(v)).toBeNull();
+		[null, undefined, '', 'soon', NaN, {}].forEach((v, i) => {
+			expect(toDate(v), `case ${i}`).toBeNull();
+		});
 	});
 });
 
@@ -47,12 +43,12 @@ describe('parseYahooPrices', () => {
 	it('dates a quote in the exchange timezone', () => {
 		// Sydney opens at 10:00 local on 27 October, which is 23:00 UTC on the 26th
 		const quotes = [q('2026-10-26T23:00:00Z', 5)];
-		expect(parseYahooPrices(quotes)[0].date).toBe('2026-10-26');
-		expect(parseYahooPrices(quotes, 39600)[0].date).toBe('2026-10-27');
+		expect(parseYahooPrices(quotes)[0]?.date).toBe('2026-10-26');
+		expect(parseYahooPrices(quotes, 39600)[0]?.date).toBe('2026-10-27');
 	});
 	it('returns [] for an empty list and rejects other shapes', () => {
 		expect(parseYahooPrices([])).toEqual([]);
-		expect(() => parseYahooPrices({ nope: 1 })).toThrowError(SourceError);
+		expect(() => parseYahooPrices({ nope: 1 })).toThrow(SourceError);
 	});
 });
 
@@ -108,28 +104,39 @@ describe('parseYahooProfile', () => {
 	});
 	it('returns null when nothing usable is there and rejects non-objects', () => {
 		expect(parseYahooProfile({})).toBeNull();
-		expect(() => parseYahooProfile(null)).toThrowError(SourceError);
-		expect(() => parseYahooProfile('x')).toThrowError(SourceError);
+		expect(() => parseYahooProfile(null)).toThrow(SourceError);
+		expect(() => parseYahooProfile('x')).toThrow(SourceError);
 	});
 });
 
 describe('parseYahooNews', () => {
 	it('maps items, formats the time and keeps safe links only', () => {
 		const items = parseYahooNews([
-			{ title: 'Dutch state dilutes ABN', publisher: 'RBI', link: 'https://finance.yahoo.com/news/a', providerPublishTime: new Date('2026-10-25T14:30:00Z') },
+			{
+				title: 'Dutch state dilutes ABN',
+				publisher: 'RBI',
+				link: 'https://finance.yahoo.com/news/a',
+				providerPublishTime: new Date('2026-10-25T14:30:00Z')
+			},
 			{ title: 'Epoch time', publisher: 'X', link: 'javascript:alert(1)', providerPublishTime: 1767139200 },
 			{ title: '', link: 'https://x.test' },
 			{ publisher: 'no title' },
 			null
 		]);
 		expect(items).toEqual([
-			{ title: 'Dutch state dilutes ABN', publisher: 'RBI', date: '2026-10-25 14:30:00', text: null, url: 'https://finance.yahoo.com/news/a' },
+			{
+				title: 'Dutch state dilutes ABN',
+				publisher: 'RBI',
+				date: '2026-10-25 14:30:00',
+				text: null,
+				url: 'https://finance.yahoo.com/news/a'
+			},
 			{ title: 'Epoch time', publisher: 'X', date: '2025-12-31 00:00:00', text: null, url: null }
 		]);
 	});
 	it('returns [] for an empty list and rejects other shapes', () => {
 		expect(parseYahooNews([])).toEqual([]);
-		expect(() => parseYahooNews(undefined)).toThrowError(SourceError);
+		expect(() => parseYahooNews(undefined)).toThrow(SourceError);
 	});
 });
 
@@ -154,20 +161,26 @@ describe('parseYahooStatement', () => {
 	it('lists key lines first, then the rest in Yahoo order, newest year first', () => {
 		const s = parseYahooStatement('income', annual, null, 'annual', 'EUR');
 		expect(s.years.map((y) => y.fiscalYear)).toEqual(['2025', '2024', '2023']);
-		expect(s.years[0].date).toBe('2025-12-31');
-		expect(s.years[0].currency).toBe('EUR');
+		expect(s.years[0]?.date).toBe('2025-12-31');
+		expect(s.years[0]?.currency).toBe('EUR');
 		expect(s.lines).toEqual(['totalRevenue', 'netIncome', 'dilutedEPS', 'operatingExpense', 'interestIncome']);
-		expect(s.years[0].values.totalRevenue).toBe(130);
-		expect(s.years[2].values.interestIncome).toBeUndefined();
+		expect(s.years[0]?.values.totalRevenue).toBe(130);
+		expect(s.years[2]?.values.interestIncome).toBeUndefined();
 	});
 	it('leaves out metadata and non-numeric fields', () => {
-		const s = parseYahooStatement('income', [row(2025, { totalRevenue: 1, note: 'x', junk: null })], null, 'annual', null);
+		const s = parseYahooStatement(
+			'income',
+			[row(2025, { totalRevenue: 1, note: 'x', junk: null })],
+			null,
+			'annual',
+			null
+		);
 		expect(s.lines).not.toContain('TYPE');
 		expect(s.lines).not.toContain('periodType');
 		expect(s.lines).not.toContain('date');
 		expect(s.lines).not.toContain('note');
 		expect(s.lines).not.toContain('junk');
-		expect(s.years[0].currency).toBeNull();
+		expect(s.years[0]?.currency).toBeNull();
 	});
 	it('keeps at most five years', () => {
 		const rows = [2019, 2020, 2021, 2022, 2023, 2024, 2025].map((y) => row(y, { totalRevenue: y }));
@@ -177,8 +190,8 @@ describe('parseYahooStatement', () => {
 	it('uses only the newest trailing point for TTM income and cash flow', () => {
 		const s = parseYahooStatement('income', [], trailing, 'ttm', 'EUR');
 		expect(s.years).toHaveLength(1);
-		expect(s.years[0].date).toBe('2025-12-31');
-		expect(s.years[0].values.totalRevenue).toBe(120);
+		expect(s.years[0]?.date).toBe('2025-12-31');
+		expect(s.years[0]?.values.totalRevenue).toBe(120);
 		const cf = parseYahooStatement('cashflow', [], [{ date: 1767139200, operatingCashFlow: 5 }], 'ttm', null);
 		expect(cf.lines).toEqual(['operatingCashFlow']);
 	});
@@ -189,16 +202,22 @@ describe('parseYahooStatement', () => {
 		];
 		const s = parseYahooStatement('balance', balance, null, 'ttm', null);
 		expect(s.years).toHaveLength(1);
-		expect(s.years[0].values.totalAssets).toBe(2);
+		expect(s.years[0]?.values.totalAssets).toBe(2);
 		expect(s.lines).toEqual(['totalAssets', 'totalDebt']);
 	});
 	it('returns an empty statement when there are no rows, and rejects other shapes', () => {
 		expect(parseYahooStatement('income', [], null, 'annual', null)).toEqual({ lines: [], years: [] });
-		expect(() => parseYahooStatement('income', { nope: 1 }, null, 'annual', null)).toThrowError(SourceError);
-		expect(() => parseYahooStatement('income', [], { nope: 1 }, 'ttm', null)).toThrowError(SourceError);
+		expect(() => parseYahooStatement('income', { nope: 1 }, null, 'annual', null)).toThrow(SourceError);
+		expect(() => parseYahooStatement('income', [], { nope: 1 }, 'ttm', null)).toThrow(SourceError);
 	});
 	it('skips rows without a usable date', () => {
-		const s = parseYahooStatement('income', [{ date: 'soon', totalRevenue: 1 }, row(2025, { totalRevenue: 2 })], null, 'annual', null);
+		const s = parseYahooStatement(
+			'income',
+			[{ date: 'soon', totalRevenue: 1 }, row(2025, { totalRevenue: 2 })],
+			null,
+			'annual',
+			null
+		);
 		expect(s.years).toHaveLength(1);
 	});
 });

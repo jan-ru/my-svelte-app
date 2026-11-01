@@ -16,7 +16,8 @@ export const load: PageServerLoad = ({ url, locals, setHeaders }) => {
 	// Anonymous requests get an empty query, so what the cache stores never depends on who asked first.
 	const params = pageParams(locals.interactive, url);
 	const industry = text(params.get('industry'), 100);
-	const sic = /^\d{4}$/.test(params.get('sic') ?? '') ? params.get('sic')! : '';
+	const sicParam = params.get('sic') ?? '';
+	const sic = /^\d{4}$/.test(sicParam) ? sicParam : '';
 	const country = text(params.get('country'), 100);
 	const region = text(params.get('region'), 100);
 	const sector = text(params.get('sector'), 100);

@@ -30,7 +30,7 @@ describe('sessions', () => {
 		expect(verifySession(createSession(secret, t0), 'other-secret', t0)).toBe(false);
 	});
 	it('rejects a tampered expiry or signature', () => {
-		const [expires, signature] = createSession(secret, t0).split('.');
+		const [expires = '', signature = ''] = createSession(secret, t0).split('.');
 		expect(verifySession(`${Number(expires) + 99999999}.${signature}`, secret, t0)).toBe(false);
 		expect(verifySession(`${expires}.${'0'.repeat(signature.length)}`, secret, t0)).toBe(false);
 	});

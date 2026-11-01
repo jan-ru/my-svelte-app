@@ -21,10 +21,7 @@ export const loadWorkbook: WorkbookLoader = (family, regionId) =>
 
 const messageOf = (error: unknown): string => (error instanceof Error ? error.message : String(error));
 
-export async function getComparison(
-	selection: Selection,
-	load: WorkbookLoader = loadWorkbook
-): Promise<Comparison> {
+export async function getComparison(selection: Selection, load: WorkbookLoader = loadWorkbook): Promise<Comparison> {
 	const multiples = MULTIPLES.filter((m) => selection.multiples.includes(m.id));
 
 	const wanted = new Map<string, { family: Family; regionId: string }>();
@@ -49,7 +46,8 @@ export async function getComparison(
 	const comparison: Comparison = { updated: null, cells: {}, errors: {} };
 
 	for (const m of multiples) {
-		comparison.cells[m.id] = {};
+		const byRegion: Record<string, Record<string, Cell>> = {};
+		comparison.cells[m.id] = byRegion;
 		for (const regionId of selection.regions) {
 			const workbook = loaded.get(`${m.family}:${regionId}`);
 			const errorKey = `${m.id}:${regionId}`;
@@ -61,7 +59,7 @@ export async function getComparison(
 
 			try {
 				const column = pickColumn(workbook, m.column, m.group);
-				comparison.cells[m.id][regionId] = Object.fromEntries(
+				byRegion[regionId] = Object.fromEntries(
 					selection.industries.map((name) => [name, column.get(name) ?? { value: null, firms: null }])
 				);
 				if (workbook.updated && (!comparison.updated || workbook.updated > comparison.updated)) {

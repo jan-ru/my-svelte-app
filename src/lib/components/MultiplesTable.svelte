@@ -3,7 +3,11 @@
 	import { formatMultiple } from '#lib/chart';
 	import type { Benchmark, PeerRow } from '#lib/valuation-data';
 
-	let { peers, benchmarks, sectorLabel }: { peers: readonly PeerRow[]; benchmarks: readonly Benchmark[]; sectorLabel: string | null } = $props();
+	let {
+		peers,
+		benchmarks,
+		sectorLabel
+	}: { peers: readonly PeerRow[]; benchmarks: readonly Benchmark[]; sectorLabel: string | null } = $props();
 
 	const label = (id: string) => multipleById(id)?.label ?? id;
 	const stats = [
@@ -26,11 +30,15 @@
 			<tbody>
 				{#each peers as p (p.symbol)}
 					<tr>
-						<th scope="row">{p.symbol}{#if p.name !== p.symbol} <small>{p.name}</small>{/if}</th>
+						<th scope="row"
+							>{p.symbol}{#if p.name !== p.symbol}
+								<small>{p.name}</small>{/if}</th
+						>
 						{#if p.message}
 							<td colspan={benchmarks.length} class="note">{p.message}</td>
 						{:else}
-							{#each benchmarks as b (b.multiple)}<td class="num">{formatMultiple(p.multiples[b.multiple] ?? null)}</td>{/each}
+							{#each benchmarks as b (b.multiple)}<td class="num">{formatMultiple(p.multiples[b.multiple] ?? null)}</td
+								>{/each}
 						{/if}
 					</tr>
 				{/each}
@@ -55,11 +63,38 @@
 </section>
 
 <style>
-	h2 { font-size: var(--text-lg); margin: var(--space-4) 0 var(--space-2); }
-	small, .note, .meta { color: var(--text-secondary); font-weight: var(--weight-regular); }
-	table { width: 100%; font-size: var(--text-sm); }
-	.num { text-align: right; font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
-	.stats th, .stats td { border-top: 1px solid var(--border-strong); font-weight: var(--weight-semibold); }
-	.scroll { overflow-x: auto; background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
-	.meta { margin: var(--space-2) 0; font-size: var(--text-sm); }
+	h2 {
+		font-size: var(--text-lg);
+		margin: var(--space-4) 0 var(--space-2);
+	}
+	small,
+	.note,
+	.meta {
+		color: var(--text-secondary);
+		font-weight: var(--weight-regular);
+	}
+	table {
+		width: 100%;
+		font-size: var(--text-sm);
+	}
+	.num {
+		text-align: right;
+		font-family: var(--font-mono);
+		font-variant-numeric: tabular-nums;
+	}
+	.stats th,
+	.stats td {
+		border-top: 1px solid var(--border-strong);
+		font-weight: var(--weight-semibold);
+	}
+	.scroll {
+		overflow-x: auto;
+		background: var(--surface-card);
+		border: 1px solid var(--border-subtle);
+		border-radius: var(--radius-md);
+	}
+	.meta {
+		margin: var(--space-2) 0;
+		font-size: var(--text-sm);
+	}
 </style>

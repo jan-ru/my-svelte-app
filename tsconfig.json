@@ -5,19 +5,11 @@
 		"checkJs": false,
 		"strict": true,
 		"skipLibCheck": true,
-		"types": [
-			"node",
-			"$app/types"
-		],
+		"types": ["node", "$app/types"],
 		"erasableSyntaxOnly": true,
-		"allowArbitraryExtensions": true
+		"allowArbitraryExtensions": true,
+		"noUncheckedIndexedAccess": true
 	},
-	"include": [
-		"src",
-		"scripts",
-		"*"
-	],
-	"exclude": [
-		"src/service-worker"
-	]
+	"include": ["src", "scripts", "*"],
+	"exclude": ["src/service-worker"]
 }

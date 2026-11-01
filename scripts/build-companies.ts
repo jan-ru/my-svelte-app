@@ -10,9 +10,15 @@ if (!input) {
 	process.exit(1);
 }
 
-const clean = (v: unknown): string => String(v ?? '').replace(/\s+/g, ' ').trim();
+const clean = (v: unknown): string =>
+	(typeof v === 'string' || typeof v === 'number' ? String(v) : '').replace(/\s+/g, ' ').trim();
 const wb = XLSX.read(fs.readFileSync(input), { type: 'buffer', sheets: 'By industry' });
-const rows = XLSX.utils.sheet_to_json<unknown[]>(wb.Sheets['By industry'], { header: 1, defval: null }).slice(1);
+const sheet = wb.Sheets['By industry'];
+if (!sheet) {
+	console.error(`No "By industry" sheet in ${input}`);
+	process.exit(1);
+}
+const rows = XLSX.utils.sheet_to_json<unknown[]>(sheet, { header: 1, defval: null }).slice(1);
 
 // Dictionary-code the repeated text to keep the file small.
 const dict = () => {

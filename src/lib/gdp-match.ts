@@ -21,7 +21,7 @@ export const MANUAL_NAMES: Record<string, string> = {
 	'Palestinian Authority': 'West Bank and Gaza',
 	'Trinidad & Tobago': 'Trinidad and Tobago',
 	'Saint Lucia': 'St. Lucia',
-	'Curaçao': 'Curacao',
+	Curaçao: 'Curacao',
 	Bahamas: 'Bahamas, The',
 	Macau: 'Macao SAR, China',
 	Slovakia: 'Slovak Republic',
@@ -41,7 +41,11 @@ export interface Matching {
 	badManual: string[];
 }
 
-export function matchCountries(nyu: readonly string[], wb: readonly WbCountry[], manual: Record<string, string>): Matching {
+export function matchCountries(
+	nyu: readonly string[],
+	wb: readonly WbCountry[],
+	manual: Record<string, string>
+): Matching {
 	const byName = new Map(wb.map((c) => [c.name, c.iso3]));
 	const mapping: Record<string, string> = {};
 	const unmatched: string[] = [];
@@ -49,8 +53,9 @@ export function matchCountries(nyu: readonly string[], wb: readonly WbCountry[],
 	const owner = new Map<string, string>();
 	for (const name of nyu) {
 		let iso = byName.get(name);
-		if (iso === undefined && name in manual) {
-			iso = byName.get(manual[name]);
+		const target = manual[name];
+		if (iso === undefined && target !== undefined) {
+			iso = byName.get(target);
 			if (iso === undefined) badManual.push(name);
 		}
 		if (iso === undefined) {
@@ -63,6 +68,9 @@ export function matchCountries(nyu: readonly string[], wb: readonly WbCountry[],
 		mapping[name] = iso;
 	}
 	const used = new Set(Object.values(mapping));
-	const unusedWb = wb.map((c) => c.iso3).filter((iso) => !used.has(iso)).sort();
+	const unusedWb = wb
+		.map((c) => c.iso3)
+		.filter((iso) => !used.has(iso))
+		.sort();
 	return { mapping, unmatched, unusedWb, badManual };
 }

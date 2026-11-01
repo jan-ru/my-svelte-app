@@ -11,6 +11,17 @@
 </div>
 
 <style>
-	.frame { display: grid; grid-template-columns: 11rem minmax(0, 1fr); gap: var(--space-6); align-items: start; max-width: 84rem; margin: 0 auto; padding: var(--space-4) var(--space-4) 0; }
-	aside { position: sticky; top: var(--space-4); }
+	.frame {
+		display: grid;
+		grid-template-columns: 11rem minmax(0, 1fr);
+		gap: var(--space-6);
+		align-items: start;
+		max-width: 84rem;
+		margin: 0 auto;
+		padding: var(--space-4) var(--space-4) 0;
+	}
+	aside {
+		position: sticky;
+		top: var(--space-4);
+	}
 </style>

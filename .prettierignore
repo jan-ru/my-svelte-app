@@ -1,0 +1,13 @@
+# generated, vendored or written by npm
+package.json
+package-lock.json
+src/lib/data/
+docs/api/
+.svelte-kit/
+.vercel/
+.lighthouseci/
+build/
+coverage/
+static/
+# prose is wrapped by hand
+*.md

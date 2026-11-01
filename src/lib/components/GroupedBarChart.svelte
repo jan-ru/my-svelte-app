@@ -1,12 +1,9 @@
 <script lang="ts">
+	import { at } from '#lib/at';
 	import { LOW_FIRMS_THRESHOLD, formatMultiple, niceTicks } from '#lib/chart';
 	import type { PanelModel } from '#lib/layout';
 
-	let {
-		panel,
-		colors,
-		uid
-	}: { panel: PanelModel; colors: readonly string[]; uid: number } = $props();
+	let { panel, colors, uid }: { panel: PanelModel; colors: readonly string[]; uid: number } = $props();
 
 	const W = 520;
 	const H = 300;
@@ -29,14 +26,14 @@
 	const barX = (ci: number, si: number) => M.left + ci * groupW + (groupW - inner) / 2 + si * barW;
 	const short = (s: string) => (s.length > 18 ? `${s.slice(0, 17)}…` : s);
 	const isLow = (firms: number | null) => firms !== null && firms < LOW_FIRMS_THRESHOLD;
+	const barAt = (ci: number, si: number) => at(at(panel.bars, ci), si);
 
 	const summary = $derived(
 		`${panel.title}. ` +
 			panel.categories
 				.map(
 					(cat, ci) =>
-						`${cat}: ` +
-						panel.series.map((name, si) => `${name} ${formatMultiple(panel.bars[ci][si].value)}`).join(', ')
+						`${cat}: ` + panel.series.map((name, si) => `${name} ${formatMultiple(barAt(ci, si).value)}`).join(', ')
 				)
 				.join('; ')
 	);
@@ -44,14 +41,8 @@
 
 <svg viewBox="0 0 {W} {H}" role="img" aria-label={summary}>
 	<defs>
-		{#each panel.series as _, si}
-			<pattern
-				id="hatch-{uid}-{si}"
-				width="6"
-				height="6"
-				patternUnits="userSpaceOnUse"
-				patternTransform="rotate(45)"
-			>
+		{#each panel.series as _, si (si)}
+			<pattern id="hatch-{uid}-{si}" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
 				<rect width="6" height="6" fill={colors[si]} />
 				<line x1="3" y1="0" x2="3" y2="6" stroke="#fff" stroke-width="2.5" />
 			</pattern>
@@ -63,9 +54,9 @@
 		<text class="tick" x={M.left - 6} y={y(tick) + 4} text-anchor="end">{tick}</text>
 	{/each}
 
-	{#each panel.categories as category, ci}
-		{#each panel.series as name, si}
-			{@const bar = panel.bars[ci][si]}
+	{#each panel.categories as category, ci (ci)}
+		{#each panel.series as name, si (si)}
+			{@const bar = barAt(ci, si)}
 			<g>
 				<title>
 					{name} · {category}: {bar.error ?? formatMultiple(bar.value)}{bar.firms !== null
@@ -73,7 +64,9 @@
 						: ''}
 				</title>
 				{#if bar.value === null}
-					<text class="na" x={barX(ci, si) + barW / 2} y={y(0) - 4} text-anchor="middle">{bar.error ? 'unavailable' : 'n/a'}</text>
+					<text class="na" x={barX(ci, si) + barW / 2} y={y(0) - 4} text-anchor="middle"
+						>{bar.error ? 'unavailable' : 'n/a'}</text
+					>
 				{:else}
 					<rect
 						x={barX(ci, si)}
@@ -93,10 +86,30 @@
 </svg>
 
 <style>
-	svg { width: 100%; height: auto; display: block; font-family: var(--font-sans); }
-	.gridline { stroke: var(--border-subtle); stroke-width: 1; }
-	.gridline.zero { stroke: var(--grey-07); }
-	.tick { font-size: 11px; fill: var(--text-secondary); font-variant-numeric: tabular-nums; }
-	.category { font-size: 11px; fill: var(--text-primary); }
-	.na { font-size: 9px; fill: var(--text-disabled); }
+	svg {
+		width: 100%;
+		height: auto;
+		display: block;
+		font-family: var(--font-sans);
+	}
+	.gridline {
+		stroke: var(--border-subtle);
+		stroke-width: 1;
+	}
+	.gridline.zero {
+		stroke: var(--grey-07);
+	}
+	.tick {
+		font-size: 11px;
+		fill: var(--text-secondary);
+		font-variant-numeric: tabular-nums;
+	}
+	.category {
+		font-size: 11px;
+		fill: var(--text-primary);
+	}
+	.na {
+		font-size: 9px;
+		fill: var(--text-disabled);
+	}
 </style>

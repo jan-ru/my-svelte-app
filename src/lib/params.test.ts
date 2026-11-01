@@ -1,11 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-	DEFAULT_LAYOUT,
-	DEFAULT_SELECTION,
-	applyRole,
-	parseParams,
-	toSearchParams
-} from './params';
+import { DEFAULT_LAYOUT, DEFAULT_SELECTION, applyRole, parseParams, toSearchParams } from './params';
 
 const parse = (q: string) => parseParams(new URLSearchParams(q));
 
@@ -22,9 +16,7 @@ describe('parseParams', () => {
 	});
 
 	it('removes duplicates and keeps at most 4', () => {
-		const { selection } = parse(
-			'm=ev_ebitda&m=ev_ebitda&m=ev_ebit&m=pe_trailing&m=pe_forward&m=pbv'
-		);
+		const { selection } = parse('m=ev_ebitda&m=ev_ebitda&m=ev_ebit&m=pe_trailing&m=pe_forward&m=pbv');
 		expect(selection.multiples).toEqual(['ev_ebitda', 'ev_ebit', 'pe_trailing', 'pe_forward']);
 	});
 

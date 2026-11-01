@@ -1,3 +1,4 @@
+import { at } from './at';
 import { MAX_SELECTION, MULTIPLES, REGIONS, type Role } from './catalog';
 
 export interface Selection {
@@ -56,8 +57,9 @@ function readLayout(sp: URLSearchParams): Layout {
 		return null;
 	});
 	const leftover = dims.filter((d) => !used.has(d));
-	const [panels, x, color] = slots.map((r) => r ?? leftover.shift()!);
-	return { panels, x, color };
+	let free = 0;
+	const fill = (slot: Role | null | undefined): Role => slot ?? at(leftover, free++);
+	return { panels: fill(slots[0]), x: fill(slots[1]), color: fill(slots[2]) };
 }
 
 export function parseParams(sp: URLSearchParams, knownIndustries?: readonly string[]): ViewParams {
@@ -66,7 +68,12 @@ export function parseParams(sp: URLSearchParams, knownIndustries?: readonly stri
 		selection: {
 			multiples: readList(sp, 'm', (v) => MULTIPLE_IDS.has(v), DEFAULT_SELECTION.multiples),
 			regions: readList(sp, 'r', (v) => REGION_IDS.has(v), DEFAULT_SELECTION.regions),
-			industries: readList(sp, 'i', (v) => v.length <= MAX_NAME_LENGTH && (!known || known.has(v)), DEFAULT_SELECTION.industries)
+			industries: readList(
+				sp,
+				'i',
+				(v) => v.length <= MAX_NAME_LENGTH && (!known || known.has(v)),
+				DEFAULT_SELECTION.industries
+			)
 		},
 		layout: readLayout(sp)
 	};
@@ -90,9 +97,7 @@ export function toSearchParams({ selection, layout }: ViewParams): URLSearchPara
 /** Assign `dim` to `key`; whichever role had `dim` takes over the old value. */
 export function applyRole(layout: Layout, key: keyof Layout, dim: Role): Layout {
 	const next: Layout = { ...layout, [key]: dim };
-	const other = (Object.keys(layout) as (keyof Layout)[]).find(
-		(k) => k !== key && layout[k] === dim
-	);
+	const other = (Object.keys(layout) as (keyof Layout)[]).find((k) => k !== key && layout[k] === dim);
 	if (other) next[other] = layout[key];
 	return next;
 }

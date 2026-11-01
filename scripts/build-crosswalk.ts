@@ -26,7 +26,10 @@ if (!dir) {
 const file = (key: Key): string => path.join(dir, FILES[key]);
 const sheetRows = (key: Key, sheet?: string): Row[] => {
 	const wb = XLSX.read(fs.readFileSync(file(key)), { type: 'buffer', sheets: sheet });
-	return XLSX.utils.sheet_to_json<Row>(wb.Sheets[sheet ?? wb.SheetNames[0]], { header: 1, defval: null });
+	const name = sheet ?? wb.SheetNames[0];
+	const ws = name === undefined ? undefined : wb.Sheets[name];
+	if (!ws) throw new Error(`No sheet ${name ?? ''} in ${file(key)}`);
+	return XLSX.utils.sheet_to_json<Row>(ws, { header: 1, defval: null });
 };
 
 function parseCsv(text: string): string[][] {
@@ -35,31 +38,44 @@ function parseCsv(text: string): string[][] {
 	let cell = '';
 	let quoted = false;
 	for (let i = 0; i < text.length; i++) {
-		const c = text[i];
+		const c = text.charAt(i);
 		if (quoted) {
-			if (c === '"' && text[i + 1] === '"') (cell += '"'), i++;
-			else if (c === '"') quoted = false;
+			if (c === '"' && text.charAt(i + 1) === '"') {
+				cell += '"';
+				i++;
+			} else if (c === '"') quoted = false;
 			else cell += c;
 		} else if (c === '"') quoted = true;
-		else if (c === ',') (row.push(cell), (cell = ''));
-		else if (c === '\n' || c === '\r') {
-			if (c === '\r' && text[i + 1] === '\n') i++;
+		else if (c === ',') {
+			row.push(cell);
+			cell = '';
+		} else if (c === '\n' || c === '\r') {
+			if (c === '\r' && text.charAt(i + 1) === '\n') i++;
 			row.push(cell);
 			cell = '';
 			if (row.length > 1 || row[0] !== '') rows.push(row);
 			row = [];
 		} else cell += c;
 	}
-	if (cell !== '' || row.length) (row.push(cell), rows.push(row));
+	if (cell !== '' || row.length) {
+		row.push(cell);
+		rows.push(row);
+	}
 	return rows.slice(1); // header
 }
 
-const clean = (v: unknown): string => String(v ?? '').replace(/\s+/g, ' ').trim();
+const clean = (v: unknown): string =>
+	(typeof v === 'string' || typeof v === 'number' ? String(v) : '').replace(/\s+/g, ' ').trim();
 const addTo = (map: Table, key: string, value: string): void => {
 	if (!map[key]) map[key] = [];
 	if (!map[key].includes(value)) map[key].push(value);
 };
-const sorted = (map: Table): Table => Object.fromEntries(Object.entries(map).sort(([a], [b]) => a.localeCompare(b)).map(([k, v]) => [k, [...v].sort()]));
+const sorted = (map: Table): Table =>
+	Object.fromEntries(
+		Object.entries(map)
+			.sort(([a], [b]) => a.localeCompare(b))
+			.map(([k, v]) => [k, [...v].sort()])
+	);
 
 // 1. SBI 2025 structure (levels 1-4 = sections, divisions, groups, classes; first four levels equal NACE Rev. 2.1).
 const sbi25: Record<string, { level: number; section: string; nl: string; en: string }> = {};
@@ -107,7 +123,9 @@ for (const nace of new Set(Object.values(sbi25ToNace2).flat())) {
 	if (isic) nace2ToIsic4[nace] = isic;
 	else unmappedNace2.push(nace);
 }
-console.log(`NACE Rev. 2 -> ISIC Rev. 4: ${Object.keys(nace2ToIsic4).length - approximated.length} exact or same group, ${approximated.length} by nearest code`);
+console.log(
+	`NACE Rev. 2 -> ISIC Rev. 4: ${Object.keys(nace2ToIsic4).length - approximated.length} exact or same group, ${approximated.length} by nearest code`
+);
 if (unmappedNace2.length) console.warn('NACE Rev. 2 codes without an ISIC Rev. 4 class:', unmappedNace2.join(' '));
 
 // 4. ISIC Rev. 3.1 -> NAICS 2002 US (UN).
@@ -140,7 +158,7 @@ const sicToDamodaran: Record<string, Record<string, number>> = {};
 let companies = 0;
 for (const r of sheetRows('indname', 'By industry').slice(1)) {
 	const industry = clean(r[2]);
-	const sic = String(clean(r[4])).padStart(4, '0');
+	const sic = clean(r[4]).padStart(4, '0');
 	if (!industry || !/^\d{4}$/.test(sic)) continue;
 	companies++;
 	sicToDamodaran[sic] ??= {};
@@ -162,10 +180,14 @@ for (const [sic, counts] of Object.entries(sicToDamodaran)) {
 	if (sicTitles[sic]) continue;
 	const total = Object.values(counts).reduce((a, b) => a + b, 0);
 	const children = realSic.filter((c) => c.slice(0, 3) === sic.slice(0, 3)).sort();
-	if (children.length) (sicAlias[sic] = children), (aliased += total);
-	else unresolved += total;
+	if (children.length) {
+		sicAlias[sic] = children;
+		aliased += total;
+	} else unresolved += total;
 }
-console.log(`SIC group codes: ${Object.keys(sicAlias).length} aliased (${aliased} companies), ${unresolved} companies unresolved`);
+console.log(
+	`SIC group codes: ${Object.keys(sicAlias).length} aliased (${aliased} companies), ${unresolved} companies unresolved`
+);
 
 const out = {
 	generated: new Date().toISOString().slice(0, 10),

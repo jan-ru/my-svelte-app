@@ -41,9 +41,10 @@ export function buildTable(
 	period: Period = 'annual',
 	format: (key: string, value: number | null) => string = formatValue
 ): StatementTable {
-	if (statement.years.length === 0) return { currency: null, columns: [], rows: [] };
+	const [latest] = statement.years;
+	if (latest === undefined) return { currency: null, columns: [], rows: [] };
 	return {
-		currency: statement.years[0].currency,
+		currency: latest.currency,
 		columns: statement.years.map((y) => ({ year: period === 'ttm' ? 'TTM' : y.fiscalYear, date: y.date })),
 		rows: statement.lines.map((key) => ({
 			key,

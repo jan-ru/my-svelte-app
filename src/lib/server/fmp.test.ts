@@ -25,7 +25,7 @@ describe('parseStatement', () => {
 		expect(s.lines).toEqual(['revenue', 'costOfRevenue', 'netIncome', 'eps']);
 		expect(s.years.map((y) => y.fiscalYear)).toEqual(['2024', '2023']);
 		expect(s.years[0]).toMatchObject({ date: '2024-12-31', currency: 'USD' });
-		expect(s.years[0].values.revenue).toBe(3024);
+		expect(s.years[0]?.values.revenue).toBe(3024);
 	});
 	it('orders years newest first and keeps at most five', () => {
 		const s = parseStatement([2019, 2024, 2020, 2023, 2021, 2022].map((y) => record(y)));
@@ -33,8 +33,8 @@ describe('parseStatement', () => {
 	});
 	it('maps non-numeric values to null', () => {
 		const s = parseStatement([record(2024, { revenue: 'n/a' })]);
-		expect(s.years[0].values.revenue).toBeNull();
-		expect(s.years[0].values.netIncome).toBeNull();
+		expect(s.years[0]?.values.revenue).toBeNull();
+		expect(s.years[0]?.values.netIncome).toBeNull();
 	});
 	it('returns no years for an empty list', () => {
 		expect(parseStatement([])).toEqual({ lines: [], years: [] });
@@ -62,7 +62,7 @@ describe('fetchStatement', () => {
 	it('requests the stable endpoint with the ticker, period and limit', async () => {
 		const fetchFn = vi.fn().mockResolvedValue(json([record(2024)]));
 		await fetchStatement('balance', 'ABN.AS', 'KEY123', 'annual', fetchFn);
-		const url = new URL(fetchFn.mock.calls[0][0] as string);
+		const url = new URL(fetchFn.mock.calls[0]?.[0] as string);
 		expect(url.origin + url.pathname).toBe('https://financialmodelingprep.com/stable/balance-sheet-statement');
 		expect(url.searchParams.get('symbol')).toBe('ABN.AS');
 		expect(url.searchParams.get('period')).toBe('annual');
@@ -71,7 +71,8 @@ describe('fetchStatement', () => {
 	});
 	it('uses the three statement endpoints', async () => {
 		const fetchFn = vi.fn().mockImplementation(async () => json([]));
-		for (const kind of ['income', 'balance', 'cashflow'] as const) await fetchStatement(kind, 'AAPL', 'K', 'annual', fetchFn);
+		for (const kind of ['income', 'balance', 'cashflow'] as const)
+			await fetchStatement(kind, 'AAPL', 'K', 'annual', fetchFn);
 		const paths = fetchFn.mock.calls.map((c) => new URL(c[0] as string).pathname);
 		expect(paths).toEqual([
 			'/stable/income-statement',
@@ -132,7 +133,7 @@ describe('fetchStatement', () => {
 		const fetchFn = vi.fn().mockResolvedValue(json([record(2023), record(2025), record(2024)]));
 		const statement = await fetchStatement('income', 'AAPL', 'K', 'ttm', fetchFn);
 		expect(statement.years).toHaveLength(1);
-		expect(statement.years[0].date).toBe('2025-12-31');
+		expect(statement.years[0]?.date).toBe('2025-12-31');
 	});
 	it('redacts a bare key echoed in a plan error message', async () => {
 		const secret = 'AbC123+/key';
@@ -163,7 +164,9 @@ describe('fetchStatement', () => {
 	});
 	it('rejects a response that is too large', async () => {
 		const fetchFn = vi.fn().mockResolvedValue(json([], 200, { 'content-length': String(6 * 1024 * 1024) }));
-		await expect(fetchStatement('income', 'AAPL', 'K', 'annual', fetchFn)).rejects.toMatchObject({ kind: 'unavailable' });
+		await expect(fetchStatement('income', 'AAPL', 'K', 'annual', fetchFn)).rejects.toMatchObject({
+			kind: 'unavailable'
+		});
 	});
 	it('uses the -ttm endpoint with limit 1 and no period for TTM', async () => {
 		const fetchFn = vi.fn().mockImplementation(async () => new Response('[]'));
@@ -183,7 +186,7 @@ describe('fetchStatement', () => {
 	it('keeps the annual URL unchanged', async () => {
 		const fetchFn = vi.fn().mockResolvedValue(new Response('[]'));
 		await fetchStatement('income', 'AAPL', 'K', 'annual', fetchFn);
-		const url = String(fetchFn.mock.calls[0][0]);
+		const url = String(fetchFn.mock.calls[0]?.[0]);
 		expect(url).toContain('/stable/income-statement?');
 		expect(url).toContain('period=annual');
 		expect(url).toContain('limit=5');
@@ -201,12 +204,12 @@ describe('fetchRatios', () => {
 	it('requests the annual ratios endpoint with the ticker and a five-year limit', async () => {
 		const fetchFn = vi.fn().mockResolvedValue(json([record(2024, { priceToEarningsRatio: 28.5 })]));
 		const result = await fetchRatios('AAPL', 'KEY123', fetchFn);
-		const url = new URL(fetchFn.mock.calls[0][0] as string);
+		const url = new URL(fetchFn.mock.calls[0]?.[0] as string);
 		expect(url.origin + url.pathname).toBe('https://financialmodelingprep.com/stable/ratios');
 		expect(url.searchParams.get('symbol')).toBe('AAPL');
 		expect(url.searchParams.get('period')).toBe('annual');
 		expect(url.searchParams.get('limit')).toBe('5');
-		expect(result.years[0].values.priceToEarningsRatio).toBe(28.5);
+		expect(result.years[0]?.values.priceToEarningsRatio).toBe(28.5);
 	});
 	it('maps a plan error body to an SourceError without the key', async () => {
 		const fetchFn = vi.fn().mockResolvedValue(json({ 'Error Message': 'Premium Query Parameter apikey=KEY123' }, 402));
@@ -219,9 +222,13 @@ describe('fetchRatios', () => {
 
 describe('fetchEstimates', () => {
 	it('requests annual analyst estimates with a five-year limit', async () => {
-		const fetchFn = vi.fn().mockResolvedValue(json([{ symbol: 'AAPL', date: '2027-09-30', revenueAvg: 5e11, epsAvg: 8.1, numAnalystsEps: 31 }]));
+		const fetchFn = vi
+			.fn()
+			.mockResolvedValue(
+				json([{ symbol: 'AAPL', date: '2027-09-30', revenueAvg: 5e11, epsAvg: 8.1, numAnalystsEps: 31 }])
+			);
 		const result = await fetchEstimates('AAPL', 'KEY123', fetchFn);
-		const url = new URL(fetchFn.mock.calls[0][0] as string);
+		const url = new URL(fetchFn.mock.calls[0]?.[0] as string);
 		expect(url.pathname).toBe('/stable/analyst-estimates');
 		expect(url.searchParams.get('period')).toBe('annual');
 		expect(url.searchParams.get('limit')).toBe('5');
@@ -233,16 +240,32 @@ describe('fetchEarnings', () => {
 	it('labels each column by its report date, since several reports share a fiscal year', async () => {
 		const fetchFn = vi.fn().mockResolvedValue(
 			json([
-				{ symbol: 'AAPL', date: '2026-01-29', epsActual: null, epsEstimated: 2.4, revenueActual: null, revenueEstimated: 1e11, lastUpdated: '2025-12-01' },
-				{ symbol: 'AAPL', date: '2025-10-30', epsActual: 1.85, epsEstimated: 1.8, revenueActual: 1.02e11, revenueEstimated: 1e11, lastUpdated: '2025-10-31' }
+				{
+					symbol: 'AAPL',
+					date: '2026-01-29',
+					epsActual: null,
+					epsEstimated: 2.4,
+					revenueActual: null,
+					revenueEstimated: 1e11,
+					lastUpdated: '2025-12-01'
+				},
+				{
+					symbol: 'AAPL',
+					date: '2025-10-30',
+					epsActual: 1.85,
+					epsEstimated: 1.8,
+					revenueActual: 1.02e11,
+					revenueEstimated: 1e11,
+					lastUpdated: '2025-10-31'
+				}
 			])
 		);
 		const result = await fetchEarnings('AAPL', 'KEY123', fetchFn);
-		const url = new URL(fetchFn.mock.calls[0][0] as string);
+		const url = new URL(fetchFn.mock.calls[0]?.[0] as string);
 		expect(url.pathname).toBe('/stable/earnings');
 		expect(url.searchParams.get('limit')).toBe('5');
 		expect(result.years.map((y) => y.fiscalYear)).toEqual(['2026-01-29', '2025-10-30']);
 		expect(result.lines).toEqual(['epsActual', 'epsEstimated', 'revenueActual', 'revenueEstimated']);
-		expect(result.years[0].values.epsActual).toBeNull();
+		expect(result.years[0]?.values.epsActual).toBeNull();
 	});
 });

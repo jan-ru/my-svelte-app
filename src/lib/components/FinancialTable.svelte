@@ -12,13 +12,20 @@
 </script>
 
 <section>
-	<h2>{title}{#if table?.currency} <small>(millions of {table.currency}; per-share figures as reported)</small>{/if}</h2>
+	<h2>
+		{title}{#if table?.currency}
+			<small>(millions of {table.currency}; per-share figures as reported)</small>{/if}
+	</h2>
 	{#if target}
 		<dl class="facts">
-			{#if target.consensus !== null}<dt>Price target, consensus</dt><dd>{formatPrice(target.consensus)}</dd>{/if}
-			{#if target.median !== null}<dt>Median</dt><dd>{formatPrice(target.median)}</dd>{/if}
-			{#if target.high !== null}<dt>High</dt><dd>{formatPrice(target.high)}</dd>{/if}
-			{#if target.low !== null}<dt>Low</dt><dd>{formatPrice(target.low)}</dd>{/if}
+			{#if target.consensus !== null}<dt>Price target, consensus</dt>
+				<dd>{formatPrice(target.consensus)}</dd>{/if}
+			{#if target.median !== null}<dt>Median</dt>
+				<dd>{formatPrice(target.median)}</dd>{/if}
+			{#if target.high !== null}<dt>High</dt>
+				<dd>{formatPrice(target.high)}</dd>{/if}
+			{#if target.low !== null}<dt>Low</dt>
+				<dd>{formatPrice(target.low)}</dd>{/if}
 		</dl>
 	{/if}
 	{#if table}
@@ -48,12 +55,39 @@
 </section>
 
 <style>
-	h2 { font-size: var(--text-lg); margin: var(--space-4) 0 var(--space-2); }
-	small { font-weight: var(--weight-regular); }
-	table { width: 100%; font-size: var(--text-sm); }
-	.num { text-align: right; font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
-	.scroll { overflow-x: auto; background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
-	.facts { display: grid; grid-template-columns: max-content 1fr; gap: var(--space-1) var(--space-4); margin: var(--space-4) 0; }
-	.facts dt { font-weight: var(--weight-semibold); color: var(--text-secondary); }
-	.facts dd { margin: 0; }
+	h2 {
+		font-size: var(--text-lg);
+		margin: var(--space-4) 0 var(--space-2);
+	}
+	small {
+		font-weight: var(--weight-regular);
+	}
+	table {
+		width: 100%;
+		font-size: var(--text-sm);
+	}
+	.num {
+		text-align: right;
+		font-family: var(--font-mono);
+		font-variant-numeric: tabular-nums;
+	}
+	.scroll {
+		overflow-x: auto;
+		background: var(--surface-card);
+		border: 1px solid var(--border-subtle);
+		border-radius: var(--radius-md);
+	}
+	.facts {
+		display: grid;
+		grid-template-columns: max-content 1fr;
+		gap: var(--space-1) var(--space-4);
+		margin: var(--space-4) 0;
+	}
+	.facts dt {
+		font-weight: var(--weight-semibold);
+		color: var(--text-secondary);
+	}
+	.facts dd {
+		margin: 0;
+	}
 </style>

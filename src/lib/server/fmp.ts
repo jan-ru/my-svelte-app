@@ -1,7 +1,7 @@
 // src/lib/server/fmp.ts
 import type { Period } from '../financials-nav';
 import type { Kind, Statement, StatementYear } from '../source-data';
-import { field, isRecord } from './coerce';
+import { field, isRecord, str } from './coerce';
 import { SourceError } from './source-error';
 
 export const FETCH_TIMEOUT_MS = 10_000;
@@ -16,8 +16,17 @@ const ENDPOINTS: Record<Kind, string> = {
 
 /** Fields that describe the filing, not a figure in it. */
 const META = new Set([
-	'symbol', 'date', 'fiscalYear', 'calendarYear', 'period', 'reportedCurrency', 'cik',
-	'filingDate', 'acceptedDate', 'link', 'finalLink'
+	'symbol',
+	'date',
+	'fiscalYear',
+	'calendarYear',
+	'period',
+	'reportedCurrency',
+	'cik',
+	'filingDate',
+	'acceptedDate',
+	'link',
+	'finalLink'
 ]);
 
 /** Remove anything that looks like the API key from text that may reach a log or a visitor. */
@@ -40,6 +49,9 @@ export function throwIfErrorBody(body: unknown): void {
 	if (typeof message === 'string') throw fromMessage(message);
 }
 
+/** A year field as text; FMP sends it as a string or a number. */
+const yearOf = (value: unknown): string | null => (typeof value === 'number' ? String(value) : str(value));
+
 export function parseStatement(body: unknown): Statement {
 	throwIfErrorBody(body);
 	if (!Array.isArray(body)) throw new SourceError('unavailable', 'Unexpected response from FMP');
@@ -56,7 +68,7 @@ export function parseStatement(body: unknown): Statement {
 			values[key] = typeof value === 'number' && Number.isFinite(value) ? value : null;
 		}
 		years.push({
-			fiscalYear: String(record.fiscalYear ?? record.calendarYear ?? date.slice(0, 4)),
+			fiscalYear: yearOf(record.fiscalYear) ?? yearOf(record.calendarYear) ?? date.slice(0, 4),
 			date,
 			currency: typeof record.reportedCurrency === 'string' ? record.reportedCurrency : null,
 			values
@@ -122,7 +134,11 @@ export async function fetchRatios(symbol: string, apiKey: string, fetchFn: typeo
 }
 
 /** Analyst estimates by fiscal year, furthest-out year first (FMP's order). */
-export async function fetchEstimates(symbol: string, apiKey: string, fetchFn: typeof fetch = fetch): Promise<Statement> {
+export async function fetchEstimates(
+	symbol: string,
+	apiKey: string,
+	fetchFn: typeof fetch = fetch
+): Promise<Statement> {
 	return parseStatement(await fmpGet('analyst-estimates', { symbol, period: 'annual', limit: '5' }, apiKey, fetchFn));
 }
 

@@ -42,7 +42,14 @@ export type FinancialsView =
 	| { state: 'unconfigured' }
 	| { state: 'idle' }
 	| { state: 'invalid' }
-	| { state: 'ready'; symbol: string; title: string; table: StatementTable | null; message: string | null; target?: PriceTarget | null }
+	| {
+			state: 'ready';
+			symbol: string;
+			title: string;
+			table: StatementTable | null;
+			message: string | null;
+			target?: PriceTarget | null;
+	  }
 	| { state: 'peers'; symbol: string; peers: Peer[]; message: string | null }
 	| { state: 'profile'; symbol: string; profile: Profile | null; message: string | null }
 	| { state: 'news'; symbol: string; items: NewsItem[]; message: string | null }
@@ -72,7 +79,9 @@ const byStatement = (kind: Kind, symbol: string, _apiKey: string, period: Period
 const lastYear = () => oneYearWindow(new Date());
 
 export const cachedFetcher: StatementFetcher = cached(DAY_MS, byStatement, fetchStatement);
-export const cachedProfile: ProfileFetcher = cached(PROFILE_TTL_MS, bySymbol, (symbol, apiKey) => fetchProfile(symbol, apiKey));
+export const cachedProfile: ProfileFetcher = cached(PROFILE_TTL_MS, bySymbol, (symbol, apiKey) =>
+	fetchProfile(symbol, apiKey)
+);
 export const cachedNews: NewsFetcher = cached(NEWS_TTL_MS, bySymbol, (symbol, apiKey) => fetchNews(symbol, apiKey));
 export const cachedPrices: PricesFetcher = cached(PRICES_TTL_MS, bySymbol, (symbol, apiKey) => {
 	const { from, to } = lastYear();
@@ -119,7 +128,9 @@ function messageFor(error: unknown, symbol: string, source: Source): string {
 }
 
 function failure(what: string, symbol: string, error: unknown, source: Source): string {
-	console.error(`${sourceLabel(source)} ${what} for ${symbol} failed (${error instanceof SourceError ? error.kind : 'error'})`);
+	console.error(
+		`${sourceLabel(source)} ${what} for ${symbol} failed (${error instanceof SourceError ? error.kind : 'error'})`
+	);
 	return messageFor(error, symbol, source);
 }
 
@@ -133,49 +144,62 @@ interface TabContext {
 }
 type TabLoader = (ctx: TabContext) => Promise<FinancialsView>;
 
-async function loadProfile({ symbol, apiKey, source, fetchers }: TabContext): Promise<FinancialsView> {
+/** Run one fetch for a tab: its result, or `empty` and a message for the visitor when it fails (the failure is logged). */
+async function attempt<T>(
+	what: string,
+	ctx: TabContext,
+	empty: T,
+	run: () => Promise<T>
+): Promise<{ value: T; error: string | null }> {
 	try {
-		const profile = await fetchers.profile(symbol, apiKey);
-		return {
-			state: 'profile',
-			symbol,
-			profile,
-			message: profile ? null : `No company profile found for ${symbol}.`
-		};
+		return { value: await run(), error: null };
 	} catch (error) {
-		return { state: 'profile', symbol, profile: null, message: failure('profile', symbol, error, source) };
+		return { value: empty, error: failure(what, ctx.symbol, error, ctx.source) };
 	}
 }
 
-async function loadNews({ symbol, apiKey, source, fetchers }: TabContext): Promise<FinancialsView> {
-	try {
-		const items = await fetchers.news(symbol, apiKey);
-		return { state: 'news', symbol, items, message: items.length ? null : `No recent news found for ${symbol}.` };
-	} catch (error) {
-		return { state: 'news', symbol, items: [], message: failure('news', symbol, error, source) };
-	}
+async function loadProfile(ctx: TabContext): Promise<FinancialsView> {
+	const { symbol, apiKey, fetchers } = ctx;
+	const { value: profile, error } = await attempt('profile', ctx, null, () => fetchers.profile(symbol, apiKey));
+	return {
+		state: 'profile',
+		symbol,
+		profile,
+		message: error ?? (profile ? null : `No company profile found for ${symbol}.`)
+	};
 }
 
-async function loadPrices({ symbol, apiKey, source, fetchers }: TabContext): Promise<FinancialsView> {
-	try {
-		const points = await fetchers.prices(symbol, apiKey);
-		return { state: 'price', symbol, points, message: points.length ? null : `No price history found for ${symbol}.` };
-	} catch (error) {
-		return { state: 'price', symbol, points: [], message: failure('price history', symbol, error, source) };
-	}
+async function loadNews(ctx: TabContext): Promise<FinancialsView> {
+	const { symbol, apiKey, fetchers } = ctx;
+	const { value: items, error } = await attempt('news', ctx, [], () => fetchers.news(symbol, apiKey));
+	return {
+		state: 'news',
+		symbol,
+		items,
+		message: error ?? (items.length ? null : `No recent news found for ${symbol}.`)
+	};
+}
+
+async function loadPrices(ctx: TabContext): Promise<FinancialsView> {
+	const { symbol, apiKey, fetchers } = ctx;
+	const { value: points, error } = await attempt('price history', ctx, [], () => fetchers.prices(symbol, apiKey));
+	return {
+		state: 'price',
+		symbol,
+		points,
+		message: error ?? (points.length ? null : `No price history found for ${symbol}.`)
+	};
 }
 
 const unavailable = (what: string, source: Source) =>
 	`${what} are only available from Financial Modeling Prep, not ${sourceLabel(source)}. Choose FMP for a US ticker.`;
 
-async function loadPeers({ symbol, apiKey, source, fetchers }: TabContext): Promise<FinancialsView> {
-	if (!fetchers.peers) return { state: 'peers', symbol, peers: [], message: unavailable('Peers', source) };
-	try {
-		const peers = await fetchers.peers(symbol, apiKey);
-		return { state: 'peers', symbol, peers, message: peers.length ? null : `No peers found for ${symbol}.` };
-	} catch (error) {
-		return { state: 'peers', symbol, peers: [], message: failure('peers', symbol, error, source) };
-	}
+async function loadPeers(ctx: TabContext): Promise<FinancialsView> {
+	const { symbol, apiKey, source, fetchers } = ctx;
+	const fetchPeers = fetchers.peers;
+	if (!fetchPeers) return { state: 'peers', symbol, peers: [], message: unavailable('Peers', source) };
+	const { value: peers, error } = await attempt('peers', ctx, [], () => fetchPeers(symbol, apiKey));
+	return { state: 'peers', symbol, peers, message: error ?? (peers.length ? null : `No peers found for ${symbol}.`) };
 }
 
 /** A table tab that only FMP serves: ratios, estimates and earnings. */
@@ -192,19 +216,40 @@ function fmpTable(o: {
 		const fetcher = o.fetcher(fetchers);
 		if (!fetcher) return { state: 'ready', symbol, title, table: null, message: unavailable(what, source) };
 		try {
-			const targetPromise = o.target?.(fetchers)?.(symbol, apiKey).catch((error: unknown) => {
-				failure('price target', symbol, error, source);
-				return null;
-			});
+			const targetPromise = o
+				.target?.(fetchers)?.(symbol, apiKey)
+				.catch((error: unknown) => {
+					failure('price target', symbol, error, source);
+					return null;
+				});
 			const statement = await fetcher(symbol, apiKey);
 			// the reporting currency belongs to the filing; these are not amounts in it
 			const table = { ...buildTable(statement, 'annual', o.format), currency: null };
 			if (table.columns.length === 0) {
-				return { state: 'ready', symbol, title, table: null, message: `${sourceLabel(source)} has no ${what.toLowerCase()} for ${symbol}.` };
+				return {
+					state: 'ready',
+					symbol,
+					title,
+					table: null,
+					message: `${sourceLabel(source)} has no ${what.toLowerCase()} for ${symbol}.`
+				};
 			}
-			return { state: 'ready', symbol, title, table, message: null, ...(targetPromise ? { target: await targetPromise } : {}) };
+			return {
+				state: 'ready',
+				symbol,
+				title,
+				table,
+				message: null,
+				...(targetPromise ? { target: await targetPromise } : {})
+			};
 		} catch (error) {
-			return { state: 'ready', symbol, title, table: null, message: failure(what.toLowerCase(), symbol, error, source) };
+			return {
+				state: 'ready',
+				symbol,
+				title,
+				table: null,
+				message: failure(what.toLowerCase(), symbol, error, source)
+			};
 		}
 	};
 }
@@ -218,11 +263,23 @@ async function loadStatement({ symbol, apiKey, source, fetchers, nav }: TabConte
 		const table = buildTable(await fetchers.statement(kind, symbol, apiKey, period), period);
 		if (table.columns.length === 0) {
 			const what = period === 'ttm' ? 'trailing-twelve-month figures' : 'annual statements';
-			return { state: 'ready', symbol, title, table: null, message: `${sourceLabel(source)} has no ${what} for ${symbol}. Price, news and company data may still be available in the other tabs.` };
+			return {
+				state: 'ready',
+				symbol,
+				title,
+				table: null,
+				message: `${sourceLabel(source)} has no ${what} for ${symbol}. Price, news and company data may still be available in the other tabs.`
+			};
 		}
 		return { state: 'ready', symbol, title, table, message: null };
 	} catch (error) {
-		return { state: 'ready', symbol, title, table: null, message: failure(`${kind} ${period} statement`, symbol, error, source) };
+		return {
+			state: 'ready',
+			symbol,
+			title,
+			table: null,
+			message: failure(`${kind} ${period} statement`, symbol, error, source)
+		};
 	}
 }
 
@@ -230,7 +287,13 @@ async function loadStatement({ symbol, apiKey, source, fetchers, nav }: TabConte
 const TAB_LOADERS: Record<Tab, TabLoader> = {
 	financials: loadStatement,
 	ratios: fmpTable({ what: 'Ratios', title: 'Financial ratios', fetcher: (f) => f.ratios, format: formatRatio }),
-	estimates: fmpTable({ what: 'Estimates', title: 'Analyst estimates', fetcher: (f) => f.estimates, format: formatEstimate, target: (f) => f.priceTarget }),
+	estimates: fmpTable({
+		what: 'Estimates',
+		title: 'Analyst estimates',
+		fetcher: (f) => f.estimates,
+		format: formatEstimate,
+		target: (f) => f.priceTarget
+	}),
 	earnings: fmpTable({ what: 'Earnings', title: 'Earnings', fetcher: (f) => f.earnings, format: formatEstimate }),
 	peers: loadPeers,
 	news: loadNews,
@@ -259,7 +322,7 @@ export async function loadFinancials(input: {
 		source === 'fmp' ? { ...fmpFetchers, ...input.fmp } : { ...yahooFetchers, ...input.yahoo };
 	return TAB_LOADERS[input.nav.tab]({
 		symbol,
-		apiKey: source === 'fmp' ? input.apiKey! : '',
+		apiKey: source === 'fmp' ? (input.apiKey ?? '') : '',
 		source,
 		fetchers,
 		nav: input.nav

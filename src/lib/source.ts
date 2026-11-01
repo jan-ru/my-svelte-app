@@ -13,7 +13,7 @@ export type Source = (typeof SOURCES)[number]['id'];
  */
 export const FMP_SUPPORTS_TTM = false;
 
-export const sourceLabel = (source: Source): string => SOURCES.find((s) => s.id === source)!.label;
+export const sourceLabel = (source: Source): string => SOURCES.find((s) => s.id === source)?.label ?? source;
 
 export function parseSource(raw: string | null): Source | undefined {
 	return SOURCES.find((s) => s.id === raw)?.id;

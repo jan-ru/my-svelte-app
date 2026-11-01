@@ -17,12 +17,16 @@
 	let { data, form }: PageProps = $props();
 	const view = $derived(data.view);
 	const nav = $derived(data.nav);
-	const heading = $derived(view.state === 'ready' && view.company ? `${view.company.name} valuation` : 'Valuation versus peers');
+	const heading = $derived(
+		view.state === 'ready' && view.company ? `${view.company.name} valuation` : 'Valuation versus peers'
+	);
 	const field = $derived(view.state === 'ready' && view.result ? fieldModel(view.result) : null);
 	// the upload keeps the rest of the page state and replaces the company
 	const uploadAction = $derived(`?/upload&${valuationHref({ ...nav, company: null, symbol: '' }).split('?')[1]}`);
 	const clearHref = $derived(valuationHref({ ...nav, company: null }));
-	const sectorLabel = $derived(nav.industry ? `${nav.industry}, ${REGIONS.find((r) => r.id === nav.region)?.label}` : null);
+	const sectorLabel = $derived(
+		nav.industry ? `${nav.industry}, ${REGIONS.find((r) => r.id === nav.region)?.label}` : null
+	);
 </script>
 
 <svelte:head>
@@ -51,10 +55,20 @@
 			<div class="row">
 				{#if nav.company}
 					<input type="hidden" name="co" value={encodeCompany(nav.company)} />
-					<span class="private">Company: <strong>{nav.company.name}</strong> (uploaded) · <a href={clearHref}>Use a ticker instead</a></span>
+					<span class="private"
+						>Company: <strong>{nav.company.name}</strong> (uploaded) ·
+						<a href={clearHref}>Use a ticker instead</a></span
+					>
 				{:else}
 					<label for="symbol">Ticker</label>
-					<input id="symbol" name="symbol" value={nav.symbol} placeholder="AAPL or ABN.AS" maxlength="15" autocomplete="off" />
+					<input
+						id="symbol"
+						name="symbol"
+						value={nav.symbol}
+						placeholder="AAPL or ABN.AS"
+						maxlength="15"
+						autocomplete="off"
+					/>
 				{/if}
 				<label for="region">Region</label>
 				<select id="region" name="region">
@@ -63,7 +77,8 @@
 				<label for="industry">Sector</label>
 				<select id="industry" name="industry">
 					<option value="">None</option>
-					{#each data.industries as name (name)}<option value={name} selected={name === nav.industry}>{name}</option>{/each}
+					{#each data.industries as name (name)}<option value={name} selected={name === nav.industry}>{name}</option
+						>{/each}
 				</select>
 			</div>
 			<fieldset class="multiples">
@@ -71,7 +86,16 @@
 				<input type="hidden" name="m" value="" />
 				{#each MULTIPLES as m (m.id)}
 					{@const checked = nav.multiples.includes(m.id)}
-					<label><input type="checkbox" name="m" value={m.id} {checked} disabled={!checked && nav.multiples.length >= MAX_SELECTION} /> {m.label}</label>
+					<label
+						><input
+							type="checkbox"
+							name="m"
+							value={m.id}
+							{checked}
+							disabled={!checked && nav.multiples.length >= MAX_SELECTION}
+						/>
+						{m.label}</label
+					>
 				{/each}
 			</fieldset>
 			{#if view.state === 'ready'}
@@ -100,12 +124,16 @@
 		{#if form?.message}<p class="error" role="alert">{form.message}</p>{/if}
 
 		{#if view.state === 'invalid'}
-			<p class="error" role="alert">That is not a valid ticker. Use letters, digits, dots and dashes, for example BRK-B.</p>
+			<p class="error" role="alert">
+				That is not a valid ticker. Use letters, digits, dots and dashes, for example BRK-B.
+			</p>
 		{:else if view.state === 'idle'}
 			<p>Enter a ticker to start.</p>
-		{:else if view.state === 'ready'}
+		{:else}
 			<p class="meta">
-				{#if view.source === 'manual'}Company figures from your upload.{:else}Source for {view.symbol}: {sourceLabel(view.source)}.{/if}
+				{#if view.source === 'manual'}Company figures from your upload.{:else}Source for {view.symbol}: {sourceLabel(
+						view.source
+					)}.{/if}
 				Peers with a dot in the ticker come from Yahoo Finance.
 			</p>
 			{#if view.sectorMessage}<p class="error" role="alert">{view.sectorMessage}</p>{/if}
@@ -125,15 +153,64 @@
 </main>
 
 <style>
-	main { max-width: 84rem; margin: 0 auto; padding: var(--space-4) var(--space-4) var(--space-12); }
-	.note, .count, .meta { color: var(--text-secondary); }
-	.meta { font-size: var(--text-sm); }
-	.controls { margin: var(--space-4) 0; }
-	.row { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; }
-	.row select { max-width: 20rem; }
-	.upload { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; margin: var(--space-3) 0; padding: var(--space-3) var(--space-4); background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
-	.hint { color: var(--text-secondary); font-size: var(--text-sm); }
-	.multiples { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-4); margin: var(--space-3) 0; padding: var(--space-3) var(--space-4); background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
-	.multiples legend { width: 100%; }
-	.error { padding: var(--space-2) var(--space-3); color: var(--negative); background: var(--negative-bg); border-left: 4px solid var(--negative); border-radius: var(--radius-sm); }
+	main {
+		max-width: 84rem;
+		margin: 0 auto;
+		padding: var(--space-4) var(--space-4) var(--space-12);
+	}
+	.note,
+	.count,
+	.meta {
+		color: var(--text-secondary);
+	}
+	.meta {
+		font-size: var(--text-sm);
+	}
+	.controls {
+		margin: var(--space-4) 0;
+	}
+	.row {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-2);
+		align-items: center;
+	}
+	.row select {
+		max-width: 20rem;
+	}
+	.upload {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-2);
+		align-items: center;
+		margin: var(--space-3) 0;
+		padding: var(--space-3) var(--space-4);
+		background: var(--surface-card);
+		border: 1px solid var(--border-subtle);
+		border-radius: var(--radius-md);
+	}
+	.hint {
+		color: var(--text-secondary);
+		font-size: var(--text-sm);
+	}
+	.multiples {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-1) var(--space-4);
+		margin: var(--space-3) 0;
+		padding: var(--space-3) var(--space-4);
+		background: var(--surface-card);
+		border: 1px solid var(--border-subtle);
+		border-radius: var(--radius-md);
+	}
+	.multiples legend {
+		width: 100%;
+	}
+	.error {
+		padding: var(--space-2) var(--space-3);
+		color: var(--negative);
+		background: var(--negative-bg);
+		border-left: 4px solid var(--negative);
+		border-radius: var(--radius-sm);
+	}
 </style>

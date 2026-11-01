@@ -1,6 +1,7 @@
 import * as XLSX from 'xlsx';
 import { describe, expect, it } from 'vitest';
 import { readTemplate, writeTemplate } from './valuation-template';
+import { get } from '#lib/at';
 
 describe('writeTemplate and readTemplate', () => {
 	it('writes an xlsx whose blank template reads back with a clear error, and a filled one reads back', () => {
@@ -8,10 +9,13 @@ describe('writeTemplate and readTemplate', () => {
 		expect(blank[0]).toBe(0x50); // a zip, which an xlsx is
 		const result = readTemplate(blank);
 		// the example rows have no figures yet, but every label and year is there
-		expect(result).toEqual({ ok: true, figures: expect.objectContaining({ name: 'Example BV', currency: 'EUR', netDebt: 0 }) });
+		expect(result).toEqual({
+			ok: true,
+			figures: expect.objectContaining({ name: 'Example BV', currency: 'EUR', netDebt: 0 })
+		});
 
 		const wb = XLSX.read(blank, { type: 'array' });
-		XLSX.utils.sheet_add_aoa(wb.Sheets.Figures, [[100, 110, 120, 130]], { origin: 'B7' });
+		XLSX.utils.sheet_add_aoa(get(wb.Sheets, 'Figures'), [[100, 110, 120, 130]], { origin: 'B7' });
 		const filled = new Uint8Array(XLSX.write(wb, { type: 'array', bookType: 'xlsx' }) as ArrayBuffer);
 		const read = readTemplate(filled);
 		if (!read.ok) throw new Error(read.error);

@@ -1,11 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { parseTemplateRows, templateRows, type Cell } from './valuation-template';
+import { at } from '#lib/at';
 
 /** The blank template with figures typed in, as a sheet would come back. */
 function filled(): Cell[][] {
 	const rows = templateRows(2026).map((r) => [...r]);
-	rows[0][1] = 'ACCENSS BV';
-	rows[2][1] = 25_000;
+	at(rows, 0)[1] = 'ACCENSS BV';
+	at(rows, 2)[1] = 25_000;
 	const set = (label: string, ...values: Cell[]) => {
 		const r = rows.find((x) => x[0] === label)!;
 		r.push(...values);
@@ -21,7 +22,9 @@ describe('templateRows', () => {
 		const rows = templateRows(2026);
 		expect(rows[4]).toEqual(['Year', 2024, 2025, 2026, 2027]);
 		expect(rows[5]).toEqual(['Type', 'Actual', 'Actual', 'Forecast', 'Forecast']);
-		expect(rows.map((r) => r[0])).toEqual(expect.arrayContaining(['Company', 'Currency', 'Net debt', 'Revenue', 'EBITDA', 'Invested capital']));
+		expect(rows.map((r) => r[0])).toEqual(
+			expect.arrayContaining(['Company', 'Currency', 'Net debt', 'Revenue', 'EBITDA', 'Invested capital'])
+		);
 	});
 });
 
@@ -37,8 +40,15 @@ describe('parseTemplateRows', () => {
 			['2026', 'forecast'],
 			['2027', 'forecast']
 		]);
-		expect(figures.years[2].values).toEqual({ revenue: 180_677, ebitda: 4_340, ebit: null, netIncome: 3_057, bookEquity: null, investedCapital: null });
-		expect(figures.years[0].values.netIncome).toBeNull();
+		expect(figures.years[2]?.values).toEqual({
+			revenue: 180_677,
+			ebitda: 4_340,
+			ebit: null,
+			netIncome: 3_057,
+			bookEquity: null,
+			investedCapital: null
+		});
+		expect(figures.years[0]?.values.netIncome).toBeNull();
 	});
 	it('accepts Dutch labels, any row order, lower-case currency, years as text and an empty net debt', () => {
 		const rows: Cell[][] = [
@@ -71,9 +81,22 @@ describe('parseTemplateRows', () => {
 		['a bad net debt', edit((r) => (row(r, 'Net debt')[1] = 'lots')), '"Net debt" is not a number'],
 		['no year row', edit((r) => (row(r, 'Year')[0] = 'Period')), 'The "Year" row is missing'],
 		['no years', edit((r) => (r[4] = ['Year'])), 'has no years'],
-		['too many years', edit((r) => (r[4] = ['Year', ...Array.from({ length: 13 }, (_, i) => 2000 + i)])), 'at most 12 years'],
+		[
+			'too many years',
+			edit((r) => (r[4] = ['Year', ...Array.from({ length: 13 }, (_, i) => 2000 + i)])),
+			'at most 12 years'
+		],
 		['a bad year', edit((r) => (row(r, 'Year')[2] = 'FY25')), '"FY25" in the "Year" row is not a year'],
-		['no figure rows', [['Company', 'A'], ['Currency', 'EUR'], ['Year', 2025], ['Type', 'Actual']], 'None of the figure rows'],
+		[
+			'no figure rows',
+			[
+				['Company', 'A'],
+				['Currency', 'EUR'],
+				['Year', 2025],
+				['Type', 'Actual']
+			],
+			'None of the figure rows'
+		],
 		['a bad type', edit((r) => (row(r, 'Type')[3] = 'Budget')), 'Set the type for 2026'],
 		['a bad figure', edit((r) => (row(r, 'EBITDA')[2] = 'n.v.t.')), 'EBITDA for 2025 is not a number'],
 		['a repeated year', edit((r) => (row(r, 'Year')[2] = 2024)), 'A year appears twice']

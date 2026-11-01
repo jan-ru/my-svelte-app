@@ -7,8 +7,9 @@ import { fetchWorkbook, pickColumn, type WorkbookData } from './nyu';
 const books = new Map<string, Promise<WorkbookData>>();
 function load(family: Family, regionId: string): Promise<WorkbookData> {
 	const key = `${family}:${regionId}`;
-	if (!books.has(key)) books.set(key, fetchWorkbook(family, regionId));
-	return books.get(key)!;
+	const book = books.get(key) ?? fetchWorkbook(family, regionId);
+	books.set(key, book);
+	return book;
 }
 
 describe('live NYU data', () => {

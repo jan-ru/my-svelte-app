@@ -17,7 +17,11 @@ const ALIASES: Readonly<Record<Metric, readonly string[]>> = {
 	investedCapital: ['invested capital', 'geïnvesteerd vermogen', 'geinvesteerd vermogen']
 };
 
-const label = (cell: Cell): string => String(cell ?? '').trim().toLowerCase().replace(/\s+/g, ' ');
+const label = (cell: Cell): string =>
+	String(cell ?? '')
+		.trim()
+		.toLowerCase()
+		.replace(/\s+/g, ' ');
 
 /** The rows of a blank template, with an example column of each kind. */
 export function templateRows(thisYear: number): Cell[][] {
@@ -35,7 +39,8 @@ export function templateRows(thisYear: number): Cell[][] {
 	];
 }
 
-export type TemplateResult = { readonly ok: true; readonly figures: CompanyFigures } | { readonly ok: false; readonly error: string };
+export type TemplateResult =
+	{ readonly ok: true; readonly figures: CompanyFigures } | { readonly ok: false; readonly error: string };
 
 const fail = (error: string): TemplateResult => ({ ok: false, error });
 
@@ -53,8 +58,11 @@ export function parseTemplateRows(rows: readonly (readonly Cell[])[]): TemplateR
 	if (!name) return fail('Fill in the company name next to "Company".');
 	if (name.length > MAX_NAME) return fail(`The company name is longer than ${MAX_NAME} characters.`);
 
-	const currency = String(find('currency', 'valuta')?.[1] ?? '').trim().toUpperCase();
-	if (!/^[A-Z]{3}$/.test(currency)) return fail('Fill in a three-letter currency code next to "Currency", such as EUR.');
+	const currency = String(find('currency', 'valuta')?.[1] ?? '')
+		.trim()
+		.toUpperCase();
+	if (!/^[A-Z]{3}$/.test(currency))
+		return fail('Fill in a three-letter currency code next to "Currency", such as EUR.');
 
 	const netDebtCell = find('net debt', 'netto schuld')?.[1];
 	const netDebt = amount(netDebtCell);
@@ -64,7 +72,12 @@ export function parseTemplateRows(rows: readonly (readonly Cell[])[]): TemplateR
 	const typeRow = find('type', 'soort');
 	if (!yearRow) return fail('The "Year" row is missing.');
 	const columns = yearRow
-		.map((cell, col) => ({ col, year: String(cell ?? '').trim().replace(/\.0$/, '') }))
+		.map((cell, col) => ({
+			col,
+			year: String(cell ?? '')
+				.trim()
+				.replace(/\.0$/, '')
+		}))
 		.slice(1)
 		.filter((c) => c.year !== '');
 	if (columns.length === 0) return fail('The "Year" row has no years.');

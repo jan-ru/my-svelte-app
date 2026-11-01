@@ -35,11 +35,13 @@ export const actions: Actions = {
 	upload: async ({ locals, request, url }) => {
 		if (!locals.authed) return fail(401, { message: 'Log in to upload figures.' });
 		const file = (await request.formData()).get('file');
-		if (!(file instanceof File) || file.size === 0) return fail(400, { message: 'Choose a filled-in template to upload.' });
+		if (!(file instanceof File) || file.size === 0)
+			return fail(400, { message: 'Choose a filled-in template to upload.' });
 		if (file.size > MAX_UPLOAD_BYTES) return fail(413, { message: 'That file is too large for a template.' });
 		const result = readTemplate(new Uint8Array(await file.arrayBuffer()));
 		if (!result.ok) return fail(400, { message: result.error });
-		if (encodeCompany(result.figures).length > MAX_ENCODED) return fail(400, { message: 'The template holds too many figures.' });
+		if (encodeCompany(result.figures).length > MAX_ENCODED)
+			return fail(400, { message: 'The template holds too many figures.' });
 		// industries are not known here; an industry in the query is kept as it was
 		const industry = url.searchParams.get('industry');
 		const nav = parseValuationNav(url.searchParams, industry ? [industry] : []);

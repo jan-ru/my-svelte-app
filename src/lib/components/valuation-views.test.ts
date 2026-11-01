@@ -13,9 +13,14 @@ import ValuationTable from './ValuationTable.svelte';
 
 type Renderer = (component: unknown, options: { props: unknown }) => { body: string };
 /** Server-render a component to HTML (see financials-views.test.ts for why the cast). */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- see above: ComponentProps needs it
 const html = <C extends Component<any>>(component: C, props: ComponentProps<C>): string =>
 	(render as unknown as Renderer)(component, { props }).body;
-const text = (body: string) => body.replace(/<!--[^]*?-->/g, '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+const text = (body: string) =>
+	body
+		.replace(/<!--[^]*?-->/g, '')
+		.replace(/<[^>]+>/g, ' ')
+		.replace(/\s+/g, ' ');
 
 const figures: CompanyFigures = {
 	name: 'ACCENSS BV',
@@ -30,9 +35,20 @@ const figures: CompanyFigures = {
 const peers: PeerRow[] = [
 	{ symbol: 'AAA', name: 'Alpha', multiples: { ev_ebitda: 6, ps: 1 }, message: null },
 	{ symbol: 'BBB', name: 'BBB', multiples: { ev_ebitda: 10, ps: 3 }, message: null },
-	{ symbol: 'CCC', name: 'Gamma', multiples: { ev_ebitda: null, ps: null }, message: 'No market cap for CCC, so no multiples.' }
+	{
+		symbol: 'CCC',
+		name: 'Gamma',
+		multiples: { ev_ebitda: null, ps: null },
+		message: 'No market cap for CCC, so no multiples.'
+	}
 ];
-const result = valuationView({ figures, multiples: ['ev_ebitda', 'ps', 'pbv'], peers, sectors: { ev_ebitda: 7 }, overrides: { ps: { low: 3, high: 5 } } });
+const result = valuationView({
+	figures,
+	multiples: ['ev_ebitda', 'ps', 'pbv'],
+	peers,
+	sectors: { ev_ebitda: 7 },
+	overrides: { ps: { low: 3, high: 5 } }
+});
 
 describe('CompanyFigures', () => {
 	it('shows actual and forecast years in a readable unit, negatives in brackets', () => {
@@ -48,7 +64,11 @@ describe('CompanyFigures', () => {
 
 describe('PeerPicker', () => {
 	it('ticks the picked peers, offers the suggestions and a field for more', () => {
-		const body = html(PeerPicker, { picked: peers.slice(0, 2), suggestions: [{ symbol: 'DDD', name: 'Delta', price: null, marketCap: null }], max: 8 });
+		const body = html(PeerPicker, {
+			picked: peers.slice(0, 2),
+			suggestions: [{ symbol: 'DDD', name: 'Delta', price: null, marketCap: null }],
+			max: 8
+		});
 		expect(body).toMatch(/name="peer" value="AAA" checked/);
 		expect(body).toMatch(/name="peer" value="DDD"/);
 		expect(body).not.toMatch(/value="DDD"[^>]*checked/);
@@ -57,14 +77,20 @@ describe('PeerPicker', () => {
 	});
 	it('says when none are picked and disables adding once full', () => {
 		expect(text(html(PeerPicker, { picked: [], suggestions: [], max: 8 }))).toContain('No peers picked yet');
-		const full = html(PeerPicker, { picked: peers.slice(0, 2), suggestions: [{ symbol: 'DDD', name: null, price: null, marketCap: null }], max: 2 });
+		const full = html(PeerPicker, {
+			picked: peers.slice(0, 2),
+			suggestions: [{ symbol: 'DDD', name: null, price: null, marketCap: null }],
+			max: 2
+		});
 		expect(full).toMatch(/value="DDD" disabled/);
 	});
 });
 
 describe('MultiplesTable', () => {
 	it('lists each peer, the percentiles and the sector row', () => {
-		const body = text(html(MultiplesTable, { peers, benchmarks: result.benchmarks, sectorLabel: 'Semiconductor, Europe' }));
+		const body = text(
+			html(MultiplesTable, { peers, benchmarks: result.benchmarks, sectorLabel: 'Semiconductor, Europe' })
+		);
 		expect(body).toContain('EV/EBITDA');
 		expect(body).toContain('AAA Alpha 6.0x 1.0x');
 		expect(body).toContain('No market cap for CCC');
@@ -72,7 +98,9 @@ describe('MultiplesTable', () => {
 		expect(body).toContain('Sector: Semiconductor, Europe 7.0x n/a n/a');
 	});
 	it('leaves out the sector row without an industry', () => {
-		expect(text(html(MultiplesTable, { peers, benchmarks: result.benchmarks, sectorLabel: null }))).not.toContain('Sector:');
+		expect(text(html(MultiplesTable, { peers, benchmarks: result.benchmarks, sectorLabel: null }))).not.toContain(
+			'Sector:'
+		);
 	});
 });
 
@@ -92,7 +120,9 @@ describe('FootballField', () => {
 	it('draws a bar per method and summarises the chart for screen readers', () => {
 		const body = html(FootballField, { model });
 		expect(body).toContain('role="img"');
-		expect(body).toMatch(/aria-label="Equity value range per method, thousands of EUR\. EV\/EBITDA \(EBITDA 2025, 7\.0x to 9\.0x\): 420 to 555, mid 488, at sector 420/);
+		expect(body).toMatch(
+			/aria-label="Equity value range per method, thousands of EUR\. EV\/EBITDA \(EBITDA 2025, 7\.0x to 9\.0x\): 420 to 555, mid 488, at sector 420/
+		);
 		expect((body.match(/class="range[^"]*"/g) ?? []).length).toBe(2);
 		expect((body.match(/class="sector[^"]*"/g) ?? []).length).toBe(1);
 		const t = text(body);
