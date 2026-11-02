@@ -17,7 +17,7 @@ import {
 	type RatiosFetcher,
 	type StatementFetcher
 } from './financials';
-import { SourceError } from './source-error';
+import { failureKind, sourceFailureMessage } from './source-error';
 
 /** What the valuation needs from one source. Estimates and peers are FMP only. */
 export interface ValuationFetchers {
@@ -60,18 +60,8 @@ export type ValuationPage =
 	  };
 
 function messageFor(what: string, symbol: string, error: unknown, source: Source): string {
-	const kind = error instanceof SourceError ? error.kind : 'error';
-	console.error(`valuation: ${sourceLabel(source)} ${what} for ${symbol} failed (${kind})`);
-	switch (kind) {
-		case 'config':
-			return 'The FMP key was not accepted. Check FMP_API_KEY.';
-		case 'plan':
-			return `${sourceLabel(source)} does not provide this for ${symbol} on your plan.`;
-		case 'limit':
-			return `${sourceLabel(source)} rate limit reached. Try again in a minute.`;
-		default:
-			return `${sourceLabel(source)} is unavailable right now for ${symbol}.`;
-	}
+	console.error(`valuation: ${sourceLabel(source)} ${what} for ${symbol} failed (${failureKind(error)})`);
+	return sourceFailureMessage(error, symbol, sourceLabel(source));
 }
 
 const orNull = <T>(promise: Promise<T> | undefined): Promise<T | null> =>

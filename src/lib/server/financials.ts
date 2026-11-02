@@ -10,7 +10,7 @@ import type { Kind, NewsItem, Peer, PricePoint, PriceTarget, Profile, Statement 
 import { cached } from './cache';
 import { fetchEarnings, fetchEstimates, fetchRatios, fetchStatement } from './fmp';
 import { fetchNews, fetchPeers, fetchPriceTarget, fetchPrices, fetchProfile } from './fmp-info';
-import { SourceError } from './source-error';
+import { failureKind, sourceFailureMessage } from './source-error';
 import { fetchYahooNews, fetchYahooPrices, fetchYahooProfile, fetchYahooStatement } from './yahoo';
 
 export type StatementFetcher = (kind: Kind, symbol: string, apiKey: string, period: Period) => Promise<Statement>;
@@ -112,26 +112,9 @@ export const yahooFetchers: SourceFetchers = {
 	})
 };
 
-function messageFor(error: unknown, symbol: string, source: Source): string {
-	const label = sourceLabel(source);
-	if (error instanceof SourceError) {
-		switch (error.kind) {
-			case 'config':
-				return 'The FMP key was not accepted. Check FMP_API_KEY.';
-			case 'plan':
-				return `${label} does not provide this for ${symbol} on your plan (${error.message}).`;
-			case 'limit':
-				return `${label} rate limit reached. Try again in a minute.`;
-		}
-	}
-	return `${label} is unavailable right now. Try again shortly.`;
-}
-
 function failure(what: string, symbol: string, error: unknown, source: Source): string {
-	console.error(
-		`${sourceLabel(source)} ${what} for ${symbol} failed (${error instanceof SourceError ? error.kind : 'error'})`
-	);
-	return messageFor(error, symbol, source);
+	console.error(`${sourceLabel(source)} ${what} for ${symbol} failed (${failureKind(error)})`);
+	return sourceFailureMessage(error, symbol, sourceLabel(source));
 }
 
 /** What a tab loader needs: the ticker, the key, the one source that serves this view and that source's fetchers. */

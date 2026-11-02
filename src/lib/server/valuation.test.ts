@@ -187,8 +187,8 @@ describe('loadValuation ready', () => {
 	});
 	it.each([
 		[new SourceError('config', 'x'), 'The FMP key was not accepted. Check FMP_API_KEY.'],
-		[new SourceError('plan', 'x'), 'FMP does not provide this for AAPL on your plan.'],
-		[new Error('boom'), 'FMP is unavailable right now for AAPL.']
+		[new SourceError('plan', 'x'), 'FMP does not provide this for AAPL on your plan (x).'],
+		[new Error('boom'), 'FMP is unavailable right now for AAPL. Try again shortly.']
 	])('has no result when the income statement fails (%s)', async (error, message) => {
 		const fmp = { ...fetchers(), statement: async () => Promise.reject(error) };
 		const view = await run('symbol=AAPL', { fmp });

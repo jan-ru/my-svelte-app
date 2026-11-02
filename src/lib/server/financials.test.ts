@@ -615,6 +615,6 @@ describe('sources', () => {
 		yahoo.profile.mockRejectedValue(new SourceError('unavailable', 'x'));
 		const profile = await loadFinancials({ ...base, rawSymbol: 'ABN.AS', nav: { ...nav, tab: 'company' }, fmp, yahoo });
 		if (profile.state !== 'profile') throw new Error('expected profile');
-		expect(profile.message).toBe('Yahoo Finance is unavailable right now. Try again shortly.');
+		expect(profile.message).toBe('Yahoo Finance is unavailable right now for ABN.AS. Try again shortly.');
 	});
 });
