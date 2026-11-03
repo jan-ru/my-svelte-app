@@ -8,30 +8,93 @@ The same five parts as the `finance-tools` release overview: the design at a gla
 
 **In one sentence:** a SvelteKit app on Vercel that compares valuation multiples from the NYU Stern datasets in public, and behind a shared password shows a company's financials and values it against peers.
 
+Two pictures, drawn the way the `finance-tools` design page draws them: the landscape (external sources on top, the two parts of the site with their pages, the shared library below) and the canonical data flow every view follows. Both are simplified to the main components and flows.
+
+### The landscape
+
 ```mermaid
-flowchart LR
-  subgraph External
-    NYU[NYU Stern workbooks]
-    REF[CBS, UN, US Census, World Bank<br/>built into JSON by scripts]
-    FMP[Financial Modeling Prep]
-    YF[Yahoo Finance]
-  end
-  subgraph Public["Public pages (ISR, a day; interactive after login)"]
+flowchart TB
+  NYU[NYU Stern workbooks]
+  REF[CBS, UN, US Census,<br/>World Bank]
+  FMP[Financial Modeling Prep]
+  YF[Yahoo Finance]
+  XL[Excel template<br/>uploaded by the user]
+
+  subgraph PUB["Public site"]
     M[Multiples]
-    E[Explore: Countries, Industries,<br/>Companies, Find industry]
-    A[About]
+    C[Countries<br/>Industries]
+    CO[Companies<br/>Find industry]
+    AB[About]
   end
-  subgraph Private["Behind the login (never cached publicly)"]
-    F[Financials]
-    V[Valuation]
+
+  subgraph PRIV["Behind the login"]
+    F[Financials<br/>8 tabs, FMP or<br/>Yahoo per ticker]
+    V[Valuation<br/>picked peers,<br/>P25–P75]
   end
+
+  OUT[Football field and<br/>valuation range]
+
+  LIB["<b>src/lib</b> · shared, pure TypeScript<br/>URL state · parsing · maths · chart layout<br/>components · generated data"]
+
   NYU --> M
   NYU --> V
-  REF --> E
+  REF -->|build scripts| C
+  REF -->|build scripts| CO
   FMP --> F
   YF --> F
-  F --> V
+  XL --> V
+  F -->|same fetchers| V
+  V --> OUT
+  PUB -.-> LIB
+  PRIV -.-> LIB
+
+  classDef ext fill:#eeeeee,stroke:#9a9a9a,color:#222222
+  classDef sys fill:#e3edf6,stroke:#4a7bab,color:#222222
+  classDef out fill:#e6f2ea,stroke:#5f9b72,color:#2f6b44
+  classDef lib fill:#f4f0e6,stroke:#b8a77a,color:#222222
+  class NYU,REF,FMP,YF,XL ext
+  class M,C,CO,AB,F,V sys
+  class OUT out
+  class LIB lib
+  style PUB fill:#f7fafd,stroke:#4a7bab
+  style PRIV fill:#f7fafd,stroke:#4a7bab
 ```
+
+Grey: an external source. Blue: a page. Green: an output. Beige: the shared library, which every page depends on (dashed) and which depends on nothing above it. The public pages are ISR-cached for a day and become interactive after login; the pages behind the login are private and never cached publicly.
+
+### The data flow
+
+Every view, public or private, runs the same chain from fetch to cached response:
+
+```mermaid
+flowchart LR
+  S[Source<br/>NYU, FMP, Yahoo,<br/>generated JSON]
+  I[Fetcher<br/>src/lib/server<br/>in-memory cache]
+  G[Type guards<br/>unknown in,<br/>typed shape out]
+  D[Shared shapes<br/>Statement, Profile,<br/>NewsItem, PricePoint]
+  P[Pure logic<br/>URL state, maths,<br/>layout, formatting]
+  R[Component<br/>render-tested<br/>Svelte view]
+  PUBR[Public page<br/>ISR, anonymous view]
+  PRIVR[Private page<br/>private, no-store]
+
+  S --> I --> G --> D --> P --> R
+  R --> PUBR
+  R --> PRIVR
+  G -. refuses .-> E[Error view<br/>a safe message, never<br/>a URL, key or raw text]
+
+  classDef ext fill:#eeeeee,stroke:#9a9a9a,color:#222222
+  classDef sys fill:#e3edf6,stroke:#4a7bab,color:#222222
+  classDef out fill:#e6f2ea,stroke:#5f9b72,color:#2f6b44
+  classDef err fill:#fbeee0,stroke:#c07a2c,color:#9a5c1a
+  class S ext
+  class I,G,D,P,R sys
+  class PUBR,PRIVR out
+  class E err
+```
+
+Refuse rather than guess: a source that sends an unexpected shape, or lacks the period asked for, ends in a plain error message (a `SourceError` for FMP and Yahoo), never a half-filled table or a mix of two sources. The source per ticker is decided once, in `src/lib/source.ts`, and query parameters outside the allow-list are dropped.
+
+### The layers
 
 | Layer | Where | What it does |
 |---|---|---|
@@ -41,7 +104,8 @@ flowchart LR
 | Components | `src/lib/components/` | Charts, tables and views, each with a render test |
 | Data | `src/lib/data/` | Generated JSON with hand-written types |
 
-**Principles**
+### Principles
+
 
 - **Effects at the edge.** Network, caches, cookies and environment reads stay in small functions at the outside; decisions are pure functions over `readonly` data. ([ADR-005](adr/0005-one-source-per-view.md), [ADR-007](adr/0007-strict-typescript.md))
 - **The URL is the state.** Every view can be bookmarked and works without JavaScript. ([ADR-002](adr/0002-url-is-the-state.md))
