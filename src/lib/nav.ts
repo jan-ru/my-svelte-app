@@ -3,7 +3,7 @@ export const EXPLORE_LINKS = [
 	{ href: '/countries', label: 'Countries' },
 	{ href: '/industries', label: 'Industries' },
 	{ href: '/companies', label: 'Companies' },
-	{ href: '/classification', label: 'Find industry' }
+	{ href: '/classification', label: 'Find Industry' }
 ] as const;
 
 export const EXPLORE_HOME = EXPLORE_LINKS[0].href;
