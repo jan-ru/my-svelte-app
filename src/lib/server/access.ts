@@ -19,7 +19,7 @@ export const ISR_ALLOW_QUERY = [
 	'p',
 	'x',
 	'c',
-	// Find industry and Companies
+	// Find Industry and Companies
 	'q',
 	'code',
 	'industry',

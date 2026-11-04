@@ -24,7 +24,7 @@
 		<dd>How large each industry is as a share of all listed companies, grouped by sector.</dd>
 		<dt><a href="/companies">Companies</a></dt>
 		<dd>The listed companies in each industry, filtered by industry, region, sector, SIC code and country.</dd>
-		<dt><a href="/classification">Find industry</a></dt>
+		<dt><a href="/classification">Find Industry</a></dt>
 		<dd>From a Dutch SBI 2025 code to the matching NYU Stern industries, and back.</dd>
 	</dl>
 	<h3>Financials</h3>
