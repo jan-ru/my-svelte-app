@@ -1,4 +1,4 @@
-import { FMP_API_KEY, ISR_BYPASS_TOKEN, SESSION_SECRET, SITE_PASSWORD } from '$app/env/private';
+import { EULERPOOL_API_KEY, FMP_API_KEY, ISR_BYPASS_TOKEN, SESSION_SECRET, SITE_PASSWORD } from '$app/env/private';
 import { BYPASS_COOKIE, bypassToRestore, sessionCookieOptions } from '#lib/server/access';
 import { fail, redirect } from '@sveltejs/kit';
 import { getIndustries } from '#lib/server/compare';
@@ -29,7 +29,8 @@ export const load: PageServerLoad = async ({ locals, url, setHeaders, cookies })
 			authed: locals.authed,
 			nav,
 			rawSymbol: url.searchParams.get('symbol'),
-			apiKey: FMP_API_KEY
+			apiKey: FMP_API_KEY,
+			eulerpoolKey: EULERPOOL_API_KEY
 		})
 	};
 };

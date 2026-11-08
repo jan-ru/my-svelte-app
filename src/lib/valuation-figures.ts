@@ -1,6 +1,7 @@
 // src/lib/valuation-figures.ts
 // Turns the statements a source returns (FMP or Yahoo) into `CompanyFigures`, and a peer's figures plus its market
 // cap into the multiples the valuation compares. Pure.
+import type { Source } from './source';
 import type { Statement, StatementYear } from './source-data';
 import { BASIS, pickYear } from './valuation';
 import type { CompanyFigures, FigureYear, Metric, PeerMultiples } from './valuation-data';
@@ -66,7 +67,7 @@ const forecastYear = (estimate: StatementYear): FigureYear => ({
  */
 export function figuresFromStatements(input: {
 	readonly name: string;
-	readonly origin: 'fmp' | 'yahoo';
+	readonly origin: Source;
 	readonly income: Statement;
 	readonly balance: Statement | null;
 	readonly estimates: Statement | null;

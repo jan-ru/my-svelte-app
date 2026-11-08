@@ -39,7 +39,7 @@
 		speedInsights?.setRoute(route);
 	});
 
-	// Result first, then the reference data (NYU Stern and World Bank), then the company data from FMP and Yahoo Finance.
+	// Result first, then the reference data (NYU Stern and World Bank), then the company data from FMP, Yahoo Finance and Eulerpool.
 	const links = [
 		{ href: '/', label: 'Multiples', current: () => page.url.pathname === '/' },
 		{ href: EXPLORE_HOME, label: 'Explore', current: () => inExplore(page.url.pathname) },

@@ -18,6 +18,8 @@
 	const nav = $derived(data.nav);
 	const source = $derived(resolveSource(nav.source, data.symbol));
 	const period = $derived(effectivePeriod(source, nav.period));
+	/** FMP serves US tickers only; Yahoo Finance and Eulerpool serve any. */
+	const offered = $derived(isUsListing(data.symbol) ? SOURCES : SOURCES.filter((s) => s.id !== 'fmp'));
 	// The ticker becomes the page heading once a company is shown.
 	const heading = $derived('symbol' in view && view.symbol ? view.symbol : 'Company financials');
 </script>
@@ -43,8 +45,8 @@
 
 		{#if view.state === 'locked'}
 			<p class="note">
-				Profile, news, stock prices and the financial statements of one company, from Financial Modeling Prep and Yahoo
-				Finance. Enter a ticker such as AAPL, or ABN.AS for a listing outside the US.
+				Profile, news, stock prices and the financial statements of one company, from Financial Modeling Prep, Yahoo
+				Finance and Eulerpool. Enter a ticker such as AAPL, or ABN.AS for a listing outside the US.
 			</p>
 			{#if !data.configured}
 				<p class="error" role="alert">This page is not configured on this deployment.</p>
@@ -72,10 +74,10 @@
 			</div>
 
 			{#if data.symbol}
-				{#if isUsListing(data.symbol)}
+				{#if offered.length > 1}
 					<nav class="source" aria-label="Data source">
 						<span>Source</span>
-						{#each SOURCES as s (s.id)}
+						{#each offered as s (s.id)}
 							<a
 								href={navHref({ ...nav, period, source: s.id }, data.symbol)}
 								aria-current={source === s.id ? 'page' : undefined}>{s.label}</a
@@ -86,6 +88,12 @@
 					<p class="source-note">Source: {sourceLabel(source)}</p>
 				{/if}
 				{#if source === 'yahoo'}<p class="meta">Yahoo Finance data is unofficial and may be delayed.</p>{/if}
+				{#if source === 'eulerpool'}
+					<p class="meta">
+						Data by <a href="https://eulerpool.com" rel="noopener noreferrer">Eulerpool</a>. Annual statements only;
+						prices are approximated from daily quotes and can differ slightly from the official close.
+					</p>
+				{/if}
 				<p class="meta">
 					<a href={`/companies?q=${encodeURIComponent(data.symbol)}`}>Find this company's industry and peers</a>
 				</p>
@@ -119,15 +127,15 @@
 			{/if}
 
 			{#if view.state === 'unconfigured'}
-				<p class="error" role="alert">The FMP key is not configured on this deployment.</p>
+				<p class="error" role="alert">The {sourceLabel(source)} key is not configured on this deployment.</p>
 			{:else if view.state === 'invalid'}
 				<p class="error" role="alert">
 					That is not a valid ticker. Use letters, digits, dots and dashes, for example BRK-B.
 				</p>
 			{:else if view.state === 'idle'}
 				<p>
-					Enter a ticker to see its data. US tickers work with FMP or Yahoo Finance; others, such as ABN.AS, use Yahoo
-					Finance.
+					Enter a ticker to see its data. US tickers work with FMP, Yahoo Finance or Eulerpool; others, such as ABN.AS,
+					use Yahoo Finance or Eulerpool.
 				</p>
 			{:else if view.state === 'profile'}
 				<ProfileView profile={view.profile} message={view.message} />

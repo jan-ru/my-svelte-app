@@ -1,6 +1,8 @@
 // src/lib/valuation-data.ts
-// The shapes the valuation page works with. A listed company (FMP or Yahoo) and a private company (an uploaded
+// The shapes the valuation page works with. A listed company (FMP, Yahoo or Eulerpool) and a private company (an uploaded
 // template) both become `CompanyFigures`, so the calculation in `valuation.ts` does not care where figures came from.
+
+import type { Source } from './source';
 
 /** A company figure a multiple can be applied to. */
 export type Metric = 'revenue' | 'ebitda' | 'ebit' | 'netIncome' | 'bookEquity' | 'investedCapital';
@@ -15,7 +17,7 @@ export interface FigureYear {
 export interface CompanyFigures {
 	readonly name: string;
 	readonly currency: string;
-	readonly origin: 'fmp' | 'yahoo' | 'manual';
+	readonly origin: Source | 'manual';
 	/** Debt minus cash, used to go from enterprise value to equity value. */
 	readonly netDebt: number | null;
 	/** Oldest first. */

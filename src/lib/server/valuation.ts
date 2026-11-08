@@ -1,7 +1,7 @@
 // src/lib/server/valuation.ts
 // Loads what the valuation page shows: the company's figures, the peers' multiples, FMP's peer suggestions and the
 // Damodaran sector values, then hands them to the pure calculation in `valuation.ts`.
-import { resolveSource, sourceLabel, type Source } from '../source';
+import { resolveSource, sourceKeyName, sourceLabel, type Source } from '../source';
 import type { Peer, Statement } from '../source-data';
 import { parseSymbol } from '../symbol';
 import { BASIS, valuationView } from '../valuation';
@@ -10,8 +10,8 @@ import { figuresFromStatements, peerMultiples } from '../valuation-figures';
 import type { ValuationNav } from '../valuation-nav';
 import { getComparison } from './compare';
 import {
-	fmpFetchers,
-	yahooFetchers,
+	fetchersOf,
+	keyOf,
 	type PeersFetcher,
 	type ProfileFetcher,
 	type RatiosFetcher,
@@ -48,7 +48,7 @@ export type ValuationPage =
 			readonly state: 'ready';
 			/** The ticker, or '' for a private company. */
 			readonly symbol: string;
-			/** Where the company's figures came from; peers always come from FMP or Yahoo. */
+			/** Where the company's figures came from; peers come from the source the peer's ticker resolves to. */
 			readonly source: Source | 'manual';
 			readonly company: CompanyFigures | null;
 			readonly message: string | null;
@@ -116,31 +116,38 @@ export async function loadValuation(input: {
 	readonly nav: ValuationNav;
 	readonly rawSymbol: string | null;
 	readonly apiKey: string | undefined;
+	/** The Eulerpool key; `apiKey` is FMP's. */
+	readonly eulerpoolKey?: string | undefined;
 	/** Replace single fetchers or the sector loader (tests inject these). */
 	readonly fmp?: Partial<ValuationFetchers>;
 	readonly yahoo?: Partial<ValuationFetchers>;
+	readonly eulerpool?: Partial<ValuationFetchers>;
 	readonly sector?: SectorLoader;
 }): Promise<ValuationPage> {
 	if (!input.authed) return { state: 'locked' };
-	const { nav, apiKey = '' } = input;
+	const { nav } = input;
+	const keys = { fmp: input.apiKey, eulerpool: input.eulerpoolKey };
 	const source = resolveSource(nav.source, nav.symbol);
 	// a private company needs no ticker and no key of its own; its peers say so per row when the key is missing
 	const symbol = nav.company ? '' : parseSymbol(input.rawSymbol);
 	if (!nav.company) {
-		if (source === 'fmp' && !apiKey) return { state: 'unconfigured' };
+		if (sourceKeyName(source) !== null && !keyOf(source, keys)) return { state: 'unconfigured' };
 		if (!input.rawSymbol?.trim()) return { state: 'idle' };
 		if (!symbol) return { state: 'invalid' };
 	}
 
 	const fetchersFor = (s: Source): ValuationFetchers =>
-		s === 'fmp' ? { ...fmpFetchers, ...input.fmp } : { ...yahooFetchers, ...input.yahoo };
-	const keyFor = (s: Source) => (s === 'fmp' ? apiKey : '');
+		fetchersOf(s, { fmp: input.fmp, yahoo: input.yahoo, eulerpool: input.eulerpool });
+	const keyFor = (s: Source) => keyOf(s, keys);
 	const needForecast = nav.multiples.some((m) => BASIS[m]?.year === 'forward');
 
 	const loadPeer = async (peer: string): Promise<PeerRow> => {
 		const peerSource = resolveSource(nav.source, peer);
-		if (peerSource === 'fmp' && !apiKey) {
-			return { ...peerMultiples(peer, peer, null, null), message: 'The FMP key is not configured.' };
+		if (sourceKeyName(peerSource) !== null && !keyFor(peerSource)) {
+			return {
+				...peerMultiples(peer, peer, null, null),
+				message: `The ${sourceLabel(peerSource)} key is not configured.`
+			};
 		}
 		const loaded = await loadCompany(peer, peerSource, fetchersFor(peerSource), keyFor(peerSource), needForecast);
 		const message =
