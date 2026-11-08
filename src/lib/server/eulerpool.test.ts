@@ -1,5 +1,12 @@
 import { describe, expect, it, vi } from 'vitest';
-import { eulerpoolGet, fetchEulerpoolPrices, fetchEulerpoolProfile, fetchEulerpoolStatement } from './eulerpool';
+import {
+	eulerpoolGet,
+	fetchEulerpoolFairValue,
+	fetchEulerpoolPrices,
+	fetchEulerpoolProfile,
+	fetchEulerpoolQuality,
+	fetchEulerpoolStatement
+} from './eulerpool';
 import { MAX_BYTES } from './http';
 import { SourceError } from './source-error';
 
@@ -150,5 +157,40 @@ describe('fetchEulerpoolPrices', () => {
 	});
 	it('is empty for an unknown security', async () => {
 		expect(await fetchEulerpoolPrices('NOPE', KEY, routes({}))).toEqual([]);
+	});
+});
+
+describe('fetchEulerpoolFairValue', () => {
+	it('reads the fair value and puts the currency of the overview on it', async () => {
+		const fetchFn = routes({
+			'fair-value/by-isin/ASML.AS': () => json({ fairValue: 1342.1, lastPrice: 1283.6, upside: 4.56 }),
+			'equity/overview/ASML.AS': () => json({ currency: 'EUR' })
+		});
+		expect(await fetchEulerpoolFairValue('ASML.AS', KEY, fetchFn)).toMatchObject({
+			fairValue: 1342.1,
+			upside: 4.56,
+			currency: 'EUR'
+		});
+	});
+	it('still gives the fair value when the currency cannot be had', async () => {
+		const fetchFn = routes({ 'fair-value/by-isin/AAPL': () => json({ fairValue: 278.5 }) });
+		expect(await fetchEulerpoolFairValue('AAPL', KEY, fetchFn)).toMatchObject({ fairValue: 278.5, currency: null });
+	});
+	it('is null for an unknown security', async () => {
+		expect(await fetchEulerpoolFairValue('NOPE', KEY, routes({}))).toBeNull();
+	});
+	it('passes a rate limit on', async () => {
+		const fetchFn = vi.fn<typeof fetch>(async () => new Response('{}', { status: 429 }));
+		expect(await kind(fetchEulerpoolFairValue('AAPL', KEY, fetchFn))).toBe('limit: Eulerpool rate limit reached');
+	});
+});
+
+describe('fetchEulerpoolQuality', () => {
+	it('reads the score', async () => {
+		const fetchFn = routes({ 'equity/aaqs/AAPL': () => json({ score: 8, roce: 0.69 }) });
+		expect(await fetchEulerpoolQuality('AAPL', KEY, fetchFn)).toMatchObject({ score: 8, roce: 0.69 });
+	});
+	it('is null for an unknown security', async () => {
+		expect(await fetchEulerpoolQuality('NOPE', KEY, routes({}))).toBeNull();
 	});
 });

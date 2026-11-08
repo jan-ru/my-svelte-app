@@ -263,6 +263,88 @@ describe('loadValuation with Eulerpool', () => {
 	});
 });
 
+describe('loadValuation insight', () => {
+	const fairValue = {
+		fairValue: 278.5,
+		income: 278.5,
+		revenue: 260.9,
+		dividend: 270.4,
+		lastPrice: 342.4,
+		upside: -18.65,
+		currency: 'USD'
+	};
+	const insightFetchers = (log: string[] = []) => ({
+		fairValue: async (symbol: string, key: string) => {
+			log.push(`fair:${symbol}:${key}`);
+			return fairValue;
+		},
+		quality: async () => null
+	});
+
+	it('adds Eulerpool estimates beside the FMP figures when the key is set', async () => {
+		const log: string[] = [];
+		const view = await run('symbol=AAPL', { eulerpoolKey: 'EKEY', insight: insightFetchers(log) });
+		if (view.state !== 'ready') throw new Error(view.state);
+		expect(view.source).toBe('fmp');
+		expect(view.insight).toEqual({
+			fairValue,
+			quality: null,
+			message: 'Eulerpool has no quality score for AAPL.'
+		});
+		expect(log).toEqual(['fair:AAPL:EKEY']);
+	});
+	it('leaves the valuation itself unchanged', async () => {
+		const without = await run('symbol=AAPL&peer=MSFT&m=ev_ebitda');
+		const withInsight = await run('symbol=AAPL&peer=MSFT&m=ev_ebitda', {
+			eulerpoolKey: 'EKEY',
+			insight: insightFetchers()
+		});
+		if (without.state !== 'ready' || withInsight.state !== 'ready') throw new Error('expected ready');
+		expect(withInsight.result).toEqual(without.result);
+		expect(withInsight.company).toEqual(without.company);
+	});
+	it('is absent without the key', async () => {
+		const log: string[] = [];
+		const view = await run('symbol=AAPL', { insight: insightFetchers(log) });
+		if (view.state !== 'ready') throw new Error(view.state);
+		expect(view.insight).toBeNull();
+		expect(log).toEqual([]);
+	});
+	it('is absent for a private company', async () => {
+		const co = encodeCompany({
+			name: 'ACCENSS BV',
+			currency: 'EUR',
+			origin: 'manual',
+			netDebt: 0,
+			years: [{ fiscalYear: '2025', kind: 'actual', values: { revenue: 10 } }]
+		});
+		const log: string[] = [];
+		const view = await run(`co=${co}`, { eulerpoolKey: 'EKEY', insight: insightFetchers(log) });
+		if (view.state !== 'ready') throw new Error(view.state);
+		expect(view.insight).toBeNull();
+		expect(log).toEqual([]);
+	});
+	it('keeps the valuation when Eulerpool fails', async () => {
+		vi.spyOn(console, 'error').mockImplementation(() => {});
+		const failing = {
+			fairValue: async () => {
+				throw new SourceError('unavailable', 'x');
+			},
+			quality: async () => {
+				throw new SourceError('unavailable', 'x');
+			}
+		};
+		const view = await run('symbol=AAPL', { eulerpoolKey: 'EKEY', insight: failing });
+		if (view.state !== 'ready') throw new Error(view.state);
+		expect(view.company?.name).toBe('Apple');
+		expect(view.insight).toEqual({
+			fairValue: null,
+			quality: null,
+			message: 'Eulerpool is unavailable right now for AAPL. Try again shortly.'
+		});
+	});
+});
+
 describe('loadSector', () => {
 	it('reads one region and industry from the Damodaran comparison', async () => {
 		expect(await loadSector(['ev_ebitda', 'ps'], 'europe', 'Semiconductor')).toEqual({ ev_ebitda: 14, ps: null });

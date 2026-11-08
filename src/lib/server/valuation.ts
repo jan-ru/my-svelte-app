@@ -2,6 +2,7 @@
 // Loads what the valuation page shows: the company's figures, the peers' multiples, FMP's peer suggestions and the
 // Damodaran sector values, then hands them to the pure calculation in `valuation.ts`.
 import { resolveSource, sourceKeyName, sourceLabel, type Source } from '../source';
+import type { Insight } from '../insight';
 import type { Peer, Statement } from '../source-data';
 import { parseSymbol } from '../symbol';
 import { BASIS, valuationView } from '../valuation';
@@ -9,6 +10,7 @@ import type { CompanyFigures, PeerRow, ValuationView } from '../valuation-data';
 import { figuresFromStatements, peerMultiples } from '../valuation-figures';
 import type { ValuationNav } from '../valuation-nav';
 import { getComparison } from './compare';
+import { insightFetchers, loadInsight, type InsightFetchers } from './insight';
 import {
 	fetchersOf,
 	keyOf,
@@ -57,6 +59,8 @@ export type ValuationPage =
 			readonly peers: readonly PeerRow[];
 			readonly result: ValuationView | null;
 			readonly sectorMessage: string | null;
+			/** Eulerpool's own estimates, beside the valuation and not part of it; null for a private company or without a key. */
+			readonly insight: Insight | null;
 	  };
 
 function messageFor(what: string, symbol: string, error: unknown, source: Source): string {
@@ -122,6 +126,7 @@ export async function loadValuation(input: {
 	readonly fmp?: Partial<ValuationFetchers>;
 	readonly yahoo?: Partial<ValuationFetchers>;
 	readonly eulerpool?: Partial<ValuationFetchers>;
+	readonly insight?: Partial<InsightFetchers>;
 	readonly sector?: SectorLoader;
 }): Promise<ValuationPage> {
 	if (!input.authed) return { state: 'locked' };
@@ -157,7 +162,10 @@ export async function loadValuation(input: {
 
 	const fetchers = fetchersFor(source);
 	const sector = input.sector ?? loadSector;
-	const [company, peers, suggested, sectors] = await Promise.all([
+	// Eulerpool's estimates need only a ticker and its key, whichever source the figures come from
+	const eulerpoolKey = keyFor('eulerpool');
+	const skipInsight = nav.company || !symbol || !eulerpoolKey;
+	const [company, peers, suggested, sectors, insight] = await Promise.all([
 		nav.company || !symbol
 			? { figures: nav.company, name: nav.company?.name ?? '', marketCap: null, message: null }
 			: loadCompany(symbol, source, fetchers, keyFor(source), needForecast),
@@ -168,7 +176,8 @@ export async function loadValuation(input: {
 					console.error('valuation: Damodaran sector values failed', error);
 					return null;
 				})
-			: Promise.resolve({})
+			: Promise.resolve({}),
+		skipInsight ? null : loadInsight(symbol, eulerpoolKey, { ...insightFetchers, ...input.insight })
 	]);
 
 	return {
@@ -188,6 +197,7 @@ export async function loadValuation(input: {
 					overrides: nav.overrides
 				})
 			: null,
-		sectorMessage: sectors === null ? 'The Damodaran sector values could not be loaded right now.' : null
+		sectorMessage: sectors === null ? 'The Damodaran sector values could not be loaded right now.' : null,
+		insight
 	};
 }

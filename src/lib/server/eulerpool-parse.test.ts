@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
 	parseEulerpoolCurrency,
+	parseEulerpoolFairValue,
 	parseEulerpoolPrices,
 	parseEulerpoolProfile,
+	parseEulerpoolQuality,
 	parseEulerpoolStatement
 } from './eulerpool-parse';
 import { SourceError } from './source-error';
@@ -238,5 +240,82 @@ describe('parseEulerpoolPrices', () => {
 	});
 	it('rejects a body that is not a list', () => {
 		expect(() => parseEulerpoolPrices({})).toThrow(SourceError);
+	});
+});
+
+describe('parseEulerpoolFairValue', () => {
+	const body = {
+		isin: 'NL0010273215',
+		fairValue: 1342.1,
+		fairValueIncome: 1342.1,
+		fairValueRevenue: 1141.4,
+		fairValueDividend: 1347.7,
+		lastPrice: 1283.6,
+		upside: 4.56
+	};
+	it('maps the three methods, the price and the upside, with the currency passed in', () => {
+		expect(parseEulerpoolFairValue(body, 'EUR')).toEqual({
+			fairValue: 1342.1,
+			income: 1342.1,
+			revenue: 1141.4,
+			dividend: 1347.7,
+			lastPrice: 1283.6,
+			upside: 4.56,
+			currency: 'EUR'
+		});
+	});
+	it('keeps what is there when a method is missing', () => {
+		expect(parseEulerpoolFairValue({ fairValue: 10, fairValueRevenue: 'n/a' }, null)).toMatchObject({
+			fairValue: 10,
+			income: null,
+			revenue: null,
+			upside: null,
+			currency: null
+		});
+	});
+	it('is null without a fair value', () => {
+		expect(parseEulerpoolFairValue({ isin: 'X', lastPrice: 5 }, 'USD')).toBeNull();
+	});
+	it('rejects a body that is not an object', () => {
+		for (const bad of [[], 'x', null]) expect(() => parseEulerpoolFairValue(bad, null)).toThrow(SourceError);
+	});
+});
+
+describe('parseEulerpoolQuality', () => {
+	it('maps the score and the figures behind it', () => {
+		expect(
+			parseEulerpoolQuality({
+				score: 10,
+				revenueGrowth10Y: 0.179,
+				revenueGrowth3Y: 0.155,
+				ebitGrowth10Y: 0.225,
+				ebitGrowth3Y: 0.201,
+				profitContinuity10Y: 10,
+				netDebtToEBIT: -2.05,
+				ebitMaxDrawdown10Y: -0.059,
+				returnOnEquity: 0.49,
+				roce: 0.43,
+				expectedReturn: 0.363
+			})
+		).toEqual({
+			score: 10,
+			revenueGrowth10Y: 0.179,
+			revenueGrowth3Y: 0.155,
+			ebitGrowth10Y: 0.225,
+			ebitGrowth3Y: 0.201,
+			profitContinuity10Y: 10,
+			netDebtToEbit: -2.05,
+			ebitMaxDrawdown10Y: -0.059,
+			returnOnEquity: 0.49,
+			roce: 0.43,
+			expectedReturn: 0.363
+		});
+	});
+	it('is null without a score, and null figures stay null', () => {
+		expect(parseEulerpoolQuality({ roce: 0.1 })).toBeNull();
+		expect(parseEulerpoolQuality({ score: 5 })).toMatchObject({ score: 5, roce: null, netDebtToEbit: null });
+	});
+	it('rejects a body that is not an object', () => {
+		expect(() => parseEulerpoolQuality([])).toThrow(SourceError);
 	});
 });
