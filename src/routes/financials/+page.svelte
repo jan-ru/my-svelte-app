@@ -10,8 +10,10 @@
 	import ProfileView from '#lib/components/ProfileView.svelte';
 	import SideLayout from '#lib/components/SideLayout.svelte';
 	import SideMenu from '#lib/components/SideMenu.svelte';
+	import SupplyChainView from '#lib/components/SupplyChainView.svelte';
 	import { SOURCES, effectivePeriod, isUsListing, periodAvailable, resolveSource, sourceLabel } from '#lib/source';
 	import { PERIODS, STATEMENTS, TABS, navHref } from '#lib/financials-nav';
+	import { parseSymbol } from '#lib/symbol';
 
 	let { data }: PageProps = $props();
 	const view = $derived(data.view);
@@ -148,6 +150,15 @@
 					peers={view.peers}
 					message={view.message}
 					hrefFor={(symbol: string) => navHref({ ...nav, period, tab: 'ratios' }, symbol)}
+				/>
+			{:else if view.state === 'supply'}
+				<SupplyChainView
+					chain={view.chain}
+					message={view.message}
+					hrefFor={(symbol: string) => {
+						const valid = parseSymbol(symbol);
+						return valid ? navHref({ ...nav, period, tab: 'financials' }, valid) : null;
+					}}
 				/>
 			{:else}
 				<FinancialTable title={view.title} table={view.table} message={view.message} target={view.target} />

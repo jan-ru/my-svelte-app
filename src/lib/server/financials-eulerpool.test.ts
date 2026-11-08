@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { Nav } from '../financials-nav';
-import type { PricePoint, Statement } from '../source-data';
+import type { PricePoint, Statement, SupplyChain } from '../source-data';
 import { eulerpoolFetchers, fetchersOf, keyOf, loadFinancials } from './financials';
 import type { StatementFetcher } from './financials';
 import { SourceError } from './source-error';
@@ -122,7 +122,81 @@ describe('fetchersOf and keyOf', () => {
 		expect([keyOf('fmp', keys), keyOf('eulerpool', keys), keyOf('yahoo', keys)]).toEqual(['F', 'E', '']);
 		expect(keyOf('eulerpool', {})).toBe('');
 	});
-	it('offers statements, profile and prices only', () => {
-		expect(Object.keys(eulerpoolFetchers).sort()).toEqual(['prices', 'profile', 'statement']);
+	it('offers statements, profile, prices and the supply chain only', () => {
+		expect(Object.keys(eulerpoolFetchers).sort()).toEqual(['prices', 'profile', 'statement', 'supplyChain']);
+	});
+});
+
+describe('supply chain tab', () => {
+	const chain: SupplyChain = {
+		total: 3,
+		suppliers: 2,
+		customers: 2,
+		both: 1,
+		links: [
+			{
+				symbol: 'TSM',
+				name: 'TSMC',
+				country: 'TW',
+				industry: 'Semiconductors',
+				supplier: true,
+				customer: false,
+				correlation1y: 0.8,
+				correlation3m: 0.7
+			}
+		]
+	};
+	const supply: Nav = { tab: 'supply', statement: 'income', period: 'annual', source: 'eulerpool' };
+	const withChain = (fetch: () => Promise<SupplyChain>) => {
+		const f = fakes();
+		return { ...f, eulerpool: { ...f.eulerpool, supplyChain: vi.fn(fetch) } };
+	};
+
+	it('shows the supply chain from Eulerpool with its key', async () => {
+		const f = withChain(async () => chain);
+		const view = await loadFinancials({ ...base, nav: supply, rawSymbol: 'aapl', ...f });
+		expect(view).toEqual({ state: 'supply', symbol: 'AAPL', chain, message: null });
+		expect(f.eulerpool.supplyChain).toHaveBeenCalledWith('AAPL', 'EKEY');
+	});
+	it('says it is Eulerpool only when another source is in use, without calling anyone', async () => {
+		const f = withChain(async () => chain);
+		const view = await loadFinancials({ ...base, nav: { ...supply, source: 'yahoo' }, rawSymbol: 'abn.as', ...f });
+		expect(view).toEqual({
+			state: 'supply',
+			symbol: 'ABN.AS',
+			chain: null,
+			message: 'The supply chain is only available from Eulerpool, not Yahoo Finance. Choose Eulerpool.'
+		});
+		const fmpView = await loadFinancials({ ...base, nav: { ...supply, source: undefined }, rawSymbol: 'aapl', ...f });
+		if (fmpView.state !== 'supply') throw new Error('expected supply');
+		expect(fmpView.message).toContain('not FMP');
+		expect(f.eulerpool.supplyChain).not.toHaveBeenCalled();
+	});
+	it('says so when Eulerpool lists no links', async () => {
+		const empty: SupplyChain = { total: 0, suppliers: 0, customers: 0, both: 0, links: [] };
+		const view = await loadFinancials({ ...base, nav: supply, ...withChain(async () => empty) });
+		expect(view).toEqual({
+			state: 'supply',
+			symbol: 'ABN.AS',
+			chain: null,
+			message: 'Eulerpool lists no suppliers or customers for ABN.AS.'
+		});
+	});
+	it('reports a failure without the key and keeps the log free of it', async () => {
+		const log = vi.spyOn(console, 'error').mockImplementation(() => {});
+		const f = withChain(async () => {
+			throw new SourceError('limit', 'x');
+		});
+		const view = await loadFinancials({ ...base, nav: supply, ...f });
+		if (view.state !== 'supply') throw new Error('expected supply');
+		expect(view.chain).toBeNull();
+		expect(view.message).toBe('Eulerpool rate limit reached. Try again in a minute.');
+		expect(log).toHaveBeenCalledWith('Eulerpool supply chain for ABN.AS failed (limit)');
+		expect(JSON.stringify(log.mock.calls)).not.toContain('EKEY');
+	});
+	it('needs the Eulerpool key like every Eulerpool view', async () => {
+		expect(
+			await loadFinancials({ ...base, nav: supply, eulerpoolKey: undefined, ...withChain(async () => chain) })
+		).toEqual({ state: 'unconfigured' });
 	});
 });

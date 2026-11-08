@@ -5,8 +5,10 @@ import {
 	parseEulerpoolPrices,
 	parseEulerpoolProfile,
 	parseEulerpoolQuality,
-	parseEulerpoolStatement
+	parseEulerpoolStatement,
+	parseEulerpoolSupplyChain
 } from './eulerpool-parse';
+import { SUPPLY_LIMIT } from '../source-data';
 import { SourceError } from './source-error';
 
 // Trimmed from real responses for AAPL (statements are in millions, oldest first, forecasts last).
@@ -317,5 +319,78 @@ describe('parseEulerpoolQuality', () => {
 	});
 	it('rejects a body that is not an object', () => {
 		expect(() => parseEulerpoolQuality([])).toThrow(SourceError);
+	});
+});
+
+describe('parseEulerpoolSupplyChain', () => {
+	const row = (symbol: string, o: Record<string, unknown> = {}) => ({
+		parentSymbol: 'AAPL',
+		name: `Name ${symbol}`,
+		symbol,
+		supplier: true,
+		customer: false,
+		country: 'US',
+		industry: 'Software',
+		oneYearCorrelation: 0.1,
+		threeMonthCorrelation: 0.2,
+		revenueFromParentPct: null,
+		...o
+	});
+
+	it('maps a link and counts suppliers, customers and both', () => {
+		const chain = parseEulerpoolSupplyChain([
+			row('A', { oneYearCorrelation: 0.5 }),
+			row('B', { supplier: false, customer: true }),
+			row('C', { supplier: true, customer: true })
+		]);
+		expect(chain).toMatchObject({ total: 3, suppliers: 2, customers: 2, both: 1 });
+		expect(chain.links[0]).toEqual({
+			symbol: 'A',
+			name: 'Name A',
+			country: 'US',
+			industry: 'Software',
+			supplier: true,
+			customer: false,
+			correlation1y: 0.5,
+			correlation3m: 0.2
+		});
+	});
+	it('lists the links by name and does not rank them by correlation', () => {
+		const chain = parseEulerpoolSupplyChain([
+			row('Z', { name: 'Zeta', oneYearCorrelation: 0.99 }),
+			row('B', { name: 'Beta', oneYearCorrelation: -0.9 }),
+			row('A2', { name: 'Alpha', oneYearCorrelation: null, threeMonthCorrelation: null }),
+			row('A1', { name: 'Alpha', oneYearCorrelation: 0.5 })
+		]);
+		expect(chain.links.map((l) => l.symbol)).toEqual(['A1', 'A2', 'B', 'Z']);
+	});
+	it('keeps at most SUPPLY_LIMIT links and counts all of them', () => {
+		const id = (i: number) => String(i).padStart(4, '0');
+		const rows = Array.from({ length: SUPPLY_LIMIT + 20 }, (_, i) => row(`S${id(i)}`, { name: `N${id(i)}` }));
+		const chain = parseEulerpoolSupplyChain(rows);
+		expect(chain.total).toBe(SUPPLY_LIMIT + 20);
+		expect(chain.links).toHaveLength(SUPPLY_LIMIT);
+		expect(chain.links[0]?.symbol).toBe('S0000');
+	});
+	it('skips rows without a symbol, a name or any relationship, and repeated symbols', () => {
+		const chain = parseEulerpoolSupplyChain([
+			row('OK'),
+			row('OK'),
+			{ ...row('X'), symbol: '' },
+			{ ...row('Y'), name: null, profileName: null },
+			row('Z', { supplier: false, customer: false }),
+			'junk',
+			null
+		]);
+		expect(chain.links.map((l) => l.symbol)).toEqual(['OK']);
+		expect(chain.total).toBe(1);
+	});
+	it('falls back to the profile name', () => {
+		const chain = parseEulerpoolSupplyChain([{ ...row('P'), name: null, profileName: 'Profile Name Ltd' }]);
+		expect(chain.links[0]?.name).toBe('Profile Name Ltd');
+	});
+	it('is empty for an empty list and rejects anything else', () => {
+		expect(parseEulerpoolSupplyChain([])).toEqual({ total: 0, suppliers: 0, customers: 0, both: 0, links: [] });
+		for (const body of [{}, 'x', null]) expect(() => parseEulerpoolSupplyChain(body)).toThrow(SourceError);
 	});
 });

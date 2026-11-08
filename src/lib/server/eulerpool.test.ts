@@ -5,7 +5,8 @@ import {
 	fetchEulerpoolPrices,
 	fetchEulerpoolProfile,
 	fetchEulerpoolQuality,
-	fetchEulerpoolStatement
+	fetchEulerpoolStatement,
+	fetchEulerpoolSupplyChain
 } from './eulerpool';
 import { MAX_BYTES } from './http';
 import { SourceError } from './source-error';
@@ -192,5 +193,29 @@ describe('fetchEulerpoolQuality', () => {
 	});
 	it('is null for an unknown security', async () => {
 		expect(await fetchEulerpoolQuality('NOPE', KEY, routes({}))).toBeNull();
+	});
+});
+
+describe('fetchEulerpoolSupplyChain', () => {
+	it('reads the links and keeps the shortlist', async () => {
+		const fetchFn = routes({
+			'equity/supply-chain/AAPL': () =>
+				json([{ name: 'TSMC', symbol: 'TSM', supplier: true, customer: false, oneYearCorrelation: 0.8 }])
+		});
+		expect(await fetchEulerpoolSupplyChain('AAPL', KEY, fetchFn)).toMatchObject({
+			total: 1,
+			suppliers: 1,
+			links: [{ symbol: 'TSM', correlation1y: 0.8 }]
+		});
+	});
+	it('is empty for a security with no links or one Eulerpool does not know', async () => {
+		const empty = routes({ 'equity/supply-chain/ASML.AS': () => json([]) });
+		expect((await fetchEulerpoolSupplyChain('ASML.AS', KEY, empty)).total).toBe(0);
+		expect((await fetchEulerpoolSupplyChain('NOPE', KEY, routes({}))).total).toBe(0);
+	});
+	it('accepts a large answer (Apple has about 400 KB)', async () => {
+		const rows = Array.from({ length: 900 }, (_, i) => ({ name: `Company ${i}`, symbol: `S${i}`, supplier: true }));
+		const fetchFn = routes({ 'equity/supply-chain/AAPL': () => json(rows) });
+		expect((await fetchEulerpoolSupplyChain('AAPL', KEY, fetchFn)).total).toBe(900);
 	});
 });

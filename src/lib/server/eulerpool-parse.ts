@@ -2,7 +2,8 @@
 // Pure parsers for Eulerpool responses. They take the parsed JSON body and return the shapes in `source-data.ts`.
 import type { FairValue, QualityScore } from '../insight';
 import { safeUrl } from '../safe-url';
-import type { Kind, PricePoint, Profile, Statement, StatementYear } from '../source-data';
+import { SUPPLY_LIMIT } from '../source-data';
+import type { Kind, PricePoint, Profile, Statement, StatementYear, SupplyChain, SupplyLink } from '../source-data';
 import { isRecord, num, str } from './coerce';
 import { SourceError } from './source-error';
 
@@ -195,5 +196,47 @@ export function parseEulerpoolQuality(body: unknown): QualityScore | null {
 		returnOnEquity: num(body.returnOnEquity),
 		roce: num(body.roce),
 		expectedReturn: num(body.expectedReturn)
+	};
+}
+
+function toSupplyLink(row: Readonly<Record<string, unknown>>): SupplyLink | null {
+	const symbol = str(row.symbol);
+	const name = str(row.name) ?? str(row.profileName);
+	const supplier = row.supplier === true;
+	const customer = row.customer === true;
+	if (!symbol || !name || (!supplier && !customer)) return null;
+	return {
+		symbol,
+		name,
+		country: str(row.country),
+		industry: str(row.industry),
+		supplier,
+		customer,
+		correlation1y: num(row.oneYearCorrelation),
+		correlation3m: num(row.threeMonthCorrelation)
+	};
+}
+
+const byName = (a: SupplyLink, b: SupplyLink): number =>
+	a.name.localeCompare(b.name) || a.symbol.localeCompare(b.symbol);
+
+/**
+ * The supply chain from `/equity/supply-chain`: every company Eulerpool links to this one, flagged as supplier and/or
+ * customer, with how its share price has moved with this one. Eulerpool gives no size for a relationship (the revenue
+ * share fields are empty) and its correlations do not rank real suppliers first (Apple's genuine suppliers mostly
+ * correlate negatively), so the links are listed by name, not ranked. At most `SUPPLY_LIMIT` are kept, which bounds
+ * what is cached.
+ */
+export function parseEulerpoolSupplyChain(body: unknown): SupplyChain {
+	if (!Array.isArray(body)) throw unexpected();
+	const links = body.filter(isRecord).flatMap((row) => toSupplyLink(row) ?? []);
+	const seen = new Set<string>();
+	const unique = links.filter((l) => !seen.has(l.symbol) && seen.add(l.symbol));
+	return {
+		total: unique.length,
+		suppliers: unique.filter((l) => l.supplier).length,
+		customers: unique.filter((l) => l.customer).length,
+		both: unique.filter((l) => l.supplier && l.customer).length,
+		links: unique.toSorted(byName).slice(0, SUPPLY_LIMIT)
 	};
 }
