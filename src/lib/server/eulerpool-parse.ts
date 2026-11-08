@@ -1,5 +1,6 @@
 // src/lib/server/eulerpool-parse.ts
 // Pure parsers for Eulerpool responses. They take the parsed JSON body and return the shapes in `source-data.ts`.
+import type { FairValue, QualityScore } from '../insight';
 import { safeUrl } from '../safe-url';
 import type { Kind, PricePoint, Profile, Statement, StatementYear } from '../source-data';
 import { isRecord, num, str } from './coerce';
@@ -156,4 +157,43 @@ export function parseEulerpoolPrices(body: unknown): PricePoint[] {
 		byDate.set(date, { date, close, volume: null });
 	}
 	return [...byDate.values()].sort((a, b) => a.date.localeCompare(b.date));
+}
+
+/**
+ * Eulerpool's fair value from `/fair-value/by-isin`. The amounts are per share in the listing's currency, which the
+ * response does not name, so the caller passes it. Null when there is no fair value.
+ */
+export function parseEulerpoolFairValue(body: unknown, currency: string | null): FairValue | null {
+	if (!isRecord(body)) throw unexpected();
+	const fairValue = num(body.fairValue);
+	if (fairValue === null) return null;
+	return {
+		fairValue,
+		income: num(body.fairValueIncome),
+		revenue: num(body.fairValueRevenue),
+		dividend: num(body.fairValueDividend),
+		lastPrice: num(body.lastPrice),
+		upside: num(body.upside),
+		currency
+	};
+}
+
+/** The AAQS quality score from `/equity/aaqs`. Null when there is no score. */
+export function parseEulerpoolQuality(body: unknown): QualityScore | null {
+	if (!isRecord(body)) throw unexpected();
+	const score = num(body.score);
+	if (score === null) return null;
+	return {
+		score,
+		revenueGrowth10Y: num(body.revenueGrowth10Y),
+		revenueGrowth3Y: num(body.revenueGrowth3Y),
+		ebitGrowth10Y: num(body.ebitGrowth10Y),
+		ebitGrowth3Y: num(body.ebitGrowth3Y),
+		profitContinuity10Y: num(body.profitContinuity10Y),
+		netDebtToEbit: num(body.netDebtToEBIT),
+		ebitMaxDrawdown10Y: num(body.ebitMaxDrawdown10Y),
+		returnOnEquity: num(body.returnOnEquity),
+		roce: num(body.roce),
+		expectedReturn: num(body.expectedReturn)
+	};
 }

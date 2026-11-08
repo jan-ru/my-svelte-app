@@ -5,6 +5,7 @@
 	import BandOverrides from '#lib/components/BandOverrides.svelte';
 	import CompanyFigures from '#lib/components/CompanyFigures.svelte';
 	import FootballField from '#lib/components/FootballField.svelte';
+	import InsightPanel from '#lib/components/InsightPanel.svelte';
 	import LoginPrompt from '#lib/components/LoginPrompt.svelte';
 	import MultiplesTable from '#lib/components/MultiplesTable.svelte';
 	import PeerPicker from '#lib/components/PeerPicker.svelte';
@@ -142,6 +143,7 @@
 				<p class="error" role="alert">{view.message}</p>
 			{/if}
 			{#if view.company}<CompanyFigures figures={view.company} />{/if}
+			{#if view.insight}<InsightPanel insight={view.insight} symbol={view.symbol} />{/if}
 			{#if view.result}
 				{#if view.peers.length > 0 || sectorLabel}
 					<MultiplesTable peers={view.peers} benchmarks={view.result.benchmarks} {sectorLabel} />

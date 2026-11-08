@@ -4,9 +4,11 @@ import { describe, expect, it } from 'vitest';
 import { valuationView } from '../valuation';
 import type { CompanyFigures, PeerRow } from '../valuation-data';
 import { fieldModel } from '../football-field';
+import type { Insight } from '../insight';
 import BandOverrides from './BandOverrides.svelte';
 import CompanyFiguresView from './CompanyFigures.svelte';
 import FootballField from './FootballField.svelte';
+import InsightPanel from './InsightPanel.svelte';
 import MultiplesTable from './MultiplesTable.svelte';
 import PeerPicker from './PeerPicker.svelte';
 import ValuationTable from './ValuationTable.svelte';
@@ -18,6 +20,7 @@ const html = <C extends Component<any>>(component: C, props: ComponentProps<C>):
 	(render as unknown as Renderer)(component, { props }).body;
 const text = (body: string) =>
 	body
+		.replaceAll('\u00a0', ' ')
 		.replace(/<!--[^]*?-->/g, '')
 		.replace(/<[^>]+>/g, ' ')
 		.replace(/\s+/g, ' ');
@@ -148,5 +151,66 @@ describe('BandOverrides', () => {
 		expect(body).toMatch(/name="hi\.ps"[^>]*value="5"/);
 		expect(body).toMatch(/name="lo\.pbv"[^>]*placeholder=""/);
 		expect(text(body)).toContain('manual');
+	});
+});
+
+describe('InsightPanel', () => {
+	const full: Insight = {
+		fairValue: {
+			fairValue: 1342.11,
+			income: 1342.11,
+			revenue: 1141.36,
+			dividend: 1347.73,
+			lastPrice: 1283.6,
+			upside: 4.56,
+			currency: 'EUR'
+		},
+		quality: {
+			score: 10,
+			revenueGrowth10Y: 0.179,
+			revenueGrowth3Y: 0.155,
+			ebitGrowth10Y: 0.225,
+			ebitGrowth3Y: 0.201,
+			profitContinuity10Y: 10,
+			netDebtToEbit: -2.05,
+			ebitMaxDrawdown10Y: -0.059,
+			returnOnEquity: 0.49,
+			roce: 0.43,
+			expectedReturn: 0.363
+		},
+		message: null
+	};
+	const panel = (insight: Insight) => text(html(InsightPanel, { insight, symbol: 'ASML.AS' }));
+
+	it('shows the fair value, each method, the last price and what the upside means', () => {
+		const out = panel(full);
+		expect(out).toContain("Eulerpool's view of ASML.AS");
+		expect(out).toContain('EUR 1,342.11');
+		expect(out).toContain('+4.6% (price below fair value)');
+		for (const row of ['Income based', 'Revenue based', 'Dividend based', 'Last price']) expect(out).toContain(row);
+		expect(out).toContain('EUR 1,141.36');
+	});
+	it('shows the quality score out of ten with the figures behind it', () => {
+		const out = panel(full);
+		expect(out).toContain('Quality score (AAQS)');
+		expect(out).toMatch(/10\s+out of 10/);
+		expect(out).toContain('Return on equity 49.0%');
+		expect(out).toContain('Net debt to EBIT -2.0×');
+	});
+	it('credits Eulerpool and says it does not feed the valuation', () => {
+		const body = html(InsightPanel, { insight: full, symbol: 'ASML.AS' });
+		expect(body).toContain('href="https://eulerpool.com"');
+		expect(text(body)).toContain('do not feed the valuation');
+	});
+	it('shows a part that is there and the reason for the one that is not', () => {
+		const out = panel({ ...full, quality: null, message: 'Eulerpool has no quality score for ASML.AS.' });
+		expect(out).toContain('Fair value per share');
+		expect(out).not.toContain('Quality score (AAQS)');
+		expect(out).toContain('Eulerpool has no quality score for ASML.AS.');
+	});
+	it('shows only the message when there is nothing', () => {
+		const out = panel({ fairValue: null, quality: null, message: 'Eulerpool is unavailable right now for X.' });
+		expect(out).toContain('Eulerpool is unavailable right now for X.');
+		expect(out).not.toContain('Fair value per share');
 	});
 });

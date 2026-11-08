@@ -1,11 +1,14 @@
 // src/lib/server/eulerpool.ts
 // Eulerpool (https://eulerpool.com): statements, company profile and daily prices. I/O only; parsing is in eulerpool-parse.ts.
+import type { FairValue, QualityScore } from '../insight';
 import type { Kind, PricePoint, Profile, Statement } from '../source-data';
 import { FETCH_TIMEOUT_MS, MAX_BYTES, readCapped } from './http';
 import {
 	parseEulerpoolCurrency,
+	parseEulerpoolFairValue,
 	parseEulerpoolPrices,
 	parseEulerpoolProfile,
+	parseEulerpoolQuality,
 	parseEulerpoolStatement
 } from './eulerpool-parse';
 import { SourceError } from './source-error';
@@ -105,4 +108,27 @@ export async function fetchEulerpoolPrices(
 ): Promise<PricePoint[]> {
 	const body = await eulerpoolGet(`equity/candles/${id(symbol)}`, apiKey, { range: '1y' }, fetchFn);
 	return body === undefined ? [] : parseEulerpoolPrices(body);
+}
+
+/** Eulerpool's fair value per share, in the currency of the listing (from the overview, which the response lacks). */
+export async function fetchEulerpoolFairValue(
+	symbol: string,
+	apiKey: string,
+	fetchFn: typeof fetch = fetch
+): Promise<FairValue | null> {
+	const [body, currency] = await Promise.all([
+		eulerpoolGet(`fair-value/by-isin/${id(symbol)}`, apiKey, {}, fetchFn),
+		currencyOf(symbol, apiKey, fetchFn)
+	]);
+	return body === undefined ? null : parseEulerpoolFairValue(body, currency);
+}
+
+/** Eulerpool's AAQS quality score. */
+export async function fetchEulerpoolQuality(
+	symbol: string,
+	apiKey: string,
+	fetchFn: typeof fetch = fetch
+): Promise<QualityScore | null> {
+	const body = await eulerpoolGet(`equity/aaqs/${id(symbol)}`, apiKey, {}, fetchFn);
+	return body === undefined ? null : parseEulerpoolQuality(body);
 }
