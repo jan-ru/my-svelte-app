@@ -2,13 +2,14 @@ import { render } from 'svelte/server';
 import type { Component, ComponentProps } from 'svelte';
 import { describe, expect, it } from 'vitest';
 import { formatPrice, summarise } from '../prices';
-import type { NewsItem, Peer, PricePoint, PriceTarget, Profile } from '../source-data';
+import type { NewsItem, Peer, PricePoint, PriceTarget, Profile, SupplyChain } from '../source-data';
 import type { StatementTable } from '../statements';
 import FinancialTable from './FinancialTable.svelte';
 import NewsList from './NewsList.svelte';
 import PeersList from './PeersList.svelte';
 import PriceView from './PriceView.svelte';
 import ProfileView from './ProfileView.svelte';
+import SupplyChainView from './SupplyChainView.svelte';
 
 type Renderer = (component: unknown, options: { props: unknown }) => { body: string };
 
@@ -182,5 +183,67 @@ describe('FinancialTable', () => {
 				'Price target'
 			);
 		}
+	});
+});
+
+describe('SupplyChainView', () => {
+	const plain = (body: string) =>
+		body
+			.replace(/<!--[^]*?-->/g, '')
+			.replace(/<[^>]+>/g, ' ')
+			.replace(/\s+/g, ' ');
+	const chain: SupplyChain = {
+		total: 3,
+		suppliers: 2,
+		customers: 2,
+		both: 1,
+		links: [
+			{
+				symbol: 'TSM',
+				name: 'Taiwan Semiconductor',
+				country: 'TW',
+				industry: 'Semiconductors',
+				supplier: true,
+				customer: false,
+				correlation1y: 0.81,
+				correlation3m: -0.2
+			},
+			{
+				symbol: 'A&B',
+				name: 'Odd <Ticker> Co',
+				country: null,
+				industry: null,
+				supplier: true,
+				customer: true,
+				correlation1y: null,
+				correlation3m: null
+			}
+		]
+	};
+	const hrefFor = (symbol: string) => (symbol === 'A&B' ? null : `/financials?symbol=${symbol}`);
+
+	it('lists each company with what it is, where, its industry and both correlations', () => {
+		const out = plain(html(SupplyChainView, { chain, message: null, hrefFor }));
+		expect(out).toContain('Eulerpool lists 3 linked companies: 2 suppliers, 2 customers; 1 is both.');
+		expect(out).toContain('Taiwan Semiconductor TSM Supplier TW Semiconductors +0.81 −0.20');
+		expect(out).toContain('Supplier and customer n/a n/a n/a n/a');
+	});
+	it('links a company whose ticker is usable and leaves the others as text, escaping names', () => {
+		const body = html(SupplyChainView, { chain, message: null, hrefFor });
+		expect(body).toContain('<a href="/financials?symbol=TSM">Taiwan Semiconductor</a>');
+		expect(body).not.toContain('href="/financials?symbol=A&amp;B"');
+		expect(body).toContain('Odd &lt;Ticker');
+		expect(body).not.toContain('<Ticker');
+	});
+	it('warns that the list is leads to check, not a verified supply chain, and not ranked by size', () => {
+		const out = plain(html(SupplyChainView, { chain, message: null, hrefFor }));
+		expect(out).toContain('Treat this as a list of leads, not a verified supply chain');
+		expect(out).toContain('gives no size for any relationship');
+		expect(out).toContain('It is listed by name');
+	});
+	it('shows only the message when there is no supply chain', () => {
+		const out = plain(html(SupplyChainView, { chain: null, message: 'Eulerpool lists no suppliers.', hrefFor }));
+		expect(out).toContain('Eulerpool lists no suppliers.');
+		expect(out).not.toContain('Company Relationship');
 	});
 });

@@ -53,6 +53,7 @@ describe('every tab', () => {
 			estimates: 'ready',
 			earnings: 'ready',
 			peers: 'peers',
+			supply: 'supply',
 			news: 'news',
 			price: 'price',
 			company: 'profile'

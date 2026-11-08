@@ -6,9 +6,14 @@ import type { Nav, Period, Tab } from '../financials-nav';
 import { oneYearWindow } from '../prices';
 import { effectivePeriod, resolveSource, sourceKeyName, sourceLabel } from '../source';
 import type { Source } from '../source';
-import type { Kind, NewsItem, Peer, PricePoint, PriceTarget, Profile, Statement } from '../source-data';
+import type { Kind, NewsItem, Peer, PricePoint, PriceTarget, Profile, Statement, SupplyChain } from '../source-data';
 import { cached } from './cache';
-import { fetchEulerpoolPrices, fetchEulerpoolProfile, fetchEulerpoolStatement } from './eulerpool';
+import {
+	fetchEulerpoolPrices,
+	fetchEulerpoolProfile,
+	fetchEulerpoolStatement,
+	fetchEulerpoolSupplyChain
+} from './eulerpool';
 import { fetchEarnings, fetchEstimates, fetchRatios, fetchStatement } from './fmp';
 import { fetchNews, fetchPeers, fetchPriceTarget, fetchPrices, fetchProfile } from './fmp-info';
 import { failureKind, sourceFailureMessage } from './source-error';
@@ -23,6 +28,7 @@ export type PeersFetcher = (symbol: string, apiKey: string) => Promise<Peer[]>;
 export type ProfileFetcher = (symbol: string, apiKey: string) => Promise<Profile | null>;
 export type NewsFetcher = (symbol: string, apiKey: string) => Promise<NewsItem[]>;
 export type PricesFetcher = (symbol: string, apiKey: string) => Promise<PricePoint[]>;
+export type SupplyChainFetcher = (symbol: string, apiKey: string) => Promise<SupplyChain>;
 
 /** One complete set of fetchers per source; a view uses exactly one set. */
 export interface SourceFetchers {
@@ -37,6 +43,8 @@ export interface SourceFetchers {
 	priceTarget?: PriceTargetFetcher;
 	earnings?: RatiosFetcher;
 	peers?: PeersFetcher;
+	/** Eulerpool only; the tab says so for any other source. */
+	supplyChain?: SupplyChainFetcher;
 }
 
 export type FinancialsView =
@@ -53,6 +61,7 @@ export type FinancialsView =
 			target?: PriceTarget | null;
 	  }
 	| { state: 'peers'; symbol: string; peers: Peer[]; message: string | null }
+	| { state: 'supply'; symbol: string; chain: SupplyChain | null; message: string | null }
 	| { state: 'profile'; symbol: string; profile: Profile | null; message: string | null }
 	| { state: 'news'; symbol: string; items: NewsItem[]; message: string | null }
 	| { state: 'price'; symbol: string; points: PricePoint[]; message: string | null };
@@ -114,11 +123,12 @@ export const yahooFetchers: SourceFetchers = {
 	})
 };
 
-/** Everything Eulerpool serves: statements (annual only), profile and prices. Ratios, estimates, earnings, peers and news are not offered. */
+/** Everything Eulerpool serves: statements (annual only), profile, prices and the supply chain. Ratios, estimates, earnings, peers and news are not offered. */
 export const eulerpoolFetchers: SourceFetchers = {
 	statement: cached(DAY_MS, byStatement, (kind, symbol, apiKey) => fetchEulerpoolStatement(kind, symbol, apiKey)),
 	profile: cached(PROFILE_TTL_MS, bySymbol, (symbol, apiKey) => fetchEulerpoolProfile(symbol, apiKey)),
-	prices: cached(PRICES_TTL_MS, bySymbol, (symbol, apiKey) => fetchEulerpoolPrices(symbol, apiKey))
+	prices: cached(PRICES_TTL_MS, bySymbol, (symbol, apiKey) => fetchEulerpoolPrices(symbol, apiKey)),
+	supplyChain: cached(DAY_MS, bySymbol, (symbol, apiKey) => fetchEulerpoolSupplyChain(symbol, apiKey))
 };
 
 /** The fetchers of a source, with single members replaced (tests inject these). */
@@ -202,6 +212,25 @@ async function loadPrices(ctx: TabContext): Promise<FinancialsView> {
 		symbol,
 		points,
 		message: error ?? (points.length ? null : `No price history found for ${symbol}.`)
+	};
+}
+
+async function loadSupply(ctx: TabContext): Promise<FinancialsView> {
+	const { symbol, apiKey, source, fetchers } = ctx;
+	const fetchChain = fetchers.supplyChain;
+	if (!fetchChain) {
+		const message = `The supply chain is only available from Eulerpool, not ${sourceLabel(source)}. Choose Eulerpool.`;
+		return { state: 'supply', symbol, chain: null, message };
+	}
+	const { value, error } = await attempt<SupplyChain | null>('supply chain', ctx, null, () =>
+		fetchChain(symbol, apiKey)
+	);
+	const chain = value && value.total > 0 ? value : null;
+	return {
+		state: 'supply',
+		symbol,
+		chain,
+		message: error ?? (chain ? null : `Eulerpool lists no suppliers or customers for ${symbol}.`)
 	};
 }
 
@@ -310,6 +339,7 @@ const TAB_LOADERS: Record<Tab, TabLoader> = {
 	}),
 	earnings: fmpTable({ what: 'Earnings', title: 'Earnings', fetcher: (f) => f.earnings, format: formatEstimate }),
 	peers: loadPeers,
+	supply: loadSupply,
 	news: loadNews,
 	price: loadPrices,
 	company: loadProfile

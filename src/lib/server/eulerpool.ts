@@ -1,7 +1,7 @@
 // src/lib/server/eulerpool.ts
 // Eulerpool (https://eulerpool.com): statements, company profile and daily prices. I/O only; parsing is in eulerpool-parse.ts.
 import type { FairValue, QualityScore } from '../insight';
-import type { Kind, PricePoint, Profile, Statement } from '../source-data';
+import type { Kind, PricePoint, Profile, Statement, SupplyChain } from '../source-data';
 import { FETCH_TIMEOUT_MS, MAX_BYTES, readCapped } from './http';
 import {
 	parseEulerpoolCurrency,
@@ -9,7 +9,8 @@ import {
 	parseEulerpoolPrices,
 	parseEulerpoolProfile,
 	parseEulerpoolQuality,
-	parseEulerpoolStatement
+	parseEulerpoolStatement,
+	parseEulerpoolSupplyChain
 } from './eulerpool-parse';
 import { SourceError } from './source-error';
 
@@ -131,4 +132,14 @@ export async function fetchEulerpoolQuality(
 ): Promise<QualityScore | null> {
 	const body = await eulerpoolGet(`equity/aaqs/${id(symbol)}`, apiKey, {}, fetchFn);
 	return body === undefined ? null : parseEulerpoolQuality(body);
+}
+
+/** The companies Eulerpool links to this one as suppliers or customers; empty when it has none (it covers little outside the US). */
+export async function fetchEulerpoolSupplyChain(
+	symbol: string,
+	apiKey: string,
+	fetchFn: typeof fetch = fetch
+): Promise<SupplyChain> {
+	const body = await eulerpoolGet(`equity/supply-chain/${id(symbol)}`, apiKey, {}, fetchFn);
+	return parseEulerpoolSupplyChain(body === undefined ? [] : body);
 }

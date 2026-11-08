@@ -6,6 +6,7 @@ export const TABS = [
 	{ id: 'estimates', label: 'Estimates' },
 	{ id: 'earnings', label: 'Earnings' },
 	{ id: 'peers', label: 'Peers' },
+	{ id: 'supply', label: 'Supply chain' },
 	{ id: 'news', label: 'News' },
 	{ id: 'price', label: 'Stock Price' },
 	{ id: 'company', label: 'Company Data' }
