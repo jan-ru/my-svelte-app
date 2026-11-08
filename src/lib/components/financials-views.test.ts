@@ -241,6 +241,16 @@ describe('SupplyChainView', () => {
 		expect(out).toContain('gives no size for any relationship');
 		expect(out).toContain('It is listed by name');
 	});
+	it('says it is a test, with or without data', () => {
+		for (const props of [
+			{ chain, message: null, hrefFor },
+			{ chain: null, message: 'Eulerpool lists no suppliers.', hrefFor }
+		]) {
+			const out = plain(html(SupplyChainView, props));
+			expect(out).toContain('Test. This tab is an experiment');
+			expect(out).toContain('may change or be removed');
+		}
+	});
 	it('shows only the message when there is no supply chain', () => {
 		const out = plain(html(SupplyChainView, { chain: null, message: 'Eulerpool lists no suppliers.', hrefFor }));
 		expect(out).toContain('Eulerpool lists no suppliers.');

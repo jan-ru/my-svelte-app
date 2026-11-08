@@ -9,6 +9,10 @@
 	}: { chain: SupplyChain | null; message: string | null; hrefFor: (symbol: string) => string | null } = $props();
 </script>
 
+<p class="test" role="note">
+	<strong>Test.</strong> This tab is an experiment to see whether Eulerpool's supply chain data is useful. It may change or
+	be removed.
+</p>
 {#if chain}
 	<p class="summary">{describeSupplyChain(chain)}</p>
 	<p class="meta">
@@ -53,6 +57,15 @@
 {/if}
 
 <style>
+	.test {
+		margin: 0 0 var(--space-3);
+		padding: var(--space-2) var(--space-3);
+		border: 1px solid var(--border-subtle);
+		border-left-width: 4px;
+		border-radius: var(--radius-md);
+		background: var(--surface-card);
+		font-size: var(--text-sm);
+	}
 	.summary {
 		margin: 0 0 var(--space-1);
 	}
