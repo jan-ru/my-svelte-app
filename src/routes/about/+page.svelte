@@ -32,7 +32,7 @@
 		<dt><a href="/financials">Financials</a></dt>
 		<dd>
 			Financial statements, ratios, estimates, news, prices and the company profile of one listed company, from
-			Financial Modeling Prep or Yahoo Finance. Needs a login.
+			Financial Modeling Prep, Yahoo Finance or Eulerpool. Needs a login.
 		</dd>
 		<dt><a href="/financials/valuation">Valuation</a></dt>
 		<dd>

@@ -233,6 +233,36 @@ describe('loadValuation for a private company', () => {
 	});
 });
 
+describe('loadValuation with Eulerpool', () => {
+	it('takes the company and its peers from Eulerpool when asked, with its own key', async () => {
+		const log: string[] = [];
+		const view = await run('symbol=AAPL&peer=MSFT&source=eulerpool', {
+			apiKey: undefined,
+			eulerpoolKey: 'EKEY',
+			eulerpool: fetchers(log),
+			fmp: fetchers(['fmp-was-used']),
+			yahoo: fetchers(['yahoo-was-used'])
+		});
+		if (view.state !== 'ready') throw new Error(view.state);
+		expect(view.source).toBe('eulerpool');
+		expect(view.company?.origin).toBe('eulerpool');
+		expect(log).toContain('income:AAPL');
+		expect(log).toContain('income:MSFT');
+		expect(view.peers[0]?.message).toBeNull();
+	});
+	it('is unconfigured without the Eulerpool key, whatever FMP has', async () => {
+		expect(await run('symbol=AAPL&source=eulerpool', { eulerpoolKey: undefined })).toEqual({ state: 'unconfigured' });
+	});
+	it('says which key is missing for a peer', async () => {
+		const view = await run('symbol=AAPL&peer=MSFT&source=eulerpool', { eulerpoolKey: 'EKEY', apiKey: undefined });
+		if (view.state !== 'ready') throw new Error(view.state);
+		expect(view.peers).toHaveLength(1);
+		const none = await run('symbol=AAPL&peer=MSFT', { apiKey: 'KEY', eulerpoolKey: undefined });
+		if (none.state !== 'ready') throw new Error(none.state);
+		expect(none.peers[0]?.message).toBeNull();
+	});
+});
+
 describe('loadSector', () => {
 	it('reads one region and industry from the Damodaran comparison', async () => {
 		expect(await loadSector(['ev_ebitda', 'ps'], 'europe', 'Semiconductor')).toEqual({ ev_ebitda: 14, ps: null });

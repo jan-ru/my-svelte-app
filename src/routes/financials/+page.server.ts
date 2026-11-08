@@ -1,4 +1,4 @@
-import { FMP_API_KEY, ISR_BYPASS_TOKEN, SESSION_SECRET, SITE_PASSWORD } from '$app/env/private';
+import { EULERPOOL_API_KEY, FMP_API_KEY, ISR_BYPASS_TOKEN, SESSION_SECRET, SITE_PASSWORD } from '$app/env/private';
 import { BYPASS_COOKIE, bypassToRestore, sessionCookieOptions } from '#lib/server/access';
 import { redirect } from '@sveltejs/kit';
 import { parseNav } from '#lib/financials-nav';
@@ -21,6 +21,12 @@ export const load: PageServerLoad = async ({ locals, url, setHeaders, cookies })
 		configured: Boolean(SITE_PASSWORD && SESSION_SECRET),
 		nav,
 		symbol: (rawSymbol && parseSymbol(rawSymbol)) || '',
-		view: await loadFinancials({ authed: locals.authed, nav, rawSymbol, apiKey: FMP_API_KEY })
+		view: await loadFinancials({
+			authed: locals.authed,
+			nav,
+			rawSymbol,
+			apiKey: FMP_API_KEY,
+			eulerpoolKey: EULERPOOL_API_KEY
+		})
 	};
 };

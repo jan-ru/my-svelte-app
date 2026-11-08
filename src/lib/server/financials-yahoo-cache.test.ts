@@ -25,10 +25,10 @@ describe('Yahoo caches', () => {
 		await yahooFetchers.prices('YA.AS', '');
 		await yahooFetchers.prices('YB.AS', '');
 		expect(yahoo.fetchYahooPrices).toHaveBeenCalledTimes(2);
-		await yahooFetchers.news('YA.AS', '');
+		await yahooFetchers.news?.('YA.AS', '');
 		await yahooFetchers.profile('YA.AS', '');
 		vi.setSystemTime(Date.now() + NEWS_TTL_MS + 1000);
-		await yahooFetchers.news('YA.AS', '');
+		await yahooFetchers.news?.('YA.AS', '');
 		await yahooFetchers.profile('YA.AS', '');
 		await yahooFetchers.prices('YA.AS', '');
 		expect(yahoo.fetchYahooNews).toHaveBeenCalledTimes(2);

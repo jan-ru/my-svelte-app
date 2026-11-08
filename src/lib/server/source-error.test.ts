@@ -21,6 +21,12 @@ describe('sourceFailureMessage', () => {
 	])('says what went wrong for %s', (error, message) => {
 		expect(sourceFailureMessage(error, 'AAPL', 'FMP')).toBe(message);
 	});
+	it('names the key of the source that rejected it', () => {
+		const error = new SourceError('config', 'x');
+		expect(sourceFailureMessage(error, 'AAPL', 'Eulerpool', 'EULERPOOL_API_KEY')).toBe(
+			'The Eulerpool key was not accepted. Check EULERPOOL_API_KEY.'
+		);
+	});
 	it('never shows the text of an error that is not a SourceError', () => {
 		const message = sourceFailureMessage(new Error('https://example.com/?apikey=secret'), 'AAPL', 'FMP');
 		expect(message).toBe('FMP is unavailable right now for AAPL. Try again shortly.');

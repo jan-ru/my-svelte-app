@@ -4,10 +4,11 @@ import { buildTable, formatEstimate, formatRatio } from '../statements';
 import type { StatementTable } from '../statements';
 import type { Nav, Period, Tab } from '../financials-nav';
 import { oneYearWindow } from '../prices';
-import { effectivePeriod, resolveSource, sourceLabel } from '../source';
+import { effectivePeriod, resolveSource, sourceKeyName, sourceLabel } from '../source';
 import type { Source } from '../source';
 import type { Kind, NewsItem, Peer, PricePoint, PriceTarget, Profile, Statement } from '../source-data';
 import { cached } from './cache';
+import { fetchEulerpoolPrices, fetchEulerpoolProfile, fetchEulerpoolStatement } from './eulerpool';
 import { fetchEarnings, fetchEstimates, fetchRatios, fetchStatement } from './fmp';
 import { fetchNews, fetchPeers, fetchPriceTarget, fetchPrices, fetchProfile } from './fmp-info';
 import { failureKind, sourceFailureMessage } from './source-error';
@@ -27,9 +28,10 @@ export type PricesFetcher = (symbol: string, apiKey: string) => Promise<PricePoi
 export interface SourceFetchers {
 	statement: StatementFetcher;
 	profile: ProfileFetcher;
-	news: NewsFetcher;
 	prices: PricesFetcher;
-	/** Absent for a source that lacks them (Yahoo); the view then says so. */
+	/** Absent for a source that lacks them (Eulerpool has no company news); the view then says so. */
+	news?: NewsFetcher;
+	/** Absent for a source that lacks them (Yahoo, Eulerpool); the view then says so. */
 	ratios?: RatiosFetcher;
 	estimates?: RatiosFetcher;
 	priceTarget?: PriceTargetFetcher;
@@ -112,9 +114,33 @@ export const yahooFetchers: SourceFetchers = {
 	})
 };
 
+/** Everything Eulerpool serves: statements (annual only), profile and prices. Ratios, estimates, earnings, peers and news are not offered. */
+export const eulerpoolFetchers: SourceFetchers = {
+	statement: cached(DAY_MS, byStatement, (kind, symbol, apiKey) => fetchEulerpoolStatement(kind, symbol, apiKey)),
+	profile: cached(PROFILE_TTL_MS, bySymbol, (symbol, apiKey) => fetchEulerpoolProfile(symbol, apiKey)),
+	prices: cached(PRICES_TTL_MS, bySymbol, (symbol, apiKey) => fetchEulerpoolPrices(symbol, apiKey))
+};
+
+/** The fetchers of a source, with single members replaced (tests inject these). */
+export function fetchersOf(
+	source: Source,
+	overrides: Partial<Record<Source, Partial<SourceFetchers>>> = {}
+): SourceFetchers {
+	const base = source === 'fmp' ? fmpFetchers : source === 'eulerpool' ? eulerpoolFetchers : yahooFetchers;
+	return { ...base, ...overrides[source] };
+}
+
+/** The API key a source needs, or an empty string for a source without one. */
+export function keyOf(
+	source: Source,
+	keys: { readonly fmp?: string | undefined; readonly eulerpool?: string | undefined }
+): string {
+	return source === 'fmp' ? (keys.fmp ?? '') : source === 'eulerpool' ? (keys.eulerpool ?? '') : '';
+}
+
 function failure(what: string, symbol: string, error: unknown, source: Source): string {
 	console.error(`${sourceLabel(source)} ${what} for ${symbol} failed (${failureKind(error)})`);
-	return sourceFailureMessage(error, symbol, sourceLabel(source));
+	return sourceFailureMessage(error, symbol, sourceLabel(source), sourceKeyName(source) ?? undefined);
 }
 
 /** What a tab loader needs: the ticker, the key, the one source that serves this view and that source's fetchers. */
@@ -153,8 +179,13 @@ async function loadProfile(ctx: TabContext): Promise<FinancialsView> {
 }
 
 async function loadNews(ctx: TabContext): Promise<FinancialsView> {
-	const { symbol, apiKey, fetchers } = ctx;
-	const { value: items, error } = await attempt('news', ctx, [], () => fetchers.news(symbol, apiKey));
+	const { symbol, apiKey, source, fetchers } = ctx;
+	const fetchNews = fetchers.news;
+	if (!fetchNews) {
+		const message = `${sourceLabel(source)} has no company news. Choose FMP or Yahoo Finance.`;
+		return { state: 'news', symbol, items: [], message };
+	}
+	const { value: items, error } = await attempt('news', ctx, [], () => fetchNews(symbol, apiKey));
 	return {
 		state: 'news',
 		symbol,
@@ -289,25 +320,27 @@ export async function loadFinancials(input: {
 	nav: Nav;
 	rawSymbol: string | null;
 	apiKey: string | undefined;
-	/** Replace single FMP or Yahoo fetchers (tests inject these). */
+	/** The Eulerpool key; `apiKey` is FMP's. */
+	eulerpoolKey?: string | undefined;
+	/** Replace single fetchers of a source (tests inject these). */
 	fmp?: Partial<SourceFetchers>;
 	yahoo?: Partial<SourceFetchers>;
+	eulerpool?: Partial<SourceFetchers>;
 }): Promise<FinancialsView> {
 	if (!input.authed) return { state: 'locked' };
 	const symbol = parseSymbol(input.rawSymbol);
 	const source = resolveSource(input.nav.source, symbol ?? '');
-	// only FMP needs the key; Yahoo works without one
-	if (source === 'fmp' && !input.apiKey) return { state: 'unconfigured' };
+	// FMP and Eulerpool need a key; Yahoo works without one
+	const apiKey = keyOf(source, { fmp: input.apiKey, eulerpool: input.eulerpoolKey });
+	if (sourceKeyName(source) !== null && !apiKey) return { state: 'unconfigured' };
 	if (!input.rawSymbol?.trim()) return { state: 'idle' };
 	if (!symbol) return { state: 'invalid' };
 
-	const fetchers: SourceFetchers =
-		source === 'fmp' ? { ...fmpFetchers, ...input.fmp } : { ...yahooFetchers, ...input.yahoo };
 	return TAB_LOADERS[input.nav.tab]({
 		symbol,
-		apiKey: source === 'fmp' ? (input.apiKey ?? '') : '',
+		apiKey,
 		source,
-		fetchers,
+		fetchers: fetchersOf(source, { fmp: input.fmp, yahoo: input.yahoo, eulerpool: input.eulerpool }),
 		nav: input.nav
 	});
 }

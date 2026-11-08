@@ -6,6 +6,7 @@ import {
 	parseSource,
 	periodAvailable,
 	resolveSource,
+	sourceKeyName,
 	sourceLabel
 } from './source';
 
@@ -21,9 +22,10 @@ describe('isUsListing', () => {
 });
 
 describe('parseSource', () => {
-	it('accepts the two sources and ignores everything else', () => {
+	it('accepts the three sources and ignores everything else', () => {
 		expect(parseSource('fmp')).toBe('fmp');
 		expect(parseSource('yahoo')).toBe('yahoo');
+		expect(parseSource('eulerpool')).toBe('eulerpool');
 		expect(parseSource('YAHOO')).toBeUndefined();
 		expect(parseSource('bloomberg')).toBeUndefined();
 		expect(parseSource(null)).toBeUndefined();
@@ -43,6 +45,24 @@ describe('resolveSource', () => {
 	});
 });
 
+describe('resolveSource with Eulerpool', () => {
+	it('serves any ticker, US or not, but only when it is asked for', () => {
+		expect(resolveSource('eulerpool', 'AAPL')).toBe('eulerpool');
+		expect(resolveSource('eulerpool', 'ABN.AS')).toBe('eulerpool');
+		expect(resolveSource(undefined, 'AAPL')).toBe('fmp');
+		expect(resolveSource(undefined, 'ABN.AS')).toBe('yahoo');
+	});
+});
+
+describe('sourceKeyName and sourceLabel', () => {
+	it('names the environment variable of each key, and none for Yahoo', () => {
+		expect(sourceKeyName('fmp')).toBe('FMP_API_KEY');
+		expect(sourceKeyName('eulerpool')).toBe('EULERPOOL_API_KEY');
+		expect(sourceKeyName('yahoo')).toBeNull();
+		expect(sourceLabel('eulerpool')).toBe('Eulerpool');
+	});
+});
+
 describe('periods', () => {
 	it('keeps TTM unavailable for FMP while the plan lacks it, and available for Yahoo', () => {
 		expect(FMP_SUPPORTS_TTM).toBe(false);
@@ -50,6 +70,11 @@ describe('periods', () => {
 		expect(periodAvailable('yahoo', 'ttm')).toBe(true);
 		expect(periodAvailable('fmp', 'annual')).toBe(true);
 		expect(periodAvailable('yahoo', 'annual')).toBe(true);
+	});
+	it('offers Eulerpool annual statements only', () => {
+		expect(periodAvailable('eulerpool', 'annual')).toBe(true);
+		expect(periodAvailable('eulerpool', 'ttm')).toBe(false);
+		expect(effectivePeriod('eulerpool', 'ttm')).toBe('annual');
 	});
 	it('turns an unavailable period into annual', () => {
 		expect(effectivePeriod('fmp', 'ttm')).toBe('annual');

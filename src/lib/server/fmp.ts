@@ -2,10 +2,10 @@
 import type { Period } from '../financials-nav';
 import type { Kind, Statement, StatementYear } from '../source-data';
 import { field, isRecord, str } from './coerce';
+import { FETCH_TIMEOUT_MS, MAX_BYTES, readCapped } from './http';
 import { SourceError } from './source-error';
 
-export const FETCH_TIMEOUT_MS = 10_000;
-export const MAX_BYTES = 5 * 1024 * 1024;
+export { FETCH_TIMEOUT_MS, MAX_BYTES, readCapped };
 
 const BASE = 'https://financialmodelingprep.com/stable';
 const ENDPOINTS: Record<Kind, string> = {
@@ -76,28 +76,6 @@ export function parseStatement(body: unknown): Statement {
 	}
 	years.sort((a, b) => b.date.localeCompare(a.date));
 	return { lines: lines.filter((key) => years.some((y) => key in y.values)), years: years.slice(0, 5) };
-}
-
-/**
- * The body as text, or null as soon as it passes `maxBytes`. Reads the stream, so a body with no or a wrong
- * content-length is never held in memory past the cap.
- */
-export async function readCapped(response: Response, maxBytes: number): Promise<string | null> {
-	if (!response.body) return '';
-	const reader = response.body.getReader();
-	const decoder = new TextDecoder();
-	let size = 0;
-	let text = '';
-	for (;;) {
-		const { done, value } = await reader.read();
-		if (done) return text + decoder.decode();
-		size += value.byteLength;
-		if (size > maxBytes) {
-			await reader.cancel();
-			return null;
-		}
-		text += decoder.decode(value, { stream: true });
-	}
 }
 
 /** GET an FMP stable endpoint and return the parsed JSON body (undefined when it is not JSON). */

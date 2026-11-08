@@ -7,11 +7,17 @@ const imports = (relative: string): string[] =>
 	[...readFileSync(join(import.meta.dirname, relative), 'utf8').matchAll(/from '([^']+)'/g)].map((m) => m[1] ?? '');
 
 describe('source boundaries', () => {
-	it.each(['yahoo.ts', 'yahoo-parse.ts'])('%s does not import the FMP modules', (file) => {
-		expect(imports(file).filter((path) => /(^|\/)fmp(-info)?$/.test(path))).toEqual([]);
+	const FMP = /(^|\/)fmp(-info)?$/;
+	const YAHOO = /(^|\/)yahoo(-parse)?$/;
+	const EULERPOOL = /(^|\/)eulerpool(-parse)?$/;
+	it.each(['yahoo.ts', 'yahoo-parse.ts'])('%s imports neither the FMP nor the Eulerpool modules', (file) => {
+		expect(imports(file).filter((path) => FMP.test(path) || EULERPOOL.test(path))).toEqual([]);
 	});
-	it.each(['fmp.ts', 'fmp-info.ts'])('%s does not import the Yahoo modules', (file) => {
-		expect(imports(file).filter((path) => /(^|\/)yahoo(-parse)?$/.test(path))).toEqual([]);
+	it.each(['fmp.ts', 'fmp-info.ts'])('%s imports neither the Yahoo nor the Eulerpool modules', (file) => {
+		expect(imports(file).filter((path) => YAHOO.test(path) || EULERPOOL.test(path))).toEqual([]);
+	});
+	it.each(['eulerpool.ts', 'eulerpool-parse.ts'])('%s imports neither the FMP nor the Yahoo modules', (file) => {
+		expect(imports(file).filter((path) => FMP.test(path) || YAHOO.test(path))).toEqual([]);
 	});
 	it.each([
 		'../prices.ts',

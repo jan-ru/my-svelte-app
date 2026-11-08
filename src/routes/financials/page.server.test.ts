@@ -1,16 +1,21 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-type Env = Record<'SITE_PASSWORD' | 'SESSION_SECRET' | 'ISR_BYPASS_TOKEN' | 'FMP_API_KEY', string | undefined>;
+type Env = Record<
+	'SITE_PASSWORD' | 'SESSION_SECRET' | 'ISR_BYPASS_TOKEN' | 'FMP_API_KEY' | 'EULERPOOL_API_KEY',
+	string | undefined
+>;
 const env = vi.hoisted((): Env => ({
 	SITE_PASSWORD: 'pw',
 	SESSION_SECRET: 's'.repeat(32),
 	ISR_BYPASS_TOKEN: 't'.repeat(40),
-	FMP_API_KEY: undefined
+	FMP_API_KEY: undefined,
+	EULERPOOL_API_KEY: undefined
 }));
 vi.mock('$app/env/private', () => env);
 vi.mock('#lib/server/financials', () => ({ loadFinancials: vi.fn(async () => ({ kind: 'stub' })) }));
 
 import { BYPASS_COOKIE } from '#lib/server/access';
+import { loadFinancials } from '#lib/server/financials';
 import { load } from './+page.server';
 
 async function redirected(run: () => unknown): Promise<{ status: number; location: string }> {
@@ -51,6 +56,20 @@ describe('load', () => {
 		const { setHeaders, result } = run('', { authed: false, interactive: false });
 		await result();
 		expect(setHeaders).toHaveBeenCalledWith({ 'cache-control': 'private, no-store' });
+	});
+
+	it('hands both API keys to the loader, each under its own name', async () => {
+		env.FMP_API_KEY = 'FKEY';
+		env.EULERPOOL_API_KEY = 'EKEY';
+		try {
+			await run('?symbol=ABN.AS&source=eulerpool', { authed: true, interactive: true }).result();
+			expect(loadFinancials).toHaveBeenLastCalledWith(
+				expect.objectContaining({ authed: true, apiKey: 'FKEY', eulerpoolKey: 'EKEY' })
+			);
+		} finally {
+			env.FMP_API_KEY = undefined;
+			env.EULERPOOL_API_KEY = undefined;
+		}
 	});
 
 	it('sends an old login link on to the login page', async () => {

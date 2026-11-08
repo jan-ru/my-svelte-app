@@ -1,11 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-type Env = Record<'SITE_PASSWORD' | 'SESSION_SECRET' | 'ISR_BYPASS_TOKEN' | 'FMP_API_KEY', string | undefined>;
+type Env = Record<
+	'SITE_PASSWORD' | 'SESSION_SECRET' | 'ISR_BYPASS_TOKEN' | 'FMP_API_KEY' | 'EULERPOOL_API_KEY',
+	string | undefined
+>;
 const env = vi.hoisted((): Env => ({
 	SITE_PASSWORD: 'pw',
 	SESSION_SECRET: 's'.repeat(32),
 	ISR_BYPASS_TOKEN: undefined,
-	FMP_API_KEY: 'KEY'
+	FMP_API_KEY: 'KEY',
+	EULERPOOL_API_KEY: 'EKEY'
 }));
 vi.mock('$app/env/private', () => env);
 vi.mock('#lib/server/valuation', () => ({ loadValuation: vi.fn(async () => ({ state: 'stub' })) }));
@@ -53,7 +57,7 @@ describe('valuation load', () => {
 		expect(data).toMatchObject({ configured: true, industries: ['Semiconductor'], view: { state: 'stub' } });
 		expect(data.nav).toMatchObject({ symbol: 'ASML.AS', industry: 'Semiconductor', peers: ['NVDA'] });
 		expect(loadValuation).toHaveBeenCalledWith(
-			expect.objectContaining({ authed: true, rawSymbol: 'asml.as', apiKey: 'KEY' })
+			expect.objectContaining({ authed: true, rawSymbol: 'asml.as', apiKey: 'KEY', eulerpoolKey: 'EKEY' })
 		);
 	});
 	it('does not load the industry list for a visitor without a session', async () => {
