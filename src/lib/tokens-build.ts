@@ -272,7 +272,7 @@ export const GRID = [
 	{ size: 'XL', columns: 16, margin: 48, gutter: 16 }
 ] as const satisfies readonly GridSize[];
 
-const remOf = (px: number): string => (px === 0 ? '0' : `${px / 16}rem`);
+const remOf = (px: number): string => `${px / 16}rem`;
 
 const gridProperties = ({ columns, margin, gutter }: GridSize, indent: string): readonly string[] => [
 	`${indent}--hz-grid-columns: ${columns};`,
