@@ -3,7 +3,8 @@
 // Usage: node scripts/build-tokens.ts   (no network)
 import fs from 'node:fs';
 import path from 'node:path';
-import { THEMES, buildAll, type TokenTree } from '../src/lib/tokens-build.ts';
+import { buildAll, type TokenTree } from '../src/lib/tokens-build.ts';
+import { THEMES } from '../src/lib/tokens-tables.ts';
 
 const root = path.join(import.meta.dirname, '..');
 const sources: Record<string, TokenTree> = Object.fromEntries(

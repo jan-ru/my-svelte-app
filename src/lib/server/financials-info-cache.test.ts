@@ -9,7 +9,14 @@ vi.mock('./fmp-info', async (importActual) => ({
 }));
 
 import * as info from './fmp-info';
-import { NEWS_TTL_MS, PRICES_TTL_MS, PROFILE_TTL_MS, cachedNews, cachedPrices, cachedProfile } from './financials';
+import {
+	NEWS_TTL_MS,
+	PRICES_TTL_MS,
+	PROFILE_TTL_MS,
+	cachedNews,
+	cachedPrices,
+	cachedProfile
+} from './financial-sources';
 
 beforeEach(() => {
 	vi.useFakeTimers();

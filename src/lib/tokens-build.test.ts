@@ -1,8 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { at } from './at';
 import {
-	ADOPTED,
-	ALIASES,
 	buildAliasCss,
 	buildAll,
 	buildGridCss,
@@ -13,16 +11,14 @@ import {
 	formatColor,
 	formatNumber,
 	formatValue,
-	GRID,
 	pathIndex,
 	resolveValue,
 	shadowDeclarations,
 	shellShadowDeclarations,
 	themeDeclarations,
-	type GridSize,
-	type Theme,
 	type TokenTree
 } from './tokens-build';
+import { ADOPTED, ALIASES, GRID, type GridSize, type Theme } from './tokens-tables';
 
 const tree: TokenTree = {
 	$extensions: { 'com.figma.modeName': 'Test' },

@@ -7,7 +7,7 @@ vi.mock('./yahoo', () => ({
 	fetchYahooStatement: vi.fn(async () => ({ lines: [], years: [] }))
 }));
 
-import { NEWS_TTL_MS, PRICES_TTL_MS, PROFILE_TTL_MS, yahooFetchers } from './financials';
+import { NEWS_TTL_MS, PRICES_TTL_MS, PROFILE_TTL_MS, yahooFetchers } from './financial-sources';
 import * as yahoo from './yahoo';
 
 beforeEach(() => {

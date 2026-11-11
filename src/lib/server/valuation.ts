@@ -18,7 +18,7 @@ import {
 	type ProfileFetcher,
 	type RatiosFetcher,
 	type StatementFetcher
-} from './financials';
+} from './financial-sources';
 import { failureKind, sourceFailureMessage } from './source-error';
 
 /** What the valuation needs from one source. Estimates and peers are FMP only. */
