@@ -57,7 +57,7 @@
 	<meta name="description" content="Compare NYU Stern industry valuation multiples across regions." />
 </svelte:head>
 
-<main>
+<main class="grid-page">
 	<h1>Valuation multiples</h1>
 	<p class="source">
 		Source:
@@ -67,16 +67,22 @@
 
 	{#if data.interactive}
 		<form method="GET" data-sveltekit-replacestate data-sveltekit-keepfocus data-sveltekit-noscroll {onchange}>
-			<div class="controls">
-				<IndustryPicker industries={data.industries} selected={selection.industries} max={MAX_SELECTION} />
-				<CheckGroup legend="Regions" name="r" options={REGIONS} selected={selection.regions} max={MAX_SELECTION} />
-				<CheckGroup
-					legend="Multiples"
-					name="m"
-					options={MULTIPLES}
-					selected={selection.multiples}
-					max={MAX_SELECTION}
-				/>
+			<div class="controls grid">
+				<div class="span-4 span-m-8 span-l-5 span-xl-6">
+					<IndustryPicker industries={data.industries} selected={selection.industries} max={MAX_SELECTION} />
+				</div>
+				<div class="span-4 span-m-4 span-l-4 span-xl-5">
+					<CheckGroup legend="Regions" name="r" options={REGIONS} selected={selection.regions} max={MAX_SELECTION} />
+				</div>
+				<div class="span-4 span-m-4 span-l-3 span-xl-5">
+					<CheckGroup
+						legend="Multiples"
+						name="m"
+						options={MULTIPLES}
+						selected={selection.multiples}
+						max={MAX_SELECTION}
+					/>
+				</div>
 			</div>
 
 			<details class="pivot">
@@ -122,9 +128,11 @@
 					>{:else}{name}{/if}{/each}
 		</p>
 
-		<div class="panels" class:single={data.model.panels.length === 1}>
+		<div class="panels grid" class:single={data.model.panels.length === 1}>
 			{#each data.model.panels as panel, index (panel.key)}
-				<ChartPanel {panel} colors={PALETTE} uid={index} />
+				<div class="panel span-4 span-m-8 span-l-6 span-xl-8">
+					<ChartPanel {panel} colors={PALETTE} uid={index} />
+				</div>
 			{/each}
 		</div>
 
@@ -139,9 +147,7 @@
 
 <style>
 	main {
-		max-width: 80rem;
-		margin: 0 auto;
-		padding: 0 var(--space-4) var(--space-12);
+		padding-bottom: var(--space-12);
 	}
 	h1 {
 		margin-bottom: var(--space-1);
@@ -151,9 +157,6 @@
 		color: var(--text-secondary);
 	}
 	.controls {
-		display: grid;
-		grid-template-columns: 1.4fr 1fr 1fr;
-		gap: var(--space-4);
 		align-items: start;
 	}
 	.pivot {
@@ -197,13 +200,8 @@
 		vertical-align: -0.1rem;
 		border-radius: var(--radius-xs);
 	}
-	.panels {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: var(--space-6);
-	}
-	.panels.single {
-		grid-template-columns: minmax(0, 40rem);
+	.panels.single .panel {
+		max-width: 40rem;
 	}
 	.notice {
 		padding: var(--space-3) var(--space-4);
