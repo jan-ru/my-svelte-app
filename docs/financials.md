@@ -1,6 +1,6 @@
 # /financials and the valuation page
 
-The detail behind the `/financials` rules in `CLAUDE.md`. The hard rules (privacy, secrets, no source mixing) stay in `CLAUDE.md`; this page explains how the pieces fit.
+The detail behind the `/financials` rules in `AGENTS.md`. The hard rules (privacy, secrets, no source mixing) stay in `AGENTS.md`; this page explains how the pieces fit.
 
 ## Access and environment
 

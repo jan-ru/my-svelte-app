@@ -122,7 +122,7 @@ Pages are served with a Content-Security-Policy (script hashes, no framing, same
 
 ## Conventions
 
-The code is TypeScript only (`.ts` files and `<script lang="ts">`), type-checked in strict mode. `npm run check`, `npm run lint`, `npm run format:check` and `npm run check:ts-only` run in CI. The same rules for contributors and agents are in `CLAUDE.md`.
+The code is TypeScript only (`.ts` files and `<script lang="ts">`), type-checked in strict mode. `npm run check`, `npm run lint`, `npm run format:check` and `npm run check:ts-only` run in CI. The same rules for contributors and agents are in `AGENTS.md` (`CLAUDE.md` is a symlink to it, for tools that look for that name).
 
 CI also enforces a coverage floor on `src/lib` (`npm run test:coverage`), runs the browser tests (`npm run test:e2e`: every page must load without page errors, CSP blocks or serious axe violations) and runs `npm audit --omit=dev --audit-level=high` on runtime dependencies. A separate, non-required `lighthouse` job audits the public pages (home, classification, companies, countries, industries, about) on the production build with Lighthouse CI (`lighthouserc.json`): accessibility, best practices and SEO must score at least 0.9 for the job to pass, performance at least 0.8 as a warning. The `is-crawlable` audit is skipped (`skipAudits` in `lighthouserc.json`) because `robots.txt` deliberately disallows all crawlers, which would otherwise fail the SEO score.
 
