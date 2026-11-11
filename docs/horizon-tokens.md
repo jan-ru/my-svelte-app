@@ -17,10 +17,11 @@ If the build says `--surface-card was #ffffff, but --sapGroup_ContentBackground 
 - Names: a key starting with `sap` becomes `--<key>`; any other token becomes `--hz-<path>`, for example `--hz-Container-Spacing-Tiny`. Figma's own `codeSyntax` names are not used because some are corrupt.
 - Aliases in the export (`{Shadow.sapContent_ShadowColor}`) are written as the literal value.
 - `aliases.css` points nine existing names at Horizon tokens. The build checks each has exactly the value it had before.
+- Numbers are written in `px` (zero as `0`); a key ending in `Opacity` is a number from 0 to 1. But a colour token whose key ends in `Opacity` (for example `--sapBlockLayer_Opacity`, written `rgb(0 0 0 / 0.2)`) is a colour, so `opacity: var(--sapBlockLayer_Opacity)` would be invalid; use it as a colour.
 
 ## Not yet on Horizon
 
-These existing names have no exact Horizon Morning match, so they keep their own value (`src/lib/styles/tokens.css`). Moving them is a visible change and needs a decision: `--blue-05`, `--blue-10`, `--blue-40`, `--blue-90`, `--grey-01`, `--grey-05`, `--grey-08`, `--positive*`, `--negative*`, `--critical-bg`, `--critical-border`, `--information-bg`, `--information-border`. The palette names (`--white`, `--ink`, `--blue-60`…) are literal colours and also stay.
+These existing names have no exact Horizon Morning match, so they keep their own value (`src/lib/styles/tokens.css`). Moving them is a visible change and needs a decision: `--blue-05`, `--blue-10`, `--blue-40`, `--blue-90`, `--grey-01`, `--grey-05`, `--grey-08`, `--positive*`, `--negative*`, `--critical-bg`, `--critical-border`, `--information-bg`, `--information-border`. The palette names (`--white`, `--ink`, `--blue-60`…) are literal colours and also stay. In particular `--ink` (`#1d2d3e`, the text colour) and the other palette literals have no `sapTextColor` equivalent: Morning's `sapTextColor` is `#131E29`, while `--ink` equals `sapNeutralTextColor` (`#1D2D3E`), so `--text-primary` stays hand-written.
 
 ## Before switching on another theme
 

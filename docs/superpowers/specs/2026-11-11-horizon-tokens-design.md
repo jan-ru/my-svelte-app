@@ -1,6 +1,6 @@
 # Horizon tokens from Figma: design
 
-Date: 2026-11-11. Status: draft, awaiting review.
+Date: 2026-11-11. Status: implemented on branch feat/horizon-tokens (Phase 2 not started).
 
 ## Goal
 
@@ -21,7 +21,7 @@ Extend the current design with the full SAP Horizon theme from the Figma file "S
 - An alias is a string value holding a dotted path (`{Shadow.sapContent_ShadowColor}`). The script resolves every alias to its literal value, so a generated file never refers to a token it did not write.
 - The 12 string tokens are Figma font-style labels, not CSS values, and are skipped.
 - Colours are objects (`{colorSpace, components, alpha, hex}`), not strings; the script uses `hex` and `alpha`.
-- Numbers have no unit; the script decides `px` or `rem` from the group.
+- Numbers have no unit in the export; the script always writes `px` (`formatNumber` in `src/lib/tokens-build.ts`), except that a key ending in `Opacity` is written as a 0 to 1 number (100 becomes 1). Font sizes are therefore px, not rem, so a component that wants the user's browser font-size setting should not use them yet.
 
 ## Decisions
 
