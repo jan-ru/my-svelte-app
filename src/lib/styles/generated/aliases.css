@@ -18,4 +18,6 @@
 	--shadow-2: var(--sapContent_Shadow1);
 	--shadow-3: var(--sapContent_Shadow2);
 	--shadow-4: var(--sapContent_Shadow3);
+	--border-focus: var(--sapContent_FocusColor);
+	--focus-ring: var(--sapContent_FocusWidth);
 }

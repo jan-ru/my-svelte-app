@@ -317,12 +317,14 @@ describe('ALIASES', () => {
 });
 
 describe('ADOPTED', () => {
-	it('moves --shadow-1 to --shadow-4 onto Horizon Shadow0 to Shadow3', () => {
+	it('moves the shadows and the focus ring onto Horizon', () => {
 		expect(ADOPTED.map((a) => [a.name, a.token])).toEqual([
 			['--shadow-1', 'sapContent_Shadow0'],
 			['--shadow-2', 'sapContent_Shadow1'],
 			['--shadow-3', 'sapContent_Shadow2'],
-			['--shadow-4', 'sapContent_Shadow3']
+			['--shadow-4', 'sapContent_Shadow3'],
+			['--border-focus', 'sapContent_FocusColor'],
+			['--focus-ring', 'sapContent_FocusWidth']
 		]);
 	});
 });
