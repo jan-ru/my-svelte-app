@@ -2,6 +2,8 @@
 package.json
 package-lock.json
 src/lib/data/
+design/
+src/lib/styles/generated/
 docs/api/
 .svelte-kit/
 .vercel/

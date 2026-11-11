@@ -4,6 +4,8 @@
 	import '@fontsource/ibm-plex-mono/500.css';
 	// Relative on purpose: the #lib/* "types" condition maps to .ts files, which CSS files don't have.
 	import '../lib/styles/tokens.css';
+	import '../lib/styles/generated/morning.css';
+	import '../lib/styles/generated/aliases.css';
 	import '../lib/styles/global.css';
 	import { dev } from '$app/env';
 	import { afterNavigate } from '$app/navigation';
