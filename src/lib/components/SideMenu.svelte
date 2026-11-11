@@ -34,10 +34,24 @@
 	a:hover {
 		background: var(--surface-hover);
 	}
+	@media (max-width: 599px) {
+		ul {
+			flex-flow: row wrap;
+		}
+		a {
+			border-left: 0;
+			border-bottom: 3px solid transparent;
+		}
+	}
 	a[aria-current='page'] {
 		font-weight: var(--weight-semibold);
 		color: var(--blue-80);
 		background: var(--blue-05);
 		border-left-color: var(--color-primary);
+	}
+	@media (max-width: 599px) {
+		a[aria-current='page'] {
+			border-bottom-color: var(--color-primary);
+		}
 	}
 </style>
