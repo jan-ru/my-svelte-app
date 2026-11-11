@@ -94,16 +94,14 @@
 
 :root {
 	/* ---- Spacing (4px base) ---- */
+	/* --space-2, -4, -8 and -12 (8, 16, 32 and 48px) equal Horizon's steps and are in generated/aliases.css. The
+	   others have no Horizon step and stay here. */
 	--space-0: 0;
 	--space-1: 0.25rem; /* 4 */
-	--space-2: 0.5rem; /* 8 */
 	--space-3: 0.75rem; /* 12 */
-	--space-4: 1rem; /* 16 */
 	--space-5: 1.25rem; /* 20 */
 	--space-6: 1.5rem; /* 24 */
-	--space-8: 2rem; /* 32 */
 	--space-10: 2.5rem; /* 40 */
-	--space-12: 3rem; /* 48 */
 	--space-16: 4rem; /* 64 */
 
 	/* ---- Radii ---- */
@@ -118,12 +116,9 @@
 	--border-emphasis: 2px;
 	--focus-ring: 3px;
 
-	/* ---- Elevation (Horizon soft shadows) ---- */
+	/* ---- Elevation ---- */
+	/* --shadow-1 to --shadow-4 are Horizon's Shadow0 to Shadow3, in generated/aliases.css. */
 	--shadow-0: none;
-	--shadow-1: 0 0 0 1px rgba(34, 53, 72, 0.06), 0 1px 2px rgba(34, 53, 72, 0.1);
-	--shadow-2: 0 2px 4px rgba(34, 53, 72, 0.1), 0 1px 8px rgba(34, 53, 72, 0.08);
-	--shadow-3: 0 4px 12px rgba(34, 53, 72, 0.14), 0 2px 4px rgba(34, 53, 72, 0.08);
-	--shadow-4: 0 12px 32px rgba(34, 53, 72, 0.18), 0 4px 8px rgba(34, 53, 72, 0.1);
 	--shadow-focus: 0 0 0 3px var(--blue-10);
 
 	/* ---- Layout ---- */

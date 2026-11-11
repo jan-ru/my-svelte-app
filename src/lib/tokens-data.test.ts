@@ -1,7 +1,16 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { ALIASES, GROUPS, THEMES, buildAll, declarations, flattenTokens, type TokenTree } from './tokens-build';
+import {
+	ADOPTED,
+	ALIASES,
+	GROUPS,
+	THEMES,
+	buildAll,
+	flattenTokens,
+	themeDeclarations,
+	type TokenTree
+} from './tokens-build';
 
 const root = path.join(import.meta.dirname, '../..');
 const sources: Record<string, TokenTree> = Object.fromEntries(
@@ -11,7 +20,7 @@ const sources: Record<string, TokenTree> = Object.fromEntries(
 	])
 );
 const names = (slug: string): readonly string[] =>
-	declarations(flattenTokens(sources[slug] ?? {}), GROUPS).map(([name]) => name);
+	themeDeclarations(flattenTokens(sources[slug] ?? {}), GROUPS).map(([name]) => name);
 
 describe('the Figma exports', () => {
 	it('hold the same 1141 tokens in all four themes', () => {
@@ -22,9 +31,15 @@ describe('the Figma exports', () => {
 		expect(morning.length).toBeGreaterThan(400);
 		for (const theme of THEMES) expect(names(theme.slug)).toEqual(morning);
 	});
-	it('contain every Horizon token an existing name is aliased to', () => {
+	it('contain every Horizon token an existing name is aliased to or adopts', () => {
 		const morning = new Set(names('morning'));
-		for (const alias of ALIASES) expect(morning.has(`--${alias.token}`)).toBe(true);
+		for (const alias of [...ALIASES, ...ADOPTED]) expect(morning.has(`--${alias.token}`)).toBe(true);
+	});
+	it('write the four composed shadows in every theme', () => {
+		for (const theme of THEMES) {
+			const written = names(theme.slug);
+			for (const level of [0, 1, 2, 3]) expect(written).toContain(`--sapContent_Shadow${level}`);
+		}
 	});
 });
 
@@ -40,5 +55,17 @@ describe('the generated stylesheets', () => {
 		]);
 		for (const [file, css] of Object.entries(built))
 			expect(readFileSync(path.join(root, 'src/lib/styles/generated', file), 'utf8'), file).toBe(css);
+	});
+});
+
+describe('the Morning stylesheet', () => {
+	const morning = buildAll(sources)['morning.css'] ?? '';
+	it('writes Horizon spacing in rem, so it follows the browser font size, and breakpoints in px', () => {
+		expect(morning).toContain('--sapContent_Space_Tiny: 0.5rem;');
+		expect(morning).toContain('--sapContent_Space_Large: 3rem;');
+		expect(morning).toContain('--sapBreakpoint_M_Min: 600px;');
+	});
+	it('composes Shadow0 from its two layers', () => {
+		expect(morning).toContain('--sapContent_Shadow0: 0 0 2px 0 rgb(34 53 72 / 0.2), 0 2px 4px 0 rgb(34 53 72 / 0.2);');
 	});
 });

@@ -9,4 +9,13 @@
 	--border-subtle: var(--sapGroup_ContentBorderColor);
 	--critical: var(--sapCriticalColor);
 	--information: var(--sapInformativeColor);
+	--space-2: var(--sapContent_Space_Tiny);
+	--space-4: var(--sapContent_Space_Small);
+	--space-8: var(--sapContent_Space_Medium);
+	--space-12: var(--sapContent_Space_Large);
+	/* Adopted on purpose: these take Horizon's value and look different. */
+	--shadow-1: var(--sapContent_Shadow0);
+	--shadow-2: var(--sapContent_Shadow1);
+	--shadow-3: var(--sapContent_Shadow2);
+	--shadow-4: var(--sapContent_Shadow3);
 }
