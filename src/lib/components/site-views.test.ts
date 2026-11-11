@@ -11,6 +11,7 @@ import CrosswalkTrace from './CrosswalkTrace.svelte';
 import ErrorMessage from './ErrorMessage.svelte';
 import IndustryPicker from './IndustryPicker.svelte';
 import MacroTable from './MacroTable.svelte';
+import PanelGrid from './PanelGrid.svelte';
 import ReverseTraceView from './ReverseTraceView.svelte';
 import SizeSelector from './SizeSelector.svelte';
 
@@ -108,6 +109,38 @@ describe('ChartPanel', () => {
 		expect(body).toContain('<svg');
 		expect(body).toMatch(/<th scope="row"[^>]*>Banks<\/th>/);
 		expect(text(body)).toContain('Banks 12.3x unavailable');
+	});
+});
+
+describe('PanelGrid', () => {
+	const panel = (key: string): PanelModel => ({
+		key,
+		title: `Panel ${key}`,
+		categories: ['Banks'],
+		series: ['US'],
+		bars: [[{ value: 10, firms: 40 }]]
+	});
+	const colors = ['#000'];
+
+	it('puts each panel in a wrapper that spans the whole grid on a phone and half of it from L', () => {
+		const body = html(PanelGrid, { panels: [panel('a'), panel('b')], colors });
+		expect(body).toMatch(/<div class="panels grid[^"]*"/);
+		expect(body.match(/class="panel span-4 span-m-8 span-l-6 span-xl-8[ "]/g)).toHaveLength(2);
+		expect(body).toMatch(/<h2[^>]*>Panel a<\/h2>/);
+		expect(body).toMatch(/<h2[^>]*>Panel b<\/h2>/);
+		expect(body).not.toContain('single');
+	});
+
+	it('marks a lone panel as single, which caps its width', () => {
+		const body = html(PanelGrid, { panels: [panel('a')], colors });
+		expect(body).toMatch(/<div class="panels grid[^"]*single/);
+		expect(body.match(/class="panel span-4 span-m-8 span-l-6 span-xl-8[ "]/g)).toHaveLength(1);
+	});
+
+	it('gives each chart its own id prefix, so their SVG ids do not clash', () => {
+		const body = html(PanelGrid, { panels: [panel('a'), panel('b')], colors });
+		const ids = [...body.matchAll(/\bid="([^"]+)"/g)].map((m) => m[1]);
+		expect(new Set(ids).size).toBe(ids.length);
 	});
 });
 
