@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Icon from './Icon.svelte';
 	import { formatNewsDate } from '#lib/company';
 	import type { Source } from '#lib/source';
 	import type { NewsItem } from '#lib/source-data';
@@ -12,7 +13,8 @@
 		{#each items as item, i (i)}
 			<li>
 				<h2>
-					{#if item.url}<a href={item.url} target="_blank" rel="noopener noreferrer">{item.title}</a
+					{#if item.url}<a href={item.url} target="_blank" rel="noopener noreferrer"
+							>{item.title}<Icon name="external" label="(opens in a new tab)" /></a
 						>{:else}{item.title}{/if}
 				</h2>
 				{#if item.publisher || item.date}

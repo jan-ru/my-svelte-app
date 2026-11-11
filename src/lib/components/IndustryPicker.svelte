@@ -1,4 +1,6 @@
 <script lang="ts">
+	import Icon from './Icon.svelte';
+
 	// The industries fieldset: the picked ones as removable chips, the rest in a searchable list.
 	let { industries, selected, max }: { industries: readonly string[]; selected: readonly string[]; max: number } =
 		$props();
@@ -16,7 +18,8 @@
 		{#each selected as name (name)}
 			<label class="chip">
 				<input type="checkbox" name="i" value={name} checked />
-				{name} <span aria-hidden="true">✕</span><span class="sr-only">remove</span>
+				{name}
+				<Icon name="close" /><span class="sr-only">remove</span>
 			</label>
 		{/each}
 	</div>

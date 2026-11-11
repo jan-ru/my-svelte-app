@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { PageProps } from './$types';
+	import Icon from '#lib/components/Icon.svelte';
 	import LoginPrompt from '#lib/components/LoginPrompt.svelte';
 	import { PREVIEW_ROWS, financialsLink } from '#lib/companies';
 	import { quoteLink } from '#lib/quote';
@@ -124,7 +125,9 @@
 							<th scope="row">{c.name}</th>
 							<td>
 								{#if q}
-									<a href={q.url} target="_blank" rel="noopener noreferrer">{c.ticker}</a>
+									<a href={q.url} target="_blank" rel="noopener noreferrer"
+										>{c.ticker}<Icon name="external" label="(opens in a new tab)" /></a
+									>
 									<small
 										class="src"
 										title={`${q.source === 'YF' ? 'Yahoo' : 'Google'} Finance${q.search ? ' search' : ''}`}

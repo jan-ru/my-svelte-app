@@ -9,6 +9,7 @@ import CheckGroup from './CheckGroup.svelte';
 import ClassificationGlossary from './ClassificationGlossary.svelte';
 import CrosswalkTrace from './CrosswalkTrace.svelte';
 import ErrorMessage from './ErrorMessage.svelte';
+import Icon from './Icon.svelte';
 import IndustryPicker from './IndustryPicker.svelte';
 import MacroTable from './MacroTable.svelte';
 import PanelGrid from './PanelGrid.svelte';
@@ -20,6 +21,21 @@ type Renderer = (component: unknown, options: { props: unknown }) => { body: str
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- see above: ComponentProps needs it
 const html = <C extends Component<any>>(component: C, props: ComponentProps<C>): string =>
 	(render as unknown as Renderer)(component, { props }).body;
+
+describe('Icon', () => {
+	it('is hidden from screen readers when it is decoration', () => {
+		const out = html(Icon, { name: 'close' });
+		expect(out).toContain('aria-hidden="true"');
+		expect(out).not.toContain('role="img"');
+		expect(out).toContain('d="M4 4l8 8M12 4l-8 8"');
+	});
+	it('is an image with a name when given a label', () => {
+		const out = html(Icon, { name: 'external', label: '(opens in a new tab)' });
+		expect(out).toContain('role="img"');
+		expect(out).toContain('aria-label="(opens in a new tab)"');
+		expect(out).not.toContain('aria-hidden');
+	});
+});
 
 describe('ErrorMessage', () => {
 	it('shows the status, title and a way back', () => {

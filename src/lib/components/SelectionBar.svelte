@@ -1,4 +1,6 @@
 <script lang="ts">
+	import Icon from './Icon.svelte';
+
 	let {
 		chips,
 		clearHref
@@ -13,7 +15,7 @@
 	<div class="bar" role="group" aria-label="Selection">
 		<span class="title">Selected:</span>
 		{#each chips as c (c.label)}
-			<a class="chip" href={c.href} aria-label="Remove {c.label}">{c.label} <span aria-hidden="true">✕</span></a>
+			<a class="chip" href={c.href} aria-label="Remove {c.label}">{c.label} <Icon name="close" /></a>
 		{/each}
 		<a class="clear" href={clearHref}>Clear all</a>
 	</div>
