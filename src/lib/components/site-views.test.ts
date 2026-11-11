@@ -5,6 +5,7 @@ import type { ReverseTrace, Trace } from '../crosswalk';
 import { errorView } from '../error-view';
 import type { PanelModel } from '../layout';
 import ChartPanel from './ChartPanel.svelte';
+import AppHeader from './AppHeader.svelte';
 import CheckGroup from './CheckGroup.svelte';
 import ClassificationGlossary from './ClassificationGlossary.svelte';
 import CrosswalkTrace from './CrosswalkTrace.svelte';
@@ -21,6 +22,28 @@ type Renderer = (component: unknown, options: { props: unknown }) => { body: str
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- see above: ComponentProps needs it
 const html = <C extends Component<any>>(component: C, props: ComponentProps<C>): string =>
 	(render as unknown as Renderer)(component, { props }).body;
+
+describe('AppHeader', () => {
+	const props = { name: 'App', pathname: '/financials', search: '?symbol=AAPL', interactive: false };
+	it('links the pages and marks the current one', () => {
+		const out = html(AppHeader, props);
+		expect(out).toContain('aria-label="Main"');
+		expect(out).toMatch(/<a[^>]*aria-current="page"[^>]*>Financials<\/a>/);
+		expect(out).toContain('>Valuation</a>');
+	});
+	it('offers Log in with the way back when logged out', () => {
+		const out = html(AppHeader, props);
+		expect(out).toContain('Log in');
+		expect(out).toContain(encodeURIComponent('/financials?symbol=AAPL'));
+		expect(out).not.toContain('Log out');
+	});
+	it('offers Log out as a form when logged in', () => {
+		const out = html(AppHeader, { ...props, interactive: true });
+		expect(out).toContain('Log out');
+		expect(out).toContain('method="POST"');
+		expect(out).not.toContain('>Log in<');
+	});
+});
 
 describe('Icon', () => {
 	it('is hidden from screen readers when it is decoration', () => {
