@@ -17,6 +17,7 @@ import {
 	pathIndex,
 	resolveValue,
 	shadowDeclarations,
+	shellShadowDeclarations,
 	themeDeclarations,
 	type GridSize,
 	type Theme,
@@ -184,6 +185,35 @@ describe('shadowDeclarations', () => {
 			...treeWith(atomsFor())
 		};
 		expect(() => themeDeclarations(flattenTokens(clash), ['Shadow'])).toThrow('--sapContent_Shadow0');
+	});
+});
+
+describe('shellShadowDeclarations', () => {
+	const shell = (skip?: string): TokenTree => ({
+		Shell: Object.fromEntries(
+			[1, 2]
+				.flatMap((layer) => [
+					[`Shell_Shadow_X_${layer}`, { $type: 'number', $value: 0 }],
+					[`Shell_Shadow_Y_${layer}`, { $type: 'number', $value: layer }],
+					[`Shell_Shadow_Blur_${layer}`, { $type: 'number', $value: 2 }],
+					[`Shell_Shadow_Spread_${layer}`, { $type: 'number', $value: 0 }],
+					[`Shell_ShadowColor_${layer}`, { $type: 'color', $value: { hex: '#223548', alpha: 0.1 } }]
+				])
+				.filter(([key]) => key !== skip)
+		)
+	});
+	it('composes --sapShell_Shadow from its two layers', () => {
+		expect(shellShadowDeclarations(flattenTokens(shell()))).toEqual([
+			['--sapShell_Shadow', '0 1px 2px 0 rgb(34 53 72 / 0.1), 0 2px 2px 0 rgb(34 53 72 / 0.1)']
+		]);
+	});
+	it('writes nothing when the export has no shell shadow', () => {
+		expect(shellShadowDeclarations(flattenTokens(treeWith(atomsFor())))).toEqual([]);
+	});
+	it('throws when an atom is missing, naming it', () => {
+		expect(() => shellShadowDeclarations(flattenTokens(shell('Shell_Shadow_Blur_2')))).toThrow(
+			'Shell shadow: no Shadow_Blur_2 atom'
+		);
 	});
 });
 

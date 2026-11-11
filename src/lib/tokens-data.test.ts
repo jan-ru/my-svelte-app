@@ -35,6 +35,9 @@ describe('the Figma exports', () => {
 		const morning = new Set(names('morning'));
 		for (const alias of [...ALIASES, ...ADOPTED]) expect(morning.has(`--${alias.token}`)).toBe(true);
 	});
+	it('write the composed shell shadow in every theme', () => {
+		for (const theme of THEMES) expect(names(theme.slug)).toContain('--sapShell_Shadow');
+	});
 	it('write the four composed shadows in every theme', () => {
 		for (const theme of THEMES) {
 			const written = names(theme.slug);

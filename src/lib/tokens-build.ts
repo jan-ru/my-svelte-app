@@ -154,9 +154,32 @@ export function shadowDeclarations(tokens: readonly Token[]): readonly Declarati
 	]);
 }
 
+/**
+ * The shell bar's shadow, `--sapShell_Shadow`, put together from its two layers of atoms in the Shell group
+ * (`Shell_Shadow_X_1`, ..., `Shell_ShadowColor_2`). Nothing is written when the export has none; a half-present layer throws.
+ */
+export function shellShadowDeclarations(tokens: readonly Token[]): readonly Declaration[] {
+	const index = pathIndex(tokens);
+	if (![...index.keys()].some((path) => path.startsWith('Shell.Shell_Shadow'))) return [];
+	const atom = (name: string, layer: number): string => {
+		const token = index.get(`Shell.Shell_${name}_${layer}`);
+		const value = token === undefined ? null : formatValue(token, index);
+		if (value === null) throw new Error(`Shell shadow: no ${name}_${layer} atom`);
+		return value;
+	};
+	const layers = [1, 2].map((layer) =>
+		['Shadow_X', 'Shadow_Y', 'Shadow_Blur', 'Shadow_Spread', 'ShadowColor'].map((name) => atom(name, layer)).join(' ')
+	);
+	return [['--sapShell_Shadow', layers.join(', ')]];
+}
+
 /** Everything one theme writes: the listed groups, then the composed shadows. Throws when two names clash. */
 export function themeDeclarations(tokens: readonly Token[], groups: readonly string[]): readonly Declaration[] {
-	return assertUnique([...declarations(tokens, groups), ...shadowDeclarations(tokens)]);
+	return assertUnique([
+		...declarations(tokens, groups),
+		...shadowDeclarations(tokens),
+		...shellShadowDeclarations(tokens)
+	]);
 }
 
 export interface Theme {

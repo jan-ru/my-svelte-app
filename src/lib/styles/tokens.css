@@ -120,7 +120,7 @@
 	--shadow-focus: 0 0 0 3px var(--blue-10);
 
 	/* ---- Layout ---- */
-	--shell-header-height: 44px;
+	--shell-header-height: 2.75rem; /* 44px */
 	--toolbar-height: 44px;
 	--tile-width: 176px;
 	--tile-height: 176px;
