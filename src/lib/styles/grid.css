@@ -1,0 +1,156 @@
+/* Layout helper for the Horizon grid. The column count, margin and gutter are --hz-grid-* in generated/grid.css; the
+   breakpoints below are the --sapBreakpoint_*_Min tokens written out, because a media query cannot read a custom
+   property (grid-css.test.ts checks they agree). Hand-written: see docs/horizon-tokens.md. */
+
+.grid {
+	display: grid;
+	grid-template-columns: repeat(var(--hz-grid-columns), minmax(0, 1fr));
+	column-gap: var(--hz-grid-gutter);
+	row-gap: var(--space-4);
+}
+
+/* Written before the span classes: both have the same specificity, so a span class that follows wins. */
+.grid > * {
+	grid-column: 1 / -1;
+}
+
+/* The page container: centred, side margin from the grid, capped at Home's width. */
+.grid-page {
+	max-width: 80rem;
+	margin: 0 auto;
+	padding-inline: var(--hz-grid-margin);
+}
+
+/* Every size: 4 columns */
+.span-1 {
+	grid-column: span 1;
+}
+.span-2 {
+	grid-column: span 2;
+}
+.span-3 {
+	grid-column: span 3;
+}
+.span-4 {
+	grid-column: span 4;
+}
+
+/* M and up: 8 columns */
+@media (min-width: 600px) {
+	.span-m-1 {
+		grid-column: span 1;
+	}
+	.span-m-2 {
+		grid-column: span 2;
+	}
+	.span-m-3 {
+		grid-column: span 3;
+	}
+	.span-m-4 {
+		grid-column: span 4;
+	}
+	.span-m-5 {
+		grid-column: span 5;
+	}
+	.span-m-6 {
+		grid-column: span 6;
+	}
+	.span-m-7 {
+		grid-column: span 7;
+	}
+	.span-m-8 {
+		grid-column: span 8;
+	}
+}
+
+/* L and up: 12 columns */
+@media (min-width: 1024px) {
+	.span-l-1 {
+		grid-column: span 1;
+	}
+	.span-l-2 {
+		grid-column: span 2;
+	}
+	.span-l-3 {
+		grid-column: span 3;
+	}
+	.span-l-4 {
+		grid-column: span 4;
+	}
+	.span-l-5 {
+		grid-column: span 5;
+	}
+	.span-l-6 {
+		grid-column: span 6;
+	}
+	.span-l-7 {
+		grid-column: span 7;
+	}
+	.span-l-8 {
+		grid-column: span 8;
+	}
+	.span-l-9 {
+		grid-column: span 9;
+	}
+	.span-l-10 {
+		grid-column: span 10;
+	}
+	.span-l-11 {
+		grid-column: span 11;
+	}
+	.span-l-12 {
+		grid-column: span 12;
+	}
+}
+
+/* XL and up: 16 columns */
+@media (min-width: 1440px) {
+	.span-xl-1 {
+		grid-column: span 1;
+	}
+	.span-xl-2 {
+		grid-column: span 2;
+	}
+	.span-xl-3 {
+		grid-column: span 3;
+	}
+	.span-xl-4 {
+		grid-column: span 4;
+	}
+	.span-xl-5 {
+		grid-column: span 5;
+	}
+	.span-xl-6 {
+		grid-column: span 6;
+	}
+	.span-xl-7 {
+		grid-column: span 7;
+	}
+	.span-xl-8 {
+		grid-column: span 8;
+	}
+	.span-xl-9 {
+		grid-column: span 9;
+	}
+	.span-xl-10 {
+		grid-column: span 10;
+	}
+	.span-xl-11 {
+		grid-column: span 11;
+	}
+	.span-xl-12 {
+		grid-column: span 12;
+	}
+	.span-xl-13 {
+		grid-column: span 13;
+	}
+	.span-xl-14 {
+		grid-column: span 14;
+	}
+	.span-xl-15 {
+		grid-column: span 15;
+	}
+	.span-xl-16 {
+		grid-column: span 16;
+	}
+}
