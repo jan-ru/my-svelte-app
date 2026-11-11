@@ -379,7 +379,7 @@ describe('buildGridCss', () => {
 });
 
 describe('GRID', () => {
-	it('holds the five Horizon layout-guide values read from Figma', () => {
+	it('holds the four Horizon layout-guide sizes read from Figma', () => {
 		const rows: readonly GridSize[] = [
 			{ size: 'S', columns: 4, margin: 16, gutter: 8 },
 			{ size: 'M', columns: 8, margin: 32, gutter: 16 },

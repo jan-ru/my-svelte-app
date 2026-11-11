@@ -27,7 +27,11 @@ describe('the grid helper stylesheet', () => {
 	});
 	it('has a span class for every column of every size', () => {
 		const columns = (size: string): number => GRID.find((g) => g.size === size)?.columns ?? 0;
-		for (let i = 1; i <= columns('S'); i++) expect(helper).toContain(`.span-${i} {\n\tgrid-column: span ${i};`);
+		// the base classes sit before the first media query: a base span moved into one must fail
+		const base = helper.slice(0, helper.indexOf('@media'));
+		for (let i = 1; i <= columns('S'); i++)
+			expect(base, `.span-${i}`).toContain(`.span-${i} {\n\tgrid-column: span ${i};`);
+		expect(base).not.toContain(`.span-${columns('S') + 1} `);
 		for (const [prefix, size] of [
 			['m', 'M'],
 			['l', 'L'],
@@ -38,6 +42,11 @@ describe('the grid helper stylesheet', () => {
 				expect(block, `.span-${prefix}-${i}`).toContain(`.span-${prefix}-${i} {\n\t\tgrid-column: span ${i};`);
 			expect(block).not.toContain(`.span-${prefix}-${columns(size) + 1} `);
 		}
+	});
+	it('lays .grid out on the three grid properties, with a gutter between columns', () => {
+		expect(helper).toContain('display: grid;');
+		expect(helper).toContain('grid-template-columns: repeat(var(--hz-grid-columns), minmax(0, 1fr));');
+		expect(helper).toContain('column-gap: var(--hz-grid-gutter);');
 	});
 	it('puts the full-width default before the span classes so that a span class wins', () => {
 		expect(helper.indexOf('.grid > *')).toBeGreaterThan(-1);
