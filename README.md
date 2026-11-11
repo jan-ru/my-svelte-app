@@ -142,12 +142,10 @@ src/
     source.ts           FMP or Yahoo choice per ticker and period
     yahoo.ts            Capital IQ to Yahoo ticker mapping
     return-path.ts      Allow-list of pages the login may return to
-    size.ts             Shares of the global total, rest of world, cross cell
-    size-treemap.ts     Squarified treemap layout
-    size-nav.ts         URL state of the size pages (SIZE_PARAMS)
-    size-view.ts        View models of /countries and /industries
+    size/               size.ts (shares of the global total, rest of world, cross cell), treemap.ts (squarified
+                        treemap layout), nav.ts (URL state, SIZE_PARAMS), view.ts (view models of the size pages)
     gdp.ts, gdp-match.ts  World Bank GDP lookup and country-name matching
-    valuation*.ts       Valuation page: calculation, figures mapping, URL state, template, formatting
+    valuation/          Valuation page: valuation.ts (calculation), figures, nav (URL state), template, company, format
     football-field.ts   Model of the football-field chart
     styles/             Design tokens and global CSS
     data/               Generated crosswalk.json, companies.json and gdp.json

@@ -1,6 +1,6 @@
-import { get } from './at';
-import type { CompanyData } from './companies';
-import { gdpValues, gdpYearRange, type GdpData } from './gdp';
+import { get } from '../at';
+import type { CompanyData } from '../companies';
+import { gdpValues, gdpYearRange, type GdpData } from '../gdp';
 import {
 	COUNTRY_FILL,
 	crossCell,
@@ -13,8 +13,8 @@ import {
 	type CrossCell,
 	type Shares
 } from './size';
-import type { SizeNav } from './size-nav';
-import type { TreemapItem } from './size-treemap';
+import type { SizeNav } from './nav';
+import type { TreemapItem } from './treemap';
 
 /** How many items the bars show when nothing is selected. */
 export const TOP_N = 10;

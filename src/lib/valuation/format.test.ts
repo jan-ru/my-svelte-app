@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatAmount, scaleFor } from './valuation-format';
+import { formatAmount, scaleFor } from './format';
 
 describe('scaleFor', () => {
 	it('picks millions, thousands or units from the largest absolute value', () => {

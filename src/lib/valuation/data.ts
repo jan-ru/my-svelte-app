@@ -2,7 +2,7 @@
 // The shapes the valuation page works with. A listed company (FMP, Yahoo or Eulerpool) and a private company (an uploaded
 // template) both become `CompanyFigures`, so the calculation in `valuation.ts` does not care where figures came from.
 
-import type { Source } from './source';
+import type { Source } from '../source';
 
 /** A company figure a multiple can be applied to. */
 export type Metric = 'revenue' | 'ebitda' | 'ebit' | 'netIncome' | 'bookEquity' | 'investedCapital';

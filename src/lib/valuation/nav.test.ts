@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { encodeCompany } from './valuation-company';
-import type { CompanyFigures } from './valuation-data';
-import { DEFAULT_MULTIPLES, DEFAULT_REGION, MAX_PEERS, parseValuationNav, valuationHref } from './valuation-nav';
+import { encodeCompany } from './company';
+import type { CompanyFigures } from './data';
+import { DEFAULT_MULTIPLES, DEFAULT_REGION, MAX_PEERS, parseValuationNav, valuationHref } from './nav';
 
 const sp = (query: string) => new URLSearchParams(query);
 const INDUSTRIES = ['Software (System & Application)', 'Semiconductor'];

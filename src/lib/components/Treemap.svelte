@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { fit, nest, squarify, wrap, type TreemapItem } from '#lib/size-treemap';
-	import { formatPercent, readableOn } from '#lib/size';
+	import { fit, nest, squarify, wrap, type TreemapItem } from '#lib/size/treemap';
+	import { formatPercent, readableOn } from '#lib/size/size';
 
 	let {
 		items,

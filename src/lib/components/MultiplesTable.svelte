@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { multipleById } from '#lib/catalog';
 	import { formatMultiple } from '#lib/chart';
-	import type { Benchmark, PeerRow } from '#lib/valuation-data';
+	import type { Benchmark, PeerRow } from '#lib/valuation/data';
 
 	let {
 		peers,

@@ -1,7 +1,7 @@
 // src/lib/server/valuation-template.ts
 // Reads and writes the private company template as an .xlsx file. The parsing itself is pure (`valuation-template.ts`).
 import * as XLSX from 'xlsx';
-import { parseTemplateRows, templateRows, type Cell, type TemplateResult } from '../valuation-template';
+import { parseTemplateRows, templateRows, type Cell, type TemplateResult } from '../valuation/template';
 
 /** Larger uploads are refused before they are parsed. */
 export const MAX_UPLOAD_BYTES = 1_000_000;

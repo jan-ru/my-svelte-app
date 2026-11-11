@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import type { CompanyData } from './companies';
-import type { GdpData } from './gdp';
-import { countriesView, industriesView } from './size-view';
-import type { SizeNav } from './size-nav';
+import type { CompanyData } from '../companies';
+import type { GdpData } from '../gdp';
+import { countriesView, industriesView } from './view';
+import type { SizeNav } from './nav';
 
 const data: CompanyData = {
 	generated: '2026-10-25',

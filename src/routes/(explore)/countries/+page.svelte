@@ -8,8 +8,8 @@
 	import Treemap from '#lib/components/Treemap.svelte';
 	import { macroYearRange } from '#lib/macro';
 	import { plural } from '#lib/plural';
-	import { formatCount, formatPercent, formatUsd, formatUsdCompact, USD_COMPACT_NOTE } from '#lib/size';
-	import { sizeHref, toggle } from '#lib/size-nav';
+	import { formatCount, formatPercent, formatUsd, formatUsdCompact, USD_COMPACT_NOTE } from '#lib/size/size';
+	import { sizeHref, toggle } from '#lib/size/nav';
 
 	let { data }: PageProps = $props();
 

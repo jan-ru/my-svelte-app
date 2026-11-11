@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import real from './data/companies.json';
-import type { CompanyData } from './companies';
+import real from '../data/companies.json';
+import type { CompanyData } from '../companies';
 import {
 	COUNTRY_FILL,
 	SECTOR_FILLS,

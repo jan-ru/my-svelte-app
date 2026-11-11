@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { parseTemplateRows, templateRows, type Cell } from './valuation-template';
+import { parseTemplateRows, templateRows, type Cell } from './template';
 import { at } from '#lib/at';
 
 /** The blank template with figures typed in, as a sheet would come back. */

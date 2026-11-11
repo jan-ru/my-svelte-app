@@ -6,8 +6,8 @@
 	import SizeSelector from '#lib/components/SizeSelector.svelte';
 	import Treemap from '#lib/components/Treemap.svelte';
 	import { plural } from '#lib/plural';
-	import { formatCount, formatPercent } from '#lib/size';
-	import { sizeHref, toggle } from '#lib/size-nav';
+	import { formatCount, formatPercent } from '#lib/size/size';
+	import { sizeHref, toggle } from '#lib/size/nav';
 
 	let { data }: PageProps = $props();
 

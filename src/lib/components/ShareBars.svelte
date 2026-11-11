@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { formatPercent, type Shares } from '#lib/size';
+	import { formatPercent, type Shares } from '#lib/size/size';
 
 	let { shares, format, measureLabel }: { shares: Shares; format: (n: number) => string; measureLabel: string } =
 		$props();

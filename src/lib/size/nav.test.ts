@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { ISR_ALLOW_QUERY } from './server/access';
-import { MAX_SELECTED, SIZE_PARAMS, parseSizeNav, sizeHref, toggle } from './size-nav';
+import { ISR_ALLOW_QUERY } from '../server/access';
+import { MAX_SELECTED, SIZE_PARAMS, parseSizeNav, sizeHref, toggle } from './nav';
 
 const known = {
 	countries: ['Japan', 'Netherlands', 'Chile'],

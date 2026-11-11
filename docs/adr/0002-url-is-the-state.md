@@ -6,7 +6,7 @@ decision-makers: Jan-Ru Muller (sole maintainer)
 # ADR-002: The URL is the page state
 
 - **Accepted:** 2026-10-24, with the home page; applied since to every page.
-- **Component:** `params.ts`, `size-nav.ts`, `financials-nav.ts`, `valuation-nav.ts`
+- **Component:** `params.ts`, `size/nav.ts`, `financials-nav.ts`, `valuation/nav.ts`
 
 ## Context
 

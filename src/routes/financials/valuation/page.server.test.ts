@@ -18,7 +18,7 @@ vi.mock('#lib/server/compare', () => ({ getIndustries: vi.fn(async () => ['Semic
 import { getIndustries } from '#lib/server/compare';
 import { loadValuation } from '#lib/server/valuation';
 import { writeTemplate } from '#lib/server/valuation-template';
-import { decodeCompany } from '#lib/valuation-company';
+import { decodeCompany } from '#lib/valuation/company';
 import { actions, load } from './+page.server';
 import { GET } from './template/+server';
 import { BYPASS_COOKIE } from '#lib/server/access';

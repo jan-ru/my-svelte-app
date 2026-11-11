@@ -1,6 +1,6 @@
 <script lang="ts">
-	import type { CompanyFigures, Metric } from '#lib/valuation-data';
-	import { METRIC_LABELS, formatAmount, scaleFor } from '#lib/valuation-format';
+	import type { CompanyFigures, Metric } from '#lib/valuation/data';
+	import { METRIC_LABELS, formatAmount, scaleFor } from '#lib/valuation/format';
 
 	let { figures }: { figures: CompanyFigures } = $props();
 

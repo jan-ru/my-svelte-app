@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { PALETTE } from '#lib/chart';
 	import { describeRow, type FieldModel } from '#lib/football-field';
-	import { formatAmount } from '#lib/valuation-format';
+	import { formatAmount } from '#lib/valuation/format';
 
 	let { model }: { model: FieldModel } = $props();
 

@@ -1,7 +1,7 @@
 // src/lib/valuation-company.ts
 // A private company's figures travel in the URL (`co`), so nothing is stored on the server and a bookmark keeps them.
 // This module turns `CompanyFigures` into a compact, URL-safe string and back, checking everything it reads. Pure.
-import type { CompanyFigures, FigureYear, Metric } from './valuation-data';
+import type { CompanyFigures, FigureYear, Metric } from './data';
 
 /** The order of the figures in an encoded year. */
 export const METRICS: readonly Metric[] = ['revenue', 'ebitda', 'ebit', 'netIncome', 'bookEquity', 'investedCapital'];

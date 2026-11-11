@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { MULTIPLES } from './catalog';
+import { MULTIPLES } from '../catalog';
 import { BASIS, benchmark, percentile, pickYear, valuationView, valueMethod } from './valuation';
-import type { Benchmark, CompanyFigures, PeerMultiples } from './valuation-data';
+import type { Benchmark, CompanyFigures, PeerMultiples } from './data';
 
 const figures: CompanyFigures = {
 	name: 'Example BV',
