@@ -2,10 +2,10 @@
 	import { page } from '$app/state';
 	import { MAX_SELECTION, MULTIPLES, REGIONS, type Role } from '#lib/catalog';
 	import { LOW_FIRMS_THRESHOLD, PALETTE } from '#lib/chart';
-	import ChartPanel from '#lib/components/ChartPanel.svelte';
 	import CheckGroup from '#lib/components/CheckGroup.svelte';
 	import IndustryPicker from '#lib/components/IndustryPicker.svelte';
 	import LoginPrompt from '#lib/components/LoginPrompt.svelte';
+	import PanelGrid from '#lib/components/PanelGrid.svelte';
 	import { applyRole } from '#lib/params';
 	import type { PageProps } from './$types';
 
@@ -128,13 +128,7 @@
 					>{:else}{name}{/if}{/each}
 		</p>
 
-		<div class="panels grid" class:single={data.model.panels.length === 1}>
-			{#each data.model.panels as panel, index (panel.key)}
-				<div class="panel span-4 span-m-8 span-l-6 span-xl-8">
-					<ChartPanel {panel} colors={PALETTE} uid={index} />
-				</div>
-			{/each}
-		</div>
+		<PanelGrid panels={data.model.panels} colors={PALETTE} />
 
 		{#if hasLowFirms}
 			<p class="footnote">Hatched bars are based on fewer than {LOW_FIRMS_THRESHOLD} firms.</p>
@@ -199,9 +193,6 @@
 		margin-right: 0.4rem;
 		vertical-align: -0.1rem;
 		border-radius: var(--radius-xs);
-	}
-	.panels.single .panel {
-		max-width: 40rem;
 	}
 	.notice {
 		padding: var(--space-3) var(--space-4);
