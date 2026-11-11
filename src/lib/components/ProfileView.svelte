@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Icon from './Icon.svelte';
 	import { profileFields } from '#lib/company';
 	import type { Profile } from '#lib/source-data';
 
@@ -10,7 +11,9 @@
 		{#each profileFields(profile) as f (f.label)}
 			<dt>{f.label}</dt>
 			<dd>
-				{#if f.href}<a href={f.href} target="_blank" rel="noopener noreferrer">{f.value}</a>{:else}{f.value}{/if}
+				{#if f.href}<a href={f.href} target="_blank" rel="noopener noreferrer"
+						>{f.value}<Icon name="external" label="(opens in a new tab)" /></a
+					>{:else}{f.value}{/if}
 			</dd>
 		{/each}
 	</dl>

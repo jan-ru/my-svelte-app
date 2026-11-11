@@ -45,6 +45,7 @@ describe('ProfileView', () => {
 		expect(out).toContain('Technology');
 		expect(out).toContain('href="https://www.apple.com"');
 		expect(out).toContain('rel="noopener noreferrer"');
+		expect(out).toContain('aria-label="(opens in a new tab)"');
 		expect(out).toMatch(/<h2[^>]*>About<\/h2>/);
 		expect(out).toContain('Apple designs phones.');
 	});
