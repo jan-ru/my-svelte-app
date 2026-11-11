@@ -128,7 +128,7 @@ CI also enforces a coverage floor on `src/lib` (`npm run test:coverage`), runs t
 
 ## Releases and design docs
 
-[`docs/overview.md`](docs/overview.md) gives the design at a glance, the design decisions, the release history, the quality review and the roadmap. [`docs/financials.md`](docs/financials.md) explains the `/financials` sources, Eulerpool and the valuation page, and [`docs/horizon-tokens.md`](docs/horizon-tokens.md) the design tokens. The decisions are recorded one per file in [`docs/adr/`](docs/adr/README.md), the quality review is in [`docs/quality/`](docs/quality/README.md), and [`CHANGELOG.md`](CHANGELOG.md) lists what each release brought. [`RELEASING.md`](RELEASING.md) describes how a release is cut (CalVer `YYYY.0M.0D` tags).
+[`docs/overview.md`](docs/overview.md) gives the design at a glance, the design decisions, the release history, the quality review and the roadmap. [`docs/svelte-mcp.md`](docs/svelte-mcp.md) sets up the Svelte MCP server for Claude Code, OpenCode and Pi. [`docs/financials.md`](docs/financials.md) explains the `/financials` sources, Eulerpool and the valuation page, and [`docs/horizon-tokens.md`](docs/horizon-tokens.md) the design tokens. The decisions are recorded one per file in [`docs/adr/`](docs/adr/README.md), the quality review is in [`docs/quality/`](docs/quality/README.md), and [`CHANGELOG.md`](CHANGELOG.md) lists what each release brought. [`RELEASING.md`](RELEASING.md) describes how a release is cut (CalVer `YYYY.0M.0D` tags).
 
 ## Getting started
 
