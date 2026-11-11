@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { encodeCompany } from './company';
 import type { CompanyFigures } from './data';
-import { DEFAULT_MULTIPLES, DEFAULT_REGION, MAX_PEERS, parseValuationNav, valuationHref } from './nav';
+import { DEFAULT_MULTIPLES, DEFAULT_REGION, MAX_PEERS, parseValuationNav, uploadAction, valuationHref } from './nav';
 
 const sp = (query: string) => new URLSearchParams(query);
 const INDUSTRIES = ['Software (System & Application)', 'Semiconductor'];
@@ -122,5 +122,16 @@ describe('private company in the URL', () => {
 	});
 	it('ignores a broken co', () => {
 		expect(parseValuationNav(sp('co=nonsense')).company).toBeNull();
+	});
+});
+
+describe('uploadAction', () => {
+	it('keeps the rest of the state and drops the company and symbol', () => {
+		const nav = parseValuationNav(sp('symbol=ASML&peer=BESI.AS'));
+		const action = uploadAction(nav);
+		expect(action.startsWith('?/upload&')).toBe(true);
+		expect(action).toContain('peer=BESI.AS');
+		expect(action).toContain(`region=${DEFAULT_REGION}`);
+		expect(action).not.toContain('symbol=');
 	});
 });

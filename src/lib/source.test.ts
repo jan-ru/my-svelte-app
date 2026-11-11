@@ -3,6 +3,7 @@ import {
 	FMP_SUPPORTS_TTM,
 	effectivePeriod,
 	isUsListing,
+	offeredSources,
 	parseSource,
 	periodAvailable,
 	resolveSource,
@@ -87,5 +88,13 @@ describe('sourceLabel', () => {
 	it('names the sources for visitors', () => {
 		expect(sourceLabel('fmp')).toBe('FMP');
 		expect(sourceLabel('yahoo')).toBe('Yahoo Finance');
+	});
+});
+
+describe('offeredSources', () => {
+	it('offers FMP for a US ticker and not for a foreign one', () => {
+		expect(offeredSources('AAPL').map((s) => s.id)).toContain('fmp');
+		expect(offeredSources('ASML.AS').map((s) => s.id)).not.toContain('fmp');
+		expect(offeredSources('ASML.AS').length).toBeGreaterThan(0);
 	});
 });

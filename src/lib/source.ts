@@ -47,3 +47,7 @@ export function periodAvailable(source: Source, period: Period): boolean {
 export function effectivePeriod(source: Source, period: Period): Period {
 	return periodAvailable(source, period) ? period : 'annual';
 }
+
+/** The sources a ticker can be shown from: FMP serves US tickers only; Yahoo Finance and Eulerpool serve any. */
+export const offeredSources = (symbol: string): readonly (typeof SOURCES)[number][] =>
+	isUsListing(symbol) ? SOURCES : SOURCES.filter((s) => s.id !== 'fmp');

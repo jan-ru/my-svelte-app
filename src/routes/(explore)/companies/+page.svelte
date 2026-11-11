@@ -2,25 +2,12 @@
 	import type { PageProps } from './$types';
 	import Icon from '#lib/components/Icon.svelte';
 	import LoginPrompt from '#lib/components/LoginPrompt.svelte';
-	import { PREVIEW_ROWS, financialsLink } from '#lib/companies';
+	import { PREVIEW_ROWS, countOf, financialsLink, isFiltered, narrowHref, pageHref } from '#lib/companies';
 	import { quoteLink } from '#lib/quote';
 
 	let { data }: PageProps = $props();
 
-	/** The current filters with one more (or changed) value, back on page 1: clicking a cell narrows the list. */
-	const narrow = (key: string, value: string) => {
-		const sp = new URLSearchParams(Object.entries({ ...data.filters, [key]: value }).filter(([, v]) => v));
-		return `/companies?${sp.toString()}`;
-	};
-	const filtered = $derived(Object.values(data.filters).some(Boolean));
-
-	const plural = (n: number, one: string, many: string) => `${n.toLocaleString('en')} ${n === 1 ? one : many}`;
-
-	const href = (page: number, without?: string) => {
-		const kept = Object.entries(data.filters).filter(([key, value]) => value && key !== without);
-		const query = new URLSearchParams(page > 1 ? [...kept, ['page', String(page)]] : kept).toString();
-		return query ? `/companies?${query}` : '/companies';
-	};
+	const filtered = $derived(isFiltered(data.filters));
 </script>
 
 <svelte:head>
@@ -32,7 +19,7 @@
 </svelte:head>
 
 {#snippet cell(key: string, value: string)}
-	{#if data.interactive}<a href={narrow(key, value)}>{value}</a>{:else}{value}{/if}
+	{#if data.interactive}<a href={narrowHref(data.filters, key, value)}>{value}</a>{:else}{value}{/if}
 {/snippet}
 
 <main>
@@ -90,7 +77,7 @@
 	{#if data.filters.sic}
 		<p class="note">
 			Only companies with SIC code <code>{data.filters.sic}</code>{data.sicTitle ? ` (${data.sicTitle})` : ''}.
-			<a href={href(1, 'sic')}>Remove this filter</a>
+			<a href={pageHref(data.filters, 1, 'sic')}>Remove this filter</a>
 		</p>
 	{/if}
 
@@ -100,11 +87,11 @@
 		<p role="status" class="note">
 			{data.result.total.toLocaleString('en')}
 			{data.result.total === 1 ? 'company' : 'companies'}{#if data.result.total > 0}
-				in {plural(data.result.distinct.industries, 'industry', 'industries')},
-				{plural(data.result.distinct.sectors, 'sector', 'sectors')},
-				{plural(data.result.distinct.regions, 'region', 'regions')},
-				{plural(data.result.distinct.subGroups, 'sub group', 'sub groups')} and
-				{plural(data.result.distinct.exchanges, 'exchange', 'exchanges')}{/if}.
+				in {countOf(data.result.distinct.industries, 'industry', 'industries')},
+				{countOf(data.result.distinct.sectors, 'sector', 'sectors')},
+				{countOf(data.result.distinct.regions, 'region', 'regions')},
+				{countOf(data.result.distinct.subGroups, 'sub group', 'sub groups')} and
+				{countOf(data.result.distinct.exchanges, 'exchange', 'exchanges')}{/if}.
 			{#if data.result.pages > 1}Page {data.result.page} of {data.result.pages}.{/if}
 		</p>
 		{#if data.preview}<p class="note">Showing the first {PREVIEW_ROWS} companies.</p>{/if}
@@ -136,9 +123,9 @@
 								{:else}{c.ticker}{/if}
 							</td>
 							<td
-								>{#if c.sic}{#if data.interactive}<a href={narrow('sic', c.sic)}><code>{c.sic}</code></a>{:else}<code
-											>{c.sic}</code
-										>{/if}{/if}</td
+								>{#if c.sic}{#if data.interactive}<a href={narrowHref(data.filters, 'sic', c.sic)}
+											><code>{c.sic}</code></a
+										>{:else}<code>{c.sic}</code>{/if}{/if}</td
 							>
 							<td>
 								{@render cell('industry', c.industry)}
@@ -168,9 +155,11 @@
 
 			{#if data.result.pages > 1}
 				<nav class="pager" aria-label="Pages">
-					{#if data.result.page > 1}<a href={href(data.result.page - 1)} rel="prev">Previous</a>{/if}
+					{#if data.result.page > 1}<a href={pageHref(data.filters, data.result.page - 1)} rel="prev">Previous</a>{/if}
 					<span class="note">Page {data.result.page} of {data.result.pages}</span>
-					{#if data.result.page < data.result.pages}<a href={href(data.result.page + 1)} rel="next">Next</a>{/if}
+					{#if data.result.page < data.result.pages}<a href={pageHref(data.filters, data.result.page + 1)} rel="next"
+							>Next</a
+						>{/if}
 				</nav>
 			{/if}
 		{/if}
