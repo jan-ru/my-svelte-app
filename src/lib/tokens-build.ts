@@ -247,7 +247,10 @@ export const ADOPTED: readonly Adoption[] = [
 	{ name: '--shadow-1', token: 'sapContent_Shadow0' },
 	{ name: '--shadow-2', token: 'sapContent_Shadow1' },
 	{ name: '--shadow-3', token: 'sapContent_Shadow2' },
-	{ name: '--shadow-4', token: 'sapContent_Shadow3' }
+	{ name: '--shadow-4', token: 'sapContent_Shadow3' },
+	// Focus: Horizon's focus colour (a darker blue than our #0070f2) and 2px width.
+	{ name: '--border-focus', token: 'sapContent_FocusColor' },
+	{ name: '--focus-ring', token: 'sapContent_FocusWidth' }
 ];
 
 export interface GridSize {

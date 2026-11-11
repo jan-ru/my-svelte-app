@@ -52,7 +52,6 @@
 	--surface-page: var(--grey-01);
 
 	--border-strong: var(--grey-05);
-	--border-focus: var(--blue-60);
 
 	/* Accent bar used across duck_ui5 info/callout blocks */
 	--accent-info-bar: var(--information);
@@ -114,7 +113,6 @@
 	/* ---- Border widths ---- */
 	--border-width: 1px;
 	--border-emphasis: 2px;
-	--focus-ring: 3px;
 
 	/* ---- Elevation ---- */
 	/* --shadow-1 to --shadow-4 are Horizon's Shadow0 to Shadow3, in generated/aliases.css. */
