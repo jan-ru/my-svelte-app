@@ -1,16 +1,8 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import {
-	ADOPTED,
-	ALIASES,
-	GROUPS,
-	THEMES,
-	buildAll,
-	flattenTokens,
-	themeDeclarations,
-	type TokenTree
-} from './tokens-build';
+import { buildAll, flattenTokens, themeDeclarations, type TokenTree } from './tokens-build';
+import { ADOPTED, ALIASES, GROUPS, THEMES } from './tokens-tables';
 
 const root = path.join(import.meta.dirname, '../..');
 const sources: Record<string, TokenTree> = Object.fromEntries(

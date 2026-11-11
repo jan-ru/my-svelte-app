@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { GRID } from './tokens-build';
+import { GRID } from './tokens-tables';
 
 const styles = path.join(import.meta.dirname, 'styles');
 const helper = readFileSync(path.join(styles, 'grid.css'), 'utf8');

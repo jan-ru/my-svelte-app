@@ -11,6 +11,7 @@ The detail behind the `/financials` rules in `CLAUDE.md`. The hard rules (privac
 
 ## Sources
 
+- The set of fetchers per source (`SourceFetchers`: FMP, Yahoo, Eulerpool), their caches, `fetchersOf` and `keyOf` are in `src/lib/server/financial-sources.ts`; the tab loaders are in `src/lib/server/financials.ts`.
 - Profile, news and prices go through the shared `fmpGet` in `src/lib/server/fmp.ts`. Links from API data must pass `safeUrl`.
 - A view never mixes data sources: `src/lib/source.ts` decides the source per ticker (a dot suffix means Yahoo only) and whether a period exists for it (`FMP_SUPPORTS_TTM`).
 - Yahoo goes through `src/lib/server/yahoo.ts` (injectable client) and `yahoo-parse.ts`. Never log Yahoo error text to visitors.

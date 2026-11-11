@@ -1,8 +1,9 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { Nav } from '../financials-nav';
 import type { PricePoint, Statement, SupplyChain } from '../source-data';
-import { eulerpoolFetchers, fetchersOf, keyOf, loadFinancials } from './financials';
-import type { StatementFetcher } from './financials';
+import { loadFinancials } from './financials';
+import { eulerpoolFetchers, fetchersOf, keyOf } from './financial-sources';
+import type { StatementFetcher } from './financial-sources';
 import { SourceError } from './source-error';
 
 const nav: Nav = { tab: 'financials', statement: 'income', period: 'annual', source: 'eulerpool' };

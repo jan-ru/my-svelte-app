@@ -2,8 +2,9 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { Nav } from '../financials-nav';
 import { TABS } from '../financials-nav';
-import { loadFinancials, statementTitle, type StatementFetcher } from './financials';
-import type { SourceFetchers } from './financials';
+import { loadFinancials, statementTitle } from './financials';
+import { type StatementFetcher } from './financial-sources';
+import type { SourceFetchers } from './financial-sources';
 import type { NewsItem, PricePoint, Profile, Statement } from '../source-data';
 import { SourceError } from './source-error';
 

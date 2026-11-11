@@ -7,7 +7,7 @@ vi.mock('./fmp', async (importActual) => ({
 }));
 
 import { fetchStatement } from './fmp';
-import { cachedFetcher } from './financials';
+import { cachedFetcher } from './financial-sources';
 import type { Statement } from '../source-data';
 
 const statement: Statement = {
