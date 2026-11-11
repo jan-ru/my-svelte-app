@@ -24,14 +24,4 @@
 		position: sticky;
 		top: var(--space-4);
 	}
-	/* Below Horizon's M breakpoint (600px) the menu sits above the content instead of beside it. */
-	@media (max-width: 599px) {
-		.frame {
-			grid-template-columns: minmax(0, 1fr);
-			gap: var(--space-4);
-		}
-		aside {
-			position: static;
-		}
-	}
 </style>
