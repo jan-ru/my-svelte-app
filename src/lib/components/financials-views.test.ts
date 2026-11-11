@@ -6,7 +6,7 @@ import type { NewsItem, Peer, PricePoint, PriceTarget, Profile, SupplyChain } fr
 import type { StatementTable } from '../statements';
 import FinancialTable from './FinancialTable.svelte';
 import NewsList from './NewsList.svelte';
-import PeriodNav from './PeriodNav.svelte';
+import SegmentedNav from './SegmentedNav.svelte';
 import PeersList from './PeersList.svelte';
 import PriceView from './PriceView.svelte';
 import ProfileView from './ProfileView.svelte';
@@ -260,18 +260,22 @@ describe('SupplyChainView', () => {
 	});
 });
 
-describe('PeriodNav', () => {
-	const nav = { tab: 'financials', statement: 'income', period: 'annual' } as const;
-	it('disables TTM under FMP, with the reason, and keeps annual a link', () => {
-		const out = html(PeriodNav, { nav, period: 'annual', source: 'fmp', symbol: 'AAPL' });
-		expect(out).toMatch(/<span[^>]*aria-disabled="true"[^>]*>TTM<\/span>/);
-		expect(out).toContain('not available from FMP');
+describe('SegmentedNav', () => {
+	it('shows an option without a link as disabled, with its reason', () => {
+		const out = html(SegmentedNav, {
+			label: 'Period',
+			items: [
+				{ label: 'Latest 5 years', href: '/x?period=annual', current: true },
+				{ label: 'TTM', href: null, current: false, title: 'Not available here' }
+			]
+		});
+		expect(out).toMatch(/<span[^>]*aria-disabled="true"[^>]*title="Not available here"[^>]*>TTM<\/span>/);
 		expect(out).toContain('aria-current="page"');
 		expect(out).not.toMatch(/<a[^>]*>TTM<\/a>/);
 	});
-	it('offers TTM as a link under Yahoo', () => {
-		const out = html(PeriodNav, { nav, period: 'ttm', source: 'yahoo', symbol: 'AAPL' });
-		expect(out).not.toContain('aria-disabled');
-		expect(out).toMatch(/<a[^>]*period=ttm[^>]*>TTM<\/a>/);
+	it('shows the caption before the control', () => {
+		const out = html(SegmentedNav, { label: 'Data source', caption: 'Source', items: [] });
+		expect(out).toContain('<span class="caption');
+		expect(out).toContain('aria-label="Data source"');
 	});
 });
