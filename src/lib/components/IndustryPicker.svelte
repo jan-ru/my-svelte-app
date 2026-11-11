@@ -60,14 +60,6 @@
 		gap: var(--space-2);
 		margin-bottom: var(--space-2);
 	}
-	.sr-only {
-		position: absolute;
-		width: 1px;
-		height: 1px;
-		overflow: hidden;
-		clip-path: inset(50%);
-		white-space: nowrap;
-	}
 	.chip {
 		position: relative;
 		display: inline-flex;
