@@ -4,7 +4,7 @@
 // copied from the source but worked out as what is left of a subtotal, so the short sheet adds up (see docs/financials.md).
 import type { Statement } from './source-data';
 
-interface CondensedLine {
+export interface CondensedLine {
 	/** The key of the condensed line; the table turns it into the label. */
 	readonly key: string;
 	/** The names the sources use for it. The first one that has a figure is used. */
