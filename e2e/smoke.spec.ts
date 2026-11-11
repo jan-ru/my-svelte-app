@@ -46,6 +46,29 @@ for (const path of PUBLIC_PAGES) {
 	});
 }
 
+test('the menubar fits a phone: no sideways scroll at 400px, one 44px row on a desktop', async ({ page }) => {
+	const errors = watchErrors(page);
+	await page.setViewportSize({ width: 400, height: 900 });
+	await page.goto('/about');
+	const overflow = await page.evaluate(
+		() => document.documentElement.scrollWidth - document.documentElement.clientWidth
+	);
+	expect(overflow).toBe(0);
+	const rights = await page
+		.getByRole('navigation', { name: 'Main' })
+		.locator('a')
+		.evaluateAll((links) => links.map((link) => link.getBoundingClientRect().right));
+	for (const right of rights) expect(right).toBeLessThanOrEqual(400);
+	await page.setViewportSize({ width: 1200, height: 900 });
+	await page.goto('/about');
+	const height = await page
+		.getByRole('navigation', { name: 'Main' })
+		.evaluate((nav) => nav.getBoundingClientRect().height);
+	// 44px plus the 1px bottom border
+	expect(height).toBeLessThanOrEqual(45);
+	expect(errors).toEqual([]);
+});
+
 test('an unknown address shows the site error page', async ({ page }) => {
 	const response = await page.goto('/no-such-page');
 	expect(response?.status()).toBe(404);

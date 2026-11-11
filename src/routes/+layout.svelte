@@ -77,8 +77,10 @@
 	nav {
 		display: flex;
 		align-items: stretch;
-		gap: var(--space-1);
-		height: var(--shell-header-height);
+		/* wraps on a phone, where the brand and links do not fit one row; each row stays a 44px touch target */
+		flex-wrap: wrap;
+		gap: 0 var(--space-1);
+		min-height: var(--shell-header-height);
 		padding: 0 var(--space-4);
 		background: var(--surface-shell);
 		border-bottom: 1px solid var(--border-subtle);
@@ -87,6 +89,7 @@
 	nav a {
 		display: flex;
 		align-items: center;
+		min-height: var(--shell-header-height);
 		padding: 0 var(--space-3);
 		color: var(--text-primary);
 		text-decoration: none;
@@ -116,6 +119,7 @@
 		align-items: center;
 	}
 	button.link {
+		min-height: var(--shell-header-height);
 		padding: 0 var(--space-3);
 		font: inherit;
 		color: var(--text-primary);
