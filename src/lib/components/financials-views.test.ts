@@ -6,6 +6,7 @@ import type { NewsItem, Peer, PricePoint, PriceTarget, Profile, SupplyChain } fr
 import type { StatementTable } from '../statements';
 import FinancialTable from './FinancialTable.svelte';
 import NewsList from './NewsList.svelte';
+import PeriodNav from './PeriodNav.svelte';
 import PeersList from './PeersList.svelte';
 import PriceView from './PriceView.svelte';
 import ProfileView from './ProfileView.svelte';
@@ -256,5 +257,21 @@ describe('SupplyChainView', () => {
 		const out = plain(html(SupplyChainView, { chain: null, message: 'Eulerpool lists no suppliers.', hrefFor }));
 		expect(out).toContain('Eulerpool lists no suppliers.');
 		expect(out).not.toContain('Company Relationship');
+	});
+});
+
+describe('PeriodNav', () => {
+	const nav = { tab: 'financials', statement: 'income', period: 'annual' } as const;
+	it('disables TTM under FMP, with the reason, and keeps annual a link', () => {
+		const out = html(PeriodNav, { nav, period: 'annual', source: 'fmp', symbol: 'AAPL' });
+		expect(out).toMatch(/<span[^>]*aria-disabled="true"[^>]*>TTM<\/span>/);
+		expect(out).toContain('not available from FMP');
+		expect(out).toContain('aria-current="page"');
+		expect(out).not.toMatch(/<a[^>]*>TTM<\/a>/);
+	});
+	it('offers TTM as a link under Yahoo', () => {
+		const out = html(PeriodNav, { nav, period: 'ttm', source: 'yahoo', symbol: 'AAPL' });
+		expect(out).not.toContain('aria-disabled');
+		expect(out).toMatch(/<a[^>]*period=ttm[^>]*>TTM<\/a>/);
 	});
 });

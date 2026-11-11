@@ -42,38 +42,52 @@ let shared: Promise<YahooClient> | undefined;
 
 /** One client per server instance, created on first use so other pages never load the library. */
 export function defaultClient(): Promise<YahooClient> {
-	shared ??= import('yahoo-finance2').then(({ default: YahooFinance }) => {
-		const yf = new YahooFinance({
-			suppressNotices: ['yahooSurvey'],
-			logger: { info() {}, warn() {}, error() {}, debug() {}, dir() {} }
+	shared ??= import('yahoo-finance2')
+		.then(({ default: YahooFinance }) => {
+			const yf = new YahooFinance({
+				suppressNotices: ['yahooSurvey'],
+				logger: { info() {}, warn() {}, error() {}, debug() {}, dir() {} }
+			});
+			return {
+				chart: (symbol, options, moduleOptions) => yf.chart(symbol, options, moduleOptions),
+				quoteSummary: (symbol, options, moduleOptions) => yf.quoteSummary(symbol, options, moduleOptions),
+				search: (query, options, moduleOptions) => yf.search(query, options, moduleOptions),
+				fundamentalsTimeSeries: (symbol, options, moduleOptions) =>
+					yf.fundamentalsTimeSeries(symbol, options, moduleOptions)
+			} satisfies YahooClient;
+		})
+		.catch((error: unknown) => {
+			// a failed import must not stick until the instance restarts: the next request tries again
+			shared = undefined;
+			throw error;
 		});
-		return {
-			chart: (symbol, options, moduleOptions) => yf.chart(symbol, options, moduleOptions),
-			quoteSummary: (symbol, options, moduleOptions) => yf.quoteSummary(symbol, options, moduleOptions),
-			search: (query, options, moduleOptions) => yf.search(query, options, moduleOptions),
-			fundamentalsTimeSeries: (symbol, options, moduleOptions) =>
-				yf.fundamentalsTimeSeries(symbol, options, moduleOptions)
-		} satisfies YahooClient;
-	});
 	return shared;
 }
 
 const NOT_FOUND = /not found|no data found|no fundamentals|delisted|invalid symbol/i;
 const RATE_LIMITED = /429|too many requests/i;
 
+/** The class name and HTTP status of a library error, for the log. Never the message: it can carry URLs and tokens. */
+function describe(error: unknown): string | undefined {
+	if (!(error instanceof Error)) return undefined;
+	const status = /\b([45]\d\d)\b/.exec(error.message)?.[1];
+	return status ? `${error.name} ${status}` : error.name;
+}
+
 /** Fixed messages only: library errors can carry URLs and tokens. */
 function mapError(error: unknown): SourceError {
 	if (error instanceof SourceError) return error;
 	const text = error instanceof Error ? `${error.name} ${error.message}` : '';
-	if (RATE_LIMITED.test(text)) return new SourceError('limit', 'Yahoo Finance rate limit reached');
-	return new SourceError('unavailable', 'Yahoo Finance is unavailable');
+	if (RATE_LIMITED.test(text)) return new SourceError('limit', 'Yahoo Finance rate limit reached', describe(error));
+	return new SourceError('unavailable', 'Yahoo Finance is unavailable', describe(error));
 }
 
 async function tolerant<T>(run: () => Promise<T>, empty: T): Promise<T> {
 	try {
 		return await run();
 	} catch (error) {
-		if (error instanceof Error && NOT_FOUND.test(error.message)) return empty;
+		// "not found" is an answer worth caching as empty; a rate limit or outage that mentions it is not
+		if (error instanceof Error && NOT_FOUND.test(error.message) && !RATE_LIMITED.test(error.message)) return empty;
 		throw mapError(error);
 	}
 }

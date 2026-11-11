@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { fetchYahooNews, fetchYahooPrices, fetchYahooProfile, fetchYahooStatement, type YahooClient } from './yahoo';
 import { SourceError } from './source-error';
 
@@ -159,5 +159,99 @@ describe('errors', () => {
 		expect(broken).toBeInstanceOf(SourceError);
 		expect((broken as SourceError).kind).toBe('unavailable');
 		expect((broken as Error).message).not.toMatch(/https?:|crumb|SECRET/);
+	});
+});
+
+describe('every library call', () => {
+	it('turns the library result validation off, at all seven call sites', async () => {
+		const client = fake();
+		await fetchYahooPrices('ABN.AS', '2025-10-26', '2026-10-26', client);
+		await fetchYahooProfile('ABN.AS', client);
+		await fetchYahooNews('ABN.AS', client);
+		await fetchYahooStatement('income', 'ABN.AS', 'annual', client);
+		const calls = [
+			...vi.mocked(client.chart).mock.calls,
+			...vi.mocked(client.quoteSummary).mock.calls,
+			...vi.mocked(client.search).mock.calls,
+			...vi.mocked(client.fundamentalsTimeSeries).mock.calls
+		];
+		// chart 1, profile 1, news 2 (name lookup and search), statement 2 (series and currency)
+		expect(calls).toHaveLength(6);
+		for (const call of calls) expect(call[2]).toEqual({ validateResult: false });
+	});
+});
+
+describe('errors that look like not-found', () => {
+	it('are not turned into an empty (cached) result when the text is a rate limit', async () => {
+		const client = fake({
+			chart: vi.fn(async () => {
+				throw new Error('HTTP 429 Too Many Requests: symbol not found in cache');
+			})
+		});
+		const error = await fetchYahooPrices('X', '2025-10-26', '2026-10-26', client).catch((e: unknown) => e);
+		expect(error).toBeInstanceOf(SourceError);
+		expect((error as SourceError).kind).toBe('limit');
+	});
+	it('carry the library error name and HTTP status for the log, never its text', async () => {
+		class FetchError extends Error {
+			override name = 'FetchError';
+		}
+		const client = fake({
+			chart: vi.fn(async () => {
+				throw new FetchError('HTTP 403 for https://query1.finance.yahoo.com/v8?crumb=SECRET');
+			})
+		});
+		const error = (await fetchYahooPrices('X', '2025-10-26', '2026-10-26', client).catch(
+			(e: unknown) => e
+		)) as SourceError;
+		expect(error.detail).toBe('FetchError 403');
+		expect(error.message).not.toMatch(/SECRET|https?:/);
+	});
+	it('have no detail when the thrown value is not an Error', async () => {
+		const client = fake({
+			chart: vi.fn(async () => {
+				// eslint-disable-next-line @typescript-eslint/only-throw-error -- the point of the test
+				throw 'boom';
+			})
+		});
+		const error = (await fetchYahooPrices('X', '2025-10-26', '2026-10-26', client).catch(
+			(e: unknown) => e
+		)) as SourceError;
+		expect(error.detail).toBeUndefined();
+	});
+});
+
+describe('defaultClient', () => {
+	afterEach(() => {
+		vi.doUnmock('yahoo-finance2');
+		vi.resetModules();
+	});
+	it('wraps the library, builds it once, and forgets a failed import so the next call retries', async () => {
+		vi.resetModules();
+		vi.doMock('yahoo-finance2', () => {
+			throw new Error('cannot load');
+		});
+		const first = await import('./yahoo');
+		await expect(first.defaultClient()).rejects.toThrow();
+
+		vi.resetModules();
+		const calls: string[] = [];
+		vi.doMock('yahoo-finance2', () => ({
+			default: class {
+				chart = (s: string) => Promise.resolve(calls.push(`chart ${s}`));
+				quoteSummary = (s: string) => Promise.resolve(calls.push(`quoteSummary ${s}`));
+				search = (q: string) => Promise.resolve(calls.push(`search ${q}`));
+				fundamentalsTimeSeries = (s: string) => Promise.resolve(calls.push(`series ${s}`));
+			}
+		}));
+		const second = await import('./yahoo');
+		const client = await second.defaultClient();
+		expect(await second.defaultClient()).toBe(client);
+		const opts = { period1: new Date(0), period2: new Date(0), interval: '1d' as const };
+		await client.chart('A', opts);
+		await client.quoteSummary('B', { modules: ['price'] });
+		await client.search('C', { newsCount: 1, quotesCount: 0 });
+		await client.fundamentalsTimeSeries('D', { period1: new Date(0), type: 'annual', module: 'financials' });
+		expect(calls).toEqual(['chart A', 'quoteSummary B', 'search C', 'series D']);
 	});
 });

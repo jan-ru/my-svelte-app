@@ -68,6 +68,14 @@ describe('loadFinancials', () => {
 		expect(await loadFinancials({ ...base, authed: false, fmp: { statement: fetcher } })).toEqual({ state: 'locked' });
 		expect(fetcher).not.toHaveBeenCalled();
 	});
+	it('says idle or invalid for a blank or bad ticker even without an API key', async () => {
+		const fetcher = vi.fn<StatementFetcher>();
+		const f = { apiKey: undefined, fmp: { statement: fetcher } };
+		expect(await loadFinancials({ ...base, ...f, rawSymbol: '' })).toEqual({ state: 'idle' });
+		expect(await loadFinancials({ ...base, ...f, rawSymbol: null })).toEqual({ state: 'idle' });
+		expect(await loadFinancials({ ...base, ...f, rawSymbol: '!!' })).toEqual({ state: 'invalid' });
+		expect(fetcher).not.toHaveBeenCalled();
+	});
 	it('does not call FMP without an API key', async () => {
 		const fetcher = vi.fn<StatementFetcher>();
 		expect(await loadFinancials({ ...base, apiKey: undefined, fmp: { statement: fetcher } })).toEqual({

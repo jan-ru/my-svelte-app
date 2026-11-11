@@ -5,15 +5,16 @@
 	import LoginPrompt from '#lib/components/LoginPrompt.svelte';
 	import FinancialTable from '#lib/components/FinancialTable.svelte';
 	import NewsList from '#lib/components/NewsList.svelte';
+	import PeriodNav from '#lib/components/PeriodNav.svelte';
 	import PeersList from '#lib/components/PeersList.svelte';
 	import PriceView from '#lib/components/PriceView.svelte';
 	import ProfileView from '#lib/components/ProfileView.svelte';
 	import SideLayout from '#lib/components/SideLayout.svelte';
 	import SideMenu from '#lib/components/SideMenu.svelte';
 	import SupplyChainView from '#lib/components/SupplyChainView.svelte';
-	import { effectivePeriod, offeredSources, periodAvailable, resolveSource, sourceLabel } from '#lib/source';
+	import { effectivePeriod, offeredSources, resolveSource, sourceLabel } from '#lib/source';
 	import { companyMenu } from '#lib/company-menu';
-	import { PERIODS, STATEMENTS, navHref } from '#lib/financials-nav';
+	import { STATEMENTS, navHref } from '#lib/financials-nav';
 	import { parseSymbol } from '#lib/symbol';
 
 	let { data }: PageProps = $props();
@@ -102,23 +103,7 @@
 						>
 					{/each}
 				</nav>
-				<nav class="period" aria-label="Period">
-					{#each PERIODS as p (p.id)}
-						{#if periodAvailable(source, p.id)}
-							<a
-								href={navHref({ ...nav, period: p.id }, data.symbol)}
-								aria-current={period === p.id ? 'page' : undefined}>{p.label}</a
-							>
-						{:else}
-							<span
-								class="disabled"
-								aria-disabled="true"
-								title="Trailing twelve months is not available from {sourceLabel(source)}. Choose Yahoo."
-								>{p.label}</span
-							>
-						{/if}
-					{/each}
-				</nav>
+				<PeriodNav {nav} {period} {source} symbol={data.symbol} />
 			{/if}
 
 			{#if view.state === 'unconfigured'}
@@ -189,8 +174,7 @@
 		border-left: 4px solid var(--negative);
 		border-radius: var(--radius-sm);
 	}
-	.tabs a,
-	.period a {
+	.tabs a {
 		padding: 6px 14px;
 		text-decoration: none;
 		color: inherit;
@@ -212,27 +196,6 @@
 		font-weight: var(--weight-semibold);
 		color: var(--color-primary);
 		border-bottom-color: var(--color-primary);
-	}
-	.period {
-		display: inline-flex;
-		margin: var(--space-3) 0;
-		background: var(--white);
-		border: 1px solid var(--border-strong);
-		border-radius: var(--radius-sm);
-		overflow: hidden;
-	}
-	.period a:hover {
-		background: var(--blue-05);
-	}
-	.period a[aria-current='page'] {
-		color: var(--text-on-primary);
-		background: var(--color-primary);
-	}
-	.period .disabled {
-		padding: 6px 14px;
-		color: var(--text-disabled);
-		background: var(--grey-02);
-		cursor: not-allowed;
 	}
 	.meta {
 		margin: 0 0 var(--space-1);

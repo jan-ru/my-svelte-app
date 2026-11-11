@@ -13,7 +13,7 @@ export default defineConfig({
 			// the live check hits the network and the test helper only builds fixtures
 			exclude: ['src/**/*.test.ts', 'src/lib/server/nyu.live.ts', 'src/lib/server/testing/**'],
 			reporter: ['text-summary', 'text'],
-			// measured at 98.8 / 91.8 / 98.9 / 99.8 on 2026-10-27; the floor leaves room for normal change but catches untested new code
+			// measured at 98.7 / 95.2 / 97.8 / 99.0 on 2026-11-11; the floor leaves room for normal change but catches untested new code
 			thresholds: { statements: 95, branches: 85, functions: 95, lines: 95 }
 		}
 	}

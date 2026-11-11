@@ -6,7 +6,7 @@ import type { Nav, Period, Tab } from '../financials-nav';
 import { effectivePeriod, resolveSource, sourceKeyName, sourceLabel } from '../source';
 import type { Source } from '../source';
 import type { Kind, NewsItem, Peer, PricePoint, PriceTarget, Profile, SupplyChain } from '../source-data';
-import { failureKind, sourceFailureMessage } from './source-error';
+import { failureDetail, failureKind, sourceFailureMessage } from './source-error';
 import {
 	fetchersOf,
 	keyOf,
@@ -47,7 +47,7 @@ export function statementTitle(kind: Kind, period: Period): string {
 }
 
 function failure(what: string, symbol: string, error: unknown, source: Source): string {
-	console.error(`${sourceLabel(source)} ${what} for ${symbol} failed (${failureKind(error)})`);
+	console.error(`${sourceLabel(source)} ${what} for ${symbol} failed (${failureKind(error)}${failureDetail(error)})`);
 	return sourceFailureMessage(error, symbol, sourceLabel(source), sourceKeyName(source) ?? undefined);
 }
 
@@ -256,13 +256,14 @@ export async function loadFinancials(input: {
 	eulerpool?: Partial<SourceFetchers>;
 }): Promise<FinancialsView> {
 	if (!input.authed) return { state: 'locked' };
+	// no ticker to look up yet: say so before talking about keys, which depend on the ticker's source
+	if (!input.rawSymbol?.trim()) return { state: 'idle' };
 	const symbol = parseSymbol(input.rawSymbol);
-	const source = resolveSource(input.nav.source, symbol ?? '');
+	if (!symbol) return { state: 'invalid' };
+	const source = resolveSource(input.nav.source, symbol);
 	// FMP and Eulerpool need a key; Yahoo works without one
 	const apiKey = keyOf(source, { fmp: input.apiKey, eulerpool: input.eulerpoolKey });
 	if (sourceKeyName(source) !== null && !apiKey) return { state: 'unconfigured' };
-	if (!input.rawSymbol?.trim()) return { state: 'idle' };
-	if (!symbol) return { state: 'invalid' };
 
 	return TAB_LOADERS[input.nav.tab]({
 		symbol,

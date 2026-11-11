@@ -142,9 +142,10 @@
 							<td>{@render cell('region', c.region)}</td>
 							<td>{@render cell('country', c.country)}</td>
 							{#if data.interactive}
+								{@const financials = financialsLink(c)}
 								<td>
-									{#if financialsLink(c)}
-										<a class="button" href={financialsLink(c)} aria-label={`Financials for ${c.name}`}>Financials</a>
+									{#if financials}
+										<a class="button" href={financials} aria-label={`Financials for ${c.name}`}>Financials</a>
 									{/if}
 								</td>
 							{/if}

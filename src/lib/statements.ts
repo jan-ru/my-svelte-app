@@ -21,6 +21,8 @@ const millions = new Intl.NumberFormat('en-US', { minimumFractionDigits: 1, maxi
 export function formatValue(key: string, value: number | null): string {
 	if (value === null) return 'n/a';
 	if (/^eps|eps$/i.test(key)) return value.toFixed(2);
+	// a tax rate is a fraction (Yahoo's taxRateForCalcs ~0.21), not an amount in millions
+	if (/taxrate/i.test(key)) return `${(value * 100).toFixed(1)}%`;
 	return millions.format(value / 1_000_000);
 }
 
