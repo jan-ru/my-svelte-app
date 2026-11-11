@@ -100,3 +100,7 @@ export function valuationHref(nav: ValuationNav): string {
 	if (nav.source) sp.set('source', nav.source);
 	return `${VALUATION_PATH}?${sp}`;
 }
+
+/** The form action of the template upload: it keeps the rest of the page state and replaces the company. */
+export const uploadAction = (nav: ValuationNav): string =>
+	`?/upload&${valuationHref({ ...nav, company: null, symbol: '' }).split('?')[1] ?? ''}`;

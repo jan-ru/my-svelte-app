@@ -13,7 +13,7 @@
 	import { fieldModel } from '#lib/football-field';
 	import { sourceLabel } from '#lib/source';
 	import { encodeCompany } from '#lib/valuation/company';
-	import { MAX_PEERS, VALUATION_PATH, valuationHref } from '#lib/valuation/nav';
+	import { MAX_PEERS, VALUATION_PATH, uploadAction, valuationHref } from '#lib/valuation/nav';
 	import type { PageProps } from './$types';
 
 	let { data, form }: PageProps = $props();
@@ -23,8 +23,7 @@
 		view.state === 'ready' && view.company ? `${view.company.name} valuation` : 'Valuation versus peers'
 	);
 	const field = $derived(view.state === 'ready' && view.result ? fieldModel(view.result) : null);
-	// the upload keeps the rest of the page state and replaces the company
-	const uploadAction = $derived(`?/upload&${valuationHref({ ...nav, company: null, symbol: '' }).split('?')[1]}`);
+	const uploadActionHref = $derived(uploadAction(nav));
 	const clearHref = $derived(valuationHref({ ...nav, company: null }));
 	const sectorLabel = $derived(
 		nav.industry ? `${nav.industry}, ${REGIONS.find((r) => r.id === nav.region)?.label}` : null
@@ -116,7 +115,7 @@
 			<button type="submit">Update</button>
 		</form>
 
-		<form method="POST" action={uploadAction} enctype="multipart/form-data" class="upload">
+		<form method="POST" action={uploadActionHref} enctype="multipart/form-data" class="upload">
 			<label for="file">Private company</label>
 			<input id="file" name="file" type="file" accept=".xlsx,.xls,.ods,.csv" required />
 			<button type="submit">Upload figures</button>

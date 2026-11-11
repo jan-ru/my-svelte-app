@@ -2,9 +2,13 @@ import { describe, expect, it } from 'vitest';
 import {
 	PAGE_SIZE,
 	PREVIEW_ROWS,
+	countOf,
 	displayName,
 	financialsLink,
 	fmpSymbol,
+	isFiltered,
+	narrowHref,
+	pageHref,
 	previewOf,
 	queryCompanies,
 	type CompanyData
@@ -218,5 +222,28 @@ describe('previewOf', () => {
 		expect(preview.rows[0]?.name).toBe('Co 000');
 		expect(preview.total).toBe(PAGE_SIZE + 5);
 		expect([preview.page, preview.pages]).toEqual([1, 1]);
+	});
+});
+
+describe('the companies page links', () => {
+	const filters = { industry: 'Software', sic: '', country: 'US', region: '', sector: '', q: '' };
+	it('isFiltered is true when any filter is set', () => {
+		expect(isFiltered(filters)).toBe(true);
+		expect(isFiltered({ ...filters, industry: '', country: '' })).toBe(false);
+	});
+	it('narrowHref adds or changes one filter and drops the empty ones', () => {
+		expect(narrowHref(filters, 'sic', '7372')).toBe('/companies?industry=Software&sic=7372&country=US');
+		expect(narrowHref(filters, 'country', 'DE')).toBe('/companies?industry=Software&country=DE');
+	});
+	it('pageHref keeps the filters, adds page from 2 and can leave one out', () => {
+		expect(pageHref(filters, 1)).toBe('/companies?industry=Software&country=US');
+		expect(pageHref(filters, 3)).toBe('/companies?industry=Software&country=US&page=3');
+		expect(pageHref(filters, 1, 'industry')).toBe('/companies?country=US');
+		expect(pageHref({ ...filters, industry: '', country: '' }, 1)).toBe('/companies');
+	});
+	it('countOf writes the number with separators and the matching word', () => {
+		expect(countOf(1, 'industry', 'industries')).toBe('1 industry');
+		expect(countOf(1234, 'industry', 'industries')).toBe('1,234 industries');
+		expect(countOf(0, 'sector', 'sectors')).toBe('0 sectors');
 	});
 });

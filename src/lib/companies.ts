@@ -137,3 +137,25 @@ export function financialsLink(company: Pick<Company, 'ticker' | 'country'>): st
 	const yahoo = parseSymbol(yahooSymbol(company.ticker) ?? '');
 	return yahoo ? `/financials?symbol=${encodeURIComponent(yahoo)}&source=yahoo` : null;
 }
+
+/** The active filters of the companies page, by name; an empty string means unset. */
+export type CompanyFilters = Readonly<Record<string, string>>;
+
+export const isFiltered = (filters: CompanyFilters): boolean => Object.values(filters).some(Boolean);
+
+/** The current filters with one more (or changed) value, back on page 1: clicking a cell narrows the list. */
+export function narrowHref(filters: CompanyFilters, key: string, value: string): string {
+	const sp = new URLSearchParams(Object.entries({ ...filters, [key]: value }).filter(([, v]) => v));
+	return `/companies?${sp.toString()}`;
+}
+
+/** A page of the list with the active filters kept, optionally leaving one filter out. */
+export function pageHref(filters: CompanyFilters, page: number, without?: string): string {
+	const kept = Object.entries(filters).filter(([key, value]) => value && key !== without);
+	const query = new URLSearchParams(page > 1 ? [...kept, ['page', String(page)]] : kept).toString();
+	return query ? `/companies?${query}` : '/companies';
+}
+
+/** "1 industry", "2 industries": the number with thousands separators, then the matching word. */
+export const countOf = (n: number, one: string, many: string): string =>
+	`${n.toLocaleString('en')} ${n === 1 ? one : many}`;

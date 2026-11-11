@@ -11,7 +11,7 @@
 	import SideLayout from '#lib/components/SideLayout.svelte';
 	import SideMenu from '#lib/components/SideMenu.svelte';
 	import SupplyChainView from '#lib/components/SupplyChainView.svelte';
-	import { SOURCES, effectivePeriod, isUsListing, periodAvailable, resolveSource, sourceLabel } from '#lib/source';
+	import { effectivePeriod, offeredSources, periodAvailable, resolveSource, sourceLabel } from '#lib/source';
 	import { PERIODS, STATEMENTS, TABS, navHref } from '#lib/financials-nav';
 	import { parseSymbol } from '#lib/symbol';
 
@@ -20,8 +20,7 @@
 	const nav = $derived(data.nav);
 	const source = $derived(resolveSource(nav.source, data.symbol));
 	const period = $derived(effectivePeriod(source, nav.period));
-	/** FMP serves US tickers only; Yahoo Finance and Eulerpool serve any. */
-	const offered = $derived(isUsListing(data.symbol) ? SOURCES : SOURCES.filter((s) => s.id !== 'fmp'));
+	const offered = $derived(offeredSources(data.symbol));
 	// The ticker becomes the page heading once a company is shown.
 	const heading = $derived('symbol' in view && view.symbol ? view.symbol : 'Company financials');
 </script>
