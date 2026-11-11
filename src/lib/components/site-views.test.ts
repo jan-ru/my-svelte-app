@@ -1,10 +1,11 @@
 import { render } from 'svelte/server';
-import type { Component, ComponentProps } from 'svelte';
+import { createRawSnippet, type Component, type ComponentProps } from 'svelte';
 import { describe, expect, it } from 'vitest';
 import type { ReverseTrace, Trace } from '../crosswalk';
 import { errorView } from '../error-view';
 import type { PanelModel } from '../layout';
 import ChartPanel from './ChartPanel.svelte';
+import Callout from './Callout.svelte';
 import CheckGroup from './CheckGroup.svelte';
 import ClassificationGlossary from './ClassificationGlossary.svelte';
 import CrosswalkTrace from './CrosswalkTrace.svelte';
@@ -21,6 +22,20 @@ type Renderer = (component: unknown, options: { props: unknown }) => { body: str
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- see above: ComponentProps needs it
 const html = <C extends Component<any>>(component: C, props: ComponentProps<C>): string =>
 	(render as unknown as Renderer)(component, { props }).body;
+
+describe('Callout', () => {
+	const text = createRawSnippet(() => ({ render: () => '<span>Careful</span>' }));
+	it('announces an error: negative is role alert by default', () => {
+		const out = html(Callout, { variant: 'negative', children: text });
+		expect(out).toContain('role="alert"');
+		expect(out).toContain('callout negative');
+		expect(out).toContain('<span>Careful</span>');
+	});
+	it('has no role as an info notice, and takes the role it is given', () => {
+		expect(html(Callout, { children: text })).not.toContain('role=');
+		expect(html(Callout, { variant: 'critical', role: 'note', children: text })).toContain('role="note"');
+	});
+});
 
 describe('Icon', () => {
 	it('is hidden from screen readers when it is decoration', () => {
