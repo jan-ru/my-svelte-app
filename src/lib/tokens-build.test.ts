@@ -5,6 +5,7 @@ import {
 	ALIASES,
 	buildAliasCss,
 	buildAll,
+	buildGridCss,
 	buildThemeCss,
 	cssName,
 	declarations,
@@ -12,10 +13,12 @@ import {
 	formatColor,
 	formatNumber,
 	formatValue,
+	GRID,
 	pathIndex,
 	resolveValue,
 	shadowDeclarations,
 	themeDeclarations,
+	type GridSize,
 	type Theme,
 	type TokenTree
 } from './tokens-build';
@@ -336,5 +339,53 @@ describe('buildAll', () => {
 	};
 	it('throws when a theme file is missing', () => {
 		expect(() => buildAll({ morning: all.morning })).toThrow('No token file for theme evening');
+	});
+});
+
+describe('buildGridCss', () => {
+	const breakpoints = [
+		['--sapBreakpoint_S_Min', '0'],
+		['--sapBreakpoint_M_Min', '600px'],
+		['--sapBreakpoint_L_Min', '1024px'],
+		['--sapBreakpoint_XL_Min', '1440px']
+	] as const;
+	const css = buildGridCss(GRID, breakpoints);
+
+	it('writes the smallest size as the default on :root, in rem', () => {
+		expect(css).toContain(
+			':root {\n\t--hz-grid-columns: 4;\n\t--hz-grid-margin: 1rem;\n\t--hz-grid-gutter: 0.5rem;\n}'
+		);
+	});
+	it('overrides the three properties at each larger breakpoint, smallest first', () => {
+		const order = [...css.matchAll(/@media \(min-width: (\d+)px\)/g)].map((m) => m[1]);
+		expect(order).toEqual(['600', '1024', '1440']);
+		expect(css).toContain(
+			'@media (min-width: 600px) {\n\t:root {\n\t\t--hz-grid-columns: 8;\n\t\t--hz-grid-margin: 2rem;\n\t\t--hz-grid-gutter: 1rem;\n\t}\n}'
+		);
+		expect(css).toContain('--hz-grid-columns: 12;');
+		expect(css).toContain(
+			'@media (min-width: 1440px) {\n\t:root {\n\t\t--hz-grid-columns: 16;\n\t\t--hz-grid-margin: 3rem;\n\t\t--hz-grid-gutter: 1rem;\n\t}\n}'
+		);
+	});
+	it('throws when a breakpoint token is missing, not in px, or not increasing', () => {
+		const [s, m, , xl] = breakpoints;
+		expect(() => buildGridCss(GRID, breakpoints.slice(0, 2))).toThrow('--sapBreakpoint_L_Min');
+		expect(() => buildGridCss(GRID, [s, m, ['--sapBreakpoint_L_Min', '60rem'], xl])).toThrow('--sapBreakpoint_L_Min');
+		expect(() => buildGridCss(GRID, [s, m, ['--sapBreakpoint_L_Min', '500px'], xl])).toThrow('increasing');
+	});
+	it('throws when there is no size', () => {
+		expect(() => buildGridCss([], breakpoints)).toThrow('no sizes');
+	});
+});
+
+describe('GRID', () => {
+	it('holds the five Horizon layout-guide values read from Figma', () => {
+		const rows: readonly GridSize[] = [
+			{ size: 'S', columns: 4, margin: 16, gutter: 8 },
+			{ size: 'M', columns: 8, margin: 32, gutter: 16 },
+			{ size: 'L', columns: 12, margin: 32, gutter: 16 },
+			{ size: 'XL', columns: 16, margin: 48, gutter: 16 }
+		];
+		expect(GRID).toEqual(rows);
 	});
 });

@@ -6,6 +6,8 @@
 	import '../lib/styles/tokens.css';
 	import '../lib/styles/generated/morning.css';
 	import '../lib/styles/generated/aliases.css';
+	import '../lib/styles/generated/grid.css';
+	import '../lib/styles/grid.css';
 	import '../lib/styles/global.css';
 	import { dev } from '$app/env';
 	import { afterNavigate } from '$app/navigation';

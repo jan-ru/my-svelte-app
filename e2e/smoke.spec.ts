@@ -157,3 +157,32 @@ for (const [menu, param] of [
 		expect(errors).toEqual([]);
 	});
 }
+
+test('the Home pickers follow the Horizon grid: 4, 8, 12 and 16 columns', async ({ page }) => {
+	const errors = watchErrors(page);
+	await logIn(page);
+	const columnsAt = async (width: number): Promise<number> => {
+		await page.setViewportSize({ width, height: 900 });
+		await page.goto('/');
+		const tracks = await page.locator('.controls').evaluate((el) => getComputedStyle(el).gridTemplateColumns);
+		return tracks.split(' ').length;
+	};
+	expect(await columnsAt(400)).toBe(4);
+	expect(await columnsAt(800)).toBe(8);
+	expect(await columnsAt(1200)).toBe(12);
+	expect(await columnsAt(1600)).toBe(16);
+	// the picker widths follow the spans: stacked on a phone, side by side on a wide screen
+	await page.setViewportSize({ width: 400, height: 900 });
+	await page.goto('/');
+	const tops = await page
+		.locator('.controls > div')
+		.evaluateAll((els) => els.map((el) => el.getBoundingClientRect().top));
+	expect(new Set(tops).size).toBe(3);
+	await page.setViewportSize({ width: 1600, height: 900 });
+	await page.goto('/');
+	const wideTops = await page
+		.locator('.controls > div')
+		.evaluateAll((els) => els.map((el) => el.getBoundingClientRect().top));
+	expect(new Set(wideTops).size).toBe(1);
+	expect(errors).toEqual([]);
+});
