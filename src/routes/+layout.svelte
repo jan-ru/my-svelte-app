@@ -83,15 +83,15 @@
 		min-height: var(--shell-header-height);
 		padding: 0 var(--space-4);
 		background: var(--surface-shell);
-		border-bottom: 1px solid var(--border-subtle);
-		box-shadow: var(--shadow-1);
+		border-bottom: 1px solid var(--sapShell_BorderColor);
+		box-shadow: var(--sapShell_Shadow);
 	}
 	nav a {
 		display: flex;
 		align-items: center;
 		min-height: var(--shell-header-height);
 		padding: 0 var(--space-3);
-		color: var(--text-primary);
+		color: var(--sapShell_InteractiveTextColor);
 		text-decoration: none;
 		border-bottom: 3px solid transparent;
 	}
@@ -122,7 +122,7 @@
 		min-height: var(--shell-header-height);
 		padding: 0 var(--space-3);
 		font: inherit;
-		color: var(--text-primary);
+		color: var(--sapShell_InteractiveTextColor);
 		background: none;
 		border: 0;
 		cursor: pointer;

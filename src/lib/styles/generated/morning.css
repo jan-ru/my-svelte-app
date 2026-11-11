@@ -521,4 +521,5 @@
 	--sapContent_Shadow1: 0 0 0 1px rgb(34 53 72 / 0.48), 0 2px 8px 0 rgb(34 53 72 / 0.3);
 	--sapContent_Shadow2: 0 0 0 1px rgb(34 53 72 / 0.48), 0 1px 30px 0 rgb(34 53 72 / 0.25);
 	--sapContent_Shadow3: 0 0 0 1px rgb(34 53 72 / 0.48), 0 20px 80px 0 rgb(34 53 72 / 0.25);
+	--sapShell_Shadow: 0 2px 2px 0 rgb(34 53 72 / 0.1), 0 -1px 0 0 rgb(34 53 72 / 0.2);
 }
