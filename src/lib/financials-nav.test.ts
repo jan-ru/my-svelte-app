@@ -28,6 +28,19 @@ describe('parseNav', () => {
 	});
 });
 
+describe('detail', () => {
+	it('is only set when asked for, and survives the round trip', () => {
+		expect(parseNav(q('')).detail).toBeUndefined();
+		expect(parseNav(q('detail=nope')).detail).toBeUndefined();
+		expect(parseNav(q('detail=full')).detail).toBe('full');
+		const nav = { tab: 'financials', statement: 'balance', period: 'annual', detail: 'full' } as const;
+		expect(navHref(nav, 'AAPL')).toBe(
+			'/financials?symbol=AAPL&tab=financials&statement=balance&period=annual&detail=full'
+		);
+		expect(parseNav(new URL(navHref(nav, 'AAPL'), 'http://x').searchParams)).toEqual(nav);
+	});
+});
+
 describe('navHref', () => {
 	const nav = { tab: 'financials', statement: 'balance', period: 'ttm' } as const;
 	it('keeps the symbol and all three choices', () => {

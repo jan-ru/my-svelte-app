@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { at } from './at';
-import { periodSegments, sourceSegments } from './segments';
+import { detailSegments, periodSegments, sourceSegments } from './segments';
 import { SOURCES } from './source';
 
 const nav = { tab: 'financials', statement: 'income', period: 'annual' } as const;
@@ -30,5 +30,20 @@ describe('sourceSegments', () => {
 		expect(items.find((i) => i.current)?.label).toBe('Yahoo Finance');
 		for (const i of items) expect(i.href).toContain('symbol=AAPL');
 		for (const i of items) expect(i.href).toContain('period=ttm');
+	});
+});
+
+describe('detailSegments', () => {
+	const nav = { tab: 'financials', statement: 'balance', period: 'annual' } as const;
+	it('treats an unset detail as condensed and links to the other', () => {
+		const items = detailSegments(nav, 'AAPL');
+		expect(items.map((i) => [i.label, i.current])).toEqual([
+			['Condensed', true],
+			['Full', false]
+		]);
+		expect(items[1]?.href).toContain('detail=full');
+	});
+	it('marks full as current', () => {
+		expect(detailSegments({ ...nav, detail: 'full' }, 'AAPL').map((i) => i.current)).toEqual([false, true]);
 	});
 });

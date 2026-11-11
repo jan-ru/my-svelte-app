@@ -1,5 +1,6 @@
 // src/lib/server/financials.ts
 import { parseSymbol } from '../symbol';
+import { condenseBalance } from '../condensed';
 import { buildTable, formatEstimate, formatRatio } from '../statements';
 import type { StatementTable } from '../statements';
 import type { Nav, Period, Tab } from '../financials-nav';
@@ -201,7 +202,9 @@ async function loadStatement({ symbol, apiKey, source, fetchers, nav }: TabConte
 	const period = effectivePeriod(source, nav.period);
 	const title = statementTitle(kind, period);
 	try {
-		const table = buildTable(await fetchers.statement(kind, symbol, apiKey, period), period);
+		const full = await fetchers.statement(kind, symbol, apiKey, period);
+		const condensed = kind === 'balance' && nav.detail !== 'full';
+		const table = buildTable(condensed ? condenseBalance(full) : full, period);
 		if (table.columns.length === 0) {
 			const what = period === 'ttm' ? 'trailing-twelve-month figures' : 'annual statements';
 			return {
