@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { at } from './at';
 import {
+	ALIASES,
+	buildAliasCss,
+	buildAll,
 	buildThemeCss,
 	cssName,
 	declarations,
@@ -172,5 +175,41 @@ describe('buildThemeCss', () => {
 	it('uses the theme selector', () => {
 		const evening: Theme = { slug: 'evening', name: 'Evening Horizon', selector: ":root[data-theme='evening']" };
 		expect(buildThemeCss(evening, sample, ['Main'])).toContain(":root[data-theme='evening'] {");
+	});
+});
+
+describe('buildAliasCss', () => {
+	const morning = declarations(flattenTokens(sample), listed);
+	it('writes var() references for names whose value still matches', () => {
+		const css = buildAliasCss([{ name: '--brand', token: 'sapBrandColor', was: '#0070f2' }], morning);
+		expect(css).toContain(':root {');
+		expect(css).toContain('\t--brand: var(--sapBrandColor);');
+	});
+	it('throws when the Horizon value no longer equals the old one', () => {
+		expect(() => buildAliasCss([{ name: '--brand', token: 'sapBrandColor', was: '#ffffff' }], morning)).toThrow(
+			'--brand was #ffffff'
+		);
+	});
+	it('throws when the Horizon token is not written at all', () => {
+		expect(() => buildAliasCss([{ name: '--brand', token: 'sapGone', was: '#ffffff' }], morning)).toThrow('missing');
+	});
+});
+
+describe('ALIASES', () => {
+	it('names each custom property once, and writes each as a var() of a different property', () => {
+		expect(new Set(ALIASES.map((a) => a.name)).size).toBe(ALIASES.length);
+		expect(ALIASES.every((a) => /^#[0-9a-f]{6}$/.test(a.was) && a.name !== `--${a.token}`)).toBe(true);
+	});
+});
+
+describe('buildAll', () => {
+	const all = {
+		morning: { Main: { sapHighlightColor: { $type: 'color', $value: { hex: '#0064D9', alpha: 1 } } } },
+		evening: { Main: { sapHighlightColor: { $type: 'color', $value: { hex: '#4DA1FF', alpha: 1 } } } },
+		'high-contrast-white': { Main: {} },
+		'high-contrast-black': { Main: {} }
+	};
+	it('throws when a theme file is missing', () => {
+		expect(() => buildAll({ morning: all.morning })).toThrow('No token file for theme evening');
 	});
 });
