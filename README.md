@@ -122,6 +122,7 @@ The dev server runs at <http://localhost:5173>.
 | `npm run check`      | Type-check the code with svelte-check (strict)                     |
 | `npm run check:ts-only` | Fail if the repository contains JavaScript source               |
 | `npm run build:crosswalk` / `build:companies` | Regenerate the data files (see `docs/crosswalk.md`) |
+| `npm run build:tokens` | Regenerate the Horizon CSS from the Figma exports (see `docs/horizon-tokens.md`) |
 | `npm run build:gdp`  | Regenerate `gdp.json` from the World Bank (see `docs/size.md`)      |
 | `npm run check:data` | Fetch the real NYU files and confirm every multiple still resolves |
 

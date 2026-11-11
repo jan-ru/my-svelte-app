@@ -45,14 +45,14 @@ Extend the current design with the full SAP Horizon theme from the Figma file "S
 
 ## Data flow
 
-Figma export, then `design/horizon/*.tokens.json`, then `npm run build:tokens`, then `horizon.generated.css`, imported in `+layout.svelte` ahead of `tokens.css`, then components through `var(--…)`.
+Figma export, then `design/horizon/*.tokens.json`, then `npm run build:tokens`, then the per-theme files under `src/lib/styles/generated/` are written, and only `morning.css` plus `aliases.css` are imported in `+layout.svelte` (after `tokens.css`), then components through `var(--…)`.
 
 ## Risks and checks
 
 - **Contrast.** `tokens.css` records that `--blue-60` fails WCAG AA as text on the page background, so `--color-primary` uses `--blue-70`. When aliases point at Horizon tokens, the e2e axe run must still pass; where a mapping would regress contrast, the alias keeps the darker token.
 - **Visual drift.** Horizon's Morning values should match what we have; the alias step is where any difference shows up. We review a before/after screenshot of each page type before merging.
 - **Size.** Measure the CSS added per theme; if Morning alone is too large, tighten the allow-list.
-- **Unnamed tokens.** Tokens without a `codeSyntax` name get a deterministic name from their group path; the test asserts there are no duplicates.
+- **Unnamed tokens.** Every token is named from its key (`--<key>` for `sap` keys, `--hz-<path>` otherwise), and a test asserts there are no duplicate names (the duplicate check is in `declarations`).
 - **Re-export drift.** If Figma renames or removes a token, the build fails when an alias points at a missing name, instead of shipping a broken variable.
 - **Caching and privacy.** Static CSS only; no effect on ISR caching or the `/financials` rules.
 - **Evening is not safe to switch on yet.** Palette names such as `--white` and `--ink` are not aliased, so a dark theme would leave dark text on dark surfaces. The theme-switcher PR must alias or replace them first.
