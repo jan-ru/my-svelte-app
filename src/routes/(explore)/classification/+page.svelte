@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Callout from '#lib/components/Callout.svelte';
 	import ClassificationGlossary from '#lib/components/ClassificationGlossary.svelte';
 	import CrosswalkTrace from '#lib/components/CrosswalkTrace.svelte';
 	import LoginPrompt from '#lib/components/LoginPrompt.svelte';
@@ -30,11 +31,11 @@
 	<ClassificationGlossary />
 
 	<h2 id="forward">From SBI 2025 to a Damodaran industry</h2>
-	<p class="caveat" role="note">
+	<Callout variant="critical" role="note">
 		Every step maps one code to several, so the result is a rough guide, not a rule. The last step counts how the
 		{data.companies.toLocaleString('en')} listed companies in the NYU Stern company list, each with a SIC code and an industry,
 		are spread over the SIC codes reached.
-	</p>
+	</Callout>
 
 	{#if data.interactive}
 		<form method="get" aria-labelledby="forward">
@@ -126,12 +127,6 @@
 	}
 	.lede {
 		font-size: var(--text-md);
-	}
-	.caveat {
-		padding: var(--space-3) var(--space-4);
-		background: var(--critical-bg);
-		border-left: 4px solid var(--critical);
-		border-radius: var(--radius-sm);
 	}
 	form {
 		display: flex;

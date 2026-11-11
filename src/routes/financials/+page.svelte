@@ -1,5 +1,6 @@
 <!-- src/routes/financials/+page.svelte -->
 <script lang="ts">
+	import Callout from '#lib/components/Callout.svelte';
 	import { page } from '$app/state';
 	import type { PageProps } from './$types';
 	import LoginPrompt from '#lib/components/LoginPrompt.svelte';
@@ -45,7 +46,7 @@
 				Finance and Eulerpool. Enter a ticker such as AAPL, or ABN.AS for a listing outside the US.
 			</p>
 			{#if !data.configured}
-				<p class="error" role="alert">This page is not configured on this deployment.</p>
+				<Callout variant="negative">This page is not configured on this deployment.</Callout>
 			{:else}
 				<LoginPrompt from={page.url.pathname + page.url.search}>to look up a company.</LoginPrompt>
 			{/if}
@@ -107,11 +108,11 @@
 			{/if}
 
 			{#if view.state === 'unconfigured'}
-				<p class="error" role="alert">The {sourceLabel(source)} key is not configured on this deployment.</p>
+				<Callout variant="negative">The {sourceLabel(source)} key is not configured on this deployment.</Callout>
 			{:else if view.state === 'invalid'}
-				<p class="error" role="alert">
+				<Callout variant="negative">
 					That is not a valid ticker. Use letters, digits, dots and dashes, for example BRK-B.
-				</p>
+				</Callout>
 			{:else if view.state === 'idle'}
 				<p>
 					Enter a ticker to see its data. US tickers work with FMP, Yahoo Finance or Eulerpool; others, such as ABN.AS,
@@ -166,13 +167,6 @@
 		align-items: center;
 		flex-wrap: wrap;
 		margin: var(--space-4) 0;
-	}
-	.error {
-		padding: var(--space-2) var(--space-3);
-		color: var(--negative);
-		background: var(--negative-bg);
-		border-left: 4px solid var(--negative);
-		border-radius: var(--radius-sm);
 	}
 	.tabs a {
 		padding: 6px 14px;

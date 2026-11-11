@@ -1,5 +1,6 @@
 <!-- src/routes/financials/valuation/+page.svelte -->
 <script lang="ts">
+	import Callout from '#lib/components/Callout.svelte';
 	import { page } from '$app/state';
 	import { MAX_SELECTION, MULTIPLES, REGIONS } from '#lib/catalog';
 	import BandOverrides from '#lib/components/BandOverrides.svelte';
@@ -53,10 +54,10 @@
 			{#if data.configured}
 				<LoginPrompt from={page.url.pathname + page.url.search}>to value a company.</LoginPrompt>
 			{:else}
-				<p class="error" role="alert">This page is not configured on this deployment.</p>
+				<Callout variant="negative">This page is not configured on this deployment.</Callout>
 			{/if}
 		{:else if view.state === 'unconfigured'}
-			<p class="error" role="alert">The FMP key is not configured on this deployment.</p>
+			<Callout variant="negative">The FMP key is not configured on this deployment.</Callout>
 		{:else}
 			<form method="GET" class="controls">
 				{#if nav.source}<input type="hidden" name="source" value={nav.source} />{/if}
@@ -129,12 +130,12 @@
 				<a href="{VALUATION_PATH}/template">Download the template</a>
 				<span class="hint">The file is read once and not stored; its figures are kept in the page address.</span>
 			</form>
-			{#if form?.message}<p class="error" role="alert">{form.message}</p>{/if}
+			{#if form?.message}<Callout variant="negative">{form.message}</Callout>{/if}
 
 			{#if view.state === 'invalid'}
-				<p class="error" role="alert">
+				<Callout variant="negative">
 					That is not a valid ticker. Use letters, digits, dots and dashes, for example BRK-B.
-				</p>
+				</Callout>
 			{:else if view.state === 'idle'}
 				<p>Enter a ticker to start.</p>
 			{:else}
@@ -144,9 +145,9 @@
 						)}.{/if}
 					Peers with a dot in the ticker come from Yahoo Finance.
 				</p>
-				{#if view.sectorMessage}<p class="error" role="alert">{view.sectorMessage}</p>{/if}
+				{#if view.sectorMessage}<Callout variant="negative">{view.sectorMessage}</Callout>{/if}
 				{#if view.message}
-					<p class="error" role="alert">{view.message}</p>
+					<Callout variant="negative">{view.message}</Callout>
 				{/if}
 				{#if view.company}<CompanyFigures figures={view.company} />{/if}
 				{#if view.insight}<InsightPanel insight={view.insight} symbol={view.symbol} />{/if}
@@ -214,12 +215,5 @@
 	}
 	.multiples legend {
 		width: 100%;
-	}
-	.error {
-		padding: var(--space-2) var(--space-3);
-		color: var(--negative);
-		background: var(--negative-bg);
-		border-left: 4px solid var(--negative);
-		border-radius: var(--radius-sm);
 	}
 </style>
