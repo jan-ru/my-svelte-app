@@ -17,26 +17,28 @@ Extend the current design with the full SAP Horizon theme from the Figma file "S
 
 `Horizon.zip` holds four W3C design-token files: `Morning Horizon`, `Evening Horizon`, `High Contrast White`, `High Contrast Black`. Each has 1141 tokens (897 colour, 232 number, 12 string; 54 are aliases to other tokens), grouped as Main, Text, Button, Input, List, Shell, Tile, Chart, Font, Container/Spacing, Shadow and more.
 
-- Names are SAP's own (`sapButton_Emphasized_Background`). Each token carries its CSS name in `$extensions["com.figma.codeSyntax"].WEB` (`var(--sapButton_Emphasized_Background)`), which is the name we use. The Container/Spacing tokens, among others, have no `codeSyntax` entry and need a name rule.
+- Names are SAP's own (`sapButton_Emphasized_Background`). The `codeSyntax.WEB` field looks like the CSS name but 13 of the values are corrupt (stray spaces, U+2028, `--/`), so the script ignores it and names tokens from the key: keys starting with `sap` become `--<key>`, all others become `--hz-<path>` (for example `--hz-Container-Spacing-Tiny`).
+- An alias is a string value holding a dotted path (`{Shadow.sapContent_ShadowColor}`). The script resolves every alias to its literal value, so a generated file never refers to a token it did not write.
+- The 12 string tokens are Figma font-style labels, not CSS values, and are skipped.
 - Colours are objects (`{colorSpace, components, alpha, hex}`), not strings; the script uses `hex` and `alpha`.
 - Numbers have no unit; the script decides `px` or `rem` from the group.
 
 ## Decisions
 
 1. **Generated, not hand-written.** `scripts/build-tokens.ts` (run with `node`, like `build-crosswalk.ts`) reads the JSON and writes CSS. The output starts with a "generated, do not edit" header, sits in `.prettierignore`, and a test checks that it matches the source.
-2. **All four themes are generated; only Morning is switched on.** Evening and the two high-contrast themes are written as `[data-theme='…']` blocks, ready for later. Switching them on is a separate pull request (switcher, stored choice, per-theme contrast checks), not part of this one.
-3. **Allow-list of groups.** The script reads all 1141 tokens but writes only the groups in an allow-list in the script. First list: Main, Text, Button, Input, List, Shell, Tile, Link, Semantic, Focus, Chart, Font, Shadow, Container. Anything not listed is skipped, and adding a group is a one-line change. This keeps the shipped CSS small.
-4. **Old names stay as aliases, then retire.** `tokens.css` keeps `--blue-60`, `--text-primary` and the rest, but as `var(--sap…)` references to the generated tokens. The alias table lives in the script, so the alias block is generated too. Components move to the Horizon names over time; when none uses an old name, its alias is deleted.
+2. **All four themes are generated; only Morning is imported.** Each theme is its own file under `src/lib/styles/generated/`. Morning uses `:root`; the others use `:root[data-theme='…']` and are not imported until the theme-switcher PR.
+3. **Allow-list of groups.** The script reads all 1141 tokens but writes only the groups in an allow-list in the script. First list: `Main, Interaction, Application, Text, Button, Input, List, Shell, Tile, Link, Semantic, Focus, Chart, Font, Shadow, Container` (about 517 non-string tokens per theme). Anything not listed is skipped, and adding a group is a one-line change. This keeps the shipped CSS small.
+4. **Existing names become aliases only where the value is identical.** Nine semantic names (`--color-primary`, `--text-secondary`, `--surface-group`, `--surface-card`, `--surface-hover`, `--surface-shell`, `--border-subtle`, `--critical`, `--information`) exactly equal a Horizon Morning token and become `var(--sap…)` references in `generated/aliases.css`. The build fails if one of them stops matching. Names with no exact match (`--positive`, `--negative`, `--grey-01`, `--blue-05`…) stay hand-written, so pages look the same; `docs/horizon-tokens.md` lists them as the drift to decide on later.
 5. **Non-colour layout tokens stay hand-written for now.** `--space-*`, `--radius-*`, `--shell-header-height`, `--duration-*`. Horizon's spacing and radius tokens are a different scale from ours; mapping them is a separate step, after the colours are in.
 
 ## Files
 
 | File | Role |
 |---|---|
-| `design/horizon/*.tokens.json` | The four Figma exports, committed as the source of truth (JSON, not JS, so the TypeScript-only rule is unaffected) |
+| `design/horizon/<slug>.tokens.json` | The four Figma exports, committed as the source of truth (JSON, not JS, so the TypeScript-only rule is unaffected) |
 | `scripts/build-tokens.ts` | Reads the JSON, applies the allow-list and alias table, writes the CSS |
 | `src/lib/tokens-build.ts` | Pure functions (parse a token, name it, format a value, group filter) so the script is thin and testable without mocks |
-| `src/lib/styles/horizon.generated.css` | Morning in `:root`, the other themes in `[data-theme]` blocks |
+| `src/lib/styles/generated/*.css` | Generated: one file per theme plus `aliases.css` |
 | `src/lib/styles/tokens.css` | Keeps layout tokens; colour names become aliases |
 | `package.json` | New script `build:tokens` |
 | `docs/horizon-tokens.md` | How to re-export from Figma and regenerate |
@@ -53,6 +55,7 @@ Figma export, then `design/horizon/*.tokens.json`, then `npm run build:tokens`, 
 - **Unnamed tokens.** Tokens without a `codeSyntax` name get a deterministic name from their group path; the test asserts there are no duplicates.
 - **Re-export drift.** If Figma renames or removes a token, the build fails when an alias points at a missing name, instead of shipping a broken variable.
 - **Caching and privacy.** Static CSS only; no effect on ISR caching or the `/financials` rules.
+- **Evening is not safe to switch on yet.** Palette names such as `--white` and `--ink` are not aliased, so a dark theme would leave dark text on dark surfaces. The theme-switcher PR must alias or replace them first.
 
 ## Testing
 
