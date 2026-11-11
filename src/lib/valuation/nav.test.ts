@@ -1,7 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import { encodeCompany } from './company';
 import type { CompanyFigures } from './data';
-import { DEFAULT_MULTIPLES, DEFAULT_REGION, MAX_PEERS, parseValuationNav, uploadAction, valuationHref } from './nav';
+import {
+	DEFAULT_MULTIPLES,
+	DEFAULT_REGION,
+	MAX_PEERS,
+	parseValuationNav,
+	uploadAction,
+	valuationHref,
+	valuationLink
+} from './nav';
 
 const sp = (query: string) => new URLSearchParams(query);
 const INDUSTRIES = ['Software (System & Application)', 'Semiconductor'];
@@ -133,5 +141,13 @@ describe('uploadAction', () => {
 		expect(action).toContain('peer=BESI.AS');
 		expect(action).toContain(`region=${DEFAULT_REGION}`);
 		expect(action).not.toContain('symbol=');
+	});
+});
+
+describe('valuationLink', () => {
+	it('carries the ticker and the source, and nothing else', () => {
+		expect(valuationLink('ASML.AS', 'yahoo')).toBe('/financials/valuation?symbol=ASML.AS&source=yahoo');
+		expect(valuationLink('AAPL')).toBe('/financials/valuation?symbol=AAPL');
+		expect(valuationLink('')).toBe('/financials/valuation');
 	});
 });

@@ -12,7 +12,8 @@
 	import SideMenu from '#lib/components/SideMenu.svelte';
 	import SupplyChainView from '#lib/components/SupplyChainView.svelte';
 	import { effectivePeriod, offeredSources, periodAvailable, resolveSource, sourceLabel } from '#lib/source';
-	import { PERIODS, STATEMENTS, TABS, navHref } from '#lib/financials-nav';
+	import { companyMenu } from '#lib/company-menu';
+	import { PERIODS, STATEMENTS, navHref } from '#lib/financials-nav';
 	import { parseSymbol } from '#lib/symbol';
 
 	let { data }: PageProps = $props();
@@ -32,14 +33,7 @@
 
 <SideLayout>
 	{#snippet menu()}
-		<SideMenu
-			label="Sections"
-			items={TABS.map((t) => ({
-				href: navHref({ ...nav, period, tab: t.id }, data.symbol),
-				label: t.label,
-				current: nav.tab === t.id
-			}))}
-		/>
+		<SideMenu label="Company" items={companyMenu({ symbol: data.symbol, current: nav.tab, nav: { ...nav, period } })} />
 	{/snippet}
 	<main>
 		<h1>{heading}</h1>
