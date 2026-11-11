@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { MEASURES } from '#lib/size';
-	import { sizeHref, type SizeNav, type SizePage } from '#lib/size-nav';
+	import { MEASURES } from '#lib/size/size';
+	import { sizeHref, type SizeNav, type SizePage } from '#lib/size/nav';
 
 	let {
 		action,

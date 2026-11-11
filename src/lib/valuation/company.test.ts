@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { MAX_ENCODED, MAX_YEARS, decodeCompany, encodeCompany } from './valuation-company';
-import type { CompanyFigures } from './valuation-data';
+import { MAX_ENCODED, MAX_YEARS, decodeCompany, encodeCompany } from './company';
+import type { CompanyFigures } from './data';
 
 const full = (revenue: number | null) => ({
 	revenue,

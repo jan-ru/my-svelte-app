@@ -5,10 +5,10 @@ import { resolveSource, sourceKeyName, sourceLabel, type Source } from '../sourc
 import type { Insight } from '../insight';
 import type { Peer, Statement } from '../source-data';
 import { parseSymbol } from '../symbol';
-import { BASIS, valuationView } from '../valuation';
-import type { CompanyFigures, PeerRow, ValuationView } from '../valuation-data';
-import { figuresFromStatements, peerMultiples } from '../valuation-figures';
-import type { ValuationNav } from '../valuation-nav';
+import { BASIS, valuationView } from '../valuation/valuation';
+import type { CompanyFigures, PeerRow, ValuationView } from '../valuation/data';
+import { figuresFromStatements, peerMultiples } from '../valuation/figures';
+import type { ValuationNav } from '../valuation/nav';
 import { getComparison } from './compare';
 import { insightFetchers, loadInsight, type InsightFetchers } from './insight';
 import {

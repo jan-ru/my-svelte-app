@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { fit, nest, squarify, wrap } from './size-treemap';
+import { fit, nest, squarify, wrap } from './treemap';
 
 const area = (r: { w: number; h: number }) => r.w * r.h;
 const items = [

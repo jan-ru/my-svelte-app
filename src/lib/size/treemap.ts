@@ -1,4 +1,4 @@
-import { at } from './at';
+import { at } from '../at';
 
 export interface TreemapItem {
 	id: string;

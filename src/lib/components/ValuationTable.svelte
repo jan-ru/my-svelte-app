@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { formatMultiple } from '#lib/chart';
-	import type { ValuationView } from '#lib/valuation-data';
-	import { METRIC_LABELS, REASON_TEXT, formatAmount, scaleFor } from '#lib/valuation-format';
+	import type { ValuationView } from '#lib/valuation/data';
+	import { METRIC_LABELS, REASON_TEXT, formatAmount, scaleFor } from '#lib/valuation/format';
 
 	let { result }: { result: ValuationView } = $props();
 

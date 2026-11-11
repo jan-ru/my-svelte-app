@@ -1,5 +1,5 @@
-import { at } from './at';
-import type { CompanyData } from './companies';
+import { at } from '../at';
+import type { CompanyData } from '../companies';
 
 export const MEASURES = [
 	{ id: 'companies', label: 'Number of companies' },

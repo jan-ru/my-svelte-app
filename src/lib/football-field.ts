@@ -2,8 +2,8 @@
 // The geometry-free model of the football-field chart: one bar per method from low to high, the midpoint, the value
 // at the sector multiple and the average across methods, on one shared value axis. Pure.
 import { formatMultiple, niceTicks } from './chart';
-import type { ValuationView } from './valuation-data';
-import { METRIC_LABELS, formatAmount, scaleFor, type Scale } from './valuation-format';
+import type { ValuationView } from './valuation/data';
+import { METRIC_LABELS, formatAmount, scaleFor, type Scale } from './valuation/format';
 
 export interface FieldRow {
 	readonly label: string;

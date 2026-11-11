@@ -1,8 +1,8 @@
 import { render } from 'svelte/server';
 import type { Component, ComponentProps } from 'svelte';
 import { describe, expect, it } from 'vitest';
-import { valuationView } from '../valuation';
-import type { CompanyFigures, PeerRow } from '../valuation-data';
+import { valuationView } from '../valuation/valuation';
+import type { CompanyFigures, PeerRow } from '../valuation/data';
 import { fieldModel } from '../football-field';
 import type { Insight } from '../insight';
 import BandOverrides from './BandOverrides.svelte';

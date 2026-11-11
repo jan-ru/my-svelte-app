@@ -5,8 +5,8 @@ import type { CompanyData } from '#lib/companies';
 import type { GdpData } from '#lib/gdp';
 import { macroRows, type MacroData } from '#lib/macro';
 import { isrConfig, pageParams } from '#lib/server/access';
-import { parseSizeNav } from '#lib/size-nav';
-import { countriesView } from '#lib/size-view';
+import { parseSizeNav } from '#lib/size/nav';
+import { countriesView } from '#lib/size/view';
 import type { PageServerLoad } from './$types';
 
 const data: CompanyData = companies;

@@ -1,9 +1,9 @@
 // src/lib/valuation-template.ts
 // The Excel template for a private company: what a blank one holds, and how a filled-in sheet (as rows of cells)
 // becomes `CompanyFigures`. Pure; reading and writing the .xlsx file is in `server/valuation-template.ts`.
-import { MAX_NAME, MAX_YEARS, METRICS } from './valuation-company';
-import type { CompanyFigures, FigureYear, Metric } from './valuation-data';
-import { METRIC_LABELS } from './valuation-format';
+import { MAX_NAME, MAX_YEARS, METRICS } from './company';
+import type { CompanyFigures, FigureYear, Metric } from './data';
+import { METRIC_LABELS } from './format';
 
 export type Cell = string | number | boolean | null | undefined;
 

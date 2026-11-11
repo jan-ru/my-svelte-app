@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { multipleById } from '#lib/catalog';
-	import type { Band, Benchmark } from '#lib/valuation-data';
+	import type { Band, Benchmark } from '#lib/valuation/data';
 
 	let { benchmarks, overrides }: { benchmarks: readonly Benchmark[]; overrides: Readonly<Record<string, Band>> } =
 		$props();

@@ -4,8 +4,8 @@ import { fail, redirect } from '@sveltejs/kit';
 import { getIndustries } from '#lib/server/compare';
 import { loadValuation } from '#lib/server/valuation';
 import { MAX_UPLOAD_BYTES, readTemplate, uploadTooLarge } from '#lib/server/valuation-template';
-import { encodeCompany, MAX_ENCODED } from '#lib/valuation-company';
-import { parseValuationNav, valuationHref } from '#lib/valuation-nav';
+import { encodeCompany, MAX_ENCODED } from '#lib/valuation/company';
+import { parseValuationNav, valuationHref } from '#lib/valuation/nav';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals, url, setHeaders, cookies }) => {

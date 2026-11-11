@@ -1,7 +1,7 @@
 // src/lib/valuation.ts
 // Values a company with multiples from its peers and its Damodaran sector. Pure: data in, data out.
-import { at } from './at';
-import { multipleById } from './catalog';
+import { at } from '../at';
+import { multipleById } from '../catalog';
 import type {
 	Band,
 	Benchmark,
@@ -11,7 +11,7 @@ import type {
 	Metric,
 	PeerMultiples,
 	ValuationView
-} from './valuation-data';
+} from './data';
 
 /** What a multiple is applied to, whether it gives enterprise or equity value, and which year it uses. */
 export interface MultipleBasis {

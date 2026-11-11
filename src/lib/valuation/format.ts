@@ -1,6 +1,6 @@
 // src/lib/valuation-format.ts
 // Labels and number formatting for the valuation page. Pure; also runs in the browser.
-import type { Metric, MissingReason } from './valuation-data';
+import type { Metric, MissingReason } from './data';
 
 export const METRIC_LABELS: Readonly<Record<Metric, string>> = {
 	revenue: 'Revenue',

@@ -1,11 +1,11 @@
 // src/lib/valuation-nav.ts
 // The valuation page keeps all of its state in the URL, so a bookmark keeps the company, the picked peers and
 // the benchmark. This module reads and writes that state; it is pure.
-import { MAX_SELECTION, MULTIPLES, REGIONS } from './catalog';
-import { parseSource, type Source } from './source';
-import { parseSymbol } from './symbol';
-import { decodeCompany, encodeCompany } from './valuation-company';
-import type { Band, CompanyFigures } from './valuation-data';
+import { MAX_SELECTION, MULTIPLES, REGIONS } from '../catalog';
+import { parseSource, type Source } from '../source';
+import { parseSymbol } from '../symbol';
+import { decodeCompany, encodeCompany } from './company';
+import type { Band, CompanyFigures } from './data';
 
 export const VALUATION_PATH = '/financials/valuation';
 

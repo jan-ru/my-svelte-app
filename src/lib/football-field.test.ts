@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { describeRow, fieldModel } from './football-field';
-import { valuationView } from './valuation';
-import type { CompanyFigures, PeerRow } from './valuation-data';
+import { valuationView } from './valuation/valuation';
+import type { CompanyFigures, PeerRow } from './valuation/data';
 import { at } from '#lib/at';
 
 const figures: CompanyFigures = {

@@ -6,7 +6,7 @@ decision-makers: Jan-Ru Muller (sole maintainer)
 # ADR-008: Valuation by multiples: peers picked by hand, a P25–P75 range, private companies from an uploaded template
 
 - **Accepted:** 2026-10-31, in #75 to #78.
-- **Component:** `/financials/valuation`, `valuation.ts`, `valuation-figures.ts`, `valuation-nav.ts`, `valuation-template.ts`, `valuation-company.ts`, `src/lib/server/valuation.ts`, `football-field.ts`
+- **Component:** `/financials/valuation`, `valuation/valuation.ts`, `valuation/figures.ts`, `valuation/nav.ts`, `valuation/template.ts`, `valuation-company.ts`, `src/lib/server/valuation.ts`, `football-field.ts`
 
 ## Context
 

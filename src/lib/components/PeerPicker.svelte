@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Peer } from '#lib/source-data';
-	import type { PeerRow } from '#lib/valuation-data';
+	import type { PeerRow } from '#lib/valuation/data';
 
 	let { picked, suggestions, max }: { picked: readonly PeerRow[]; suggestions: readonly Peer[]; max: number } =
 		$props();

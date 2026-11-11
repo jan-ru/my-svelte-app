@@ -12,8 +12,8 @@
 	import ValuationTable from '#lib/components/ValuationTable.svelte';
 	import { fieldModel } from '#lib/football-field';
 	import { sourceLabel } from '#lib/source';
-	import { encodeCompany } from '#lib/valuation-company';
-	import { MAX_PEERS, VALUATION_PATH, valuationHref } from '#lib/valuation-nav';
+	import { encodeCompany } from '#lib/valuation/company';
+	import { MAX_PEERS, VALUATION_PATH, valuationHref } from '#lib/valuation/nav';
 	import type { PageProps } from './$types';
 
 	let { data, form }: PageProps = $props();

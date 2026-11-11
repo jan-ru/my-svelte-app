@@ -10,8 +10,8 @@ vi.mock('./compare', () => ({
 }));
 
 import type { Kind, Peer, Profile, Statement } from '../source-data';
-import { encodeCompany } from '../valuation-company';
-import { parseValuationNav, type ValuationNav } from '../valuation-nav';
+import { encodeCompany } from '../valuation/company';
+import { parseValuationNav, type ValuationNav } from '../valuation/nav';
 import { getComparison } from './compare';
 import { SourceError } from './source-error';
 import { loadSector, loadValuation, type ValuationFetchers } from './valuation';

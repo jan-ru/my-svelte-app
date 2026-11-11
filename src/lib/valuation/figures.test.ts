@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import type { Statement, StatementYear } from './source-data';
-import { figuresFromStatements, netDebtOf, peerMultiples } from './valuation-figures';
-import type { CompanyFigures } from './valuation-data';
+import type { Statement, StatementYear } from '../source-data';
+import { figuresFromStatements, netDebtOf, peerMultiples } from './figures';
+import type { CompanyFigures } from './data';
 
 const year = (
 	fiscalYear: string,
