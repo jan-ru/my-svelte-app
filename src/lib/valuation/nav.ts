@@ -1,4 +1,4 @@
-// src/lib/valuation-nav.ts
+// src/lib/valuation/nav.ts
 // The valuation page keeps all of its state in the URL, so a bookmark keeps the company, the picked peers and
 // the benchmark. This module reads and writes that state; it is pure.
 import { MAX_SELECTION, MULTIPLES, REGIONS } from '../catalog';
@@ -104,3 +104,12 @@ export function valuationHref(nav: ValuationNav): string {
 /** The form action of the template upload: it keeps the rest of the page state and replaces the company. */
 export const uploadAction = (nav: ValuationNav): string =>
 	`?/upload&${valuationHref({ ...nav, company: null, symbol: '' }).split('?')[1] ?? ''}`;
+
+/** The valuation page for one ticker (and the source asked for), with everything else at its default. */
+export function valuationLink(symbol: string, source?: Source): string {
+	const sp = new URLSearchParams();
+	if (symbol) sp.set('symbol', symbol);
+	if (source) sp.set('source', source);
+	const query = sp.toString();
+	return query ? `${VALUATION_PATH}?${query}` : VALUATION_PATH;
+}

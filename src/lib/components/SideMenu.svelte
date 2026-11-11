@@ -1,5 +1,9 @@
 <script lang="ts">
-	let { label, items }: { label: string; items: { href: string; label: string; current: boolean }[] } = $props();
+	let {
+		label,
+		items
+	}: { label: string; items: readonly { readonly href: string; readonly label: string; readonly current: boolean }[] } =
+		$props();
 </script>
 
 <nav class="side" aria-label={label}>
