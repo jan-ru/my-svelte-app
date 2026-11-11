@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { EXPLORE_HOME, EXPLORE_LINKS, inExplore } from './nav';
+import { readFileSync } from 'node:fs';
+import { ABOUT_SECTIONS, EXPLORE_HOME, EXPLORE_LINKS, inExplore } from './nav';
 
 describe('explore navigation', () => {
 	it('recognises exactly the explore pages', () => {
@@ -8,5 +9,15 @@ describe('explore navigation', () => {
 	});
 	it('opens on the first page', () => {
 		expect(EXPLORE_HOME).toBe('/countries');
+	});
+});
+
+describe('about sections', () => {
+	const page = readFileSync(new URL('../routes/about/+page.svelte', import.meta.url), 'utf8');
+	it('each menu entry points at a heading with that id', () => {
+		for (const s of ABOUT_SECTIONS) expect(page).toContain(`<h2 id="${s.id}">`);
+	});
+	it('has unique ids', () => {
+		expect(new Set(ABOUT_SECTIONS.map((s) => s.id)).size).toBe(ABOUT_SECTIONS.length);
 	});
 });

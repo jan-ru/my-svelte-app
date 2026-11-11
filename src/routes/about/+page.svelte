@@ -1,83 +1,97 @@
+<script lang="ts">
+	import SideLayout from '#lib/components/SideLayout.svelte';
+	import SideMenu from '#lib/components/SideMenu.svelte';
+	import { ABOUT_SECTIONS } from '#lib/nav';
+</script>
+
 <svelte:head>
 	<title>About – Fetch valuation multiples</title>
 	<meta name="description" content="What this app does and where its valuation multiples come from." />
 </svelte:head>
 
-<main>
-	<h1>About</h1>
+<SideLayout>
+	{#snippet menu()}
+		<SideMenu
+			label="On this page"
+			items={ABOUT_SECTIONS.map((s) => ({ href: `#${s.id}`, label: s.label, current: false }))}
+		/>
+	{/snippet}
+	<main>
+		<h1>About</h1>
 
-	<p>
-		This app helps value a company against its industry peers. It brings together valuation multiples, industry
-		classifications, a company list and company financials.
-	</p>
+		<p>
+			This app helps value a company against its industry peers. It brings together valuation multiples, industry
+			classifications, a company list and company financials.
+		</p>
 
-	<h2>Pages</h2>
-	<dl>
-		<dt><a href="/">Multiples</a></dt>
-		<dd>Valuation multiples, such as EV/EBITDA and P/E, by industry and region.</dd>
-	</dl>
-	<h3>Explore</h3>
-	<dl>
-		<dt><a href="/countries">Countries</a></dt>
-		<dd>How large each country is as a share of the global total: number of listed companies, or GDP.</dd>
-		<dt><a href="/industries">Industries</a></dt>
-		<dd>How large each industry is as a share of all listed companies, grouped by sector.</dd>
-		<dt><a href="/companies">Companies</a></dt>
-		<dd>The listed companies in each industry, filtered by industry, region, sector, SIC code and country.</dd>
-		<dt><a href="/classification">Find Industry</a></dt>
-		<dd>From a Dutch SBI 2025 code to the matching NYU Stern industries, and back.</dd>
-	</dl>
-	<h3>Financials</h3>
-	<dl>
-		<dt><a href="/financials">Financials</a></dt>
-		<dd>
-			Financial statements, ratios, estimates, news, prices and the company profile of one listed company, from
-			Financial Modeling Prep, Yahoo Finance or Eulerpool. Needs a login.
-		</dd>
-		<dt><a href="/financials/valuation">Valuation</a></dt>
-		<dd>
-			Values one company with multiples against peers you pick and its Damodaran sector, shown as a football-field
-			chart. Works for a listed ticker or a private company uploaded from an Excel template, which is read once and not
-			stored. Needs a login.
-		</dd>
-	</dl>
+		<h2 id="pages">Pages</h2>
+		<dl>
+			<dt><a href="/">Multiples</a></dt>
+			<dd>Valuation multiples, such as EV/EBITDA and P/E, by industry and region.</dd>
+		</dl>
+		<h3>Explore</h3>
+		<dl>
+			<dt><a href="/countries">Countries</a></dt>
+			<dd>How large each country is as a share of the global total: number of listed companies, or GDP.</dd>
+			<dt><a href="/industries">Industries</a></dt>
+			<dd>How large each industry is as a share of all listed companies, grouped by sector.</dd>
+			<dt><a href="/companies">Companies</a></dt>
+			<dd>The listed companies in each industry, filtered by industry, region, sector, SIC code and country.</dd>
+			<dt><a href="/classification">Find Industry</a></dt>
+			<dd>From a Dutch SBI 2025 code to the matching NYU Stern industries, and back.</dd>
+		</dl>
+		<h3>Financials</h3>
+		<dl>
+			<dt><a href="/financials">Financials</a></dt>
+			<dd>
+				Financial statements, ratios, estimates, news, prices and the company profile of one listed company, from
+				Financial Modeling Prep, Yahoo Finance or Eulerpool. Needs a login.
+			</dd>
+			<dt><a href="/financials/valuation">Valuation</a></dt>
+			<dd>
+				Values one company with multiples against peers you pick and its Damodaran sector, shown as a football-field
+				chart. Works for a listed ticker or a private company uploaded from an Excel template, which is read once and
+				not stored. Needs a login.
+			</dd>
+		</dl>
 
-	<h2>Public and logged-in</h2>
-	<p>
-		Without a login you see the default view of each public page, cached for a day. The shared password unlocks the
-		filters, search and paging, and the Financials and Valuation pages, which are never cached publicly.
-	</p>
+		<h2 id="access">Public and logged-in</h2>
+		<p>
+			Without a login you see the default view of each public page, cached for a day. The shared password unlocks the
+			filters, search and paging, and the Financials and Valuation pages, which are never cached publicly.
+		</p>
 
-	<h2>Data sources</h2>
-	<ul>
-		<li>
-			<a href="https://pages.stern.nyu.edu/~adamodar/" rel="noreferrer">NYU Stern School of Business</a> (Aswath Damodaran):
-			industry multiples and the company list.
-		</li>
-		<li>CBS, UN Statistics Division and US Census Bureau: the classification tables.</li>
-		<li>World Bank: GDP (current US$), licensed CC BY 4.0.</li>
-		<li>
-			Financial Modeling Prep and Yahoo Finance: company financials, prices, news, analyst estimates and peer
-			suggestions.
-		</li>
-	</ul>
-	<p>
-		The app only reads this data and does not change it. Check each source for the date, methodology and licence terms
-		before relying on a figure.
-	</p>
-	<img class="logo" src="/nyu_stern.svg" alt="NYU Stern School of Business" />
+		<h2 id="sources">Data sources</h2>
+		<ul>
+			<li>
+				<a href="https://pages.stern.nyu.edu/~adamodar/" rel="noreferrer">NYU Stern School of Business</a> (Aswath Damodaran):
+				industry multiples and the company list.
+			</li>
+			<li>CBS, UN Statistics Division and US Census Bureau: the classification tables.</li>
+			<li>World Bank: GDP (current US$), licensed CC BY 4.0.</li>
+			<li>
+				Financial Modeling Prep and Yahoo Finance: company financials, prices, news, analyst estimates and peer
+				suggestions.
+			</li>
+		</ul>
+		<p>
+			The app only reads this data and does not change it. Check each source for the date, methodology and licence terms
+			before relying on a figure.
+		</p>
+		<img class="logo" src="/nyu_stern.svg" alt="NYU Stern School of Business" />
 
-	<h2>Status</h2>
-	<p>
-		The app is under development. The code is open source on
-		<a href="https://github.com/jan-ru/my-svelte-app" rel="noreferrer">GitHub</a>.
-	</p>
-</main>
+		<h2 id="status">Status</h2>
+		<p>
+			The app is under development. The code is open source on
+			<a href="https://github.com/jan-ru/my-svelte-app" rel="noreferrer">GitHub</a>.
+		</p>
+	</main>
+</SideLayout>
 
 <style>
 	main {
 		max-width: 40rem;
-		margin: 0 auto;
+		margin: 0;
 		padding: 0 var(--space-4) var(--space-8);
 		line-height: 1.6;
 	}
