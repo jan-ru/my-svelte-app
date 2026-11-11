@@ -49,6 +49,7 @@ describe('the generated stylesheets', () => {
 		expect(Object.keys(built).sort()).toEqual([
 			'aliases.css',
 			'evening.css',
+			'grid.css',
 			'high-contrast-black.css',
 			'high-contrast-white.css',
 			'morning.css'
@@ -67,5 +68,14 @@ describe('the Morning stylesheet', () => {
 	});
 	it('composes Shadow0 from its two layers', () => {
 		expect(morning).toContain('--sapContent_Shadow0: 0 0 2px 0 rgb(34 53 72 / 0.2), 0 2px 4px 0 rgb(34 53 72 / 0.2);');
+	});
+});
+
+describe('the grid stylesheet', () => {
+	const grid = buildAll(sources)['grid.css'] ?? '';
+	it('switches at the real Horizon breakpoints', () => {
+		expect(grid).toContain('@media (min-width: 600px)');
+		expect(grid).toContain('@media (min-width: 1024px)');
+		expect(grid).toContain('@media (min-width: 1440px)');
 	});
 });
