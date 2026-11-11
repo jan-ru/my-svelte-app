@@ -1,11 +1,19 @@
 import { describe, expect, it } from 'vitest';
-import { SourceError, failureKind, sourceFailureMessage } from './source-error';
+import { SourceError, failureDetail, failureKind, sourceFailureMessage } from './source-error';
 
 describe('failureKind', () => {
 	it("is a SourceError's kind and 'error' for anything else", () => {
 		expect(failureKind(new SourceError('limit', 'x'))).toBe('limit');
 		expect(failureKind(new Error('boom'))).toBe('error');
 		expect(failureKind('text')).toBe('error');
+	});
+});
+
+describe('failureDetail', () => {
+	it('is ", <detail>" for a SourceError that has one, and empty otherwise', () => {
+		expect(failureDetail(new SourceError('unavailable', 'x', 'FetchError 403'))).toBe(', FetchError 403');
+		expect(failureDetail(new SourceError('unavailable', 'x'))).toBe('');
+		expect(failureDetail(new Error('boom'))).toBe('');
 	});
 });
 

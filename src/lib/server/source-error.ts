@@ -5,16 +5,23 @@ export type SourceErrorKind = 'config' | 'plan' | 'limit' | 'unavailable';
 /** A failure to get data from a source (FMP, Yahoo or Eulerpool). The message is safe to show: it never carries a URL or a key. */
 export class SourceError extends Error {
 	readonly kind: SourceErrorKind;
+	/** For the log only, never shown: the underlying error's class name and HTTP status, nothing else (no URL, no text). */
+	readonly detail: string | undefined;
 
-	constructor(kind: SourceErrorKind, message: string) {
+	constructor(kind: SourceErrorKind, message: string, detail?: string) {
 		super(message);
 		this.kind = kind;
+		this.detail = detail;
 	}
 }
 
 /** The kind of a failure for the log: a `SourceError`'s kind, or `error` for anything else. */
 export const failureKind = (error: unknown): SourceErrorKind | 'error' =>
 	error instanceof SourceError ? error.kind : 'error';
+
+/** `, <detail>` for the log when the failure carries one, else an empty string. */
+export const failureDetail = (error: unknown): string =>
+	error instanceof SourceError && error.detail ? `, ${error.detail}` : '';
 
 /**
  * What a visitor reads when a source failed to deliver something for `symbol`; `label` names the source and

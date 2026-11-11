@@ -15,6 +15,13 @@ describe('humanise', () => {
 	});
 });
 
+describe('formatValue for a tax rate', () => {
+	it('writes the fraction as a percentage, not as millions', () => {
+		expect(formatValue('taxRateForCalcs', 0.21)).toBe('21.0%');
+		expect(formatValue('taxRateForCalcs', null)).toBe('n/a');
+	});
+});
+
 describe('formatValue', () => {
 	it('shows money in millions with one decimal', () => {
 		expect(formatValue('revenue', 1_234_500_000)).toBe('1,234.5');
