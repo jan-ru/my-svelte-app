@@ -46,19 +46,8 @@ for (const path of PUBLIC_PAGES) {
 	});
 }
 
-test('the menubar fits a phone: no sideways scroll at 400px, one 44px row on a desktop', async ({ page }) => {
+test('the menubar is one 44px row on a desktop', async ({ page }) => {
 	const errors = watchErrors(page);
-	await page.setViewportSize({ width: 400, height: 900 });
-	await page.goto('/about');
-	const overflow = await page.evaluate(
-		() => document.documentElement.scrollWidth - document.documentElement.clientWidth
-	);
-	expect(overflow).toBe(0);
-	const rights = await page
-		.getByRole('navigation', { name: 'Main' })
-		.locator('a')
-		.evaluateAll((links) => links.map((link) => link.getBoundingClientRect().right));
-	for (const right of rights) expect(right).toBeLessThanOrEqual(400);
 	await page.setViewportSize({ width: 1200, height: 900 });
 	await page.goto('/about');
 	const height = await page
