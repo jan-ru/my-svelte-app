@@ -12,7 +12,7 @@ If the build says `--surface-card was #ffffff, but --sapGroup_ContentBackground 
 
 ## What is written
 
-- One stylesheet per theme in `src/lib/styles/generated/`. Morning uses `:root`; the others use `:root[data-theme='…']`. Only Morning and `aliases.css` are imported (in `src/routes/+layout.svelte`).
+- One stylesheet per theme in `src/lib/styles/generated/`. Morning uses `:root`; the others use `:root[data-theme='…']`. Only Morning, `aliases.css` and `grid.css` are imported (in `src/routes/+layout.svelte`).
 - Only the groups in `GROUPS` (`src/lib/tokens-build.ts`) are written; add a group there. String tokens (font-style labels) are skipped.
 - Names: a key starting with `sap` becomes `--<key>`; any other token becomes `--hz-<path>`, for example `--hz-Container-Spacing-Tiny`. Figma's own `codeSyntax` names are not used because some are corrupt.
 - Aliases in the export (`{Shadow.sapContent_ShadowColor}`) are written as the literal value.
@@ -20,6 +20,12 @@ If the build says `--surface-card was #ffffff, but --sapGroup_ContentBackground 
 - `aliases.css` also holds four names that adopt Horizon on purpose and so change how the app looks: `--shadow-1` to `--shadow-4` are Horizon's `Shadow0` to `Shadow3`. Nothing checks an old value for these (`ADOPTED` in `src/lib/tokens-build.ts`).
 - Shadows are not tokens in the export: each is a set of atoms (position, blur, spread and colour for two layers). `shadowDeclarations` puts them together as `--sapContent_Shadow0` to `--sapContent_Shadow3` in every theme.
 - The token's type decides the format. A number token is written in `px` (zero as `0`), but numbers in Container/Spacing (the space, gap and padding tokens, not the breakpoints) are written in `rem`, 16px to the rem, like our own spacing, so they follow the browser's font size. A number whose key ends in `Opacity` is written as a number from 0 to 1. A colour token is always written as a colour, even when its key ends in `Opacity`: `--sapBlockLayer_Opacity` is `rgb(0 0 0 / 0.2)`, so `opacity: var(--sapBlockLayer_Opacity)` would be invalid; use it as a colour.
+
+## Grid
+
+Figma does not export layout guides, so the grid is not in the token files. `GRID` in `src/lib/tokens-build.ts` holds the values read by hand from the Grid page of the kit (S (Application): 4 columns, 16px margin, 8px gutter; M: 8, 32, 16; L: 12, 32, 16; XL: 16, 48, 16). "Grid: S (Home)" (8px margin) is not used. If the kit's layout guides change, re-read them in Figma (Layout guide styles, the properties icon of each) and update `GRID`.
+
+`npm run build:tokens` writes `generated/grid.css`: `--hz-grid-columns`, `--hz-grid-margin` and `--hz-grid-gutter` (rem), the same in every theme, overridden from the breakpoints `--sapBreakpoint_M_Min`, `_L_Min`, `_XL_Min` (written out as px, since a media query cannot read a custom property). `src/lib/styles/grid.css` is hand-written: `.grid` (a CSS grid on those properties, children full width by default), `.grid-page` (centred, side margin from the grid, `max-width: 80rem`) and the span classes `.span-1`..`.span-4`, `.span-m-1`..`.span-m-8`, `.span-l-1`..`.span-l-12`, `.span-xl-1`..`.span-xl-16` (a class applies from its breakpoint upward). For example `class="span-4 span-m-8 span-l-6"` is the full width on a phone, 8 of 8 columns on M, and half on L. `grid-css.test.ts` checks the breakpoints and the span classes. Only Home uses it so far.
 
 ## Not yet on Horizon
 

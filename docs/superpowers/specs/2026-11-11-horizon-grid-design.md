@@ -77,8 +77,8 @@ Visible changes: below 1024px the two charts stack; on phones the pickers stack 
 - `tokens-build.test.ts`: `buildGridCss` on fixture breakpoints writes the right defaults and one media query per size, smallest first, with margin and gutter in rem.
 - `tokens-data.test.ts`: the media-query px values equal the real `--sapBreakpoint_M_Min`, `_L_Min`, `_XL_Min`; `grid.css` is in the sync test with the other generated files; `GRID` holds the five Figma values above.
 - A test reads `src/lib/styles/grid.css` and checks that every span class named in the design exists for its range.
-- A component render test for Home checks the `grid-page`, `grid` and span classes on the pickers and panels.
-- A Playwright check at 400, 800, 1200 and 1600px wide reads `getComputedStyle(...).gridTemplateColumns` of `.controls` (4, 8, 12, 16 tracks) and whether the two chart panels share a row, so a media query that stops applying fails the build. The existing e2e run still checks page errors, CSP and axe.
+- Home has no Vitest render test: it imports `$app/state`, which Vitest does not resolve. The Playwright check below covers the pickers' classes through their computed layout.
+- A Playwright check at 400, 800, 1200 and 1600px wide (logged in, because the pickers show only then) reads `getComputedStyle(...).gridTemplateColumns` of `.controls` (4, 8, 12, 16 tracks) and whether the pickers stack or share a row. The chart panels render only when the NYU data loads, which the e2e run cannot rely on, so they are checked by looking at the page, not by the test. The existing e2e run still checks page errors, CSP and axe.
 - The usual gates: `npm run check`, `lint`, `format:check`, `check:ts-only`, `test:coverage`.
 
 ## Documentation
