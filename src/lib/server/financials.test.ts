@@ -29,6 +29,33 @@ describe('statementTitle', () => {
 	});
 });
 
+describe('balance sheet detail', () => {
+	const balance: Statement = {
+		lines: ['totalAssets', 'deferredRevenue'],
+		years: [
+			{ fiscalYear: '2024', date: '2024-12-31', currency: 'USD', values: { totalAssets: 9e6, deferredRevenue: 1e6 } }
+		]
+	};
+	const run = (detail?: 'condensed' | 'full') =>
+		loadFinancials({
+			...base,
+			nav: { ...nav, statement: 'balance', ...(detail ? { detail } : {}) },
+			fmp: { statement: async () => balance }
+		});
+	it('is condensed unless asked for in full', async () => {
+		for (const detail of [undefined, 'condensed'] as const) {
+			const view = await run(detail);
+			expect(view.state === 'ready' && view.table?.rows.map((r) => r.key)).toEqual(['totalAssets']);
+		}
+		const full = await run('full');
+		expect(full.state === 'ready' && full.table?.rows.map((r) => r.key)).toEqual(['totalAssets', 'deferredRevenue']);
+	});
+	it('never condenses the other statements', async () => {
+		const view = await loadFinancials({ ...base, fmp: { statement: async () => balance } });
+		expect(view.state === 'ready' && view.table?.rows.length).toBe(2);
+	});
+});
+
 describe('every tab', () => {
 	it('has a loader that answers with its own view, and none falls through to another', async () => {
 		const empty = async () => ({ lines: [], years: [] });

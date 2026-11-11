@@ -1,4 +1,4 @@
-import { PERIODS, navHref, type Nav, type Period } from './financials-nav';
+import { DETAILS, PERIODS, navHref, type Nav, type Period } from './financials-nav';
 import { periodAvailable, sourceLabel, type Source, type SOURCES } from './source';
 
 /** One option of a segmented control. A null `href` is an option that cannot be chosen; `title` says why. */
@@ -35,5 +35,15 @@ export function sourceSegments(
 		label: s.label,
 		href: navHref({ ...nav, period, source: s.id }, symbol),
 		current: source === s.id
+	}));
+}
+
+/** Condensed or full balance sheet; unset means condensed. */
+export function detailSegments(nav: Nav, symbol: string): readonly Segment[] {
+	const current = nav.detail ?? 'condensed';
+	return DETAILS.map((d) => ({
+		label: d.label,
+		href: navHref({ ...nav, detail: d.id }, symbol),
+		current: current === d.id
 	}));
 }

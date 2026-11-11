@@ -27,6 +27,15 @@ The detail behind the `/financials` rules in `AGENTS.md`. The hard rules (privac
 - It has no TTM, news, ratios, estimates, earnings or peers. A `SourceFetchers` member that is absent makes the view say so.
 - Its statements are in millions, include forecast rows (`2031-09-30e`) and sometimes two rows for one year; `eulerpool-parse.ts` handles all three.
 
+## Condensed balance sheet
+
+The Balance Sheet tab shows about 20 lines by default and every line with `?detail=full` (`Detail` in `src/lib/financials-nav.ts`, the toggle is `detailSegments` in `src/lib/segments.ts`). Income statement and cash flow have no such toggle. The mapping is `src/lib/condensed.ts`, a pure function over a `Statement`, so it works the same for every source:
+
+- Each condensed line lists the names the sources give it (`from`); the first name with a figure in any year is used for the whole row. A line no source name matches is left out, and a statement none of whose lines match is shown in full instead.
+- The four **Other** lines (other current assets, other non-current assets, other current liabilities, other non-current liabilities) are not copied from the source but worked out for each year as what is left of the subtotal: for example other current assets = total current assets − cash − receivables − inventory. That makes the rows add up to their subtotals, whatever the source leaves out. When a subtotal is missing for a year, the source's own "other" figure is used instead, and the row may not add up.
+- Equity is shown as one total. The sheet is not forced to balance: total liabilities and total equity can differ from total assets by minority interest, depending on the source.
+- A new source name for a line goes into `from`; a new line goes into `CONDENSED_BALANCE` in the order it should appear, with a test in `condensed.test.ts`.
+
 ## Adding a tab
 
 - One entry in `TABS` plus one loader in `TAB_LOADERS` (`src/lib/server/financials.ts`) and, if it needs new markup, a component in `src/lib/components/` that `+page.svelte` renders.

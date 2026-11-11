@@ -16,7 +16,7 @@
 	import { effectivePeriod, offeredSources, resolveSource, sourceLabel } from '#lib/source';
 	import { companyMenu } from '#lib/company-menu';
 	import { STATEMENTS, navHref } from '#lib/financials-nav';
-	import { periodSegments, sourceSegments } from '#lib/segments';
+	import { detailSegments, periodSegments, sourceSegments } from '#lib/segments';
 	import { parseSymbol } from '#lib/symbol';
 
 	let { data }: PageProps = $props();
@@ -57,6 +57,7 @@
 					<input type="hidden" name="tab" value={nav.tab} />
 					<input type="hidden" name="statement" value={nav.statement} />
 					<input type="hidden" name="period" value={period} />
+					{#if nav.detail}<input type="hidden" name="detail" value={nav.detail} />{/if}
 					{#if nav.source}<input type="hidden" name="source" value={nav.source} />{/if}
 					<label for="symbol">Ticker</label>
 					<input
@@ -102,6 +103,9 @@
 					{/each}
 				</nav>
 				<SegmentedNav label="Period" items={periodSegments(nav, period, source, data.symbol)} />
+				{#if nav.statement === 'balance'}
+					<SegmentedNav label="Detail" items={detailSegments(nav, data.symbol)} />
+				{/if}
 			{/if}
 
 			{#if view.state === 'unconfigured'}
