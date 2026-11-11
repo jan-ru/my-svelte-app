@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Callout from '#lib/components/Callout.svelte';
 	import { page } from '$app/state';
 	import { MAX_SELECTION, MULTIPLES, REGIONS, type Role } from '#lib/catalog';
 	import { LOW_FIRMS_THRESHOLD, PALETTE } from '#lib/chart';
@@ -108,12 +109,12 @@
 	{/if}
 
 	{#if data.loadError}
-		<p class="notice" role="alert">
+		<Callout variant="negative">
 			{data.loadError}
 			<a href={data.interactive ? `${page.url.pathname}${page.url.search}` : '/'} data-sveltekit-reload>Try again</a>
-		</p>
+		</Callout>
 	{:else if !ready}
-		<p class="notice">Pick at least one multiple, region and industry.</p>
+		<Callout variant="info">Pick at least one multiple, region and industry.</Callout>
 	{:else if data.model}
 		<ul class="legend" aria-label="Legend">
 			{#each data.model.series as name, i (name)}
@@ -193,18 +194,6 @@
 		margin-right: 0.4rem;
 		vertical-align: -0.1rem;
 		border-radius: var(--radius-xs);
-	}
-	.notice {
-		padding: var(--space-3) var(--space-4);
-		background: var(--information-bg);
-		border: 1px solid var(--information-border);
-		border-left: 4px solid var(--information);
-		border-radius: var(--radius-sm);
-	}
-	.notice[role='alert'] {
-		background: var(--negative-bg);
-		border-color: var(--negative-border);
-		border-left-color: var(--negative);
 	}
 	.footnote {
 		color: var(--text-secondary);

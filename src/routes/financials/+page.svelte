@@ -1,20 +1,22 @@
 <!-- src/routes/financials/+page.svelte -->
 <script lang="ts">
+	import Callout from '#lib/components/Callout.svelte';
 	import { page } from '$app/state';
 	import type { PageProps } from './$types';
 	import LoginPrompt from '#lib/components/LoginPrompt.svelte';
 	import FinancialTable from '#lib/components/FinancialTable.svelte';
 	import NewsList from '#lib/components/NewsList.svelte';
-	import PeriodNav from '#lib/components/PeriodNav.svelte';
 	import PeersList from '#lib/components/PeersList.svelte';
 	import PriceView from '#lib/components/PriceView.svelte';
 	import ProfileView from '#lib/components/ProfileView.svelte';
+	import SegmentedNav from '#lib/components/SegmentedNav.svelte';
 	import SideLayout from '#lib/components/SideLayout.svelte';
 	import SideMenu from '#lib/components/SideMenu.svelte';
 	import SupplyChainView from '#lib/components/SupplyChainView.svelte';
 	import { effectivePeriod, offeredSources, resolveSource, sourceLabel } from '#lib/source';
 	import { companyMenu } from '#lib/company-menu';
 	import { STATEMENTS, navHref } from '#lib/financials-nav';
+	import { periodSegments, sourceSegments } from '#lib/segments';
 	import { parseSymbol } from '#lib/symbol';
 
 	let { data }: PageProps = $props();
@@ -45,7 +47,7 @@
 				Finance and Eulerpool. Enter a ticker such as AAPL, or ABN.AS for a listing outside the US.
 			</p>
 			{#if !data.configured}
-				<p class="error" role="alert">This page is not configured on this deployment.</p>
+				<Callout variant="negative">This page is not configured on this deployment.</Callout>
 			{:else}
 				<LoginPrompt from={page.url.pathname + page.url.search}>to look up a company.</LoginPrompt>
 			{/if}
@@ -71,15 +73,11 @@
 
 			{#if data.symbol}
 				{#if offered.length > 1}
-					<nav class="source" aria-label="Data source">
-						<span>Source</span>
-						{#each offered as s (s.id)}
-							<a
-								href={navHref({ ...nav, period, source: s.id }, data.symbol)}
-								aria-current={source === s.id ? 'page' : undefined}>{s.label}</a
-							>
-						{/each}
-					</nav>
+					<SegmentedNav
+						label="Data source"
+						caption="Source"
+						items={sourceSegments(offered, nav, period, source, data.symbol)}
+					/>
 				{:else}
 					<p class="source-note">Source: {sourceLabel(source)}</p>
 				{/if}
@@ -103,15 +101,15 @@
 						>
 					{/each}
 				</nav>
-				<PeriodNav {nav} {period} {source} symbol={data.symbol} />
+				<SegmentedNav label="Period" items={periodSegments(nav, period, source, data.symbol)} />
 			{/if}
 
 			{#if view.state === 'unconfigured'}
-				<p class="error" role="alert">The {sourceLabel(source)} key is not configured on this deployment.</p>
+				<Callout variant="negative">The {sourceLabel(source)} key is not configured on this deployment.</Callout>
 			{:else if view.state === 'invalid'}
-				<p class="error" role="alert">
+				<Callout variant="negative">
 					That is not a valid ticker. Use letters, digits, dots and dashes, for example BRK-B.
-				</p>
+				</Callout>
 			{:else if view.state === 'idle'}
 				<p>
 					Enter a ticker to see its data. US tickers work with FMP, Yahoo Finance or Eulerpool; others, such as ABN.AS,
@@ -167,13 +165,6 @@
 		flex-wrap: wrap;
 		margin: var(--space-4) 0;
 	}
-	.error {
-		padding: var(--space-2) var(--space-3);
-		color: var(--negative);
-		background: var(--negative-bg);
-		border-left: 4px solid var(--negative);
-		border-radius: var(--radius-sm);
-	}
 	.tabs a {
 		padding: 6px 14px;
 		text-decoration: none;
@@ -201,29 +192,6 @@
 		margin: 0 0 var(--space-1);
 		color: var(--text-secondary);
 		font-size: var(--text-sm);
-	}
-	.source {
-		display: flex;
-		gap: var(--space-2);
-		align-items: center;
-		margin: 0 0 var(--space-3);
-		font-size: var(--text-sm);
-	}
-	.source a {
-		padding: 3px 10px;
-		color: var(--color-primary);
-		text-decoration: none;
-		background: var(--white);
-		border: 1px solid var(--border-strong);
-		border-radius: var(--radius-sm);
-	}
-	.source a:hover {
-		background: var(--blue-05);
-	}
-	.source a[aria-current='page'] {
-		color: var(--text-on-primary);
-		background: var(--color-primary);
-		border-color: var(--color-primary);
 	}
 	.source-note {
 		margin: 0 0 var(--space-3);

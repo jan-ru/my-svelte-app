@@ -5,6 +5,8 @@ import type { ReverseTrace, Trace } from '../crosswalk';
 import { errorView } from '../error-view';
 import type { PanelModel } from '../layout';
 import ChartPanel from './ChartPanel.svelte';
+import AppHeader from './AppHeader.svelte';
+import Callout from './Callout.svelte';
 import CheckGroup from './CheckGroup.svelte';
 import ClassificationGlossary from './ClassificationGlossary.svelte';
 import CrosswalkTrace from './CrosswalkTrace.svelte';
@@ -58,6 +60,42 @@ describe('DataTable', () => {
 	it('caps the height when tall', () => {
 		expect(html(DataTable, { ...props, tall: true })).toMatch(/class="scroll [^"]*\btall\b/);
 		expect(html(DataTable, props)).not.toMatch(/\btall\b/);
+	});
+});
+
+describe('AppHeader', () => {
+	const props = { name: 'App', pathname: '/financials', search: '?symbol=AAPL', interactive: false };
+	it('links the pages and marks the current one', () => {
+		const out = html(AppHeader, props);
+		expect(out).toContain('aria-label="Main"');
+		expect(out).toMatch(/<a[^>]*aria-current="page"[^>]*>Financials<\/a>/);
+		expect(out).toContain('>Valuation</a>');
+	});
+	it('offers Log in with the way back when logged out', () => {
+		const out = html(AppHeader, props);
+		expect(out).toContain('Log in');
+		expect(out).toContain(encodeURIComponent('/financials?symbol=AAPL'));
+		expect(out).not.toContain('Log out');
+	});
+	it('offers Log out as a form when logged in', () => {
+		const out = html(AppHeader, { ...props, interactive: true });
+		expect(out).toContain('Log out');
+		expect(out).toContain('method="POST"');
+		expect(out).not.toContain('>Log in<');
+	});
+});
+
+describe('Callout', () => {
+	const text = createRawSnippet(() => ({ render: () => '<span>Careful</span>' }));
+	it('announces an error: negative is role alert by default', () => {
+		const out = html(Callout, { variant: 'negative', children: text });
+		expect(out).toContain('role="alert"');
+		expect(out).toContain('callout negative');
+		expect(out).toContain('<span>Careful</span>');
+	});
+	it('has no role as an info notice, and takes the role it is given', () => {
+		expect(html(Callout, { children: text })).not.toContain('role=');
+		expect(html(Callout, { variant: 'critical', role: 'note', children: text })).toContain('role="note"');
 	});
 });
 

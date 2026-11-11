@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Callout from '#lib/components/Callout.svelte';
 	let { configured, from, message }: { configured: boolean; from: string | null; message?: string | undefined } =
 		$props();
 
@@ -10,7 +11,7 @@
 	Valuation pages.
 </p>
 {#if !configured}
-	<p class="error" role="alert">Logging in is not configured on this deployment.</p>
+	<Callout variant="negative">Logging in is not configured on this deployment.</Callout>
 {:else}
 	<form class="login" method="POST" {action}>
 		<label for="password">Password</label>
@@ -18,7 +19,7 @@
 		<button type="submit">Log in</button>
 	</form>
 {/if}
-{#if message}<p class="error" role="alert">{message}</p>{/if}
+{#if message}<Callout variant="negative">{message}</Callout>{/if}
 {#if from}<p class="note"><a href={from}>Back without logging in</a></p>{/if}
 
 <style>
@@ -35,12 +36,5 @@
 		background: var(--surface-card);
 		border: 1px solid var(--border-subtle);
 		border-radius: var(--radius-md);
-	}
-	.error {
-		padding: var(--space-2) var(--space-3);
-		color: var(--negative);
-		background: var(--negative-bg);
-		border-left: 4px solid var(--negative);
-		border-radius: var(--radius-sm);
 	}
 </style>

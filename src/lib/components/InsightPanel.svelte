@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Callout from '#lib/components/Callout.svelte';
 	import { describeUpside, formatPrice, qualityRows } from '#lib/insight';
 	import type { Insight } from '#lib/insight';
 
@@ -19,7 +20,7 @@
 		Eulerpool's own estimates, shown for comparison. They do not feed the valuation below and the method is not
 		published. Data by <a href="https://eulerpool.com" rel="noopener noreferrer">Eulerpool</a>.
 	</p>
-	{#if insight.message}<p class="error" role="alert">{insight.message}</p>{/if}
+	{#if insight.message}<Callout variant="negative">{insight.message}</Callout>{/if}
 	<div class="panels">
 		{#if fair}
 			<div class="card">
