@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatPrice, formatSigned, formatVolume, oneYearWindow, summarise } from './prices';
+import { formatPrice, formatSigned, formatVolume, oneYearWindow, summarise, trendOf } from './prices';
 
 const p = (date: string, close: number, volume: number | null = null) => ({ date, close, volume });
 
@@ -67,5 +67,13 @@ describe('formatting', () => {
 	});
 	it('formats volume as a whole number', () => {
 		expect(formatVolume(1_234_567.4)).toBe('1,234,567');
+	});
+});
+
+describe('trendOf', () => {
+	it('points up for a gain, down for a loss and flat for none', () => {
+		expect(trendOf(0.5)).toBe('up');
+		expect(trendOf(-0.5)).toBe('down');
+		expect(trendOf(0)).toBe('flat');
 	});
 });

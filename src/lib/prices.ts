@@ -54,3 +54,8 @@ export function formatSigned(value: number): string {
 export function formatVolume(value: number): string {
 	return Math.round(value).toLocaleString('en');
 }
+
+export type Trend = 'up' | 'down' | 'flat';
+
+/** Which way a change points: positive is up, negative is down, zero is flat. */
+export const trendOf = (change: number): Trend => (change > 0 ? 'up' : change < 0 ? 'down' : 'flat');

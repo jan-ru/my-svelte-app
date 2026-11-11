@@ -10,9 +10,11 @@ import Callout from './Callout.svelte';
 import CheckGroup from './CheckGroup.svelte';
 import ClassificationGlossary from './ClassificationGlossary.svelte';
 import CrosswalkTrace from './CrosswalkTrace.svelte';
+import DataTable from './DataTable.svelte';
 import ErrorMessage from './ErrorMessage.svelte';
 import Icon from './Icon.svelte';
 import IndustryPicker from './IndustryPicker.svelte';
+import Status from './Status.svelte';
 import MacroTable from './MacroTable.svelte';
 import PanelGrid from './PanelGrid.svelte';
 import ReverseTraceView from './ReverseTraceView.svelte';
@@ -23,6 +25,43 @@ type Renderer = (component: unknown, options: { props: unknown }) => { body: str
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- see above: ComponentProps needs it
 const html = <C extends Component<any>>(component: C, props: ComponentProps<C>): string =>
 	(render as unknown as Renderer)(component, { props }).body;
+
+describe('Status', () => {
+	const text = createRawSnippet(() => ({ render: () => '<b>+1.2</b>' }));
+	it('shows an arrow and the colour class for a move, and nothing extra when flat', () => {
+		const up = html(Status, { trend: 'up', children: text });
+		expect(up).toContain('status up');
+		expect(up).toContain('<svg');
+		expect(up).toContain('aria-hidden="true"');
+		expect(html(Status, { trend: 'down', children: text })).toContain('status down');
+		expect(html(Status, { trend: 'flat', children: text })).not.toContain('<svg');
+	});
+});
+
+describe('DataTable', () => {
+	const props = {
+		rowHeader: 'Line item',
+		columns: [{ label: '2025', sub: '2025-12-31', numeric: true }, { label: 'Note' }],
+		rows: [{ key: 'ni', label: 'Net income', cells: ['-12.5', '-see note'] }]
+	};
+	it('writes the headers, with the row label as a row header', () => {
+		const out = html(DataTable, props);
+		expect(out).toMatch(/<th scope="col"[^>]*>Line item<\/th>/);
+		expect(out).toContain('2025-12-31');
+		expect(out).toMatch(/<th scope="row">Net income<\/th>/);
+	});
+	it('aligns and colours only the negative numeric cells', () => {
+		const out = html(DataTable, props);
+		expect(out).toMatch(
+			/<td class="[^"]*num[^"]*negative[^"]*">-12.5<\/td>|<td class="[^"]*negative[^"]*num[^"]*">-12.5<\/td>/
+		);
+		expect(out).not.toMatch(/<td class="[^"]*negative[^"]*">-see note<\/td>/);
+	});
+	it('caps the height when tall', () => {
+		expect(html(DataTable, { ...props, tall: true })).toMatch(/class="scroll [^"]*\btall\b/);
+		expect(html(DataTable, props)).not.toMatch(/\btall\b/);
+	});
+});
 
 describe('AppHeader', () => {
 	const props = { name: 'App', pathname: '/financials', search: '?symbol=AAPL', interactive: false };

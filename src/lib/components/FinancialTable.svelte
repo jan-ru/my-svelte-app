@@ -1,4 +1,5 @@
 <script lang="ts">
+	import DataTable from '#lib/components/DataTable.svelte';
 	import { formatPrice } from '#lib/prices';
 	import type { StatementTable } from '#lib/statements';
 	import type { PriceTarget } from '#lib/source-data';
@@ -29,26 +30,11 @@
 		</dl>
 	{/if}
 	{#if table}
-		<div class="scroll">
-			<table>
-				<thead>
-					<tr>
-						<th scope="col">Line item</th>
-						{#each table.columns as c, i (i)}
-							<th scope="col" class="num">{c.year}<br /><small>{c.date}</small></th>
-						{/each}
-					</tr>
-				</thead>
-				<tbody>
-					{#each table.rows as row (row.key)}
-						<tr>
-							<th scope="row">{row.label}</th>
-							{#each row.cells as cell, i (i)}<td class="num">{cell}</td>{/each}
-						</tr>
-					{/each}
-				</tbody>
-			</table>
-		</div>
+		<DataTable
+			rowHeader="Line item"
+			columns={table.columns.map((c) => ({ label: c.year, sub: c.date, numeric: true }))}
+			rows={table.rows.map((r) => ({ key: r.key, label: r.label, cells: r.cells }))}
+		/>
 	{:else}
 		<p>{message}</p>
 	{/if}
@@ -61,21 +47,6 @@
 	}
 	small {
 		font-weight: var(--weight-regular);
-	}
-	table {
-		width: 100%;
-		font-size: var(--text-sm);
-	}
-	.num {
-		text-align: right;
-		font-family: var(--font-mono);
-		font-variant-numeric: tabular-nums;
-	}
-	.scroll {
-		overflow-x: auto;
-		background: var(--surface-card);
-		border: 1px solid var(--border-subtle);
-		border-radius: var(--radius-md);
 	}
 	.facts {
 		display: grid;

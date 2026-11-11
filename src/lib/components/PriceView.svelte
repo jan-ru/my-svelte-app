@@ -1,6 +1,8 @@
 <script lang="ts">
+	import DataTable from '#lib/components/DataTable.svelte';
 	import LineChart from '#lib/components/LineChart.svelte';
-	import { formatPrice, formatSigned, formatVolume, summarise } from '#lib/prices';
+	import Status from '#lib/components/Status.svelte';
+	import { formatPrice, formatSigned, formatVolume, summarise, trendOf } from '#lib/prices';
 	import type { PricePoint } from '#lib/source-data';
 
 	let { points, message }: { points: PricePoint[]; message: string | null } = $props();
@@ -17,9 +19,11 @@
 		{#if s.change !== null}
 			<div>
 				<dt>Day change</dt>
-				<dd class:up={s.change > 0} class:down={s.change < 0}>
-					{formatSigned(s.change)}{#if s.changePct !== null}
-						({formatSigned(s.changePct)}%){/if}
+				<dd>
+					<Status trend={trendOf(s.change)}>
+						{formatSigned(s.change)}{#if s.changePct !== null}
+							({formatSigned(s.changePct)}%){/if}
+					</Status>
 				</dd>
 			</div>
 		{/if}
@@ -39,38 +43,25 @@
 	<LineChart {points} />
 	<details>
 		<summary>Show data</summary>
-		<div class="scroll tall">
-			<table>
-				<thead>
-					<tr><th scope="col">Date</th><th scope="col" class="num">Close</th><th scope="col" class="num">Volume</th></tr
-					>
-				</thead>
-				<tbody>
-					{#each [...points].reverse() as p (p.date)}
-						<tr>
-							<th scope="row">{p.date}</th>
-							<td class="num">{formatPrice(p.close)}</td>
-							<td class="num">{p.volume === null ? '' : formatVolume(p.volume)}</td>
-						</tr>
-					{/each}
-				</tbody>
-			</table>
-		</div>
+		<DataTable
+			tall
+			rowHeader="Date"
+			columns={[
+				{ label: 'Close', numeric: true },
+				{ label: 'Volume', numeric: true }
+			]}
+			rows={[...points].reverse().map((p) => ({
+				key: p.date,
+				label: p.date,
+				cells: [formatPrice(p.close), p.volume === null ? '' : formatVolume(p.volume)]
+			}))}
+		/>
 	</details>
 {:else}
 	<p>{message}</p>
 {/if}
 
 <style>
-	table {
-		width: 100%;
-		font-size: var(--text-sm);
-	}
-	.num {
-		text-align: right;
-		font-family: var(--font-mono);
-		font-variant-numeric: tabular-nums;
-	}
 	.meta {
 		margin: 0 0 var(--space-1);
 		color: var(--text-secondary);
@@ -96,22 +87,6 @@
 		font-size: var(--text-lg);
 		font-weight: var(--weight-medium);
 		font-variant-numeric: tabular-nums;
-	}
-	.up {
-		color: var(--positive);
-	}
-	.down {
-		color: var(--negative);
-	}
-	.scroll {
-		overflow-x: auto;
-		background: var(--surface-card);
-		border: 1px solid var(--border-subtle);
-		border-radius: var(--radius-md);
-	}
-	.tall {
-		max-height: 24rem;
-		overflow-y: auto;
 	}
 	details {
 		margin-top: var(--space-4);
