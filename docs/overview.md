@@ -1,6 +1,6 @@
 # my-svelte-app overview
 
-> **Release:** none tagged yet; this overview describes `main` on 2026-11-01. Each release PR brings it up to date ([RELEASING.md](../RELEASING.md), step 3).
+> **Release:** `2026.11.12`, the first, published as a pre-release; this overview describes `main` on 2026-11-12. Each release PR brings it up to date ([RELEASING.md](../RELEASING.md), step 3).
 
 The same five parts as the `finance-tools` release overview: the design at a glance, design decisions, release history, quality review and roadmap.
 
@@ -18,6 +18,7 @@ flowchart TB
   REF[CBS, UN, US Census,<br/>World Bank]
   FMP[Financial Modeling Prep]
   YF[Yahoo Finance]
+  EP[Eulerpool<br/>only when asked for]
   XL[Excel template<br/>uploaded by the user]
 
   subgraph PUB["Public site"]
@@ -28,7 +29,7 @@ flowchart TB
   end
 
   subgraph PRIV["Behind the login"]
-    F[Financials<br/>8 tabs, FMP or<br/>Yahoo per ticker]
+    F[Financials<br/>9 tabs, FMP, Yahoo or<br/>Eulerpool per ticker]
     V[Valuation<br/>picked peers,<br/>P25–P75]
   end
 
@@ -42,6 +43,7 @@ flowchart TB
   REF -->|build scripts| CO
   FMP --> F
   YF --> F
+  EP --> F
   XL --> V
   F -->|same fetchers| V
   V --> OUT
@@ -52,7 +54,7 @@ flowchart TB
   classDef sys fill:#e3edf6,stroke:#4a7bab,color:#222222
   classDef out fill:#e6f2ea,stroke:#5f9b72,color:#2f6b44
   classDef lib fill:#f4f0e6,stroke:#b8a77a,color:#222222
-  class NYU,REF,FMP,YF,XL ext
+  class NYU,REF,FMP,YF,EP,XL ext
   class M,C,CO,AB,F,V sys
   class OUT out
   class LIB lib
@@ -68,7 +70,7 @@ Every view, public or private, runs the same chain from fetch to cached response
 
 ```mermaid
 flowchart LR
-  S[Source<br/>NYU, FMP, Yahoo,<br/>generated JSON]
+  S[Source<br/>NYU, FMP, Yahoo, Eulerpool,<br/>generated JSON]
   I[Fetcher<br/>src/lib/server<br/>in-memory cache]
   G[Type guards<br/>unknown in,<br/>typed shape out]
   D[Shared shapes<br/>Statement, Profile,<br/>NewsItem, PricePoint]
@@ -92,7 +94,7 @@ flowchart LR
   class E err
 ```
 
-Refuse rather than guess: a source that sends an unexpected shape, or lacks the period asked for, ends in a plain error message (a `SourceError` for FMP and Yahoo), never a half-filled table or a mix of two sources. The source per ticker is decided once, in `src/lib/source.ts`, and query parameters outside the allow-list are dropped.
+Refuse rather than guess: a source that sends an unexpected shape, or lacks the period asked for, ends in a plain error message (a `SourceError` for FMP, Yahoo and Eulerpool), never a half-filled table or a mix of two sources. The source per ticker is decided once, in `src/lib/source.ts`, and query parameters outside the allow-list are dropped.
 
 ### The layers
 
@@ -100,7 +102,7 @@ Refuse rather than guess: a source that sends an unexpected shape, or lacks the 
 |---|---|---|
 | Routes | `src/routes/` | Load data and render; the only place, with `hooks.server.ts`, that reads the environment |
 | Pure logic | `src/lib/*.ts` | URL state, parsing, layout, maths and formatting: data in, data out, tested without mocks |
-| I/O | `src/lib/server/` | NYU download and cache, FMP and Yahoo clients, session and access rules |
+| I/O | `src/lib/server/` | NYU download and cache, FMP, Yahoo and Eulerpool clients, session and access rules |
 | Components | `src/lib/components/` | Charts, tables and views, each with a render test |
 | Data | `src/lib/data/` | Generated JSON with hand-written types |
 
@@ -130,7 +132,7 @@ The full log is in [docs/adr/](adr/README.md). Grouped by theme:
 
 ## 3. Release history
 
-No release is tagged yet; [CHANGELOG.md](../CHANGELOG.md) holds the work so far under *Unreleased*. In nine days a starter app became a comparison tool with a private valuation page:
+The first release, `2026.11.12`, is a pre-release that covers everything below; [CHANGELOG.md](../CHANGELOG.md) holds its notes and an empty *Unreleased* section for what comes next. In under three weeks a starter app became a comparison tool with a private valuation page, on a design system:
 
 | When | Theme |
 |---|---|
@@ -141,7 +143,11 @@ No release is tagged yet; [CHANGELOG.md](../CHANGELOG.md) holds the work so far 
 | 2026-10-28 | Countries and Industries pages; Node LTS pin; the Explore menu and footer |
 | 2026-10-30 | Ratios, Estimates, Earnings and Peers tabs; one loader registry and one component per view; TypeDoc |
 | 2026-10-31 | The valuation page, its football-field chart and the private company template |
-| 2026-11-01 | The six-point TypeScript review; lint and Prettier in CI |
+| 2026-11-01 | The six-point TypeScript review; lint and Prettier in CI; the second review round; one login page; inflation and real growth on Countries |
+| 2026-11-02 to 04 | The design at a glance as diagrams; one shared source-failure message; Dependabot updates |
+| 2026-11-08 | Eulerpool as a third source, with its fair value and quality score and the Supply chain tab |
+| 2026-11-11 | The Horizon design system: tokens, grid, focus and shell, and shared components (Icon, Callout, SegmentedNav, AppHeader, Status, DataTable); the About and Company side menus; the condensed balance sheet; refactors; AGENTS.md |
+| 2026-11-12 | Seven more tables on DataTable and tests without JavaScript; the Yahoo not-found fix; Svelte MCP; the first release |
 
 ## 4. Quality review
 
@@ -151,9 +157,10 @@ Types, lint, formatting, the TypeScript-only rule, the coverage floor and the de
 
 | Lane | Now | Next | Later |
 |---|---|---|---|
-| Valuation | Multiples against picked peers, listed or private | DCF valuation as its own page | |
-| Financials | FMP and Yahoo, one source per view | Yahoo follow-ups from the review of #32 (#33) | |
-| Design system | Tokens and global styles | Svelte components for repeated UI (#36) | |
-| Releases | This document set | Tag the first release (`RELEASING.md`) | Build the overview at each tag automatically, as `finance-tools` does |
+| Valuation | Multiples against picked peers, listed or private, with Eulerpool's view beside it | DCF valuation as its own page | |
+| Financials | FMP, Yahoo and Eulerpool, one source per view | A side menu that offers only what the chosen source provides (#135); company name and exchange above the ticker box (#134); individual logins in place of the shared password (#133) | |
+| Reference pages | Multiples, Countries, Industries, Companies and Find industry | NACE as an entry point and a diagram of how the standards relate (#132) | |
+| Design system | Horizon tokens and grid, and shared components for repeated UI | Menu improvements (#110) and the Horizon follow-ups after the grid (#108) | |
+| Releases | The first release, `2026.11.12`, and this document set | | Build the overview at each tag automatically, as `finance-tools` does |
 
 *Later* items are ideas, not commitments.

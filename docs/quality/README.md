@@ -2,10 +2,10 @@
 
 What keeps the code healthy, what CI enforces and what to watch. The block marked *Measured* is a dated snapshot, refreshed in each release PR ([RELEASING.md](../../RELEASING.md), step 2); the rest is hand-written.
 
-> **Generated:** 2026-11-01 · **Cadence:** each release
+> **Generated:** 2026-11-12 · **Cadence:** each release
 > **Tool:** none, manually compiled from the repository and CI configuration
 > **Scope:** `src/`, `scripts/`, CI; not the generated data in `src/lib/data/`
-> **Repo state:** `main` at `3644951` (#82)
+> **Repo state:** `main` at `4bc7cfa` (#138)
 
 ## Health at a glance
 
@@ -17,14 +17,16 @@ What keeps the code healthy, what CI enforces and what to watch. The block marke
 | TypeScript only | No `.js`, `.mjs`, `.cjs` or `.jsx` files | 🟢 | `npm run check:ts-only` in CI |
 | Tests | Coverage floor on `src/lib`: 95% statements, lines and functions, 85% branches | 🟢 | `npm run test:coverage` in CI |
 | Dependencies | No high or critical advisories in runtime dependencies | 🟢 | `npm audit --omit=dev --audit-level=high` in CI |
-| Browser | Every page loads in Chromium without page or CSP errors and with no serious axe violations; login and upload work | 🟢 | `npm run test:e2e` (Playwright) in CI |
+| Browser | Every page loads in Chromium without page or CSP errors and with no serious axe violations; login and upload work, also with JavaScript off | 🟢 | `npm run test:e2e` (Playwright) in CI |
 | Public pages | Accessibility, best practices and SEO at least 0.9, performance 0.8 (warning) | 🟡 | Lighthouse CI, a non-required job |
 | Live data | The NYU workbooks still resolve every multiple | 🟡 | `check-data.yml`, monthly, not on PRs |
 | API docs | TypeDoc builds `src/lib` with warnings as errors | 🟢 | `docs.yml`, on PRs and `main` |
 
 ## Measured
 
-> **Measured 2026-11-01:** 62 test files with about 560 tests; 8.5k lines of source and 6.5k lines of tests under `src/`; 9 Accepted ADRs; 3 open issues. Coverage and audit figures are not copied in yet: the next release PR runs them and fills this line.
+> **Measured 2026-11-12:** 81 Vitest files with 945 tests, plus 26 Playwright tests; 10.8k lines of source (`.ts` and `.svelte`) and 9.8k lines of tests under `src/`; 9 Accepted ADRs; 6 open issues (#108, #110, #132 to #135). Coverage of `src/lib`: 98.8% statements, 95.2% branches, 97.9% functions, 99.0% lines, above the floor. `npm run lint` reports 0 errors. `npm audit --omit=dev` reports 3 low advisories (`deepmerge` through `@sveltejs/vite-plugin-svelte`, prototype poisoning in `mergeObject()`) and none at high or critical, which is what CI checks. The only fix npm offers is a downgrade of `@sveltejs/kit` to 0.0.30, so it waits for an upstream release.
+>
+> The 2026-11-01 snapshot was 62 files with about 560 tests, 8.5k lines of source, 6.5k of tests, and 3 open issues; counted the same way.
 
 ## The TypeScript review (2026-11-01)
 
@@ -42,7 +44,7 @@ The rules bind new and changed code; existing code is not rewritten only to matc
 ## What to watch
 
 - **SheetJS** comes from `cdn.sheetjs.com` and Dependabot cannot update it. Check for a new release now and then.
-- **Yahoo Finance** goes through the unofficial yahoo-finance2 package and can break without notice. Issue #33 holds the follow-ups from its review.
+- **Yahoo Finance** goes through the unofficial yahoo-finance2 package and can break without notice. A symbol counts as unknown only when Yahoo's own not-found wording matches (`NOT_FOUND` in `yahoo.ts`); if Yahoo changes that wording, a real not-found shows as "unavailable" until it is updated, which is the safer direction (#33, #138).
 - **TypeDoc** supports TypeScript up to 6.0.x, so TypeScript 7 waits for it.
 - **The login rate limit** is per serverless instance, so best effort only ([ADR-003](../adr/0003-public-pages-isr-login-unlocks.md)).
 - **Svelte components** are covered by render tests but not by TypeDoc, and there is no DOM test library; behaviour in a browser is covered by the Playwright smoke tests in `e2e/`.
