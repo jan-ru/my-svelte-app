@@ -44,22 +44,63 @@ describe('DataTable', () => {
 		columns: [{ label: '2025', sub: '2025-12-31', numeric: true }, { label: 'Note' }],
 		rows: [{ key: 'ni', label: 'Net income', cells: ['-12.5', '-see note'] }]
 	};
+	/** The markup without Svelte's comment markers, which sit around every `{#if}` and `{#each}`. */
+	const table = (p: ComponentProps<typeof DataTable>) => html(DataTable, p).replace(/<!--[^]*?-->/g, '');
 	it('writes the headers, with the row label as a row header', () => {
-		const out = html(DataTable, props);
+		const out = table(props);
 		expect(out).toMatch(/<th scope="col"[^>]*>Line item<\/th>/);
 		expect(out).toContain('2025-12-31');
-		expect(out).toMatch(/<th scope="row">Net income<\/th>/);
+		expect(out).toMatch(/<th scope="row"[^>]*>Net income<\/th>/);
 	});
 	it('aligns and colours only the negative numeric cells', () => {
-		const out = html(DataTable, props);
+		const out = table(props);
 		expect(out).toMatch(
 			/<td class="[^"]*num[^"]*negative[^"]*">-12.5<\/td>|<td class="[^"]*negative[^"]*num[^"]*">-12.5<\/td>/
 		);
 		expect(out).not.toMatch(/<td class="[^"]*negative[^"]*">-see note<\/td>/);
 	});
 	it('caps the height when tall', () => {
-		expect(html(DataTable, { ...props, tall: true })).toMatch(/class="scroll [^"]*\btall\b/);
-		expect(html(DataTable, props)).not.toMatch(/\btall\b/);
+		expect(table({ ...props, tall: true })).toMatch(/class="scroll [^"]*\btall\b/);
+		expect(table(props)).not.toMatch(/\btall\b/);
+	});
+	it('writes a caption for screen readers only when given one', () => {
+		expect(table({ ...props, caption: 'Figures by year' })).toMatch(
+			/<table[^>]*><caption class="sr-only">Figures by year<\/caption><thead/
+		);
+		expect(table(props)).not.toContain('<caption');
+	});
+	it('links the row label and writes the sub text after it, escaping both', () => {
+		const rows = [{ key: 'a', label: 'A&B <Co>', sub: 'ticker', href: '/x?a=1&b=2', cells: ['1', '2'] }];
+		expect(table({ ...props, rows })).toMatch(
+			/<th scope="row"[^>]*><a href="\/x\?a=1&amp;b=2">A&amp;B &lt;Co><\/a> <small[^>]*>ticker<\/small><\/th>/
+		);
+	});
+	it('keeps a row label without href as text', () => {
+		const out = table({ ...props, rows: [{ key: 'a', label: 'Plain', sub: 'sub', cells: ['1', '2'] }] });
+		expect(out).toMatch(/<th scope="row"[^>]*>Plain <small[^>]*>sub<\/small><\/th>/);
+		expect(out).not.toContain('<a ');
+	});
+	it('shows a note in one cell across every column instead of the cells', () => {
+		const rows = [{ key: 'c', label: 'CCC', cells: [], note: 'No market cap for CCC' }];
+		const out = table({ ...props, rows });
+		expect(out).toMatch(/<td colspan="2" class="[^"]*\bnote\b[^"]*">No market cap for CCC<\/td>/);
+		expect(out.match(/<td/g)).toHaveLength(1);
+	});
+	it('marks a summary row', () => {
+		const rows = [
+			{ key: 'a', label: 'One', cells: ['1', '2'] },
+			{ key: 'm', label: 'Median', summary: true, cells: ['3', '4'] }
+		];
+		const out = table({ ...props, rows });
+		expect(out.match(/<tr class="[^"]*\bsummary\b[^"]*">/g)).toHaveLength(1);
+		expect(out).toMatch(/<tr class="[^"]*\bsummary\b[^"]*"><th scope="row"[^>]*>Median<\/th>/);
+	});
+	it('shades a forecast column in its header and in every cell', () => {
+		const columns = [{ label: '2025' }, { label: '2026', forecast: true }];
+		const out = table({ ...props, columns, rows: [{ key: 'r', label: 'Revenue', cells: ['1', '2'] }] });
+		expect(out.match(/<th scope="col" class="[^"]*\bforecast\b/g)).toHaveLength(1);
+		expect(out.match(/<td class="[^"]*\bforecast\b[^"]*">2<\/td>/g)).toHaveLength(1);
+		expect(out).not.toMatch(/<td class="[^"]*\bforecast\b[^"]*">1<\/td>/);
 	});
 });
 
