@@ -182,6 +182,46 @@ describe('every library call', () => {
 });
 
 describe('errors that look like not-found', () => {
+	/** Every library call throws `error`, the news search included. */
+	const throwing = (error: Error) => {
+		const fail = vi.fn(async () => {
+			throw error;
+		});
+		return fake({ chart: fail, quoteSummary: fail, search: fail, fundamentalsTimeSeries: fail });
+	};
+	/** The four fetchers, each asked for one made-up symbol. */
+	const fetchAll = (client: YahooClient) => [
+		() => fetchYahooPrices('X', '2025-10-26', '2026-10-26', client),
+		() => fetchYahooProfile('X', client),
+		() => fetchYahooNews('X', client),
+		() => fetchYahooStatement('income', 'X', 'annual', client)
+	];
+	// the library throws a failed request as an HTTPError whose text is the raw response body
+	class HTTPError extends Error {
+		override name = 'HTTPError';
+	}
+	it("are empty results only for Yahoo's own wording, which the library throws as a plain Error", async () => {
+		// the exact wording of the live answers for an unknown or delisted symbol (checked 2026-11-12)
+		for (const message of ['No data found, symbol may be delisted', 'Quote not found for symbol: ZZQQXNOPE']) {
+			const [prices, profile, news, statement] = await Promise.all(
+				fetchAll(throwing(new Error(message))).map((f) => f())
+			);
+			expect([prices, profile, news, statement]).toEqual([[], null, [], { lines: [], years: [] }]);
+		}
+	});
+	it.each([
+		['a failed request whose body says Not Found', new HTTPError('<html><title>404 Not Found</title></html>')],
+		['a failed request that repeats a real answer', new HTTPError('Quote not found for symbol: X')],
+		['an error that mentions "not found" in passing', new Error('upstream service not found')],
+		['an error that mentions delisting in passing', new Error('the delisted-symbols lookup timed out')],
+		['an error that says "invalid symbol" in passing', new Error('gateway: invalid symbol table')]
+	])('are unavailable, never an empty (cached) result: %s', async (_what, error) => {
+		for (const call of fetchAll(throwing(error))) {
+			const result = await call().catch((e: unknown) => e);
+			expect(result).toBeInstanceOf(SourceError);
+			expect((result as SourceError).kind).toBe('unavailable');
+		}
+	});
 	it('are not turned into an empty (cached) result when the text is a rate limit', async () => {
 		const client = fake({
 			chart: vi.fn(async () => {

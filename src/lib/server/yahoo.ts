@@ -64,7 +64,16 @@ export function defaultClient(): Promise<YahooClient> {
 	return shared;
 }
 
-const NOT_FOUND = /not found|no data found|no fundamentals|delisted|invalid symbol/i;
+/**
+ * Yahoo's own answer for a symbol it does not know. The library throws it as a plain `Error` carrying Yahoo's wording:
+ * "No data found, symbol may be delisted" (chart) and "Quote not found for symbol: X" (quote summary); the statement
+ * series returns an empty list instead. Checked against the live service on 2026-11-12. A failed request is an
+ * `HTTPError` whose text is the raw response body, so it never counts, whatever it says: only a real answer may become
+ * an empty result, because the cache keeps an empty result for a day.
+ */
+const NOT_FOUND = /^(No data found, symbol may be delisted|Quote not found for symbol)/;
+const isNotFound = (error: unknown): boolean =>
+	error instanceof Error && error.name === 'Error' && NOT_FOUND.test(error.message);
 const RATE_LIMITED = /429|too many requests/i;
 
 /** The class name and HTTP status of a library error, for the log. Never the message: it can carry URLs and tokens. */
@@ -86,8 +95,8 @@ async function tolerant<T>(run: () => Promise<T>, empty: T): Promise<T> {
 	try {
 		return await run();
 	} catch (error) {
-		// "not found" is an answer worth caching as empty; a rate limit or outage that mentions it is not
-		if (error instanceof Error && NOT_FOUND.test(error.message) && !RATE_LIMITED.test(error.message)) return empty;
+		// a symbol Yahoo does not know is an answer worth caching as empty; any other failure is not
+		if (isNotFound(error)) return empty;
 		throw mapError(error);
 	}
 }

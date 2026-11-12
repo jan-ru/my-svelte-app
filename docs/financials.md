@@ -7,14 +7,14 @@ The detail behind the `/financials` rules in `AGENTS.md`. The hard rules (privac
 - `/financials` is password protected. Never cache it publicly, never log or return the FMP URL or key, and keep `$app/env/private` reads in `hooks.server.ts`, `src/routes/financials/` and `src/routes/login/`.
 - The one exception is the four `process.env.ISR_BYPASS_TOKEN` reads in the public routes' `config` exports, which run at build time.
 - Environment variables are declared in `src/env.ts`; `$env/dynamic/private` is deprecated and sees nothing without that declaration.
-- Page state (`tab`, `statement`, `period`) is parsed by `src/lib/financials-nav.ts`; only the selected statement is fetched.
+- Page state (`tab`, `statement`, `period`) is parsed by `src/lib/financials-nav.ts`; only the selected statement is fetched. The ticker form carries all of it, the chosen `source` included, so typing another ticker keeps the view's settings (a decision, #33); a source that does not serve the new ticker falls back through `resolveSource`.
 
 ## Sources
 
 - The set of fetchers per source (`SourceFetchers`: FMP, Yahoo, Eulerpool), their caches, `fetchersOf` and `keyOf` are in `src/lib/server/financial-sources.ts`; the tab loaders are in `src/lib/server/financials.ts`.
 - Profile, news and prices go through the shared `fmpGet` in `src/lib/server/fmp.ts`. Links from API data must pass `safeUrl`.
 - A view never mixes data sources: `src/lib/source.ts` decides the source per ticker (a dot suffix means Yahoo only) and whether a period exists for it (`FMP_SUPPORTS_TTM`).
-- Yahoo goes through `src/lib/server/yahoo.ts` (injectable client) and `yahoo-parse.ts`. Never log Yahoo error text to visitors.
+- Yahoo goes through `src/lib/server/yahoo.ts` (injectable client) and `yahoo-parse.ts`. Never log Yahoo error text to visitors. Only Yahoo's own not-found wording (a plain `Error`, see `NOT_FOUND`) becomes an empty result; any other failure, an `HTTPError` included, is a `SourceError`, because an empty result is cached for a day. If Yahoo changes that wording, a real not-found shows as "unavailable" until `NOT_FOUND` is updated.
 - `readCapped` and the size and time limits are in `src/lib/server/http.ts`.
 - The shapes both sources produce (`Statement`, `Profile`, `NewsItem`, `PricePoint`) live in `src/lib/source-data.ts`. Failures are a `SourceError` (`src/lib/server/source-error.ts`).
 - A source module imports those and never another source's module (`source-boundary.test.ts` enforces it, for FMP, Yahoo and Eulerpool).
