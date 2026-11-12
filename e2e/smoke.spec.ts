@@ -198,3 +198,62 @@ test('the Home pickers follow the Horizon grid: 4, 8, 12 and 16 columns', async 
 	expect(new Set(wideTops).size).toBe(1);
 	expect(errors).toEqual([]);
 });
+
+// Every view works without JavaScript (README, docs/overview.md): the pages are server-rendered and every control is a
+// plain link or form. `javaScriptEnabled: false` turns scripts off in the browser, so nothing here can be hydration.
+test.describe('without JavaScript', () => {
+	test.use({ javaScriptEnabled: false });
+
+	/** SvelteKit's inline bootstrap script defines a `__sveltekit_*` global; it only exists if scripts ran. */
+	const scriptsRan = () => Object.keys(window).some((key) => key.startsWith('__sveltekit'));
+
+	for (const path of PUBLIC_PAGES) {
+		test(`${path} shows its heading and the menu`, async ({ page }) => {
+			const response = await page.goto(path);
+			expect(response?.status()).toBe(200);
+			expect(await page.evaluate(scriptsRan), 'scripts must be off for this test to mean anything').toBe(false);
+			await expect(page.locator('h1')).toBeVisible();
+			await expect(page.getByRole('navigation', { name: 'Main' })).toBeVisible();
+		});
+	}
+
+	test('the classification search, shown to a logged-in visitor, is a plain GET form', async ({ page }) => {
+		await logIn(page);
+		await page.goto('/classification');
+		await page.getByLabel('Search by code or words').fill('6419');
+		await page.getByRole('button', { name: 'Search' }).click();
+		await expect(page).toHaveURL(/\/classification\?q=6419/);
+		await expect(page.locator('h1')).toBeVisible();
+	});
+
+	test('a wrong password is refused and the right one opens /financials', async ({ page }) => {
+		await page.goto('/login');
+		await page.getByLabel('Password').fill('wrong');
+		await page.getByRole('button', { name: 'Log in' }).click();
+		await expect(page.getByRole('alert')).toHaveText('Wrong password.');
+		await logIn(page);
+		await expect(page.getByLabel('Ticker')).toBeVisible();
+	});
+
+	test('an uploaded template shows the company figures and the valuation as tables', async ({ page }) => {
+		await logIn(page);
+		await page.goto('/financials/valuation');
+		const csv = [
+			'Company,E2E BV',
+			'Currency,EUR',
+			'Net debt,0',
+			'Year,2024,2025',
+			'Type,Actual,Actual',
+			'Revenue,100000,110000',
+			'EBITDA,20000,22000'
+		].join('\n');
+		await page
+			.getByLabel('Private company')
+			.setInputFiles({ name: 'figures.csv', mimeType: 'text/csv', buffer: Buffer.from(csv) });
+		await page.getByRole('button', { name: 'Upload figures' }).click();
+		await expect(page.getByRole('heading', { level: 1 })).toHaveText('E2E BV valuation');
+		const figures = page.getByRole('table').filter({ hasText: 'Revenue' }).first();
+		await expect(figures.getByRole('columnheader', { name: /2025/ })).toBeVisible();
+		await expect(figures.getByRole('rowheader', { name: 'Revenue' })).toBeVisible();
+	});
+});

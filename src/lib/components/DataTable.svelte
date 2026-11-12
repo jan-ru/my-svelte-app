@@ -4,23 +4,34 @@
 	/**
 	 * A table whose first column is the row header: `rowHeader` names it, `columns` describe the others and each row has
 	 * one cell per column. It scrolls sideways when it is wide; `tall` caps the height, and the header stays in view.
-	 * Negative figures are shown in the negative colour.
+	 * Negative figures are shown in the negative colour. A row can also link its label (`href`), add small text after it
+	 * (`sub`), show one `note` across all columns instead of its cells, or be a `summary` row; a column can be a
+	 * `forecast`. `caption` names the table for screen readers. Cells are plain text: a table that needs markup in its
+	 * cells stays hand-written.
 	 */
 	let {
 		rowHeader,
 		columns,
 		rows,
-		tall = false
-	}: { rowHeader: string; columns: readonly Column[]; rows: readonly Row[]; tall?: boolean } = $props();
+		tall = false,
+		caption
+	}: {
+		rowHeader: string;
+		columns: readonly Column[];
+		rows: readonly Row[];
+		tall?: boolean;
+		caption?: string;
+	} = $props();
 </script>
 
 <div class="scroll" class:tall>
 	<table>
+		{#if caption}<caption class="sr-only">{caption}</caption>{/if}
 		<thead>
 			<tr>
 				<th scope="col">{rowHeader}</th>
 				{#each columns as c, i (i)}
-					<th scope="col" class:num={c.numeric}
+					<th scope="col" class:num={c.numeric} class:forecast={c.forecast}
 						>{c.label}{#if c.sub}<br /><small>{c.sub}</small>{/if}</th
 					>
 				{/each}
@@ -28,11 +39,23 @@
 		</thead>
 		<tbody>
 			{#each rows as row (row.key)}
-				<tr>
-					<th scope="row">{row.label}</th>
-					{#each row.cells as cell, i (i)}
-						<td class:num={columns[i]?.numeric} class:negative={columns[i]?.numeric && isNegative(cell)}>{cell}</td>
-					{/each}
+				<tr class:summary={row.summary}>
+					<th scope="row"
+						>{#if row.href}<a href={row.href}>{row.label}</a>{:else}{row.label}{/if}{#if row.sub}<small class="sub"
+								>{` ${row.sub}`}</small
+							>{/if}</th
+					>
+					{#if row.note}
+						<td colspan={columns.length} class="note">{row.note}</td>
+					{:else}
+						{#each row.cells as cell, i (i)}
+							<td
+								class:num={columns[i]?.numeric}
+								class:negative={columns[i]?.numeric && isNegative(cell)}
+								class:forecast={columns[i]?.forecast}>{cell}</td
+							>
+						{/each}
+					{/if}
 				</tr>
 			{/each}
 		</tbody>
@@ -61,6 +84,19 @@
 	}
 	small {
 		font-weight: var(--weight-regular);
+	}
+	.sub,
+	.note {
+		color: var(--text-secondary);
+	}
+	.forecast {
+		background: var(--surface-group);
+		font-style: italic;
+	}
+	.summary th,
+	.summary td {
+		border-top: 1px solid var(--border-strong);
+		font-weight: var(--weight-semibold);
 	}
 	.num {
 		text-align: right;

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import DataTable from '#lib/components/DataTable.svelte';
 	import { fit, nest, squarify, wrap, type TreemapItem } from '#lib/size/treemap';
 	import { formatPercent, readableOn } from '#lib/size/size';
 
@@ -70,6 +71,13 @@
 				: 'Hover over, focus or tap a tile for its name and share.'
 	);
 	const LINE = 12;
+	const columns = $derived([
+		{ label: measureLabel, numeric: true },
+		{ label: 'Share of global', numeric: true }
+	]);
+	const rows = $derived(
+		sorted.map((item) => ({ key: item.id, label: item.label, cells: [format(item.value), percent(item.value)] }))
+	);
 </script>
 
 {#snippet tile(r: { id: string; x: number; y: number; w: number; h: number }, item: TreemapItem)}
@@ -160,17 +168,7 @@
 	<p class="readout">{readout}</p>
 	<details>
 		<summary>Show data</summary>
-		<table>
-			<thead
-				><tr><th scope="col">Name</th><th scope="col">{measureLabel}</th><th scope="col">Share of global</th></tr
-				></thead
-			>
-			<tbody>
-				{#each sorted as item (item.id)}
-					<tr><th scope="row">{item.label}</th><td>{format(item.value)}</td><td>{percent(item.value)}</td></tr>
-				{/each}
-			</tbody>
-		</table>
+		<DataTable rowHeader="Name" {columns} {rows} />
 	</details>
 </figure>
 
@@ -219,17 +217,5 @@
 	}
 	details {
 		margin: var(--space-2) 0;
-	}
-	table {
-		width: 100%;
-		font-size: var(--text-sm);
-		background: var(--surface-card);
-	}
-	th[scope='row'] {
-		text-align: left;
-		font-weight: var(--weight-regular);
-	}
-	td {
-		text-align: right;
 	}
 </style>
