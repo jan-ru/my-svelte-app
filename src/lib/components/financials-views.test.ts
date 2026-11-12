@@ -230,6 +230,13 @@ describe('SupplyChainView', () => {
 		expect(out).toContain('Taiwan Semiconductor TSM Supplier TW Semiconductors +0.81 −0.20');
 		expect(out).toContain('Supplier and customer n/a n/a n/a n/a');
 	});
+	it('names the table for screen readers and sets the ticker beside the company', () => {
+		const body = html(SupplyChainView, { chain, message: null, hrefFor });
+		expect(body).toContain(
+			'<caption class="sr-only">Companies linked to the one shown, as supplier, customer or both</caption>'
+		);
+		expect(body.replace(/<!--[^]*?-->/g, '')).toMatch(/Taiwan Semiconductor<\/a> <small[^>]*>TSM<\/small>/);
+	});
 	it('links a company whose ticker is usable and leaves the others as text, escaping names', () => {
 		const body = html(SupplyChainView, { chain, message: null, hrefFor });
 		expect(body).toContain('<a href="/financials?symbol=TSM">Taiwan Semiconductor</a>');

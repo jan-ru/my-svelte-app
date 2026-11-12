@@ -1,9 +1,20 @@
 <script lang="ts">
 	// The reverse match from one Damodaran industry to SBI 2025 classes, on the /classification page.
+	import DataTable from '#lib/components/DataTable.svelte';
 	import { formatShare, type ReverseTrace } from '#lib/crosswalk';
 	import { plural } from '#lib/plural';
 
 	let { reverse: r, max }: { reverse: ReverseTrace; max: number } = $props();
+
+	const columns = [{ label: 'Title' }, { label: 'Share', numeric: true }];
+	const rows = $derived(
+		r.sbi25.slice(0, max).map((c) => ({
+			key: c.code,
+			label: c.code,
+			href: `/classification?code=${encodeURIComponent(c.code)}#start`,
+			cells: [c.title, formatShare(c.share)]
+		}))
+	);
 </script>
 
 <h3>
@@ -16,20 +27,7 @@
 	best of {r.sbi25.length} SBI 2025 classes. {formatShare(r.followed)} of the companies could be followed through every step;
 	the rest have SIC codes missing from one of the correspondence tables.
 </p>
-<table>
-	<thead><tr><th scope="col">SBI 2025</th><th scope="col">Title</th><th scope="col" class="num">Share</th></tr></thead>
-	<tbody>
-		{#each r.sbi25.slice(0, max) as c (c.code)}
-			<tr>
-				<th scope="row"
-					><a href={`/classification?code=${encodeURIComponent(c.code)}#start`}><code>{c.code}</code></a></th
-				>
-				<td>{c.title}</td>
-				<td class="num">{formatShare(c.share)}</td>
-			</tr>
-		{/each}
-	</tbody>
-</table>
+<DataTable rowHeader="SBI 2025" {columns} {rows} />
 <details>
 	<summary>SIC codes of this industry <span class="count">({r.sic.length})</span></summary>
 	<ul>
@@ -55,15 +53,5 @@
 	.note {
 		color: var(--text-secondary);
 		font-weight: var(--weight-regular);
-	}
-	table {
-		width: 100%;
-		font-size: var(--text-sm);
-		background: var(--surface-card);
-	}
-	.num {
-		text-align: right;
-		font-family: var(--font-mono);
-		font-variant-numeric: tabular-nums;
 	}
 </style>

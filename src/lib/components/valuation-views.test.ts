@@ -63,6 +63,11 @@ describe('CompanyFigures', () => {
 		expect(body).toContain('(40)');
 		expect(body).toContain('Net debt (latest balance sheet): 50');
 	});
+	it('shades only the forecast year, in its header and its cells', () => {
+		const body = html(CompanyFiguresView, { figures }).replace(/<!--[^]*?-->/g, '');
+		expect(body).toMatch(/<th scope="col" class="[^"]*\bforecast\b[^"]*">2026/);
+		expect(body).not.toMatch(/<th scope="col" class="[^"]*\bforecast\b[^"]*">2025/);
+	});
 });
 
 describe('PeerPicker', () => {
@@ -100,6 +105,17 @@ describe('MultiplesTable', () => {
 		expect(body).toContain('Peers, median 8.0x 2.0x n/a');
 		expect(body).toContain('Sector: Semiconductor, Europe 7.0x n/a n/a');
 	});
+	it('spans a peer without figures across every multiple and marks the statistics rows', () => {
+		const raw = html(MultiplesTable, { peers, benchmarks: result.benchmarks, sectorLabel: 'Semiconductor, Europe' });
+		const body = raw.replace(/<!--[^]*?-->/g, '');
+		expect(body).toMatch(
+			new RegExp(
+				`<td colspan="${result.benchmarks.length}" class="[^"]*\\bnote\\b[^"]*">No market cap for CCC[^<]*</td>`
+			)
+		);
+		// 25th percentile, median, 75th percentile and the sector row
+		expect(body.match(/<tr class="[^"]*\bsummary\b/g)).toHaveLength(4);
+	});
 	it('leaves out the sector row without an industry', () => {
 		expect(text(html(MultiplesTable, { peers, benchmarks: result.benchmarks, sectorLabel: null }))).not.toContain(
 			'Sector:'
@@ -112,9 +128,16 @@ describe('ValuationTable', () => {
 		const body = text(html(ValuationTable, { result }));
 		expect(body).toContain('(thousands of EUR)');
 		expect(body).toContain('EV/EBITDA EBITDA 2025 7.0x to 9.0x 420 488 555 420');
-		expect(body).toContain('3.0x to 5.0x manual');
+		expect(body).toContain('3.0x to 5.0x (manual)');
 		expect(body).toContain('The company figure for this multiple is missing.');
 		expect(body).toMatch(/Average [\d,]+/);
+	});
+	it('spans the reason across every column of a missing method and marks the average as a summary', () => {
+		const body = html(ValuationTable, { result }).replace(/<!--[^]*?-->/g, '');
+		expect(body).toMatch(
+			/<td colspan="6" class="[^"]*\bnote\b[^"]*">The company figure for this multiple is missing\./
+		);
+		expect(body).toMatch(/<tr class="[^"]*\bsummary\b[^"]*"><th scope="row"[^>]*>Average<\/th>/);
 	});
 });
 

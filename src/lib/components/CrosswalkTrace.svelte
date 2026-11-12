@@ -1,8 +1,22 @@
 <script lang="ts">
 	// The forward chain from one SBI 2025 code to the Damodaran industries, on the /classification page.
+	import DataTable from '#lib/components/DataTable.svelte';
 	import { formatShare, type Item, type Trace } from '#lib/crosswalk';
 
 	let { trace }: { trace: Trace } = $props();
+
+	const columns = [
+		{ label: 'Companies', numeric: true },
+		{ label: 'Share', numeric: true }
+	];
+	const rows = $derived(
+		trace.damodaran.map((m) => ({
+			key: m.industry,
+			label: m.industry,
+			href: `/?i=${encodeURIComponent(m.industry)}`,
+			cells: [Math.round(m.companies).toLocaleString('en'), formatShare(m.share)]
+		}))
+	);
 
 	const steps: readonly {
 		readonly key: 'nace21' | 'nace2' | 'isic4' | 'isic31' | 'naics' | 'sic';
@@ -50,23 +64,7 @@
 	{#if trace.damodaran.length === 0}
 		<p>No companies in the NYU list share these SIC codes.</p>
 	{:else}
-		<table>
-			<thead
-				><tr
-					><th scope="col">Industry</th><th scope="col" class="num">Companies</th><th scope="col" class="num">Share</th
-					></tr
-				></thead
-			>
-			<tbody>
-				{#each trace.damodaran as m (m.industry)}
-					<tr>
-						<th scope="row"><a href={`/?i=${encodeURIComponent(m.industry)}`}>{m.industry}</a></th>
-						<td class="num">{Math.round(m.companies).toLocaleString('en')}</td>
-						<td class="num">{formatShare(m.share)}</td>
-					</tr>
-				{/each}
-			</tbody>
-		</table>
+		<DataTable rowHeader="Industry" {columns} {rows} />
 	{/if}
 </section>
 
@@ -82,15 +80,5 @@
 	.note {
 		color: var(--text-secondary);
 		font-weight: var(--weight-regular);
-	}
-	table {
-		width: 100%;
-		font-size: var(--text-sm);
-		background: var(--surface-card);
-	}
-	.num {
-		text-align: right;
-		font-family: var(--font-mono);
-		font-variant-numeric: tabular-nums;
 	}
 </style>

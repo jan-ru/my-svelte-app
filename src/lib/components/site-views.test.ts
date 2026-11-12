@@ -19,6 +19,7 @@ import MacroTable from './MacroTable.svelte';
 import PanelGrid from './PanelGrid.svelte';
 import ReverseTraceView from './ReverseTraceView.svelte';
 import SizeSelector from './SizeSelector.svelte';
+import Treemap from './Treemap.svelte';
 
 type Renderer = (component: unknown, options: { props: unknown }) => { body: string };
 /** Server-render a component to HTML (see financials-views.test.ts for why the cast). */
@@ -334,8 +335,8 @@ describe('classification views', () => {
 		const body = html(ReverseTraceView, { reverse, max: 1 });
 		expect(text(body)).toContain('1 company in 1 SIC code');
 		expect(text(body)).toContain('Showing the 1 best of 2');
-		expect(body).toContain('<code>6210</code>');
-		expect(body).not.toContain('<code>5821</code>');
+		expect(body).toMatch(/<a href="\/classification\?code=6210#start">6210<\/a>/);
+		expect(body).not.toContain('code=5821');
 		expect(body).toContain('90.0%');
 	});
 });
@@ -354,6 +355,24 @@ describe('MacroTable', () => {
 		expect(t).toContain('Netherlands 2.9% (2025) 4.9% (2021–2025) −0.4% (2025) n/a');
 		expect(t).toContain('Taiwan n/a n/a n/a n/a');
 		expect(t).toContain('5-year average');
+	});
+});
+
+describe('Treemap data table', () => {
+	const items = [
+		{ id: 'a', label: 'Alpha', value: 30 },
+		{ id: 'b', label: 'Beta', value: 70 },
+		{ id: 'z', label: 'Zero', value: 0 }
+	];
+	const props = { items, format: (n: number) => `${n} bn`, measureLabel: 'GDP', total: 200 };
+	const dataTable = (body: string) => text(body.slice(body.indexOf('<details')));
+	it('lists the items largest first with their share of the global total', () => {
+		const table = dataTable(html(Treemap, props));
+		expect(table).toContain('Name GDP Share of global');
+		expect(table).toContain('Beta 70 bn 35% Alpha 30 bn 15%');
+	});
+	it('leaves out an item without a value', () => {
+		expect(dataTable(html(Treemap, props))).not.toContain('Zero');
 	});
 });
 
