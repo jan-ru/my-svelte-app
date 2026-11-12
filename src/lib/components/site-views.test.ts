@@ -73,12 +73,12 @@ describe('DataTable', () => {
 	it('links the row label and writes the sub text after it, escaping both', () => {
 		const rows = [{ key: 'a', label: 'A&B <Co>', sub: 'ticker', href: '/x?a=1&b=2', cells: ['1', '2'] }];
 		expect(table({ ...props, rows })).toMatch(
-			/<th scope="row"[^>]*><a href="\/x\?a=1&amp;b=2">A&amp;B &lt;Co><\/a> <small[^>]*>ticker<\/small><\/th>/
+			/<th scope="row"[^>]*><a href="\/x\?a=1&amp;b=2">A&amp;B &lt;Co><\/a><small[^>]*> ticker<\/small><\/th>/
 		);
 	});
 	it('keeps a row label without href as text', () => {
 		const out = table({ ...props, rows: [{ key: 'a', label: 'Plain', sub: 'sub', cells: ['1', '2'] }] });
-		expect(out).toMatch(/<th scope="row"[^>]*>Plain <small[^>]*>sub<\/small><\/th>/);
+		expect(out).toMatch(/<th scope="row"[^>]*>Plain<small[^>]*> sub<\/small><\/th>/);
 		expect(out).not.toContain('<a ');
 	});
 	it('shows a note in one cell across every column instead of the cells', () => {

@@ -9,7 +9,7 @@
 	const scale = $derived(scaleFor(figures.years.flatMap((y) => ROWS.map((m) => y.values[m]))));
 	const columns = $derived(
 		figures.years.map((y) => ({
-			label: String(y.fiscalYear),
+			label: y.fiscalYear,
 			sub: y.kind === 'actual' ? 'Actual' : 'Forecast',
 			numeric: true,
 			forecast: y.kind === 'forecast'

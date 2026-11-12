@@ -41,8 +41,8 @@
 			{#each rows as row (row.key)}
 				<tr class:summary={row.summary}>
 					<th scope="row"
-						>{#if row.href}<a href={row.href}>{row.label}</a>{:else}{row.label}{/if}{#if row.sub}{' '}<small class="sub"
-								>{row.sub}</small
+						>{#if row.href}<a href={row.href}>{row.label}</a>{:else}{row.label}{/if}{#if row.sub}<small class="sub"
+								>{` ${row.sub}`}</small
 							>{/if}</th
 					>
 					{#if row.note}

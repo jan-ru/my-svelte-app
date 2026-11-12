@@ -235,7 +235,7 @@ describe('SupplyChainView', () => {
 		expect(body).toContain(
 			'<caption class="sr-only">Companies linked to the one shown, as supplier, customer or both</caption>'
 		);
-		expect(body.replace(/<!--[^]*?-->/g, '')).toMatch(/Taiwan Semiconductor<\/a> <small[^>]*>TSM<\/small>/);
+		expect(body.replace(/<!--[^]*?-->/g, '')).toMatch(/Taiwan Semiconductor<\/a><small[^>]*> TSM<\/small>/);
 	});
 	it('links a company whose ticker is usable and leaves the others as text, escaping names', () => {
 		const body = html(SupplyChainView, { chain, message: null, hrefFor });
