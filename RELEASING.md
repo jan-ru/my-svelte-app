@@ -25,7 +25,7 @@ Read [docs/overview.md](docs/overview.md) against what changed. Add a line to *R
 
 ### 4. PR it
 
-Commit `CHANGELOG.md`, `docs/quality/` and `docs/overview.md` on a branch named `release/YYYY.0M.0D`, open a PR and merge it once CI is green. `main` requires a PR and a passing `test` check.
+Commit `CHANGELOG.md`, `docs/quality/` and `docs/overview.md` on a branch named `release/YYYY.0M.0D`, open a PR and merge it once CI is green. `main` requires a PR and a passing `test` check on a branch that is up to date with `main`.
 
 ### 5. Tag it
 

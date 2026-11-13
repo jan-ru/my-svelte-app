@@ -19,7 +19,9 @@ What runs automatically, grouped by the stage it belongs to. Each GitHub workflo
 
 ## The merge gate
 
-The ruleset `Protect_main` requires a pull request and a passing `test` check; it asks for no approvals. A second ruleset, `Basic_Rules`, forbids deleting or force-pushing any branch.
+The ruleset `Protect_main` requires a pull request and a passing `test` check, and the check is strict: the branch must be up to date with `main` before it can merge (switched on 2026-11-13). It asks for no approvals. Repository admins can bypass the ruleset (bypass mode "always"). A second ruleset, `Basic_Rules`, forbids deleting or force-pushing any branch.
+
+Because the check is strict, the tree that merges is the tree `test` passed on. When another PR lands first, the branch has to be updated (the "Update branch" button, or `@dependabot rebase` on a Dependabot PR) and `test` runs again, about 2 minutes.
 
 The `test` job runs these commands in order, and the same ones work locally:
 
@@ -45,8 +47,7 @@ A failed run uploads the Playwright report as an artifact for 7 days.
 
 ## Things to know
 
-- Nothing in the repository makes Vercel wait for CI. A merge deploys even if the run of `test` on `main` afterwards fails; that second run is a signal after the fact, not a gate.
-- The required check is not strict (`strict_required_status_checks_policy: false`): a PR can merge without being up to date with `main`, so two PRs that each pass can still break `main` together.
+- Nothing in the repository makes Vercel wait for CI. A merge deploys even if the run of `test` on `main` afterwards fails; that second run is a signal after the fact, not a gate. With the check strict it should only fail for a reason the tree does not explain, such as a flaky test or a new advisory in `npm audit`.
 - `npm audit` is part of `test` but its result depends on the day, not on the change: a new advisory in a runtime dependency fails every open PR until it is handled.
 - The ruleset binds to the job name `test`. If the job is renamed or split, keep a final job called `test` or change the ruleset in the same PR, or every PR waits for a check that never reports.
 - Changing `docs.yml` triggers the API docs workflow, because the file is in its own path filter.
