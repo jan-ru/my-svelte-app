@@ -199,7 +199,7 @@ test('the Home pickers follow the Horizon grid: 4, 8, 12 and 16 columns', async 
 	expect(errors).toEqual([]);
 });
 
-// Every view works without JavaScript (README, docs/overview.md): the pages are server-rendered and every control is a
+// Every view works without JavaScript (docs/financials.md, docs/overview.md): the pages are server-rendered and every control is a
 // plain link or form. `javaScriptEnabled: false` turns scripts off in the browser, so nothing here can be hydration.
 test.describe('without JavaScript', () => {
 	test.use({ javaScriptEnabled: false });
