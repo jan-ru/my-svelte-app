@@ -1,5 +1,6 @@
-name: Check NYU data
+name: NYU data check (scheduled)
 
+# Stage: scheduled, not tied to a change. See docs/workflows.md.
 # Fetches the real NYU workbooks and confirms every catalog column still resolves.
 # A failed run emails the repo owner, which is the signal to update src/lib/catalog.ts.
 on:

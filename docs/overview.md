@@ -151,7 +151,7 @@ The first release, `2026.11.12`, is a pre-release that covers everything below; 
 
 ## 4. Quality review
 
-Types, lint, formatting, the TypeScript-only rule, the coverage floor and the dependency audit all fail CI; Lighthouse and the live NYU check run but do not block a merge. The weakest parts are the external sources: SheetJS outside Dependabot's reach and the unofficial Yahoo package. Details, the six-point review and the watch list are in [docs/quality/](quality/README.md).
+Types, lint, formatting, the TypeScript-only rule, the coverage floor and the dependency audit all fail CI; Lighthouse and the live NYU check run but do not block a merge. The weakest parts are the external sources: SheetJS outside Dependabot's reach and the unofficial Yahoo package. Details, the six-point review and the watch list are in [docs/quality/](quality/README.md); what runs at each stage, from a branch to a deployment, is in [docs/workflows.md](workflows.md).
 
 ## 5. Roadmap
 
