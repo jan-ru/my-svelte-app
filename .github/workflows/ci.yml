@@ -1,5 +1,7 @@
-name: CI
+name: CI (merge gate)
 
+# Stage: merge gate. The `test` job is the one required check on `main`; `lighthouse` is development feedback only.
+# All workflows by stage: docs/workflows.md. The ruleset binds to the job name `test`, so do not rename it.
 on:
   push:
     branches: [main]
