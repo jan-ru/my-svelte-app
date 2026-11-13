@@ -1,6 +1,6 @@
 # Releasing
 
-`my-svelte-app` deploys every merge to `main` on Vercel, so a release does not ship code. A release is a **dated, curated record**: a changelog section, a refreshed quality snapshot and an overview that matches the code at that tag. It follows the release process of `finance-tools`, scaled down to one app.
+`my-svelte-app` deploys every merge to `main` on Vercel, so a release does not ship code. A release is a **dated, curated record**: a changelog section, a refreshed quality snapshot and an overview that matches the code at that tag. It follows the release process of `finance-tools`, scaled down to one app. Which workflows run before a merge, which deploy and what a tag does not trigger: [docs/workflows.md](docs/workflows.md).
 
 Versions are **CalVer `YYYY.0M.0D`** (for example `2026.11.08`), the date the release was cut. There is no version to bump in `package.json`; the tag is the version. Cut a release when there is something worth recording, aiming for about once a week. Skipping a week is normal, and an empty release is noise.
 

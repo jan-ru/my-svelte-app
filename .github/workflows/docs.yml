@@ -1,5 +1,6 @@
-name: API docs
+name: API docs (deploy)
 
+# Stage: deployment (the `build` job also gives development feedback on pull requests). See docs/workflows.md.
 # Builds the TypeDoc reference (`npm run docs`) and publishes it to GitHub Pages. Pull requests that touch the
 # documented code only build it, so a doc warning shows up before merge; only main deploys. This is separate from the
 # app's own deployment, which is Vercel (see vercel.json).
