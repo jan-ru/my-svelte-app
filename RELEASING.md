@@ -43,6 +43,34 @@ Then create the GitHub release from the tag as a **pre-release**, with the chang
 gh release create YYYY.0M.0D --verify-tag --prerelease --title YYYY.0M.0D --notes-file <(awk '/^## \[YYYY.0M.0D\]/{f=1;next} /^## \[/{f=0} f' CHANGELOG.md)
 ```
 
+### 6. Publish to the public repository
+
+Development happens in this private repository (`jan-ru/my-svelte-app-dev`, the remote `origin`); the public
+`jan-ru/my-svelte-app` (the remote `public`) receives snapshots. A snapshot is the tree of `main` minus the paths in
+[`.public-exclude`](.public-exclude), as one new commit on the public `main`: private history and the excluded files
+never leave. Publish whenever the public copy should catch up, and at least once per release:
+
+```sh
+git switch main && git pull --ff-only
+npm run publish:public -- --dry-run   # what would change, nothing pushed
+npm run publish:public                # pushes snapshot/<sha> to public and opens the PR there
+```
+
+Merge that PR once `test` is green (the public `main` requires it). For a release, tag the public merge commit too and
+create the public release from it, since the tag from step 5 lives only in this repository:
+
+```sh
+git fetch public
+git push public public/main:refs/tags/YYYY.0M.0D
+gh release create YYYY.0M.0D --repo jan-ru/my-svelte-app --verify-tag --prerelease --title YYYY.0M.0D --notes-file <(awk '/^## \[YYYY.0M.0D\]/{f=1;next} /^## \[/{f=0} f' CHANGELOG.md)
+```
+
+The API reference is built and deployed by this repository's CI (`docs.yml`, excluded from snapshots) when the tag
+from step 5 is pushed, to Cloudflare Pages at <https://my-svelte-app-docs.pages.dev/>. It needs the repository
+secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`, as in finance-tools. Public files that link to excluded files (`AGENTS.md`, `RELEASING.md`,
+`design/horizon/`) are broken links in the public copy, and `npm run build:tokens` cannot run there; the build does
+not need it.
+
 ## Conventions
 
 - **One release per day.** If a second is really needed, append a counter (`2026.11.08.1`); never move a published tag.

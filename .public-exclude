@@ -1,0 +1,27 @@
+# Paths that exist only in this private repository (jan-ru/my-svelte-app-dev).
+# scripts/publish-public.ts removes them from every snapshot it publishes to jan-ru/my-svelte-app.
+# One git pathspec per line; a line starting with # is a comment.
+
+# The publishing machinery itself
+.public-exclude
+scripts/publish-public.ts
+
+# AI agent configuration
+.claude/
+.opencode/
+.pi/
+opencode.json
+AGENTS.md
+CLAUDE.md
+
+# Design work (the theme CSS built from it is committed under src/, so the public build does not need it)
+design/
+
+# Internal process
+RELEASING.md
+
+# Dependency updates run here, not on the public repository
+.github/dependabot.yml
+
+# The API reference is built and published to Cloudflare Pages by this repository's CI only
+.github/workflows/docs.yml
