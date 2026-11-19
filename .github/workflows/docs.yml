@@ -5,8 +5,7 @@ name: API docs (deploy)
 # (https://my-svelte-app-docs.pages.dev/), the way finance-tools publishes its docs. The reference is published at a
 # release, not at every merge: what readers see is what was released. Pull requests that touch the documented code
 # only build it, so a doc warning shows up before merge. This is separate from the app's own deployment, which is
-# Vercel (see vercel.json). The workflow runs in the private repository only: .public-exclude keeps it out of the
-# public snapshots.
+# Vercel (see vercel.json).
 on:
   push:
     # A CalVer release tag (RELEASING.md). No `paths:` here: GitHub does not evaluate path filters on a tag push, and a

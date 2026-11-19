@@ -1,11 +1,12 @@
 ---
-status: Accepted
+status: Superseded by ADR-011
 date: 2026-11-19
 decision-makers: Jan-Ru Muller (sole maintainer)
 ---
 # ADR-010: Develop in a private repository and publish snapshots to the public one
 
-- **Accepted:** 2026-11-19, in #10.
+- **Accepted:** 2026-11-19, in #10 of the private repository `jan-ru/my-svelte-app-dev`.
+- **Superseded:** 2026-11-19 by [ADR-011](0011-one-public-repository.md): back to one public repository.
 - **Component:** `.public-exclude`, `scripts/publish-public.ts`, `.github/workflows/docs.yml`, the Vercel Git integration, [docs/workflows.md](../workflows.md)
 
 ## Context

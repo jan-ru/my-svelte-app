@@ -129,7 +129,7 @@ The full log is in [docs/adr/](adr/README.md). Grouped by theme:
 | Valuation | Peers picked by hand, a P25–P75 range, private companies from an uploaded template | [ADR-008](adr/0008-valuation-peers-by-hand.md) |
 | Code | TypeScript only, as strict as the tools allow, enforced in CI | [ADR-007](adr/0007-strict-typescript.md) |
 | Code | One Node LTS line, pinned in four places a test keeps together | [ADR-009](adr/0009-node-lts-pin.md) |
-| Delivery | Develop in a private repository, publish snapshots to the public one; Vercel and the API reference deploy from the private one | [ADR-010](adr/0010-develop-privately-publish-snapshots.md) |
+| Delivery | One public repository; a one-day private working copy was merged back with its history | [ADR-011](adr/0011-one-public-repository.md) |
 
 ## 3. Release history
 

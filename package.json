@@ -18,7 +18,6 @@
     "build:companies": "node scripts/build-companies.ts",
     "build:gdp": "node scripts/build-gdp.ts",
     "build:tokens": "node scripts/build-tokens.ts",
-    "publish:public": "node scripts/publish-public.ts",
     "check:ts-only": "node scripts/check-no-js.ts",
     "docs": "svelte-kit sync && typedoc"
   },

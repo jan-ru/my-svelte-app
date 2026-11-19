@@ -4,6 +4,8 @@ Curated highlights per release, not a per-commit list. Each release section beco
 
 ## [Unreleased]
 
+- Development briefly moved to a private repository that published snapshots here, and came back the same day with its history merged in (ADR-010, ADR-011).
+
 ## [2026.11.12] — 2026-11-12
 
 First release. Everything since the app was rebuilt on SvelteKit 3, from 2026-10-24 to 2026-11-12: 109 merged PRs (#7 to #138), plus the commits of the first day. It is published as a pre-release, because there is no earlier tag to compare it with. The through-line is **from one comparison page to a private valuation tool**: public reference pages that cost almost nothing to serve, and behind the login, a company's financials and a valuation against picked peers, all on one design system.
