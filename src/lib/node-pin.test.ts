@@ -3,7 +3,8 @@ import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 // The project stays on one Node LTS line. It is written down in four places that must not drift apart: the `engines`
-// pin (which Vercel reads), the CI workflows, `.nvmrc` for local use, and the `@types/node` type definitions.
+// pin (which Vercel reads), the CI workflows, `.nvmrc` for local use, and the `@types/node` type definitions. Dependabot's part of the pin is in
+// dependabot-node-pin.test.ts, kept apart because .github/dependabot.yml exists only in the private repository.
 // Moving to the next LTS is a deliberate change of all four in one pull request.
 const root = path.join(import.meta.dirname, '../..');
 const read = (file: string) => fs.readFileSync(path.join(root, file), 'utf8');
@@ -27,10 +28,5 @@ describe('Node LTS pin', () => {
 		);
 		expect(versions.length).toBeGreaterThan(0);
 		for (const v of versions) expect(v).toBe(pinned);
-	});
-	it('keeps Dependabot from proposing a newer @types/node major', () => {
-		expect(read('.github/dependabot.yml')).toMatch(
-			/dependency-name:\s*"@types\/node"[\s\S]*?version-update:semver-major/
-		);
 	});
 });
