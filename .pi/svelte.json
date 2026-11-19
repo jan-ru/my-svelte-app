@@ -1,0 +1,5 @@
+{
+	"$schema": "https://svelte.dev/pi/schema.json",
+	"mcp": { "type": "local", "enabled": true },
+	"instructions": { "enabled": false }
+}

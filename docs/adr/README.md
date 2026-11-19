@@ -24,3 +24,5 @@ The ADRs 001 to 009 were written on 2026-11-01 from the code, `CLAUDE.md`, the s
 | ADR-007 | TypeScript only, as strict as the tools allow, enforced in CI | Accepted | [0007-strict-typescript.md](0007-strict-typescript.md) |
 | ADR-008 | Valuation by multiples: peers picked by hand, a P25–P75 range, private companies from an uploaded template | Accepted | [0008-valuation-peers-by-hand.md](0008-valuation-peers-by-hand.md) |
 | ADR-009 | Stay on one Node LTS line, pinned in four places that a test keeps together | Accepted | [0009-node-lts-pin.md](0009-node-lts-pin.md) |
+| ADR-010 | Develop in a private repository and publish snapshots to the public one | Superseded by ADR-011 | [0010-develop-privately-publish-snapshots.md](0010-develop-privately-publish-snapshots.md) |
+| ADR-011 | One public repository again: the private copy's history merged back | Accepted | [0011-one-public-repository.md](0011-one-public-repository.md) |
