@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/jan-ru/my-svelte-app/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/jan-ru/my-svelte-app/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/jan-ru/my-svelte-app?include_prereleases&sort=date)](https://github.com/jan-ru/my-svelte-app/releases)
-[![API docs](https://img.shields.io/badge/API%20docs-TypeDoc-blue)](https://jan-ru.github.io/my-svelte-app/)
+[![API docs](https://img.shields.io/badge/API%20docs-TypeDoc-blue)](https://my-svelte-app-docs.pages.dev/)
 
 A [SvelteKit](https://svelte.dev/docs/kit) app on Vercel that compares valuation multiples from the [NYU Stern](https://pages.stern.nyu.edu/~adamodar/New_Home_Page/data.html) industry datasets in public, and, behind a shared password, shows a company's financials and values it against peers.
 
@@ -45,7 +45,7 @@ The dev server runs at <http://localhost:5173>. Without environment variables th
 | [Decisions](docs/adr/README.md) and [Quality review](docs/quality/README.md) | One ADR per decision; what CI enforces and what to watch |
 | [Classification data](docs/crosswalk.md), [Size pages](docs/size.md), [Design tokens](docs/horizon-tokens.md) | How the generated data and the Horizon theme are built |
 | [Svelte MCP](docs/svelte-mcp.md) and [AGENTS.md](AGENTS.md) | Setup for coding agents, and the rules for contributors and agents |
-| [API reference](https://jan-ru.github.io/my-svelte-app/) | TypeDoc reference of `src/lib` |
+| [API reference](https://my-svelte-app-docs.pages.dev/) | TypeDoc reference of `src/lib` |
 
 ## License
 
