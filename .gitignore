@@ -14,3 +14,6 @@ docs/api/
 # Playwright output (`npm run test:e2e`)
 playwright-report/
 test-results/
+
+# Cloudflare Wrangler local state (cache, created when wrangler runs here)
+.wrangler/
