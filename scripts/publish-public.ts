@@ -5,9 +5,12 @@
 // The public main is protected (a PR and a passing `test` check), so the snapshot arrives as a PR that the public
 // repository's CI checks before it is merged.
 //
+// Before pushing, it runs the CI checks on the snapshot itself (SNAPSHOT_CHECKS), so a public file that still needs an
+// excluded one fails here rather than on the public PR.
+//
 // Run from a clean main that is pushed to origin:
 //   node scripts/publish-public.ts            # push the snapshot branch and open the PR
-//   node scripts/publish-public.ts --dry-run  # build and commit the snapshot locally, show what changes, push nothing
+//   node scripts/publish-public.ts --dry-run  # build, commit and check the snapshot locally, push nothing
 //
 // Expects the remote `public` to point at jan-ru/my-svelte-app, and `gh` to be logged in. See RELEASING.md.
 import { execFileSync } from 'node:child_process';
@@ -62,6 +65,29 @@ function buildSnapshot(dir: string, source: string, excludes: string[]): boolean
 	return true;
 }
 
+/** The CI `test` job's checks, minus the build and the browser tests, run on the snapshot as the public CI will see it. */
+const SNAPSHOT_CHECKS = ['check', 'lint', 'format:check', 'check:ts-only', 'test'];
+
+/**
+ * Installs the dependencies in the snapshot worktree, as CI does, and runs SNAPSHOT_CHECKS there. Throws on the first
+ * failure. Its own `npm ci`, not this checkout's node_modules: SvelteKit writes its tsconfig into node_modules/$app with
+ * paths relative to it, so borrowed modules would type-check this checkout instead of the snapshot.
+ */
+function checkSnapshot(dir: string): void {
+	const steps: [string, string[]][] = [
+		['npm ci', ['ci', '--no-audit', '--no-fund', '--loglevel=error']],
+		...SNAPSHOT_CHECKS.map((script): [string, string[]] => [`npm run ${script}`, ['run', '--silent', script]])
+	];
+	for (const [label, args] of steps) {
+		console.log(`publish-public: ${label} on the snapshot`);
+		try {
+			execFileSync('npm', args, { cwd: dir, stdio: 'inherit' });
+		} catch {
+			throw new PublishError(`${label} fails on the snapshot; nothing was pushed`);
+		}
+	}
+}
+
 function openPullRequest(dir: string, branch: string, short: string): void {
 	git(['push', '--quiet', PUBLIC_REMOTE, `${branch}:${branch}`], dir);
 	const body = [
@@ -104,7 +130,10 @@ function main(): void {
 	try {
 		if (!buildSnapshot(dir, source, excludes)) {
 			console.log('publish-public: the public repository already has this tree; nothing to publish');
-		} else if (dryRun) {
+			return;
+		}
+		checkSnapshot(dir);
+		if (dryRun) {
 			console.log(`publish-public: dry run; the snapshot was committed locally and discarded, nothing pushed`);
 		} else {
 			openPullRequest(dir, branch, short);
