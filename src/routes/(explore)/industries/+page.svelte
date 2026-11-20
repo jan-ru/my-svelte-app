@@ -50,8 +50,8 @@
 			fill: l.fill,
 			href: data.interactive ? sectorHref(l.sector) : undefined
 		})),
-		// the block that holds the "more" tile
-		{ id: MORE_ID, label: 'Smaller industries', fill: MORE_FILL, href: bandHref(band.index + 1) }
+		// the block that holds the "more" tile; the tile inside it is the link, so the block is not a second one
+		{ id: MORE_ID, label: 'Smaller industries', fill: MORE_FILL, href: undefined }
 	]);
 	const chips = $derived([
 		...data.nav.sectors.map((v) => ({

@@ -407,6 +407,11 @@ describe('Treemap with a band', () => {
 		expect(table).toContain('Delta 4');
 		expect(table).not.toContain('smaller countries');
 	});
+	it('dims the other tiles only when a selected item is drawn in this band', () => {
+		expect(html(Treemap, { ...props, selected: ['a'] })).toContain('fill-opacity="0.45"');
+		// Delta is selected but sits in a smaller band: nothing here is dimmed
+		expect(html(Treemap, { ...props, selected: ['d'] })).not.toContain('fill-opacity="0.45"');
+	});
 	it('leaves the "more" tile out of the summary of the largest items', () => {
 		const body = html(Treemap, { ...props, items: [all[0] ?? moreTile, moreTile] });
 		expect(body).toMatch(/aria-label="Treemap of 1 items by companies\. The largest are Alpha \(300\)\."/);

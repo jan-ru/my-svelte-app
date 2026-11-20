@@ -69,6 +69,8 @@
 	// tiles that select an item, as opposed to the "more" tile, which only zooms
 	const selectable = $derived(items.some((i) => i.href && i.id !== MORE_ID));
 	const more = $derived(items.find((i) => i.id === MORE_ID));
+	// dim the others only when a selected item is drawn: one in another band would dim the whole band
+	const dim = $derived(items.some((i) => selected.includes(i.id)));
 
 	// the tile under the pointer, in focus or touched: its full name and share are shown under the map
 	let active = $state<string | null>(null);
@@ -108,7 +110,7 @@
 			width={r.w}
 			height={r.h}
 			fill={item.fill ?? '#B3D6FF'}
-			fill-opacity={selected.length > 0 && !on && r.id !== MORE_ID ? 0.45 : 1}
+			fill-opacity={dim && !on && r.id !== MORE_ID ? 0.45 : 1}
 			stroke={on ? '#1D2D3E' : '#FFFFFF'}
 			stroke-width={on ? 3 : 2}
 		/>
