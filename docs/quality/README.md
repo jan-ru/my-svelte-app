@@ -12,7 +12,7 @@ What keeps the code healthy, what CI enforces and what to watch. The block marke
 | Area | Headline | Status | Enforced by |
 |---|---|:---:|---|
 | Types | Strict svelte-check with `noUncheckedIndexedAccess`; no casts on outside data, no `!` in source | 🟢 | `npm run check` in CI |
-| Lint | typescript-eslint `strictTypeChecked` and eslint-plugin-svelte, 0 errors | 🟢 | `npm run lint` in CI |
+| Lint | typescript-eslint `strictTypeChecked` and eslint-plugin-svelte, 0 errors; no function over 40 statements (`max-statements`) | 🟢 | `npm run lint` in CI |
 | Formatting | Prettier on code; Markdown, `package.json` and generated files are left alone | 🟢 | `npm run format:check` in CI |
 | TypeScript only | No `.js`, `.mjs`, `.cjs` or `.jsx` files | 🟢 | `npm run check:ts-only` in CI |
 | Tests | Coverage floor on `src/lib`: 95% statements, lines and functions, 85% branches | 🟢 | `npm run test:coverage` in CI |
