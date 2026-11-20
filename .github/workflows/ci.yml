@@ -13,22 +13,31 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
+    # read by the `metrics` job: a gate step that passed counted 0 errors
+    outputs:
+      check: ${{ steps.check.outcome }}
+      lint: ${{ steps.lint.outcome }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
           cache: npm
       - run: npm ci
-      - run: npm run check
-      - run: npm run lint
+      - id: check
+        run: npm run check
+      - id: lint
+        run: npm run lint
       - run: npm run format:check
       - run: npm run check:ts-only
-      - run: npm run test:coverage
+      # the json reporter keeps the counts for metrics.json; default and github-actions are Vitest's own defaults in CI
+      - run: npm run test:coverage -- --reporter=default --reporter=github-actions --reporter=json --outputFile.json=reports/vitest.json
       - run: npm run build
       # browser smoke tests on the production build: page errors, CSP blocks, login, upload and axe (see e2e/)
       - run: npx playwright install --with-deps chromium
-      - run: npm run test:e2e
+      - run: npm run test:e2e -- --reporter=github,list,json
+        env:
+          PLAYWRIGHT_JSON_OUTPUT_FILE: reports/playwright.json
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: failure()
         with:
@@ -39,13 +48,26 @@ jobs:
           retention-days: 7
       # runtime dependencies only; dev tooling advisories don't ship to users
       - run: npm audit --omit=dev --audit-level=high
+      # whatever ran keeps its report for the `metrics` job; a suite that never ran shows as not measured
+      - name: Keep the reports for metrics.json
+        if: always() && github.event_name == 'push' && github.repository == 'jan-ru/my-svelte-app'
+        run: |
+          mkdir -p reports
+          cp coverage/coverage-summary.json reports/ || true
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always() && github.event_name == 'push' && github.repository == 'jan-ru/my-svelte-app'
+        with:
+          name: metrics-input-test
+          path: reports/
+          retention-days: 1
+          if-no-files-found: ignore
 
   # Not part of the required `test` check: Lighthouse scores wobble on shared runners, so it reports without blocking merges.
   lighthouse:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
           cache: npm
@@ -53,3 +75,60 @@ jobs:
       - run: npm run build
       # serves the production build with `vite preview` and audits the public pages (see lighthouserc.json)
       - run: npx --yes @lhci/cli@0.15.1 autorun
+      # .lighthouseci is a hidden directory, which upload-artifact skips, so the results are copied out first
+      - name: Keep the results for metrics.json
+        if: always() && github.event_name == 'push' && github.repository == 'jan-ru/my-svelte-app'
+        run: |
+          mkdir -p lighthouse
+          cp .lighthouseci/lhr-*.json lighthouse/ || true
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always() && github.event_name == 'push' && github.repository == 'jan-ru/my-svelte-app'
+        with:
+          name: metrics-input-lighthouse
+          path: lighthouse/
+          retention-days: 1
+          if-no-files-found: ignore
+
+  # metrics.json for jan-ru/system-health, which pulls it (its ADR-0002: nothing here pushes). Runs on pushes to `main`
+  # of this repository (not of forks), after the other jobs and whatever their result: a failed suite is a gap in the
+  # file (not measured), never a 0. The format is system-health's schema/metrics.v1.schema.json;
+  # scripts/build-metrics.ts builds it. system-health reads the artifact `metrics` of the newest run on `main`.
+  metrics:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    if: always() && github.event_name == 'push' && github.repository == 'jan-ru/my-svelte-app'
+    needs: [test, lighthouse]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 24
+      # a job that died before uploading leaves no reports: what it measures shows as not measured
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        continue-on-error: true
+        with:
+          name: metrics-input-test
+          path: reports/test
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        continue-on-error: true
+        with:
+          name: metrics-input-lighthouse
+          path: reports/lighthouse
+      # every dependency, as cap-tools counts them, so the counts compare; the `test` gate audits runtime ones only.
+      # npm audit exits non-zero when it finds anything; the counts are what matter here. It reads only the lockfile.
+      - run: |
+          mkdir -p reports
+          npm audit --package-lock-only --json > reports/npm-audit.json || true
+      - name: Build metrics.json
+        env:
+          CHECK_OUTCOME: ${{ needs.test.outputs.check }}
+          LINT_OUTCOME: ${{ needs.test.outputs.lint }}
+          TEST_RESULT: ${{ needs.test.result }}
+        run: |
+          node scripts/build-metrics.ts reports > metrics.json
+          cat metrics.json
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: metrics
+          path: metrics.json
+          retention-days: 90

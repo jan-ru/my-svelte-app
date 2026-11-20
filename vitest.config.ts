@@ -12,7 +12,8 @@ export default defineConfig({
 			include: ['src/lib/**/*.ts'],
 			// the live check hits the network and the test helper only builds fixtures
 			exclude: ['src/**/*.test.ts', 'src/lib/server/nyu.live.ts', 'src/lib/server/testing/**'],
-			reporter: ['text-summary', 'text'],
+			// json-summary (coverage/coverage-summary.json) is what CI's metrics.json reads its line coverage from
+			reporter: ['text-summary', 'text', 'json-summary'],
 			// measured at 98.7 / 95.2 / 97.8 / 99.0 on 2026-11-11; the floor leaves room for normal change but catches untested new code
 			thresholds: { statements: 95, branches: 85, functions: 95, lines: 95 }
 		}
