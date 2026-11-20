@@ -209,7 +209,7 @@ describe('errors that look like not-found', () => {
 			expect([prices, profile, news, statement]).toEqual([[], null, [], { lines: [], years: [] }]);
 		}
 	});
-	it.each([
+	it.each<[string, Error]>([
 		['a failed request whose body says Not Found', new HTTPError('<html><title>404 Not Found</title></html>')],
 		['a failed request that repeats a real answer', new HTTPError('Quote not found for symbol: X')],
 		['an error that mentions "not found" in passing', new Error('upstream service not found')],
