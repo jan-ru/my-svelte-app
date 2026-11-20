@@ -14,6 +14,7 @@ What runs automatically, grouped by the stage it belongs to. Each GitHub workflo
 | **Deployment** (publishes something after a merge) | Production deploy of the app | Vercel Git integration; `vercel.json` holds only build commands | Every merge to `main` | n/a |
 | | API reference to Cloudflare Pages | `docs.yml`, `deploy` job | A release tag, or by hand | n/a |
 | | Release: tag and GitHub pre-release | By hand, [RELEASING.md](../RELEASING.md) | You | n/a |
+| | `metrics.json` for jan-ru/system-health | `ci.yml`, `metrics` job | Every push to `main`, after `test` and `lighthouse` | n/a |
 | **Scheduled** (runs on a clock, not on a change) | NYU data check | `check-data.yml` | Monthly on the 1st at 06:00 UTC, or by hand | n/a |
 | | Dependency updates (npm and GitHub Actions) | `dependabot.yml` | Weekly, Mondays | n/a |
 
@@ -58,6 +59,21 @@ flowchart LR
 - **The API reference** goes to Cloudflare Pages (<https://my-svelte-app-docs.pages.dev/>) at a release tag, or by hand from `main` or a tag. A pull request that touches `src/lib/**`, `typedoc.json`, `tsconfig.json`, `package.json`, `package-lock.json` or `docs.yml` itself only builds it. Deployments run one at a time and a newer one waits for a running one.
 - **A tag deploys only the API reference.** The app itself is not rebuilt for a release ([RELEASING.md](../RELEASING.md)).
 - **One repository.** For one day (2026-11-19) development ran in a private copy that published snapshots here; that was undone the same day ([ADR-011](adr/0011-one-public-repository.md)).
+
+## Metrics for system-health
+
+jan-ru/system-health collects one `metrics.json` per repository (its ADR-0002: it pulls the file, nothing here pushes). On every push to `main`, the `metrics` job in `ci.yml` runs after `test` and `lighthouse`, whatever their result. `scripts/build-metrics.ts` builds the file from the reports those jobs kept, using `src/lib/metrics.ts`, and the job uploads it as the artifact `metrics` for 90 days. The format is system-health's `schema/metrics.v1.schema.json`. A field that was not measured is left out, never written as 0:
+
+| Field | From |
+|---|---|
+| `quality.coverage_pct` | Vitest line coverage of `src/lib` (`coverage/coverage-summary.json`); left out when a unit test failed |
+| `quality.tests` | Vitest plus Playwright; a test that passed on retry counts as passed |
+| `quality.type_errors`, `quality.lint_errors` | `0` when `npm run check` or `npm run lint` passed (both fail on any error); left out when they failed |
+| `security.vulnerabilities` | `npm audit --package-lock-only` over every dependency, the same scope cap-tools reports, so the counts compare. The `test` gate itself audits runtime dependencies only |
+| `performance.lighthouse` | The Lighthouse scores of the home page `/` from the `lighthouse` job |
+| `gates` | `test`, the one required check |
+
+The steps that keep reports and the `metrics` job run only in `jan-ru/my-svelte-app`, not in forks.
 
 ## Things to know
 
