@@ -24,9 +24,13 @@
 	const industryOptions = $derived(alphabetical(industries));
 	const sectorOptions = $derived(alphabetical(sectors));
 	const picked = $derived(nav.countries.length + nav.industries.length + nav.sectors.length);
-	// GDP exists per country only, so switching to it drops any industry or sector restriction
+	// GDP exists per country only, so switching to it drops any industry or sector restriction; another measure ranks
+	// the items differently, so the treemap starts again at the largest band
 	const measureHref = (id: SizeNav['measure']) =>
-		sizeHref(action, id === 'gdp' ? { ...nav, measure: id, industries: [], sectors: [] } : { ...nav, measure: id });
+		sizeHref(
+			action,
+			id === 'gdp' ? { ...nav, measure: id, industries: [], sectors: [], band: 1 } : { ...nav, measure: id, band: 1 }
+		);
 </script>
 
 {#if showMeasure}
@@ -35,8 +39,7 @@
 		<div class="segments">
 			{#each MEASURES as m (m.id)}
 				<a
-					class="segment"
-					class:on={m.id === nav.measure}
+					class={['segment', { on: m.id === nav.measure }]}
 					href={measureHref(m.id)}
 					aria-current={m.id === nav.measure ? 'true' : undefined}>{m.label}</a
 				>
@@ -80,8 +83,9 @@
 			</div>
 		{/if}
 		<button type="submit">Show</button>
-		<a class="button" href={sizeHref(action, { measure: nav.measure, countries: [], industries: [], sectors: [] })}
-			>Clear</a
+		<a
+			class="button"
+			href={sizeHref(action, { measure: nav.measure, countries: [], industries: [], sectors: [], band: 1 })}>Clear</a
 		>
 		<p class="hint block">
 			Hold Ctrl or Cmd to pick several. Nothing selected shows everything. You can also click tiles in the map.

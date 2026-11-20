@@ -19,13 +19,35 @@ export interface Rect {
 	h: number;
 }
 
-/** Squarified treemap (Bruls, Huizing, van Wijk): rectangles with areas proportional to the values, as square as it can. Zero and negative values are dropped. */
+const positive = (i: { readonly value: number }) => Number.isFinite(i.value) && i.value > 0;
+
+/**
+ * Squarified treemap (Bruls, Huizing, van Wijk): rectangles with areas proportional to the values, as square as it
+ * can. Zero and negative values are dropped. The item whose id is `pinned` (the "more" tile of a band) gets a strip of
+ * its own along the right edge, or along the bottom of a frame taller than wide, sized by its value; the others are
+ * squarified in the rest. So it sits in the bottom-right corner, last, and squeezes no other tile.
+ */
 export function squarify(
 	items: readonly { readonly id: string; readonly value: number }[],
 	width: number,
-	height: number
+	height: number,
+	pinned?: string
 ): Rect[] {
-	const sorted = items.filter((i) => Number.isFinite(i.value) && i.value > 0).sort((a, b) => b.value - a.value);
+	const pin = items.find((i) => i.id === pinned && positive(i));
+	if (pin && width > 0 && height > 0) {
+		const others = items.filter((i) => i.id !== pinned && positive(i));
+		const share = pin.value / (pin.value + others.reduce((s, i) => s + i.value, 0));
+		return width >= height
+			? [
+					...squarify(others, width * (1 - share), height),
+					{ id: pin.id, x: width * (1 - share), y: 0, w: width * share, h: height }
+				]
+			: [
+					...squarify(others, width, height * (1 - share)),
+					{ id: pin.id, x: 0, y: height * (1 - share), w: width, h: height * share }
+				];
+	}
+	const sorted = items.filter(positive).sort((a, b) => b.value - a.value);
 	if (sorted.length === 0 || width <= 0 || height <= 0) return [];
 	const total = sorted.reduce((s, i) => s + i.value, 0);
 	const scale = (width * height) / total;
@@ -119,21 +141,22 @@ export interface NestedLayout {
 	tiles: Rect[];
 }
 
-/** Two levels: groups laid out by their totals, each group's items squarified inside it below a header strip. */
+/** Two levels: groups laid out by their totals, each group's items squarified inside it below a header strip. The group whose id is `pinned` is laid out last (see `squarify`). */
 export function nest(
 	items: readonly { readonly id: string; readonly value: number; readonly group: string }[],
 	width: number,
 	height: number,
 	header = 18,
-	pad = 2
+	pad = 2,
+	pinned?: string
 ): NestedLayout {
 	const sums = new Map<string, number>();
-	for (const i of items)
-		if (Number.isFinite(i.value) && i.value > 0) sums.set(i.group, (sums.get(i.group) ?? 0) + i.value);
+	for (const i of items) if (positive(i)) sums.set(i.group, (sums.get(i.group) ?? 0) + i.value);
 	const blocks = squarify(
 		[...sums].map(([id, value]) => ({ id, value })),
 		width,
-		height
+		height,
+		pinned
 	);
 	const groups = blocks.map((b) => ({ ...b, value: sums.get(b.id) ?? 0 }));
 	const tiles: Rect[] = [];

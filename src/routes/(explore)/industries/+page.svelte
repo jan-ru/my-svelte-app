@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { PageProps } from './$types';
+	import BandNav from '#lib/components/BandNav.svelte';
 	import LoginPrompt from '#lib/components/LoginPrompt.svelte';
 	import SelectionBar from '#lib/components/SelectionBar.svelte';
 	import ShareBars from '#lib/components/ShareBars.svelte';
@@ -7,43 +8,55 @@
 	import Treemap from '#lib/components/Treemap.svelte';
 	import { plural } from '#lib/plural';
 	import { formatCount, formatPercent } from '#lib/size/size';
+	import { MORE_FILL, MORE_ID } from '#lib/size/bands';
 	import { sizeHref, toggle } from '#lib/size/nav';
 
 	let { data }: PageProps = $props();
 
 	const view = $derived(data.view);
-	// Tiles and legend link to a narrower view only for logged-in visitors; anonymous pages link to no query variant.
+	const band = $derived(view.banded.band);
+	// the same view zoomed to another band of the ranking: the one link anonymous visitors get too
+	const bandHref = (index: number) => sizeHref('/industries', { ...data.nav, band: index });
+	// Tiles and legend link to a narrower view only for logged-in visitors; the grey "more" tile zooms in for everyone.
 	const tiles = $derived(
-		view.tiles.map((t) =>
-			data.interactive
-				? { ...t, href: sizeHref('/industries', { ...data.nav, industries: toggle(data.nav.industries, t.id) }) }
-				: t
+		view.banded.tiles.map((t) =>
+			t.id === MORE_ID
+				? { ...t, href: bandHref(band.index + 1) }
+				: data.interactive
+					? { ...t, href: sizeHref('/industries', { ...data.nav, industries: toggle(data.nav.industries, t.id) }) }
+					: t
 		)
 	);
+	// a country or sector filter changes the counts and so the bands: those links go back to the largest band
 	const breakdown = $derived(
 		view.breakdown?.map((t) =>
 			data.interactive
-				? { ...t, href: sizeHref('/industries', { ...data.nav, countries: toggle(data.nav.countries, t.id) }) }
+				? {
+						...t,
+						href: sizeHref('/industries', { ...data.nav, countries: toggle(data.nav.countries, t.id), band: 1 })
+					}
 				: t
 		) ?? null
 	);
 	const sectorHref = (sector: string) =>
-		sizeHref('/industries', { ...data.nav, sectors: toggle(data.nav.sectors, sector) });
+		sizeHref('/industries', { ...data.nav, sectors: toggle(data.nav.sectors, sector), band: 1 });
 	// anonymous pages apply no filter, so their view holds every industry and sector
 	const industryCount = $derived(data.interactive ? data.industries.length : view.tiles.length);
 	const sectorCount = $derived(data.interactive ? data.sectors.length : view.legend.length);
-	const groups = $derived(
-		view.legend.map((l) => ({
+	const groups = $derived([
+		...view.legend.map((l) => ({
 			id: l.sector,
 			label: l.sector,
 			fill: l.fill,
 			href: data.interactive ? sectorHref(l.sector) : undefined
-		}))
-	);
+		})),
+		// the block that holds the "more" tile
+		{ id: MORE_ID, label: 'Smaller industries', fill: MORE_FILL, href: bandHref(band.index + 1) }
+	]);
 	const chips = $derived([
 		...data.nav.sectors.map((v) => ({
 			label: v,
-			href: sizeHref('/industries', { ...data.nav, sectors: toggle(data.nav.sectors, v) })
+			href: sizeHref('/industries', { ...data.nav, sectors: toggle(data.nav.sectors, v), band: 1 })
 		})),
 		...data.nav.industries.map((v) => ({
 			label: v,
@@ -51,10 +64,12 @@
 		})),
 		...data.nav.countries.map((v) => ({
 			label: v,
-			href: sizeHref('/industries', { ...data.nav, countries: toggle(data.nav.countries, v) })
+			href: sizeHref('/industries', { ...data.nav, countries: toggle(data.nav.countries, v), band: 1 })
 		}))
 	]);
-	const clearHref = $derived(sizeHref('/industries', { ...data.nav, sectors: [], industries: [], countries: [] }));
+	const clearHref = $derived(
+		sizeHref('/industries', { ...data.nav, sectors: [], industries: [], countries: [], band: 1 })
+	);
 </script>
 
 <svelte:head>
@@ -104,7 +119,7 @@
 		</p>
 	{/if}
 
-	<h2>Industries by sector</h2>
+	<h2>{band.count > 1 ? `Industries ranked ${band.first} to ${band.last}, by sector` : 'Industries by sector'}</h2>
 	<ul class="legend" role="list" aria-label="Sectors">
 		{#each view.legend as l (l.sector)}
 			<li>
@@ -123,8 +138,10 @@
 	{#if data.interactive}<p class="note">
 			Click a sector, in the legend or on its header, to keep only the companies of that sector.
 		</p>{/if}
+	<BandNav {band} total={view.tiles.length} noun="industries" href={bandHref} />
 	<Treemap
 		items={tiles}
+		all={view.tiles}
 		{groups}
 		selected={data.nav.industries}
 		format={formatCount}

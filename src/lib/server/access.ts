@@ -7,9 +7,10 @@ export const ISR_EXPIRATION_SECONDS = 86400;
 /**
  * The query parameters that reach a cached route (the adapter adds `__pathname`). Vercel drops every other parameter
  * before the function runs, even for a logged-in request that skips the cache, so the pages' own filter and selection
- * parameters must be listed or the interactive controls stop working. Each value gets its own cache entry; the
- * anonymous loaders ignore them, so every entry holds the same anonymous view. The two `x-sveltekit-*` parameters are
- * SvelteKit's `__data.json` request parameters, which it reads before hooks run.
+ * parameters must be listed or the interactive controls stop working. Each value gets its own cache entry. The
+ * anonymous loaders ignore all of them except the few a page names as public in `pageParams` (the size pages' `band`),
+ * so an entry holds the anonymous view for those values only, the same whoever asked first. The two `x-sveltekit-*`
+ * parameters are SvelteKit's `__data.json` request parameters, which it reads before hooks run.
  */
 export const ISR_ALLOW_QUERY = [
 	// Home
@@ -30,6 +31,7 @@ export const ISR_ALLOW_QUERY = [
 	'page',
 	// Countries and Industries
 	'measure',
+	'band',
 	// SvelteKit data requests
 	'x-sveltekit-invalidated',
 	'x-sveltekit-trailing-slash'
@@ -89,9 +91,14 @@ export function bypassToRestore(
 	return authed && !interactive ? bypassToken(rawToken) : undefined;
 }
 
-/** Anonymous requests never read the real query string, so a bot's first request cannot change what is cached. */
-export function pageParams(interactive: boolean, url: URL): URLSearchParams {
-	return interactive ? url.searchParams : new URLSearchParams();
+/**
+ * The query a loader may read. Interactive requests get all of it. Anonymous requests get only the `publicKeys` a page
+ * names, whose values are part of the cache key (`ISR_ALLOW_QUERY`), so what is cached for a URL depends on that URL
+ * alone and never on who asked first; with none named, an anonymous request reads an empty query.
+ */
+export function pageParams(interactive: boolean, url: URL, publicKeys: readonly string[] = []): URLSearchParams {
+	if (interactive) return url.searchParams;
+	return new URLSearchParams([...url.searchParams].filter(([key]) => publicKeys.includes(key)));
 }
 
 /** Options for the session and bypass cookies: site-wide, HTTP-only, as long as the session. */

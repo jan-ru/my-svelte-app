@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { CompanyData } from '../companies';
 import type { GdpData } from '../gdp';
+import { MORE_ID } from './bands';
 import { countriesView, industriesView } from './view';
 import type { SizeNav } from './nav';
 
@@ -33,6 +34,7 @@ const nav = (over: Partial<SizeNav> = {}): SizeNav => ({
 	countries: [],
 	industries: [],
 	sectors: [],
+	band: 1,
 	...over
 });
 
@@ -95,6 +97,19 @@ describe('countriesView', () => {
 		const banks = v.breakdown!.find((t) => t.id === 'Banks')!;
 		const steel = v.breakdown!.find((t) => t.id === 'Steel')!;
 		expect(banks.fill).not.toBe(steel.fill);
+	});
+});
+
+describe('the treemap bands', () => {
+	it('gives each view the band of its tiles that nav asks for, clamped, and keeps every tile for the table', () => {
+		const countries = countriesView(data, gdp, nav({ band: 9 }));
+		expect(countries.banded.band.index).toBe(countries.banded.band.count);
+		expect(countries.tiles.map((t) => t.id)).toEqual(countriesView(data, gdp, nav()).tiles.map((t) => t.id));
+		const industries = industriesView(data, nav());
+		expect(industries.banded.band.index).toBe(1);
+		expect(industries.banded.tiles.filter((t) => t.id !== MORE_ID)).toEqual(
+			industries.tiles.slice(0, industries.banded.band.last)
+		);
 	});
 });
 

@@ -3,7 +3,16 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
 
-const PUBLIC_PAGES = ['/', '/classification', '/companies', '/countries', '/industries', '/about'] as const;
+const PUBLIC_PAGES = [
+	'/',
+	'/classification',
+	'/companies',
+	'/countries',
+	'/countries?band=2',
+	'/industries',
+	'/industries?band=2',
+	'/about'
+] as const;
 
 /** Collect page errors and console errors (a CSP block or a failed hydration shows up as one). */
 function watchErrors(page: Page): string[] {
@@ -144,7 +153,8 @@ test('a logged-in browser that lost the bypass cookie gets it back from the Log 
 	await logIn(page);
 	await context.clearCookies({ name: '__prerender_bypass' });
 	await page.goto('/countries');
-	await expect(page.locator('svg a.tile')).toHaveCount(0);
+	// the anonymous view: no tile selects a country (only the grey "more" tile links, to the next band)
+	await expect(countryTile(page, 'China')).toHaveCount(0);
 	await page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Log in' }).click();
 	await expect(page).toHaveURL(/\/countries$/);
 	await expect(page.getByRole('button', { name: 'Log out' })).toBeVisible();
@@ -214,6 +224,24 @@ test.describe('without JavaScript', () => {
 			expect(await page.evaluate(scriptsRan), 'scripts must be off for this test to mean anything').toBe(false);
 			await expect(page.locator('h1')).toBeVisible();
 			await expect(page.getByRole('navigation', { name: 'Main' })).toBeVisible();
+		});
+	}
+
+	for (const [path, noun] of [
+		['/countries', 'countries'],
+		['/industries', 'industries']
+	] as const) {
+		test(`an anonymous visitor zooms ${path} into the smaller ${noun} and back`, async ({ page }) => {
+			await page.goto(path);
+			const more = page
+				.getByRole('group', { name: /^Treemap of/ })
+				.first()
+				.locator('a.tile', { has: page.locator('title', { hasText: new RegExp(`^\\d+ smaller ${noun}:`) }) });
+			await more.click();
+			await expect(page).toHaveURL(new RegExp(`${path}\\?band=2$`));
+			await expect(page.getByRole('heading', { level: 2, name: /ranked \d+ to \d+/ })).toBeVisible();
+			await page.getByRole('link', { name: `◀ Larger ${noun}` }).click();
+			await expect(page).toHaveURL(new RegExp(`${path}$`));
 		});
 	}
 

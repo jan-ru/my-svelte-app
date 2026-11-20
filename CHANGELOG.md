@@ -4,6 +4,7 @@ Curated highlights per release, not a per-commit list. Each release section beco
 
 ## [Unreleased]
 
+- The Countries and Industries treemaps zoom through the ranking: one band of similar-sized items at a time, the rest as a grey "more" tile that opens the next band, so the small countries and industries become readable. Works for anonymous visitors and without JavaScript (`band` in the URL).
 - Development briefly moved to a private repository that published snapshots here, and came back the same day with its history merged in (ADR-010, ADR-011).
 
 ## [2026.11.12] — 2026-11-12

@@ -20,6 +20,8 @@ import PanelGrid from './PanelGrid.svelte';
 import ReverseTraceView from './ReverseTraceView.svelte';
 import SizeSelector from './SizeSelector.svelte';
 import Treemap from './Treemap.svelte';
+import BandNav from './BandNav.svelte';
+import { MORE_FILL, MORE_ID } from '../size/bands';
 
 type Renderer = (component: unknown, options: { props: unknown }) => { body: string };
 /** Server-render a component to HTML (see financials-views.test.ts for why the cast). */
@@ -376,11 +378,72 @@ describe('Treemap data table', () => {
 	});
 });
 
+describe('Treemap with a band', () => {
+	const all = [
+		{ id: 'a', label: 'Alpha', value: 300 },
+		{ id: 'b', label: 'Beta', value: 200 },
+		{ id: 'c', label: 'Gamma', value: 5 },
+		{ id: 'd', label: 'Delta', value: 4 }
+	];
+	const moreTile = { id: MORE_ID, label: '2 smaller countries', value: 9, fill: MORE_FILL, href: '/countries?band=2' };
+	const props = {
+		items: [...all.slice(0, 2), moreTile],
+		all,
+		format: (n: number) => String(n),
+		measureLabel: 'companies',
+		total: 509
+	};
+	const dataTable = (body: string) => text(body.slice(body.indexOf('<details')));
+	it('links the grey "more" tile to the next band and says what it is, without offering to select', () => {
+		const body = html(Treemap, props);
+		expect(body).toContain('href="/countries?band=2"');
+		expect(body).toContain('role="group"');
+		expect(text(body)).toContain('The grey tile is 2 smaller countries: click it to see them.');
+		expect(text(body)).not.toContain('Click a tile to select it');
+	});
+	it('lists every item in the data table, the band\'s and the smaller ones, but not the "more" tile', () => {
+		const table = dataTable(html(Treemap, props));
+		expect(table).toContain('Alpha 300');
+		expect(table).toContain('Delta 4');
+		expect(table).not.toContain('smaller countries');
+	});
+	it('leaves the "more" tile out of the summary of the largest items', () => {
+		const body = html(Treemap, { ...props, items: [all[0] ?? moreTile, moreTile] });
+		expect(body).toMatch(/aria-label="Treemap of 1 items by companies\. The largest are Alpha \(300\)\."/);
+	});
+});
+
+describe('BandNav', () => {
+	const href = (i: number) => `/countries?band=${String(i)}`;
+	it('links to the larger and the smaller band, and says which ranks are shown', () => {
+		const body = html(BandNav, {
+			band: { index: 2, count: 3, first: 21, last: 50 },
+			total: 180,
+			noun: 'countries',
+			href
+		});
+		expect(body).toContain('href="/countries?band=1"');
+		expect(body).toContain('href="/countries?band=3"');
+		expect(text(body)).toContain('◀ Larger countries Ranks 21 to 50 of 180 Smaller countries ▶');
+	});
+	it('offers only the way that exists at either end, and nothing for a single band', () => {
+		expect(
+			text(html(BandNav, { band: { index: 1, count: 3, first: 1, last: 20 }, total: 180, noun: 'countries', href }))
+		).not.toContain('Larger');
+		expect(
+			text(html(BandNav, { band: { index: 3, count: 3, first: 51, last: 180 }, total: 180, noun: 'countries', href }))
+		).not.toContain('Smaller');
+		expect(
+			html(BandNav, { band: { index: 1, count: 1, first: 1, last: 9 }, total: 9, noun: 'countries', href })
+		).not.toContain('<nav');
+	});
+});
+
 describe('SizeSelector', () => {
 	it('lists countries, industries and sectors alphabetically', () => {
 		const body = html(SizeSelector, {
 			action: '/countries',
-			nav: { measure: 'companies', countries: [], industries: [], sectors: [] },
+			nav: { measure: 'companies', countries: [], industries: [], sectors: [], band: 1 },
 			countries: ['Romania', 'United Kingdom', 'China', 'Åland', 'germany'],
 			industries: ['Steel', 'Banks'],
 			sectors: ['Utilities', 'Energy']

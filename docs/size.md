@@ -14,6 +14,16 @@ Two public pages show how big things are, always as a share of the global total:
 
 Percent is always of the global total: 48,156 companies, or the World Bank world GDP (`WLD`). "Rest of world" is the total minus the selection. GDP is labelled "current US$, latest value per country" with the year range.
 
+## Zooming through the ranking
+
+The values span about five orders of magnitude (the United States' GDP is several hundred thousand times Tuvalu's), so no single treemap shows the small items legibly, and zooming into a corner would not help: the smallest tiles would still be hundreds of times narrower than the largest. Instead the treemap shows one **band** of the ranking at a time and redraws it in the whole frame.
+
+- A band is a run of the ranking whose largest item is at most `BAND_RATIO` (25) times its smallest, with at most `BAND_MAX` (30) and at least `BAND_MIN` (5) items; a smaller last band joins the one before (`bandRanges` in `src/lib/size/bands.ts`). So the bands follow the data, for companies or GDP, with or without a filter.
+- The items after the band are one grey "more" tile with its true area, in a strip of its own along the right edge (`squarify`'s `pinned`), so it never squeezes a tile of the band into a sliver. Clicking it shows the next band; "◀ Larger" above the treemap goes back (`BandNav.svelte`).
+- The URL holds the band (`band=2`, left out for band 1). It is the one parameter anonymous visitors follow (`PUBLIC_SIZE_PARAMS`), so zooming works without logging in and without JavaScript, each band cached on its own.
+- Selecting an item keeps the band; changing a filter or the measure goes back to band 1, since the ranking changes.
+- Percentages stay shares of the global total, and the "Show data" table under the treemap always lists every item, whatever the band.
+
 ## Sources
 
 - Companies: NYU Stern (Damodaran) `indname.xls`, through `src/lib/data/companies.json` (see `docs/crosswalk.md`).

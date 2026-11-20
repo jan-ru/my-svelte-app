@@ -13,6 +13,7 @@ import {
 	type CrossCell,
 	type Shares
 } from './size';
+import { bandOf, type Banded } from './bands';
 import type { SizeNav } from './nav';
 import type { TreemapItem } from './treemap';
 
@@ -23,8 +24,10 @@ export interface CountriesView {
 	readonly measureLabel: string;
 	/** The global total the percentages refer to: all companies, or the World Bank world GDP. */
 	readonly total: number;
-	/** Every country with a value for the measure. */
+	/** Every country with a value for the measure, largest first. */
 	readonly tiles: readonly TreemapItem[];
+	/** The band of `tiles` the treemap shows (`nav.band`, clamped), with the smaller countries as one "more" tile. */
+	readonly banded: Banded;
 	/** The selected countries (or the largest ten) against the global total. */
 	readonly shares: Shares;
 	/** The industries of the selected countries, by company count; null when no country is selected. */
@@ -77,10 +80,12 @@ export function countriesView(data: CompanyData, gdp: GdpData, nav: SizeNav): Co
 			(missing.length > 0 ? ` No GDP for: ${missing.join(', ')}.` : '')
 		: null;
 
+	const tiles = tilesOf(values, () => COUNTRY_FILL);
 	return {
 		measureLabel: gdpMeasure ? 'GDP' : 'companies',
 		total,
-		tiles: tilesOf(values, () => COUNTRY_FILL),
+		tiles,
+		banded: bandOf(tiles, nav.band, (n) => `${n} smaller countries`),
 		shares: shareOfGlobal(values, selected, total),
 		breakdown,
 		breakdownTotal: data.companies.length,
@@ -93,8 +98,10 @@ export interface IndustriesView {
 	readonly measureLabel: string;
 	/** All companies: the global total the percentages refer to. */
 	readonly total: number;
-	/** Every industry with companies, coloured by its sector. */
+	/** Every industry with companies, coloured by its sector, largest first. */
 	readonly tiles: readonly TreemapItem[];
+	/** The band of `tiles` the treemap shows (`nav.band`, clamped), with the smaller industries as one "more" tile. */
+	readonly banded: Banded;
 	/** The sectors present in `tiles`, with their strong colour and company count: the legend, the block headers and the drill-down links. */
 	readonly legend: readonly { readonly sector: string; readonly fill: string; readonly value: number }[];
 	/** The selected industries (or the largest ten) against the global total. */
@@ -127,6 +134,7 @@ export function industriesView(data: CompanyData, nav: SizeNav): IndustriesView 
 		measureLabel: 'companies',
 		total,
 		tiles,
+		banded: bandOf(tiles, nav.band, (n) => `${n} smaller industries`),
 		legend,
 		shares: shareOfGlobal(values, selected, total),
 		breakdown,

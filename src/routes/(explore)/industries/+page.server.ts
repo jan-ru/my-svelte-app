@@ -1,7 +1,7 @@
 import companies from '#lib/data/companies.json';
 import type { CompanyData } from '#lib/companies';
 import { isrConfig, pageParams } from '#lib/server/access';
-import { parseSizeNav } from '#lib/size/nav';
+import { PUBLIC_SIZE_PARAMS, parseSizeNav } from '#lib/size/nav';
 import { industriesView } from '#lib/size/view';
 import type { PageServerLoad } from './$types';
 
@@ -11,8 +11,9 @@ const data: CompanyData = companies;
 export const config = isrConfig(process.env.ISR_BYPASS_TOKEN);
 
 export const load: PageServerLoad = ({ url, locals, setHeaders }) => {
-	// Anonymous requests get an empty query, so what the cache stores never depends on who asked first.
-	const params = pageParams(locals.interactive, url);
+	// Anonymous requests read only `band` (part of the cache key), so what the cache stores for a URL never depends on
+	// who asked first.
+	const params = pageParams(locals.interactive, url, PUBLIC_SIZE_PARAMS);
 	const nav = parseSizeNav(
 		params,
 		{ countries: data.countries, industries: data.industries, sectors: data.sectors },

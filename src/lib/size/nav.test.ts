@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { ISR_ALLOW_QUERY } from '../server/access';
-import { MAX_SELECTED, SIZE_PARAMS, parseSizeNav, sizeHref, toggle } from './nav';
+import { MAX_BAND, MAX_SELECTED, PUBLIC_SIZE_PARAMS, SIZE_PARAMS, parseSizeNav, sizeHref, toggle } from './nav';
 
 const known = {
 	countries: ['Japan', 'Netherlands', 'Chile'],
@@ -15,7 +15,8 @@ describe('parseSizeNav', () => {
 			measure: 'companies',
 			countries: [],
 			industries: [],
-			sectors: []
+			sectors: [],
+			band: 1
 		});
 	});
 	it('reads repeated parameters, sorted and without duplicates', () => {
@@ -25,7 +26,7 @@ describe('parseSizeNav', () => {
 	});
 	it('drops unknown values and unknown measures', () => {
 		const nav = parseSizeNav(q('country=Atlantis&industry=Nope&sector=x&measure=banana'), known, '/countries');
-		expect(nav).toEqual({ measure: 'companies', countries: [], industries: [], sectors: [] });
+		expect(nav).toEqual({ measure: 'companies', countries: [], industries: [], sectors: [], band: 1 });
 	});
 	it('allows GDP only on the countries page with no industry or sector restriction', () => {
 		expect(parseSizeNav(q('measure=gdp'), known, '/countries').measure).toBe('gdp');
@@ -43,6 +44,13 @@ describe('parseSizeNav', () => {
 		);
 		expect(nav.countries).toHaveLength(MAX_SELECTED);
 	});
+	it('reads a band as a whole number from 1 to MAX_BAND, and anything else as 1', () => {
+		const band = (s: string) => parseSizeNav(q(s), known, '/countries').band;
+		expect(band('band=2')).toBe(2);
+		expect(band(`band=${String(MAX_BAND)}`)).toBe(MAX_BAND);
+		for (const bad of ['', 'band=0', 'band=-1', 'band=1.5', 'band=two', `band=${String(MAX_BAND + 1)}`])
+			expect(band(bad)).toBe(1);
+	});
 });
 
 describe('sizeHref', () => {
@@ -52,16 +60,21 @@ describe('sizeHref', () => {
 		expect(sizeHref('/countries', a)).toBe('/countries?country=Japan&industry=Banks');
 		expect(sizeHref('/countries', a)).toBe(sizeHref('/countries', b));
 	});
+	it('writes a band above 1 and leaves out band 1', () => {
+		const japan = parseSizeNav(q('country=Japan'), known, '/countries');
+		expect(sizeHref('/countries', { ...japan, band: 2 })).toBe('/countries?country=Japan&band=2');
+		expect(sizeHref('/countries', { ...japan, band: 1 })).toBe('/countries?country=Japan');
+	});
 	it('leaves out defaults', () => {
-		expect(sizeHref('/industries', { measure: 'companies', countries: [], industries: [], sectors: [] })).toBe(
+		expect(sizeHref('/industries', { measure: 'companies', countries: [], industries: [], sectors: [], band: 1 })).toBe(
 			'/industries'
 		);
-		expect(sizeHref('/countries', { measure: 'gdp', countries: [], industries: [], sectors: [] })).toBe(
+		expect(sizeHref('/countries', { measure: 'gdp', countries: [], industries: [], sectors: [], band: 1 })).toBe(
 			'/countries?measure=gdp'
 		);
 	});
 	it('round trips', () => {
-		const nav = { measure: 'gdp' as const, countries: ['Japan', 'Netherlands'], industries: [], sectors: [] };
+		const nav = { measure: 'gdp' as const, countries: ['Japan', 'Netherlands'], industries: [], sectors: [], band: 3 };
 		const url = new URL(sizeHref('/countries', nav), 'http://x.test');
 		expect(parseSizeNav(url.searchParams, known, '/countries')).toEqual(nav);
 	});
@@ -77,5 +90,8 @@ describe('toggle', () => {
 describe('query parameters and the ISR cache layer', () => {
 	it('lists every parameter the size pages read in ISR_ALLOW_QUERY (Vercel drops the others)', () => {
 		for (const name of SIZE_PARAMS) expect(ISR_ALLOW_QUERY).toContain(name);
+	});
+	it('makes public only parameters the size pages read', () => {
+		for (const name of PUBLIC_SIZE_PARAMS) expect(SIZE_PARAMS).toContain(name);
 	});
 });

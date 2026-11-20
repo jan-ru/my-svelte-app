@@ -79,6 +79,52 @@ describe('wrap', () => {
 	});
 });
 
+describe('squarify with a pinned item', () => {
+	it('lays the pinned item out last, in the bottom-right corner, with its true area', () => {
+		const big = [...items, { id: 'more', label: 'More', value: 9 }];
+		const rects = squarify(big, 600, 400, 'more');
+		const pinned = rects.at(-1);
+		expect(pinned?.id).toBe('more');
+		expect((pinned?.x ?? 0) + (pinned?.w ?? 0)).toBeCloseTo(600, 6);
+		expect((pinned?.y ?? 0) + (pinned?.h ?? 0)).toBeCloseTo(400, 6);
+		const total = big.reduce((s, i) => s + i.value, 0);
+		expect(area(pinned ?? { w: 0, h: 0 })).toBeCloseTo((600 * 400 * 9) / total, 6);
+	});
+	it('gives the pinned item a strip of its own, so no other tile is squeezed into a sliver beside it', () => {
+		// a band whose remainder is larger than most of its items, as on the GDP page
+		const band = [30, 19, 5, 4, 4, 3, 2.6, 2.6, 2.3, 2.3, 1.9, 1.9, 1.8, 1.8, 1.6, 1.4, 1.3, 1.3, 1.2].map(
+			(value, i) => ({
+				id: `c${String(i)}`,
+				value
+			})
+		);
+		const rects = squarify([...band, { id: 'more', value: 20 }], 720, 420, 'more');
+		const pinned = rects.at(-1);
+		expect(pinned).toMatchObject({ id: 'more', y: 0, h: 420 });
+		for (const r of rects.slice(0, -1)) {
+			expect(Math.max(r.w / r.h, r.h / r.w)).toBeLessThan(6);
+			// nothing sits in the pinned item's column or row: it fills what is left
+			const besideIt = r.x >= (pinned?.x ?? 0) - 1e-6 && r.y >= (pinned?.y ?? 0) - 1e-6;
+			expect(besideIt).toBe(false);
+		}
+	});
+	it('pins a group last in a nested layout', () => {
+		const grouped = [
+			{ id: 'a', value: 5, group: 'X' },
+			{ id: 'm', value: 50, group: 'M' },
+			{ id: 'b', value: 20, group: 'Y' }
+		];
+		expect(nest(grouped, 400, 200, 18, 2, 'M').groups.at(-1)?.id).toBe('M');
+		// a frame taller than wide gets the strip along the bottom
+		expect(squarify(items.concat({ id: 'more', label: 'More', value: 9 }), 200, 400, 'more').at(-1)).toMatchObject({
+			id: 'more',
+			x: 0,
+			w: 200
+		});
+		expect(nest(grouped, 400, 200, 18, 2).groups[0]?.id).toBe('M');
+	});
+});
+
 describe('nest', () => {
 	const items = [
 		{ id: 'a', value: 30, group: 'X' },
