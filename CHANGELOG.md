@@ -4,8 +4,27 @@ Curated highlights per release, not a per-commit list. Each release section beco
 
 ## [Unreleased]
 
-- The Countries and Industries treemaps zoom through the ranking: one band of similar-sized items at a time, the rest as a grey "more" tile that opens the next band, so the small countries and industries become readable. Works for anonymous visitors and without JavaScript (`band` in the URL).
-- Development briefly moved to a private repository that published snapshots here, and came back the same day with its history merged in (ADR-010, ADR-011).
+## [2026.11.20] — 2026-11-20
+
+14 merged PRs here (#140 to #154, without #145), plus #7, #9, #10 and #11 of the archived working copy `jan-ru/my-svelte-app-dev`, whose commits came back with #147. The through-line is **one repository, a readable size page and a tighter toolchain**: a one-day detour through a private working copy, undone with its history kept; treemaps that zoom to the small countries and industries; and the dependency and lint updates that piled up meanwhile.
+
+### Countries and Industries
+
+- The treemaps zoom through the ranking (#154). Values span about five orders of magnitude, so the treemap shows one band of similar-sized items at a time (largest at most 25 times the smallest, 5 to 30 items), with the rest as a grey "more" strip on the right that opens the next band, and ◀ Larger / Smaller ▶ above it. Percentages stay shares of the global total, and the "Show data" table lists every item in every band.
+- The band is in the URL (`band=2`) and is the one parameter anonymous visitors follow, so zooming works without logging in and without JavaScript, each band cached on its own (ADR-003, dated clarification).
+
+### Repository and delivery
+
+- Development moved to a private working copy that published snapshots to this repository (#7, #9, #10, #11, #146, ADR-010) and came back the same day (#147, ADR-011): this repository is again the only one, with the copy's commits merged in and its pull requests archived. Vercel, Dependabot and the API reference run from here again.
+- The API reference is published to Cloudflare Pages at a release tag or by hand (<https://my-svelte-app-docs.pages.dev/>), no longer to GitHub Pages at every merge.
+- CI publishes `metrics.json` for `jan-ru/system-health` on every push to `main` (#152).
+- Docs: the workflows sorted by stage (#142), the strict required check on `main` (#143), and a shorter README with the detail in `docs/` (#144).
+
+### Toolchain and dependencies
+
+- ESLint 10 with typescript-eslint 8.73 and eslint-plugin-svelte 3.24 (#151). Its new `no-unsafe-class-instance-assignment` rule caught a mistyped test table in `yahoo.test.ts`.
+- `max-statements` caps a function at 40 statements (#153); the largest today has 33.
+- `actions/setup-node` 7.1.0 (#150), `@playwright/test` 1.65.1 and `@vercel/speed-insights` 2.1.0 (#149), `yahoo-finance2` 4.0.6 (#148), `hono` and `@hono/node-server` (#140, #141).
 
 ## [2026.11.12] — 2026-11-12
 

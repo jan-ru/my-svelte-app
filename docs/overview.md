@@ -1,6 +1,6 @@
 # my-svelte-app overview
 
-> **Release:** `2026.11.12`, the first, published as a pre-release; this overview describes `main` on 2026-11-12. Each release PR brings it up to date ([RELEASING.md](../RELEASING.md), step 3).
+> **Release:** `2026.11.20`, the second, published as a pre-release; this overview describes `main` on 2026-11-20. Each release PR brings it up to date ([RELEASING.md](../RELEASING.md), step 3).
 
 The same five parts as the `finance-tools` release overview: the design at a glance, design decisions, release history, quality review and roadmap.
 
@@ -133,7 +133,7 @@ The full log is in [docs/adr/](adr/README.md). Grouped by theme:
 
 ## 3. Release history
 
-The first release, `2026.11.12`, is a pre-release that covers everything below; [CHANGELOG.md](../CHANGELOG.md) holds its notes and an empty *Unreleased* section for what comes next. In under three weeks a starter app became a comparison tool with a private valuation page, on a design system:
+The first release, `2026.11.12`, is a pre-release that covers everything up to that date: in under three weeks a starter app became a comparison tool with a private valuation page, on a design system. The second, `2026.11.20`, brings the repository back to one, zoomable size treemaps and a tighter toolchain. [CHANGELOG.md](../CHANGELOG.md) holds the notes of each and an empty *Unreleased* section for what comes next:
 
 | When | Theme |
 |---|---|
@@ -149,6 +149,9 @@ The first release, `2026.11.12`, is a pre-release that covers everything below; 
 | 2026-11-08 | Eulerpool as a third source, with its fair value and quality score and the Supply chain tab |
 | 2026-11-11 | The Horizon design system: tokens, grid, focus and shell, and shared components (Icon, Callout, SegmentedNav, AppHeader, Status, DataTable); the About and Company side menus; the condensed balance sheet; refactors; AGENTS.md |
 | 2026-11-12 | Seven more tables on DataTable and tests without JavaScript; the Yahoo not-found fix; Svelte MCP; the first release |
+| 2026-11-13 | Dependency updates (hono); the workflows by stage; the strict required check; a shorter README |
+| 2026-11-19 | A private working copy that published snapshots here (ADR-010), undone the same day with its history merged back (ADR-011); the API reference to Cloudflare Pages |
+| 2026-11-20 | Treemaps that zoom through the ranking in bands; ESLint 10 and a 40-statement cap; `metrics.json` for system-health; the second release |
 
 ## 4. Quality review
 
@@ -160,8 +163,8 @@ Types, lint, formatting, the TypeScript-only rule, the coverage floor and the de
 |---|---|---|---|
 | Valuation | Multiples against picked peers, listed or private, with Eulerpool's view beside it | DCF valuation as its own page | |
 | Financials | FMP, Yahoo and Eulerpool, one source per view | A side menu that offers only what the chosen source provides (#135); company name and exchange above the ticker box (#134); individual logins in place of the shared password (#133) | |
-| Reference pages | Multiples, Countries, Industries, Companies and Find industry | NACE as an entry point and a diagram of how the standards relate (#132) | |
+| Reference pages | Multiples, Countries, Industries (treemaps that zoom through the ranking), Companies and Find industry | NACE as an entry point and a diagram of how the standards relate (#132) | |
 | Design system | Horizon tokens and grid, and shared components for repeated UI | Menu improvements (#110) and the Horizon follow-ups after the grid (#108) | |
-| Releases | The first release, `2026.11.12`, and this document set | | Build the overview at each tag automatically, as `finance-tools` does |
+| Releases | Two releases, `2026.11.12` and `2026.11.20`, and this document set | | Build the overview at each tag automatically, as `finance-tools` does |
 
 *Later* items are ideas, not commitments.

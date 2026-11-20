@@ -2,10 +2,10 @@
 
 What keeps the code healthy, what CI enforces and what to watch. The block marked *Measured* is a dated snapshot, refreshed in each release PR ([RELEASING.md](../../RELEASING.md), step 2); the rest is hand-written.
 
-> **Generated:** 2026-11-12 · **Cadence:** each release
+> **Generated:** 2026-11-20 · **Cadence:** each release
 > **Tool:** none, manually compiled from the repository and CI configuration
 > **Scope:** `src/`, `scripts/`, CI; not the generated data in `src/lib/data/`
-> **Repo state:** `main` at `4bc7cfa` (#138)
+> **Repo state:** `main` at `358fc2f` (#154)
 
 ## Health at a glance
 
@@ -20,11 +20,13 @@ What keeps the code healthy, what CI enforces and what to watch. The block marke
 | Browser | Every page loads in Chromium without page or CSP errors and with no serious axe violations; login and upload work, also with JavaScript off | 🟢 | `npm run test:e2e` (Playwright) in CI |
 | Public pages | Accessibility, best practices and SEO at least 0.9, performance 0.8 (warning) | 🟡 | Lighthouse CI, a non-required job |
 | Live data | The NYU workbooks still resolve every multiple | 🟡 | `check-data.yml`, monthly, not on PRs |
-| API docs | TypeDoc builds `src/lib` with warnings as errors | 🟢 | `docs.yml`, on PRs and `main` |
+| API docs | TypeDoc builds `src/lib` with warnings as errors | 🟢 | `docs.yml`, on PRs that touch it; deploys at a release tag or by hand |
 
 ## Measured
 
-> **Measured 2026-11-12:** 81 Vitest files with 945 tests, plus 26 Playwright tests; 10.8k lines of source (`.ts` and `.svelte`) and 9.8k lines of tests under `src/`; 9 Accepted ADRs; 6 open issues (#108, #110, #132 to #135). Coverage of `src/lib`: 98.8% statements, 95.2% branches, 97.9% functions, 99.0% lines, above the floor. `npm run lint` reports 0 errors. `npm audit --omit=dev` reports 3 low advisories (`deepmerge` through `@sveltejs/vite-plugin-svelte`, prototype poisoning in `mergeObject()`) and none at high or critical, which is what CI checks. The only fix npm offers is a downgrade of `@sveltejs/kit` to 0.0.30, so it waits for an upstream release.
+> **Measured 2026-11-20:** 83 Vitest files with 992 tests, plus 32 Playwright tests; 11.2k lines of source (`.ts` and `.svelte`) and 10.3k lines of tests under `src/`; 10 Accepted ADRs (ADR-010 superseded by ADR-011); 6 open issues (#108, #110, #132 to #135). Coverage of `src/lib`: 98.8% statements, 95.6% branches, 98.0% functions, 99.0% lines, above the floor. `npm run lint` reports 0 errors, now with ESLint 10 and `max-statements` at 40 (the largest function has 33). `npm audit --omit=dev` reports no advisories; the three low `deepmerge` advisories of 2026-11-12 are gone.
+>
+> The 2026-11-12 snapshot was 81 files with 945 tests, 26 Playwright tests, 10.8k lines of source and 9.8k of tests; counted the same way.
 >
 > The 2026-11-01 snapshot was 62 files with about 560 tests, 8.5k lines of source, 6.5k of tests, and 3 open issues; counted the same way.
 
