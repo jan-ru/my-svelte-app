@@ -42,6 +42,8 @@ export default defineConfig(
 			'@typescript-eslint/restrict-template-expressions': ['error', { allowNumber: true }],
 			// links are built by tested helpers (sizeHref, quoteLink, ...) that return paths with a query string
 			'svelte/no-navigation-without-resolve': 'off',
+			// a function this long usually does several jobs; split it rather than raise the limit (the largest is 33)
+			'max-statements': ['error', 40],
 			// a leading underscore marks a parameter or binding that is unused on purpose
 			'@typescript-eslint/no-unused-vars': [
 				'error',
