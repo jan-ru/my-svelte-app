@@ -16,6 +16,8 @@ Anonymous traffic should cost almost nothing and expose nothing that varies by v
 
 Anonymous visitors get the default view of each public page, cached by Vercel ISR for a day. Their loaders read the query only through `pageParams(locals.interactive, url)`, so what is cached never depends on the first requester. Logging in with the shared password sets a signed cookie plus Vercel's bypass cookie (`ISR_BYPASS_TOKEN`), and the same pages become interactive.
 
+**Clarification, 2026-11-20.** A page may name query parameters that anonymous requests follow too (`pageParams(interactive, url, publicKeys)`). The values of such a parameter are part of the cache key (`ISR_ALLOW_QUERY`), so each URL is cached with the view for that URL, still the same whoever asked first. The size pages' `band`, which zooms the treemap through the ranking, is the only one; filters and selections still need the login.
+
 ## Alternatives ruled out
 
 - **Per-user accounts.** More than a small private tool needs; the shared password cannot tell users apart, which is accepted.

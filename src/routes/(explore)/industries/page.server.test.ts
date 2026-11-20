@@ -5,7 +5,7 @@ import { at } from '#lib/at';
 
 type Data = {
 	nav: { industries: string[]; sectors: string[] };
-	view: { tiles: unknown[]; breakdown: unknown; total: number };
+	view: { tiles: unknown[]; breakdown: unknown; total: number; banded: { band: { index: number } } };
 };
 const run = async (query: string, interactive: boolean) =>
 	(await load({
@@ -15,6 +15,12 @@ const run = async (query: string, interactive: boolean) =>
 	} as unknown as Parameters<typeof load>[0])) as unknown as Data;
 
 describe('industries loader', () => {
+	it('follows the band for anonymous visitors too, and only the band', async () => {
+		const zoomed = await run('?band=2&industry=Steel&country=Japan', false);
+		expect(zoomed).toEqual(await run('?band=2', false));
+		expect(zoomed.nav.industries).toEqual([]);
+		expect(zoomed.view.banded.band.index).toBe(2);
+	});
 	it('gives anonymous visitors the default view, whatever the query says', async () => {
 		const plain = await run('', false);
 		const asked = await run('?industry=Steel&sector=Materials&country=Japan', false);

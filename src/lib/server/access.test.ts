@@ -103,6 +103,14 @@ describe('pageParams', () => {
 	it('hands an empty query to anonymous requests', () => {
 		expect([...pageParams(false, url)]).toEqual([]);
 	});
+	it('hands anonymous requests only the keys a page names as public', () => {
+		const banded = new URL('https://x.test/countries?band=2&country=Japan&band=3');
+		expect([...pageParams(false, banded, ['band'])]).toEqual([
+			['band', '2'],
+			['band', '3']
+		]);
+		expect(pageParams(true, banded, ['band']).get('country')).toBe('Japan');
+	});
 });
 
 describe('cookie constants', () => {

@@ -1,10 +1,12 @@
 <script lang="ts">
 	import DataTable from '#lib/components/DataTable.svelte';
+	import { MORE_ID } from '#lib/size/bands';
 	import { fit, nest, squarify, wrap, type TreemapItem } from '#lib/size/treemap';
 	import { formatPercent, readableOn } from '#lib/size/size';
 
 	let {
 		items,
+		all = items,
 		selected = [],
 		format,
 		tileFormat = format,
@@ -14,6 +16,8 @@
 		total
 	}: {
 		items: TreemapItem[];
+		/** Every item, for the data table, when `items` is one band of them; the "more" tile is never listed. */
+		all?: readonly TreemapItem[];
 		selected?: string[];
 		format: (n: number) => string;
 		/** A shorter form for the text inside tiles; explain it in `note`. */
@@ -36,15 +40,19 @@
 					items.map((i) => ({ id: i.id, value: i.value, group: i.group ?? '' })),
 					W,
 					H,
-					HEADER
+					HEADER,
+					2,
+					MORE_ID
 				)
-			: { groups: [], tiles: squarify(items, W, H) }
+			: { groups: [], tiles: squarify(items, W, H, MORE_ID) }
 	);
 	const rects = $derived(layout.tiles);
 	const groupById = $derived(new Map((groups ?? []).map((g) => [g.id, g])));
-	const groupLabel = (id: string) => groupById.get(items.find((i) => i.id === id)?.group ?? '')?.label;
+	const groupLabel = (id: string) =>
+		id === MORE_ID ? undefined : groupById.get(items.find((i) => i.id === id)?.group ?? '')?.label;
 	const byId = $derived(new Map(items.map((i) => [i.id, i])));
-	const sorted = $derived([...items].filter((i) => i.value > 0).sort((a, b) => b.value - a.value));
+	// the real items, largest first: the "more" tile is not one of them
+	const sorted = $derived([...items].filter((i) => i.value > 0 && i.id !== MORE_ID).sort((a, b) => b.value - a.value));
 	const summary = $derived(
 		sorted.length === 0
 			? `No ${measureLabel} data for this selection.`
@@ -57,8 +65,12 @@
 	);
 	const percent = (value: number) => formatPercent(total > 0 ? (100 * value) / total : 0);
 	// role="img" would hide the links from assistive technology, so linked treemaps are a labelled group instead
-
 	const linked = $derived(items.some((i) => i.href));
+	// tiles that select an item, as opposed to the "more" tile, which only zooms
+	const selectable = $derived(items.some((i) => i.href && i.id !== MORE_ID));
+	const more = $derived(items.find((i) => i.id === MORE_ID));
+	// dim the others only when a selected item is drawn: one in another band would dim the whole band
+	const dim = $derived(items.some((i) => selected.includes(i.id)));
 
 	// the tile under the pointer, in focus or touched: its full name and share are shown under the map
 	let active = $state<string | null>(null);
@@ -66,9 +78,10 @@
 	const readout = $derived(
 		activeItem
 			? `${activeItem.label}${groupLabel(activeItem.id) ? ` (${groupLabel(activeItem.id)})` : ''}: ${format(activeItem.value)} ${activeItem.value === 1 && measureLabel === 'companies' ? 'company' : measureLabel} (${percent(activeItem.value)} of global)`
-			: linked
-				? 'Click a tile to select it, or a selected tile to remove it. Hover or focus a tile for its name and share.'
-				: 'Hover over, focus or tap a tile for its name and share.'
+			: (selectable
+					? 'Click a tile to select it, or a selected tile to remove it. Hover or focus a tile for its name and share.'
+					: 'Hover over, focus or tap a tile for its name and share.') +
+					(more ? ` The grey tile is ${more.label}: click it to see them.` : '')
 	);
 	const LINE = 12;
 	const columns = $derived([
@@ -76,7 +89,10 @@
 		{ label: 'Share of global', numeric: true }
 	]);
 	const rows = $derived(
-		sorted.map((item) => ({ key: item.id, label: item.label, cells: [format(item.value), percent(item.value)] }))
+		all
+			.filter((i) => i.value > 0 && i.id !== MORE_ID)
+			.toSorted((a, b) => b.value - a.value)
+			.map((item) => ({ key: item.id, label: item.label, cells: [format(item.value), percent(item.value)] }))
 	);
 </script>
 
@@ -94,7 +110,7 @@
 			width={r.w}
 			height={r.h}
 			fill={item.fill ?? '#B3D6FF'}
-			fill-opacity={selected.length > 0 && !on ? 0.45 : 1}
+			fill-opacity={dim && !on && r.id !== MORE_ID ? 0.45 : 1}
 			stroke={on ? '#1D2D3E' : '#FFFFFF'}
 			stroke-width={on ? 3 : 2}
 		/>

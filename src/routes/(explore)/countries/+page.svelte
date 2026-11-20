@@ -6,9 +6,11 @@
 	import SelectionBar from '#lib/components/SelectionBar.svelte';
 	import SizeSelector from '#lib/components/SizeSelector.svelte';
 	import Treemap from '#lib/components/Treemap.svelte';
+	import BandNav from '#lib/components/BandNav.svelte';
 	import { macroYearRange } from '#lib/macro';
 	import { plural } from '#lib/plural';
 	import { formatCount, formatPercent, formatUsd, formatUsdCompact, USD_COMPACT_NOTE } from '#lib/size/size';
+	import { MORE_ID } from '#lib/size/bands';
 	import { sizeHref, toggle } from '#lib/size/nav';
 
 	let { data }: PageProps = $props();
@@ -17,12 +19,17 @@
 	const gdp = $derived(view.measureLabel === 'GDP');
 	const measureTitle = $derived(gdp ? 'GDP' : 'number of companies');
 	const format = $derived(gdp ? formatUsd : formatCount);
-	// Tiles link to a narrower view only for logged-in visitors; anonymous pages link to no query variant.
+	const band = $derived(view.banded.band);
+	// the same view zoomed to another band of the ranking: the one link anonymous visitors get too
+	const bandHref = (index: number) => sizeHref('/countries', { ...data.nav, band: index });
+	// Tiles link to a narrower view only for logged-in visitors; the grey "more" tile zooms in for everyone.
 	const tiles = $derived(
-		view.tiles.map((t) =>
-			data.interactive
-				? { ...t, href: sizeHref('/countries', { ...data.nav, countries: toggle(data.nav.countries, t.id) }) }
-				: t
+		view.banded.tiles.map((t) =>
+			t.id === MORE_ID
+				? { ...t, href: bandHref(band.index + 1) }
+				: data.interactive
+					? { ...t, href: sizeHref('/countries', { ...data.nav, countries: toggle(data.nav.countries, t.id) }) }
+					: t
 		)
 	);
 	const chips = $derived([
@@ -30,12 +37,13 @@
 			label: c,
 			href: sizeHref('/countries', { ...data.nav, countries: toggle(data.nav.countries, c) })
 		})),
+		// an industry filter changes the counts and so the bands: back to the largest band
 		...data.nav.industries.map((i) => ({
 			label: i,
-			href: sizeHref('/countries', { ...data.nav, industries: toggle(data.nav.industries, i) })
+			href: sizeHref('/countries', { ...data.nav, industries: toggle(data.nav.industries, i), band: 1 })
 		}))
 	]);
-	const clearHref = $derived(sizeHref('/countries', { ...data.nav, countries: [], industries: [] }));
+	const clearHref = $derived(sizeHref('/countries', { ...data.nav, countries: [], industries: [], band: 1 }));
 	// what the selected countries add up to, so the reader knows what the bars and the industries map below describe
 	const summary = $derived.by(() => {
 		if (data.nav.countries.length === 0 || view.shares.items.length === 0) return null;
@@ -47,7 +55,10 @@
 	const breakdown = $derived(
 		view.breakdown?.map((t) =>
 			data.interactive
-				? { ...t, href: sizeHref('/countries', { ...data.nav, industries: toggle(data.nav.industries, t.id) }) }
+				? {
+						...t,
+						href: sizeHref('/countries', { ...data.nav, industries: toggle(data.nav.industries, t.id), band: 1 })
+					}
 				: t
 		) ?? null
 	);
@@ -93,9 +104,13 @@
 
 	{#if data.interactive}<SelectionBar {chips} {clearHref} />{/if}
 
-	<h2>All countries by {measureTitle}</h2>
+	<h2>
+		{band.count > 1 ? `Countries ranked ${band.first} to ${band.last}` : 'All countries'} by {measureTitle}
+	</h2>
+	<BandNav {band} total={view.tiles.length} noun="countries" href={bandHref} />
 	<Treemap
 		items={tiles}
+		all={view.tiles}
 		selected={data.nav.countries}
 		{format}
 		tileFormat={gdp ? formatUsdCompact : format}
