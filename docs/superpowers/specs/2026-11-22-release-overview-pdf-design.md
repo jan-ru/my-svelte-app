@@ -116,3 +116,11 @@ A failed `build` cannot undo the release, because the release is created first. 
 
 - Mermaid's layout in headless Chromium can differ slightly from GitHub's. That is acceptable, since the PDF is the record of what Chromium drew.
 - The first release has no previous tag: its *Landed* column and PR count cover all history up to it, so they are long. The page caps *Landed* at 8 items per lane, with "+n more" as finance-tools does.
+
+## Refinements during planning
+
+1. `build-overview.ts` takes `--metrics <metrics.json>` (written by `build-metrics.ts`), not `--reports`: `buildMetrics` needs the `GITHUB_*` values the workflow sets.
+2. Without `--release` the script builds a *preview* from `HEAD`: Landed since the newest release tag, quality "not measured". `release-assets.yml` builds it on a PR that touches the PDF's inputs, as an artifact, so a release PR shows its PDF before the tag.
+3. The page footer comes from `page.pdf`'s `footerTemplate`, not CSS `@page`.
+4. A tag cut before this workflow existed (`2026.11.12`, `2026.11.20`) cannot be rebuilt: its checkout has no script and its `overview.md` the old shape. The first PDF comes with the next release.
+5. Modules in `src/lib/overview/` import each other relatively with `.ts`, because Node runs `scripts/build-overview.ts` directly and `#lib/*` resolves without an extension.
