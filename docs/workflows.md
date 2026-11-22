@@ -1,6 +1,6 @@
 # Workflows
 
-What runs automatically, grouped by the stage it belongs to. Each GitHub workflow carries its stage in its name: **CI (merge gate)**, **API docs (deploy)** and **NYU data check (scheduled)**. This page is read from `.github/workflows/`, `.github/dependabot.yml`, `vercel.json` and the repository rulesets; Vercel's dashboard settings are not covered.
+What runs automatically, grouped by the stage it belongs to. Each GitHub workflow carries its stage in its name: **CI (merge gate)**, **API docs (deploy)**, **Release assets (release)** and **NYU data check (scheduled)**. This page is read from `.github/workflows/`, `.github/dependabot.yml`, `vercel.json` and the repository rulesets; Vercel's dashboard settings are not covered.
 
 ## The four stages
 
@@ -13,7 +13,8 @@ What runs automatically, grouped by the stage it belongs to. Each GitHub workflo
 | **Merge gate** (must be green to merge) | `test` | `ci.yml` | PR, and again on push to `main` | **Yes**, the only required check |
 | **Deployment** (publishes something after a merge) | Production deploy of the app | Vercel Git integration; `vercel.json` holds only build commands | Every merge to `main` | n/a |
 | | API reference to Cloudflare Pages | `docs.yml`, `deploy` job | A release tag, or by hand | n/a |
-| | Release: tag and GitHub pre-release | By hand, [RELEASING.md](../RELEASING.md) | You | n/a |
+| | Release: the tag, by hand ([RELEASING.md](../RELEASING.md)); then the pre-release, overview PDF and `metrics.json` | `release-assets.yml` | A release tag, or by hand for a tag (`dry_run` on by default) | n/a |
+| | Overview PDF preview | `release-assets.yml`, `build` job | PR that touches the overview's inputs | No |
 | | `metrics.json` for jan-ru/system-health | `ci.yml`, `metrics` job | Every push to `main`, after `test` and `lighthouse` | n/a |
 | **Scheduled** (runs on a clock, not on a change) | NYU data check | `check-data.yml` | Monthly on the 1st at 06:00 UTC, or by hand | n/a |
 | | Dependency updates (npm and GitHub Actions) | `dependabot.yml` | Weekly, Mondays | n/a |
@@ -53,11 +54,12 @@ flowchart LR
   PR -->|every push| VP[Vercel preview]
   MAIN -->|every merge| VPROD[Vercel production<br/>the app]
   TAG -->|docs.yml| CF[Cloudflare Pages<br/>API reference]
+  TAG -->|release-assets.yml| RA[Release PDF and metrics.json]
 ```
 
 - **The app** is deployed by Vercel, not by a workflow: every merge to `main` goes to production and every PR gets a preview. The Vercel checks appear on a PR, but none of them is required.
 - **The API reference** goes to Cloudflare Pages (<https://my-svelte-app-docs.pages.dev/>) at a release tag, or by hand from `main` or a tag. A pull request that touches `src/lib/**`, `typedoc.json`, `tsconfig.json`, `package.json`, `package-lock.json` or `docs.yml` itself only builds it. Deployments run one at a time and a newer one waits for a running one.
-- **A tag deploys only the API reference.** The app itself is not rebuilt for a release ([RELEASING.md](../RELEASING.md)).
+- **A tag deploys the API reference and builds the release assets.** The app itself is not rebuilt for a release ([RELEASING.md](../RELEASING.md)).
 - **One repository.** For one day (2026-11-19) development ran in a private copy that published snapshots here; that was undone the same day ([ADR-011](adr/0011-one-public-repository.md)).
 
 ## Metrics for system-health

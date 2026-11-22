@@ -1,6 +1,6 @@
 # Releasing
 
-`my-svelte-app` deploys every merge to `main` on Vercel, so a release does not ship code. A release is a **dated, curated record**: a changelog section, a refreshed quality snapshot and an overview that matches the code at that tag. It follows the release process of `finance-tools`, scaled down to one app. Which workflows run before a merge, which deploy and what a tag does not trigger: [docs/workflows.md](docs/workflows.md).
+`my-svelte-app` deploys every merge to `main` on Vercel, so a release does not ship code. A release is a **dated, curated record**: a changelog section, an overview PDF built at the tag (with the quality figures measured there) and `metrics.json`. It follows the release process of `finance-tools`, scaled down to one app. Which workflows run before a merge, which deploy and what a tag does not trigger: [docs/workflows.md](docs/workflows.md).
 
 Versions are **CalVer `YYYY.0M.0D`** (for example `2026.11.08`), the date the release was cut. There is no version to bump in `package.json`; the tag is the version. Cut a release when there is something worth recording, aiming for about once a week. Skipping a week is normal, and an empty release is noise.
 
@@ -8,26 +8,22 @@ Versions are **CalVer `YYYY.0M.0D`** (for example `2026.11.08`), the date the re
 
 ### 1. Curate the changelog
 
-In [CHANGELOG.md](CHANGELOG.md), rename `## [Unreleased]` to `## [YYYY.0M.0D] — YYYY-MM-DD` and add a fresh, empty `## [Unreleased]` above it. The section is curated highlights grouped by area, with PR numbers, not a commit list. Open it with one line: the number of PRs and the through-line of the release.
+In [CHANGELOG.md](CHANGELOG.md), rename `## [Unreleased]` to `## [YYYY.0M.0D] — YYYY-MM-DD` and add a fresh, empty `## [Unreleased]` above it. The section is curated highlights grouped by area, with PR numbers, not a commit list. Open it with one line: the number of PRs and the through-line of the release. That line is also the release's row on the PDF's history page.
 
 ```sh
 prev=$(git describe --tags --abbrev=0)      # the previous release
 git log "$prev"..HEAD --oneline
 ```
 
-### 2. Refresh the quality snapshot
+### 2. Curate the overview
 
-Update the dated block in [docs/quality/README.md](docs/quality/README.md): run `npm run test:coverage`, `npm run lint` and `npm audit --omit=dev`, and copy the figures in, with today's date and the commit.
+Read [docs/overview.md](docs/overview.md) against what changed. It holds only the curated parts of the PDF: §1, the opening paragraph of each page, the history from before the first release and the roadmap's *Later*. When a new ADR is accepted, give it a theme in `ADR_THEMES` (`src/lib/overview/adr.ts`); `npm test` fails until it has one. Give every open issue a `lane:*` label; one without shows under *Unsorted* and the build warns.
 
-### 3. Curate the overview
+### 3. PR it
 
-Read [docs/overview.md](docs/overview.md) against what changed. Add a line to *Release history*, move roadmap items that landed, and add a decision when a new ADR was accepted. If nothing else changed, only the release named at the top moves.
+Commit on a branch named `release/YYYY.0M.0D`, open a PR and merge it once CI is green. The PR runs `release-assets.yml`, which builds a preview of the PDF (quality "not measured") as the `release-assets` artifact: read it before merging. `main` requires a PR and a passing `test` check on a branch that is up to date with `main`.
 
-### 4. PR it
-
-Commit `CHANGELOG.md`, `docs/quality/` and `docs/overview.md` on a branch named `release/YYYY.0M.0D`, open a PR and merge it once CI is green. `main` requires a PR and a passing `test` check on a branch that is up to date with `main`.
-
-### 5. Tag it
+### 4. Tag it
 
 Tag the merge commit on `main` and push the tag. This is the one outward step:
 
@@ -37,15 +33,11 @@ git tag -a YYYY.0M.0D -m "YYYY.0M.0D"
 git push origin YYYY.0M.0D
 ```
 
-Then create the GitHub release from the tag as a **pre-release**, with the changelog section as its notes:
+The tag runs `release-assets.yml`. It creates the GitHub **pre-release** with the changelog section as its notes (`node scripts/release-notes.ts YYYY.0M.0D` prints them), runs the checks and tests at the tag, and attaches `my-svelte-app-overview-YYYY.0M.0D.pdf` and `metrics.json`. If the build fails, the release still stands: fix the cause and run the workflow by hand for the tag with `dry_run` off. It also runs `docs.yml` (step 5).
 
-```sh
-gh release create YYYY.0M.0D --verify-tag --prerelease --title YYYY.0M.0D --notes-file <(awk '/^## \[YYYY.0M.0D\]/{f=1;next} /^## \[/{f=0} f' CHANGELOG.md)
-```
+### 5. The API reference
 
-### 6. The API reference
-
-Pushing the tag from step 5 runs `docs.yml`, which builds the API reference and deploys it to Cloudflare Pages at
+Pushing the tag runs `docs.yml`, which builds the API reference and deploys it to Cloudflare Pages at
 <https://my-svelte-app-docs.pages.dev/>. It needs the repository secrets `CLOUDFLARE_API_TOKEN` and
 `CLOUDFLARE_ACCOUNT_ID`, as in finance-tools.
 
