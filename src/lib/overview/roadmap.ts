@@ -141,7 +141,10 @@ export function roadmapView(input: RoadmapInput): RoadmapView {
 			...input.issues.filter((i) => laneOf(i.labels).lane === UNSORTED).map((i) => `#${i.number} has no lane:* label`),
 			...input.issues
 				.filter((i) => laneOf(i.labels).ambiguous)
-				.map((i) => `#${i.number} has more than one lane:* label; shown under ${laneOf(i.labels).lane}`)
+				.map((i) => `#${i.number} has more than one lane:* label; shown under ${laneOf(i.labels).lane}`),
+			...work
+				.filter((pr) => prLane(pr) === UNSORTED)
+				.map((pr) => `#${pr.number} (PR) has no lane: label it, or the issue it closes, with lane:*`)
 		]
 	};
 }

@@ -29,7 +29,7 @@ const input = (overrides: Partial<OverviewInput> = {}): OverviewInput => ({
 	},
 	health: '| Area | Headline |\n|---|---|\n| Types | Strict |',
 	decisions: decisionsView([adr(1), adr(2), adr(10, 'Superseded'), adr(11)]),
-	history: [{ version: '2026.11.12', date: '2026-11-12', prs: 120, lead: 'The **first** release.' }],
+	history: [{ version: '2026.11.12', date: '2026-11-12', lead: 'The **first** release.' }],
 	quality: qualityView(undefined),
 	roadmap: roadmapView({
 		issues: [{ number: 135, title: 'Side <menu>', labels: ['lane:financials'] }],
@@ -68,9 +68,20 @@ describe('renderOverview', () => {
 		expect(html).toContain('ADR-010 → ADR-011');
 		expect(html).toMatch(/<h2>Data<\/h2>[\s\S]*ADR-001/);
 	});
-	it('lists the early history, then the releases with their PR counts', () => {
+	it('lists the early history, then the releases, with no PR count', () => {
 		expect(html).toContain('Starter app');
-		expect(html).toMatch(/2026\.11\.12[\s\S]*120 PRs[\s\S]*The <strong>first<\/strong> release\./);
+		expect(html).toMatch(/2026\.11\.12[\s\S]*The <strong>first<\/strong> release\./);
+		expect(html).not.toMatch(/\d+ PRs/);
+	});
+	it('shows "—" for an empty Landed or Next cell, and the singular for one dependency update', () => {
+		expect(html).toMatch(/<th>Valuation<\/th><td>—<\/td><td>—<\/td>/);
+		const one = roadmapView({
+			issues: [],
+			prs: [{ number: 9, title: 'bump', labels: ['dependencies'], closes: [] }],
+			later: {}
+		});
+		expect(renderOverview(input({ roadmap: one }))).toContain('1 dependency update.');
+		expect(renderOverview(input({ roadmap: { ...one, dependencyUpdates: 3 } }))).toContain('3 dependency updates.');
 	});
 	it('shows the quality figures, or that they were not measured', () => {
 		expect(html).toContain('not measured');

@@ -71,7 +71,8 @@ describe('roadmapView', () => {
 		expect(view.rows.at(-1)).toMatchObject({ name: 'Unsorted', landed: [{ number: 170 }], next: [{ number: 108 }] });
 		expect(view.warnings).toEqual([
 			'#108 has no lane:* label',
-			'#110 has more than one lane:* label; shown under Design system'
+			'#110 has more than one lane:* label; shown under Design system',
+			'#170 (PR) has no lane: label it, or the issue it closes, with lane:*'
 		]);
 	});
 	it('caps Landed and counts the rest', () => {

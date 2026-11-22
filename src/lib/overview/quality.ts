@@ -28,10 +28,11 @@ export interface QualityView {
 	readonly rows: readonly QualityRow[];
 }
 
-const errors = (label: string, n: number | undefined): QualityRow => ({
+/** A count of errors. With metrics but no count the step failed, and build-metrics left the count out. */
+const errors = (label: string, n: number | undefined, measured: boolean): QualityRow => ({
 	label,
-	value: n === undefined ? NOT_MEASURED : String(n),
-	ok: n === undefined ? undefined : n === 0
+	value: n !== undefined ? String(n) : measured ? 'failed' : NOT_MEASURED,
+	ok: n !== undefined ? n === 0 : measured ? false : undefined
 });
 
 /** The figures of a measured run, or every row "not measured". */
@@ -54,10 +55,10 @@ export function qualityView(metrics: Metrics | undefined): QualityView {
 				value: coverage === undefined ? NOT_MEASURED : `${coverage.toFixed(1)}% (floor ${COVERAGE_FLOOR_LINES}%)`,
 				ok: coverage === undefined ? undefined : coverage >= COVERAGE_FLOOR_LINES
 			},
-			errors('Type errors (svelte-check)', q?.type_errors),
-			errors('Lint errors (ESLint)', q?.lint_errors),
+			errors('Type errors (svelte-check)', q?.type_errors, metrics !== undefined),
+			errors('Lint errors (ESLint)', q?.lint_errors, metrics !== undefined),
 			{
-				label: 'Runtime advisories (npm audit)',
+				label: 'Advisories, all dependencies (npm audit)',
 				value: v ? `${v.critical} critical, ${v.high} high, ${v.medium} moderate, ${v.low} low` : NOT_MEASURED,
 				ok: v ? v.critical + v.high === 0 : undefined
 			}

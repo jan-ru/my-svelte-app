@@ -33,6 +33,7 @@ body { font: 10pt/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; color: #
 .cover h1 { font-size: 26pt; border: 0; }
 h1 { font-size: 15pt; color: #2c5a85; border-bottom: 2px solid #4a7bab; padding-bottom: 2mm; margin: 0 0 1mm; }
 h2 { font-size: 11pt; color: #2c5a85; margin: 4mm 0 1mm; }
+h2, h3 { break-after: avoid; }
 .subtitle { color: #666; font-size: 8.5pt; margin: 0 0 4mm; }
 .intro { background: #f7fafd; border-left: 3px solid #4a7bab; padding: 1mm 3mm; margin-bottom: 3mm; }
 .columns { columns: 2; column-gap: 8mm; }

@@ -33,8 +33,26 @@ describe('qualityView', () => {
 			quality: { tests: { passed: 1, failed: 2, skipped: 0 } },
 			security: undefined
 		});
-		expect(view.rows.map((r) => r.ok)).toEqual([false, undefined, undefined, undefined, undefined]);
+		expect(view.rows.map((r) => r.ok)).toEqual([false, undefined, false, false, undefined]);
 		expect(qualityView(undefined).rows.every((r) => r.value === 'not measured')).toBe(true);
+	});
+	it('says "failed" when metrics exist but a step left its count out, and "not measured" without metrics', () => {
+		const failed = qualityView({ ...METRICS, quality: { coverage_pct: 99 } }).rows;
+		expect(failed.slice(2, 4).map((r) => [r.value, r.ok])).toEqual([
+			['failed', false],
+			['failed', false]
+		]);
+		expect(
+			qualityView(undefined)
+				.rows.slice(2, 4)
+				.map((r) => [r.value, r.ok])
+		).toEqual([
+			['not measured', undefined],
+			['not measured', undefined]
+		]);
+	});
+	it('labels the advisories row as all dependencies', () => {
+		expect(qualityView(METRICS).rows.at(-1)?.label).toBe('Advisories, all dependencies (npm audit)');
 	});
 });
 

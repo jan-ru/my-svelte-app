@@ -58,14 +58,11 @@ export function decisionsPage(intro: string, view: DecisionsView): string {
 export function historyPage(curated: Curated, rows: readonly HistoryRow[]): string {
 	const early = curated.earlyHistory.map((r) => `<tr><td>${esc(r.when)}</td><td>${md(r.theme)}</td></tr>`).join('');
 	const releases = rows
-		.map(
-			(r) =>
-				`<tr><td><b>${esc(r.version)}</b><br>${esc(r.date)}${r.prs === undefined ? '' : `<br>${r.prs} PRs`}</td><td>${md(r.lead)}</td></tr>`
-		)
+		.map((r) => `<tr><td><b>${esc(r.version)}</b><br>${esc(r.date)}</td><td>${md(r.lead)}</td></tr>`)
 		.join('');
 	return page(
 		'Release history',
-		`${rows.length} releases · condensed from CHANGELOG.md, PR counts from git between the tags`,
+		`${rows.length} releases · condensed from CHANGELOG.md`,
 		`<div class="intro">${md(curated.intros.history)}</div><h2>Before the first release</h2><table>${early}</table><h2>Releases</h2><table>${releases}</table>`
 	);
 }
@@ -92,13 +89,17 @@ const items = (list: readonly Item[], more = 0): string =>
 	list.map((i) => `<li>#${i.number} ${esc(i.title)}</li>`).join('') +
 	(more > 0 ? `<li class="more">+${more} more</li>` : '');
 
+const cell = (list: readonly Item[], more = 0): string => (list.length === 0 ? '—' : `<ul>${items(list, more)}</ul>`);
+
 const laneRow = (r: LaneRow): string =>
-	`<tr><th>${esc(r.name)}</th><td><ul>${items(r.landed, r.landedMore)}</ul></td><td><ul>${items(r.next)}</ul></td><td>${r.later ? md(r.later) : '—'}</td></tr>`;
+	`<tr><th>${esc(r.name)}</th><td>${cell(r.landed, r.landedMore)}</td><td>${cell(r.next)}</td><td>${r.later ? md(r.later) : '—'}</td></tr>`;
 
 /** The roadmap page. */
 export function roadmapPage(intro: string, view: RoadmapView, release: string): string {
 	const deps =
-		view.dependencyUpdates > 0 ? `<p class="note">Also landed: ${view.dependencyUpdates} dependency updates.</p>` : '';
+		view.dependencyUpdates > 0
+			? `<p class="note">Also landed: ${view.dependencyUpdates} dependency ${view.dependencyUpdates === 1 ? 'update' : 'updates'}.</p>`
+			: '';
 	return page(
 		'Roadmap',
 		'Landed: PRs merged since the previous release · Next: open issues · Later: curated',
