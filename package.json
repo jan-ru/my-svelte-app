@@ -19,7 +19,8 @@
     "build:gdp": "node scripts/build-gdp.ts",
     "build:tokens": "node scripts/build-tokens.ts",
     "check:ts-only": "node scripts/check-no-js.ts",
-    "docs": "svelte-kit sync && typedoc"
+    "docs": "svelte-kit sync && typedoc",
+    "overview": "node scripts/build-overview.ts"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.14.0",
@@ -34,6 +35,8 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-svelte": "^3.24.1",
     "globals": "^17.14.0",
+    "marked": "^18.2.1",
+    "mermaid": "^12.3.0",
     "prettier": "^3.9.10",
     "prettier-plugin-svelte": "^4.1.1",
     "svelte": "^5.55.7",

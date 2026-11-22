@@ -1,8 +1,6 @@
 # my-svelte-app overview
 
-> **Release:** `2026.11.20`, the second, published as a pre-release; this overview describes `main` on 2026-11-20. Each release PR brings it up to date ([RELEASING.md](../RELEASING.md), step 3).
-
-The same five parts as the `finance-tools` release overview: the design at a glance, design decisions, release history, quality review and roadmap.
+> **The release PDF.** Every release carries `my-svelte-app-overview-<tag>.pdf` among its [assets](https://github.com/jan-ru/my-svelte-app/releases), built at the tag by `release-assets.yml` (`scripts/build-overview.ts`). This file holds its curated parts: §1 whole, an opening paragraph for each other page, the history from before the first release and the roadmap's *Later* column. The rest is generated at the tag: the decisions from `docs/adr/`, the releases from `CHANGELOG.md`, the quality figures from a run of the tests, and the roadmap's *Landed* and *Next* from merged PRs and open issues by their `lane:*` label. Each release PR reads this file against what changed ([RELEASING.md](../RELEASING.md), step 2).
 
 ## 1. The design at a glance
 
@@ -116,24 +114,11 @@ Refuse rather than guess: a source that sends an unexpected shape, or lacks the 
 
 ## 2. Design decisions
 
-The full log is in [docs/adr/](adr/README.md). Grouped by theme:
-
-| Theme | Decision | ADR |
-|---|---|---|
-| Data | Read the NYU workbooks live, cache them in memory, no database | [ADR-001](adr/0001-read-nyu-workbooks-live.md) |
-| Data | Reference data is generated, committed as JSON and typed by hand | [ADR-006](adr/0006-typed-generated-json.md) |
-| Data | A view never mixes data sources | [ADR-005](adr/0005-one-source-per-view.md) |
-| Pages | The URL is the page state | [ADR-002](adr/0002-url-is-the-state.md) |
-| Access | Public pages are a cached static view; the shared password makes them interactive | [ADR-003](adr/0003-public-pages-isr-login-unlocks.md) |
-| Access | Company financials sit behind the login and are never cached publicly | [ADR-004](adr/0004-financials-private.md) |
-| Valuation | Peers picked by hand, a P25–P75 range, private companies from an uploaded template | [ADR-008](adr/0008-valuation-peers-by-hand.md) |
-| Code | TypeScript only, as strict as the tools allow, enforced in CI | [ADR-007](adr/0007-strict-typescript.md) |
-| Code | One Node LTS line, pinned in four places a test keeps together | [ADR-009](adr/0009-node-lts-pin.md) |
-| Delivery | One public repository; a one-day private working copy was merged back with its history | [ADR-011](adr/0011-one-public-repository.md) |
+Four ideas recur: effects at the edge, the URL as the state, cheap in public and private where it costs, and refuse rather than mix. The full log is in [docs/adr/](adr/README.md); the PDF groups the accepted decisions by theme and lists the superseded ones.
 
 ## 3. Release history
 
-The first release, `2026.11.12`, is a pre-release that covers everything up to that date: in under three weeks a starter app became a comparison tool with a private valuation page, on a design system. The second, `2026.11.20`, brings the repository back to one, zoomable size treemaps and a tighter toolchain. [CHANGELOG.md](../CHANGELOG.md) holds the notes of each and an empty *Unreleased* section for what comes next:
+In under three weeks a starter app became a comparison tool with a private valuation page, on a design system; the releases since are weekly at most and curated in [CHANGELOG.md](../CHANGELOG.md). Before the first release, `2026.11.12`, the work went:
 
 | When | Theme |
 |---|---|
@@ -147,24 +132,20 @@ The first release, `2026.11.12`, is a pre-release that covers everything up to t
 | 2026-11-01 | The six-point TypeScript review; lint and Prettier in CI; the second review round; one login page; inflation and real growth on Countries |
 | 2026-11-02 to 04 | The design at a glance as diagrams; one shared source-failure message; Dependabot updates |
 | 2026-11-08 | Eulerpool as a third source, with its fair value and quality score and the Supply chain tab |
-| 2026-11-11 | The Horizon design system: tokens, grid, focus and shell, and shared components (Icon, Callout, SegmentedNav, AppHeader, Status, DataTable); the About and Company side menus; the condensed balance sheet; refactors; AGENTS.md |
-| 2026-11-12 | Seven more tables on DataTable and tests without JavaScript; the Yahoo not-found fix; Svelte MCP; the first release |
-| 2026-11-13 | Dependency updates (hono); the workflows by stage; the strict required check; a shorter README |
-| 2026-11-19 | A private working copy that published snapshots here (ADR-010), undone the same day with its history merged back (ADR-011); the API reference to Cloudflare Pages |
-| 2026-11-20 | Treemaps that zoom through the ranking in bands; ESLint 10 and a 40-statement cap; `metrics.json` for system-health; the second release |
+| 2026-11-11 | The Horizon design system: tokens, grid, focus and shell, and shared components; the About and Company side menus; the condensed balance sheet; refactors; AGENTS.md |
 
 ## 4. Quality review
 
-Types, lint, formatting, the TypeScript-only rule, the coverage floor and the dependency audit all fail CI; Lighthouse and the live NYU check run but do not block a merge. The weakest parts are the external sources: SheetJS outside Dependabot's reach and the unofficial Yahoo package. Details, the six-point review and the watch list are in [docs/quality/](quality/README.md); what runs at each stage, from a branch to a deployment, is in [docs/workflows.md](workflows.md).
+Types, lint, formatting, the TypeScript-only rule, the coverage floor and the dependency audit all fail CI; Lighthouse and the live NYU check run but do not block a merge. The weakest parts are the external sources: SheetJS outside Dependabot's reach and the unofficial Yahoo package. The PDF measures the figures at the tag; the health table, the six-point review and the watch list are in [docs/quality/](quality/README.md), and what runs at each stage in [docs/workflows.md](workflows.md).
 
 ## 5. Roadmap
 
-| Lane | Now | Next | Later |
-|---|---|---|---|
-| Valuation | Multiples against picked peers, listed or private, with Eulerpool's view beside it | DCF valuation as its own page | |
-| Financials | FMP, Yahoo and Eulerpool, one source per view | A side menu that offers only what the chosen source provides (#135); company name and exchange above the ticker box (#134); individual logins in place of the shared password (#133) | |
-| Reference pages | Multiples, Countries, Industries (treemaps that zoom through the ranking), Companies and Find industry | NACE as an entry point and a diagram of how the standards relate (#132) | |
-| Design system | Horizon tokens and grid, and shared components for repeated UI | Menu improvements (#110) and the Horizon follow-ups after the grid (#108) | |
-| Releases | Two releases, `2026.11.12` and `2026.11.20`, and this document set | | Build the overview at each tag automatically, as `finance-tools` does |
+What landed comes from the PRs merged since the previous release, what is next from the open issues, each placed in a lane by its `lane:*` label; an issue without one shows under *Unsorted*. *Later* is curated here, and its items are ideas, not commitments.
 
-*Later* items are ideas, not commitments.
+| Lane | Later |
+|---|---|
+| Valuation | DCF valuation as its own page |
+| Financials | |
+| Reference pages | |
+| Design system | |
+| Releases | |

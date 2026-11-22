@@ -1,0 +1,190 @@
+name: Release assets (deploy)
+
+# Stage: deployment. See docs/workflows.md and RELEASING.md. The same shape as finance-tools' release-assets.yml.
+#
+# Pushing a release tag creates the GitHub pre-release from the tag's CHANGELOG.md section, only when it does not
+# exist yet, so a re-run never rewrites notes someone edited. Then it attaches the overview PDF and metrics.json, both
+# built from a checkout of the tag after a run of the checks and tests there (`--clobber`, so a re-run replaces them).
+# A red check or test does not stop the PDF: it shows on the quality page.
+#
+# A pull request that touches what the PDF is built from builds a preview (no tests, quality "not measured") as a
+# workflow artifact, so a release PR shows its PDF before the tag. A manual run names an existing tag: dry_run true
+# (the default) builds and publishes nothing, false creates what is missing and attaches the assets again. A tag cut
+# before this workflow existed cannot be rebuilt: its checkout has no build-overview.ts.
+#
+# Building and writing are separate jobs: `build` holds a read-only token, `release` and `attach` hold the write token
+# and run no npm code beyond release-notes.ts, which reads CHANGELOG.md.
+on:
+  push:
+    tags:
+      - "20[0-9][0-9].[0-9][0-9].[0-9][0-9]*"
+  pull_request:
+    paths:
+      - CHANGELOG.md
+      - docs/overview.md
+      - docs/adr/**
+      - docs/quality/README.md
+      - src/lib/overview/**
+      - scripts/build-overview.ts
+      - .github/workflows/release-assets.yml
+      - package.json
+      - package-lock.json
+      - scripts/release-notes.ts
+      - src/lib/at.ts
+      - src/lib/metrics.ts
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: An existing release tag (YYYY.0M.0D)
+        required: true
+        type: string
+      dry_run:
+        description: Build only; publish nothing
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-assets-${{ inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.plan.outputs.tag }}
+      publish: ${{ steps.plan.outputs.publish }}
+    steps:
+      - id: plan
+        env:
+          EVENT: ${{ github.event_name }}
+          REF_NAME: ${{ github.ref_name }}
+          INPUT_TAG: ${{ inputs.tag }}
+          INPUT_DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          case "$EVENT" in
+            push) tag="$REF_NAME"; publish=true ;;
+            workflow_dispatch) tag="$INPUT_TAG"; if [ "$INPUT_DRY_RUN" = false ]; then publish=true; else publish=false; fi ;;
+            *) tag=""; publish=false ;;
+          esac
+          if [ -n "$tag" ] && ! [[ "$tag" =~ ^20[0-9]{2}\.[0-9]{2}\.[0-9]{2}(\.[0-9]+)?$ ]]; then
+            echo "::error::$tag is not a release tag (YYYY.0M.0D)"; exit 1
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "publish=$publish" >> "$GITHUB_OUTPUT"
+
+  release:
+    needs: plan
+    if: needs.plan.outputs.publish == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: refs/tags/${{ needs.plan.outputs.tag }}
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+      - name: Create the pre-release from the changelog, unless it exists
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.plan.outputs.tag }}
+        run: |
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            echo "The release $TAG exists: its notes are left as they are"
+            exit 0
+          fi
+          node scripts/release-notes.ts "$TAG" > "$RUNNER_TEMP/notes.md"
+          gh release create "$TAG" --verify-tag --prerelease --title "$TAG" --notes-file "$RUNNER_TEMP/notes.md"
+
+  build:
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      issues: read
+      pull-requests: read
+    env:
+      TAG: ${{ needs.plan.outputs.tag }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.plan.outputs.tag && format('refs/tags/{0}', needs.plan.outputs.tag) || '' }}
+          # every tag and commit: Landed is a git range between tags
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      # Measured at the tag only. Each step may fail: its outcome feeds metrics.json and the quality page.
+      - id: check
+        if: env.TAG != ''
+        continue-on-error: true
+        run: npm run check
+      - id: lint
+        if: env.TAG != ''
+        continue-on-error: true
+        run: npm run lint
+      - id: unit
+        if: env.TAG != ''
+        continue-on-error: true
+        run: npm run test:coverage -- --reporter=default --reporter=json --outputFile.json=reports/test/vitest.json
+      - id: e2e
+        if: env.TAG != ''
+        continue-on-error: true
+        run: npm run build && npm run test:e2e -- --reporter=list,json
+        env:
+          PLAYWRIGHT_JSON_OUTPUT_FILE: reports/test/playwright.json
+      - name: metrics.json
+        if: env.TAG != ''
+        env:
+          CHECK_OUTCOME: ${{ steps.check.outcome }}
+          LINT_OUTCOME: ${{ steps.lint.outcome }}
+          TEST_RESULT: ${{ (steps.check.outcome == 'success' && steps.lint.outcome == 'success' && steps.unit.outcome == 'success' && steps.e2e.outcome == 'success') && 'success' || 'failure' }}
+        run: |
+          mkdir -p reports/test assets
+          cp coverage/coverage-summary.json reports/test/ || true
+          npm audit --package-lock-only --json > reports/npm-audit.json || true
+          GITHUB_SHA="$(git rev-parse HEAD)" GITHUB_REF="refs/tags/$TAG" node scripts/build-metrics.ts reports > assets/metrics.json
+      - name: The overview PDF
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p assets
+          if [ -n "$TAG" ]; then
+            node scripts/build-overview.ts --release "$TAG" --metrics assets/metrics.json --out "assets/my-svelte-app-overview-$TAG.pdf"
+          else
+            node scripts/build-overview.ts --out assets/my-svelte-app-overview-preview.pdf
+          fi
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: release-assets
+          path: assets/
+          retention-days: 14
+          overwrite: true
+          if-no-files-found: error
+
+  attach:
+    needs: [plan, release, build]
+    if: needs.plan.outputs.publish == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: release-assets
+          path: assets
+      - name: Attach the PDF and metrics.json
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.plan.outputs.tag }}
+        run: gh release upload "$TAG" assets/* --clobber --repo "$GITHUB_REPOSITORY"

@@ -1,8 +1,8 @@
 # Quality review
 
-What keeps the code healthy, what CI enforces and what to watch. The block marked *Measured* is a dated snapshot, refreshed in each release PR ([RELEASING.md](../../RELEASING.md), step 2); the rest is hand-written.
+What keeps the code healthy, what CI enforces and what to watch. The block marked *Measured* keeps the hand-taken snapshots up to `2026.11.20`; from the next release on, the figures are measured at each tag and printed on the quality page of the release PDF (`release-assets.yml`); the rest is hand-written.
 
-> **Generated:** 2026-11-20 · **Cadence:** each release
+> **Generated:** 2026-11-20 · **Cadence:** frozen at 2026.11.20; later figures are on the quality page of each release PDF
 > **Tool:** none, manually compiled from the repository and CI configuration
 > **Scope:** `src/`, `scripts/`, CI; not the generated data in `src/lib/data/`
 > **Repo state:** `main` at `358fc2f` (#154)
