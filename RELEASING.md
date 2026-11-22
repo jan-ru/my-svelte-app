@@ -17,7 +17,7 @@ git log "$prev"..HEAD --oneline
 
 ### 2. Curate the overview
 
-Read [docs/overview.md](docs/overview.md) against what changed. It holds only the curated parts of the PDF: §1, the opening paragraph of each page, the history from before the first release and the roadmap's *Later*. When a new ADR is accepted, give it a theme in `ADR_THEMES` (`src/lib/overview/adr.ts`); `npm test` fails until it has one. Give every open issue a `lane:*` label; one without shows under *Unsorted* and the build warns.
+Read [docs/overview.md](docs/overview.md) against what changed. It holds only the curated parts of the PDF: §1, the opening paragraph of each page, the history from before the first release and the roadmap's *Later*. When a new ADR is accepted, give it a theme in `ADR_THEMES` (`src/lib/overview/adr.ts`); `npm test` fails until it has one. Give every open issue and every PR merged since the last tag a `lane:*` label (a PR also takes the lane of a labelled issue it closes); one without shows under *Unsorted* and the build warns.
 
 ### 3. PR it
 
@@ -33,7 +33,7 @@ git tag -a YYYY.0M.0D -m "YYYY.0M.0D"
 git push origin YYYY.0M.0D
 ```
 
-The tag runs `release-assets.yml`. It creates the GitHub **pre-release** with the changelog section as its notes (`node scripts/release-notes.ts YYYY.0M.0D` prints them), runs the checks and tests at the tag, and attaches `my-svelte-app-overview-YYYY.0M.0D.pdf` and `metrics.json`. If the build fails, the release still stands: fix the cause and run the workflow by hand for the tag with `dry_run` off. It also runs `docs.yml` (step 5).
+The tag runs `release-assets.yml`. It creates the GitHub **pre-release** with the changelog section as its notes (`node scripts/release-notes.ts YYYY.0M.0D` prints them), runs the checks and tests at the tag, and attaches `my-svelte-app-overview-YYYY.0M.0D.pdf` and `metrics.json`. A red check or test at the tag does not stop the PDF: it shows on the quality page. If the build fails, the release still stands. A manual re-run with `dry_run` off uses the tag's own scripts and lockfile, so it only helps when the cause is outside the tag (a `gh` outage, a label, the workflow file). A fix to the script, the parsers or a dependency needs a new tag (`YYYY.0M.0D.1`), because a published tag is never moved. The tag also runs `docs.yml` (step 5).
 
 ### 5. The API reference
 

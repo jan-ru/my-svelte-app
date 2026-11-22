@@ -1,4 +1,4 @@
-name: Release assets (release)
+name: Release assets (deploy)
 
 # Stage: deployment. See docs/workflows.md and RELEASING.md. The same shape as finance-tools' release-assets.yml.
 #
@@ -27,6 +27,11 @@ on:
       - src/lib/overview/**
       - scripts/build-overview.ts
       - .github/workflows/release-assets.yml
+      - package.json
+      - package-lock.json
+      - scripts/release-notes.ts
+      - src/lib/at.ts
+      - src/lib/metrics.ts
   workflow_dispatch:
     inputs:
       tag:
@@ -42,7 +47,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: release-assets-${{ inputs.tag || github.ref }}
+  group: release-assets-${{ inputs.tag || github.ref_name }}
   cancel-in-progress: false
 
 jobs:
@@ -80,6 +85,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: refs/tags/${{ needs.plan.outputs.tag }}
+          persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
@@ -109,8 +115,9 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ needs.plan.outputs.tag && format('refs/tags/{0}', needs.plan.outputs.tag) || '' }}
-          # every tag and commit: Landed and the PR counts are git ranges between tags
+          # every tag and commit: Landed is a git range between tags
           fetch-depth: 0
+          persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
@@ -162,6 +169,7 @@ jobs:
           name: release-assets
           path: assets/
           retention-days: 14
+          overwrite: true
           if-no-files-found: error
 
   attach:
