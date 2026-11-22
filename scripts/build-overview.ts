@@ -48,26 +48,44 @@ function prCounts(versions: readonly string[], tags: readonly string[], ref: str
 	);
 }
 
+/** True when gh says the number does not resolve (a PR or issue of another repository, or none); any other failure is real. */
+const notFound = (error: unknown): boolean =>
+	typeof error === 'object' && error !== null && 'stderr' in error && /Could not resolve to/.test(String(error.stderr));
+
 const issue = (n: number): Issue | undefined => {
 	try {
 		return parseIssues([ghJson(['issue', 'view', String(n), '--json', 'number,title,labels'])])[0];
-	} catch {
-		return undefined; // a PR number, or an issue of another repository: no lane from it
+	} catch (error) {
+		if (notFound(error)) return undefined; // no lane from it
+		throw error;
 	}
 };
 
-/** The PRs merged in a range, with the issues each closes; a number gh does not know is skipped. */
-function landed(range: string): readonly PullRequest[] {
-	return prsIn(range).flatMap((n) => {
-		try {
-			const json = ghJson(['pr', 'view', String(n), '--json', 'number,title,labels,closingIssuesReferences']);
-			const closes = closingNumbers(json).flatMap((c) => issue(c) ?? []);
-			return [parsePullRequest(json, closes)];
-		} catch {
-			console.error(`#${n} is not a pull request gh can read: left out of Landed`);
-			return [];
-		}
-	});
+interface Landed {
+	readonly prs: readonly PullRequest[];
+	readonly warnings: readonly string[];
+}
+
+const pullRequest = (n: number): PullRequest | undefined => {
+	try {
+		const json = ghJson(['pr', 'view', String(n), '--json', 'number,title,labels,closingIssuesReferences']);
+		const closes = closingNumbers(json).flatMap((c) => issue(c) ?? []);
+		return parsePullRequest(json, closes);
+	} catch (error) {
+		if (notFound(error)) return undefined;
+		throw error;
+	}
+};
+
+/** The PRs merged in a range, with the issues each closes; a number that is not a pull request here is skipped with a warning. */
+function landed(range: string): Landed {
+	const found = prsIn(range).map((n) => ({ n, pr: pullRequest(n) }));
+	return {
+		prs: found.flatMap(({ pr }) => pr ?? []),
+		warnings: found
+			.filter(({ pr }) => pr === undefined)
+			.map(({ n }) => `#${n} is not a pull request here: left out of Landed`)
+	};
 }
 
 function readMetrics(file: string | undefined): ReturnType<typeof qualityView> {
@@ -91,11 +109,13 @@ function gather(release: string | undefined, metrics: string | undefined): Overv
 		ghJson(['issue', 'list', '--state', 'open', '--limit', '500', '--json', 'number,title,labels'])
 	);
 	const name = release ?? 'preview';
+	const { prs, warnings } = landed(previous ? `${previous}..${ref}` : ref);
+	const roadmap = roadmapView({ issues, prs, later: curated.later });
 	return {
 		release: name,
 		preview: release === undefined,
 		date: release ? run('git', ['log', '-1', '--format=%cs', release]) : new Date().toISOString().slice(0, 10),
-		commit: run('git', ['rev-parse', '--short', ref]),
+		commit: run('git', ['rev-parse', '--short', `${ref}^{commit}`]),
 		fileName: `my-svelte-app-overview-${name}.pdf`,
 		curated,
 		health: sectionBody(read('docs/quality/README.md'), 'Health at a glance', 'docs/quality/README.md'),
@@ -109,7 +129,7 @@ function gather(release: string | undefined, metrics: string | undefined): Overv
 			)
 		),
 		quality: readMetrics(metrics),
-		roadmap: roadmapView({ issues, prs: landed(previous ? `${previous}..${ref}` : ref), later: curated.later })
+		roadmap: { ...roadmap, warnings: [...roadmap.warnings, ...warnings] }
 	};
 }
 
