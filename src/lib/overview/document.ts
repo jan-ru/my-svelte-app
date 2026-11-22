@@ -37,8 +37,8 @@ h2 { font-size: 11pt; color: #2c5a85; margin: 4mm 0 1mm; }
 .intro { background: #f7fafd; border-left: 3px solid #4a7bab; padding: 1mm 3mm; margin-bottom: 3mm; }
 .columns { columns: 2; column-gap: 8mm; }
 .group { break-inside: avoid; }
-dl { display: grid; grid-template-columns: 16mm 1fr; gap: 1mm 2mm; margin: 0; }
-dt { font-weight: 600; color: #2c5a85; }
+dl { display: grid; grid-template-columns: 20mm 1fr; gap: 1mm 2mm; margin: 0; }
+dt { font-weight: 600; color: #2c5a85; white-space: nowrap; }
 dd { margin: 0; }
 table { border-collapse: collapse; width: 100%; font-size: 9pt; }
 th, td { border-bottom: 1px solid #ddd; padding: 1.2mm 2mm; text-align: left; vertical-align: top; }
@@ -49,7 +49,7 @@ td p { margin: 0; }
 .roadmap td, .roadmap th { width: 25%; }
 ul { margin: 0; padding-left: 4mm; }
 .more, .note { color: #666; }
-pre.mermaid { text-align: center; background: none; }
+pre.mermaid { text-align: center; background: none; break-inside: avoid; }
 .contents li { margin: 1mm 0; }
 `;
 
