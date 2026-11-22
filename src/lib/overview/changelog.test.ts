@@ -51,13 +51,12 @@ describe('prNumbers', () => {
 });
 
 describe('historyRows', () => {
-	it('lists the releases oldest first with their PR counts', () => {
-		expect(historyRows(parseChangelog(CHANGELOG), { '2026.11.20': 14 })).toEqual([
-			{ version: '2026.11.12', date: '2026-11-12', prs: undefined, lead: 'The first release.' },
+	it('lists the releases oldest first with the lead of each', () => {
+		expect(historyRows(parseChangelog(CHANGELOG))).toEqual([
+			{ version: '2026.11.12', date: '2026-11-12', lead: 'The first release.' },
 			{
 				version: '2026.11.20',
 				date: '2026-11-20',
-				prs: 14,
 				lead: '14 merged PRs. The through-line is **one repository**.'
 			}
 		]);

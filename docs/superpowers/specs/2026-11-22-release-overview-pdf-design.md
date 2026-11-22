@@ -110,7 +110,7 @@ A failed `build` cannot undo the release, because the release is created first. 
 
 - Unit tests for every function in `src/lib/overview/`, on small fixtures. There is also one test each over the real `docs/adr/`, `CHANGELOG.md` and `docs/overview.md`, so a future edit that breaks parsing fails `npm test`. Two of those tests check rules directly: every accepted ADR has an entry in `ADR_THEMES`, and every released changelog section has notes.
 - `renderOverview` is tested on its HTML: the sections are present, the counts are right, and curated Markdown is escaped where it should be.
-- The PDF itself is checked by hand once: a local `npm run overview` for `2026.11.20`, and a `workflow_dispatch` dry run on `2026.11.20` after the PR merges. CI does not compare PDFs byte for byte.
+- The PDF itself is checked by hand once: a local `npm run overview` preview. The first real check of the workflow is this PR's preview run of `release-assets.yml`, and the next release (Refinement 4: `2026.11.20` cannot be rebuilt, so no dry run on it). CI does not compare PDFs byte for byte.
 
 ## Open risks
 
@@ -124,3 +124,4 @@ A failed `build` cannot undo the release, because the release is created first. 
 3. The page footer comes from `page.pdf`'s `footerTemplate`, not CSS `@page`.
 4. A tag cut before this workflow existed (`2026.11.12`, `2026.11.20`) cannot be rebuilt: its checkout has no script and its `overview.md` the old shape. The first PDF comes with the next release.
 5. Modules in `src/lib/overview/` import each other relatively with `.ts`, because Node runs `scripts/build-overview.ts` directly and `#lib/*` resolves without an extension.
+6. The history page shows no PR count: the count could not be made right for the two releases before this workflow (merge commits before #32, PR numbers of the archived working copy in the range), and each changelog lead already states it (RELEASING step 1).

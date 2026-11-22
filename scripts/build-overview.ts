@@ -36,18 +36,6 @@ const releaseTags = (ref: string): readonly string[] =>
 /** The merged PR numbers in a git range (`a..b`, or one ref for all history up to it). */
 const prsIn = (range: string): readonly number[] => prNumbers(lines(run('git', ['log', '--format=%s', range])));
 
-/** PR counts per released version: from the previous tag to this one (or to ref for an untagged version). */
-function prCounts(versions: readonly string[], tags: readonly string[], ref: string): Readonly<Record<string, number>> {
-	const ordered = [...versions].reverse();
-	return Object.fromEntries(
-		ordered.map((version, i) => {
-			const end = tags.includes(version) ? version : ref;
-			const previous = i > 0 ? ordered[i - 1] : undefined;
-			return [version, prsIn(previous ? `${previous}..${end}` : end).length];
-		})
-	);
-}
-
 /** True when gh says the number does not resolve (a PR or issue of another repository, or none); any other failure is real. */
 const notFound = (error: unknown): boolean =>
 	typeof error === 'object' && error !== null && 'stderr' in error && /Could not resolve to/.test(String(error.stderr));
@@ -120,14 +108,7 @@ function gather(release: string | undefined, metrics: string | undefined): Overv
 		curated,
 		health: sectionBody(read('docs/quality/README.md'), 'Health at a glance', 'docs/quality/README.md'),
 		decisions: decisionsView(adrs),
-		history: historyRows(
-			sections,
-			prCounts(
-				sections.map((s) => s.version),
-				tags,
-				ref
-			)
-		),
+		history: historyRows(sections),
 		quality: readMetrics(metrics),
 		roadmap: { ...roadmap, warnings: [...roadmap.warnings, ...warnings] }
 	};

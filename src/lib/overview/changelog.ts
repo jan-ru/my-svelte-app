@@ -46,17 +46,10 @@ export function prNumbers(subjects: readonly string[]): readonly number[] {
 export interface HistoryRow {
 	readonly version: string;
 	readonly date: string;
-	/** Merged PRs between the previous release and this one, from git; undefined when not counted. */
-	readonly prs: number | undefined;
 	readonly lead: string;
 }
 
 /** The release history, oldest first. */
-export function historyRows(
-	sections: readonly ReleaseSection[],
-	prCounts: Readonly<Record<string, number>>
-): readonly HistoryRow[] {
-	return [...sections]
-		.reverse()
-		.map((s) => ({ version: s.version, date: s.date, prs: prCounts[s.version], lead: s.lead }));
+export function historyRows(sections: readonly ReleaseSection[]): readonly HistoryRow[] {
+	return [...sections].reverse().map((s) => ({ version: s.version, date: s.date, lead: s.lead }));
 }
