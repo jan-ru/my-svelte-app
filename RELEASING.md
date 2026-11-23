@@ -43,7 +43,7 @@ A manual run of `release-assets.yml` with `dry_run` off releases the tag again (
 
 ### 5. Rolling back
 
-Run `deploy.yml` by hand (Actions → App production deploy → Run workflow) and name the earlier release's tag. It refuses a tag that has no full release. `docs.yml` takes a tag the same way for the API reference.
+Run `deploy.yml` by hand (Actions → App production deploy → Run workflow) and name the earlier release's tag. It refuses a tag that has no full release. `docs.yml` takes a tag the same way for the API reference. The releases up to 2026.11.20 are pre-releases, so they cannot be rolled back to this way.
 
 ### 6. The API reference
 
