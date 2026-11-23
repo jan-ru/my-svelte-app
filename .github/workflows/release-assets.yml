@@ -156,7 +156,7 @@ jobs:
     name: release (jan-ru/.github ADR-0001)
     needs: [plan, build]
     if: needs.plan.outputs.publish == 'true'
-    uses: jan-ru/.github/.github/workflows/release.yml@ecd99374eed7aea24977d4bfa6b148d9ecff86f2
+    uses: jan-ru/.github/.github/workflows/release.yml@ecd99374eed7aea24977d4bfa6b148d9ecff86f2 # 2026.11.22
     with:
       tag: ${{ needs.plan.outputs.tag }}
       changelog: CHANGELOG.md
