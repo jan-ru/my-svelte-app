@@ -121,6 +121,17 @@ jobs:
         run: npm run build && npm run test:e2e -- --reporter=list,json
         env:
           PLAYWRIGHT_JSON_OUTPUT_FILE: reports/test/playwright.json
+      # Lighthouse at the tag, over the build the e2e step made, with the same pinned lhci and lighthouserc.json as
+      # ci.yml. `collect`, not `autorun`: the score floors are feedback on pull requests, not a gate on the release. A
+      # failure leaves performance.lighthouse out of metrics.json (not measured). .lighthouseci is hidden, so the
+      # results are copied to where build-metrics.ts reads them.
+      - id: lighthouse
+        if: env.TAG != ''
+        continue-on-error: true
+        run: |
+          npx --yes @lhci/cli@0.15.1 collect
+          mkdir -p reports/lighthouse
+          cp .lighthouseci/lhr-*.json reports/lighthouse/
       - name: metrics.json
         if: env.TAG != ''
         env:
