@@ -1,6 +1,6 @@
 # A release overview PDF at each tag
 
-**Date:** 2026-11-22 · **Status:** design approved in chat, spec under review
+**Date:** 2026-11-22 · **Status:** implemented in #156
 
 ## Goal
 
