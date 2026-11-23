@@ -64,7 +64,7 @@ flowchart LR
 
 ## Metrics for system-health
 
-jan-ru/system-health collects one `metrics.json` per repository (its ADR-0002: it pulls the file, nothing here pushes). On every push to `main`, the `metrics` job in `ci.yml` runs after `test` and `lighthouse`, whatever their result. `scripts/build-metrics.ts` builds the file from the reports those jobs kept, using `src/lib/metrics.ts`, and the job uploads it as the artifact `metrics` for 90 days. The format is system-health's `schema/metrics.v1.schema.json`. A field that was not measured is left out, never written as 0:
+jan-ru/system-health collects one `metrics.json` per repository (its ADR-0002: it pulls the file, nothing here pushes). Since 2026.11.23 it reads the file attached to each release (system-health #16), which `release-assets.yml` builds at the tag with the same script. On every push to `main`, the `metrics` job in `ci.yml` runs after `test` and `lighthouse`, whatever their result. `scripts/build-metrics.ts` builds the file from the reports those jobs kept, using `src/lib/metrics.ts`, and the job uploads it as the artifact `metrics` for 90 days. The format is system-health's `schema/metrics.v1.schema.json`. A field that was not measured is left out, never written as 0:
 
 | Field | From |
 |---|---|
@@ -72,7 +72,7 @@ jan-ru/system-health collects one `metrics.json` per repository (its ADR-0002: i
 | `quality.tests` | Vitest plus Playwright; a test that passed on retry counts as passed |
 | `quality.type_errors`, `quality.lint_errors` | `0` when `npm run check` or `npm run lint` passed (both fail on any error); left out when they failed |
 | `security.vulnerabilities` | `npm audit --package-lock-only` over every dependency, the same scope cap-tools reports, so the counts compare. The `test` gate itself audits runtime dependencies only |
-| `performance.lighthouse` | The Lighthouse scores of the home page `/` from the `lighthouse` job |
+| `performance.lighthouse` | The Lighthouse scores of the home page `/`: from the `lighthouse` job on `main`, and from `lhci collect` over the tag's build in `release-assets.yml` for a release. Left out when Lighthouse failed |
 | `gates` | `test`, the one required check |
 
 The steps that keep reports and the `metrics` job run only in `jan-ru/my-svelte-app`, not in forks.
