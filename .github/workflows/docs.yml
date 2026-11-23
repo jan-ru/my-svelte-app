@@ -7,11 +7,13 @@ name: API docs (deploy)
 # only build it, so a doc warning shows up before merge. This is separate from the app's own deployment, which is
 # Vercel (see vercel.json).
 on:
-  push:
-    # A CalVer release tag (RELEASING.md). No `paths:` here: GitHub does not evaluate path filters on a tag push, and a
-    # release is exactly when the whole reference should be current.
-    tags:
-      - "20[0-9][0-9].[0-9][0-9].[0-9][0-9]*"
+  # A release: release-assets.yml calls this after its `release` job (jan-ru/.github ADR-0001), for the released tag.
+  workflow_call:
+    inputs:
+      ref:
+        description: The tag to publish the reference of
+        type: string
+        required: true
   pull_request:
     paths: [src/lib/**, typedoc.json, tsconfig.json, package.json, package-lock.json, .github/workflows/docs.yml]
   # Publishing by hand between releases: Actions -> Run workflow. "Use workflow from" picks what is published: `main`
@@ -29,8 +31,15 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      sha: ${{ steps.sha.outputs.sha }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.ref && format('refs/tags/{0}', inputs.ref) || '' }}
+          persist-credentials: false
+      - id: sha
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
@@ -63,4 +72,4 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy site --project-name=my-svelte-app-docs --branch=main --commit-hash=${{ github.sha }}
+          command: pages deploy site --project-name=my-svelte-app-docs --branch=main --commit-hash=${{ needs.build.outputs.sha }}

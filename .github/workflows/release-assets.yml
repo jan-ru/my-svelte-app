@@ -1,23 +1,27 @@
 name: Release assets (deploy)
 
-# Stage: deployment. See docs/workflows.md and RELEASING.md. The same shape as finance-tools' release-assets.yml.
+# Stage: deployment. See docs/workflows.md and RELEASING.md. The release standard of every jan-ru repository with
+# production software is jan-ru/.github ADR-0001: a release tag is the only way to production.
 #
-# Pushing a release tag creates the GitHub pre-release from the tag's CHANGELOG.md section, only when it does not
-# exist yet, so a re-run never rewrites notes someone edited. Then it attaches the overview PDF and metrics.json, both
-# built from a checkout of the tag after a run of the checks and tests there (`--clobber`, so a re-run replaces them).
-# A red check or test does not stop the PDF: it shows on the quality page.
+# Pushing a release tag builds the overview PDF and metrics.json from a checkout of the tag, after a run of the checks
+# and tests there. A red check or test does not stop the PDF: it shows on the quality page and in metrics.json. Then
+# `release` hands both to the shared release workflow, which guards the tag (on main, the merge of a PR that passed
+# `test`), creates the full release from the tag's CHANGELOG.md section only when it does not exist yet, and attaches
+# the assets (`--clobber`, so a re-run replaces them). Only after the release do `deploy` (the app, to Vercel
+# production) and `api-docs` (the API reference, to Cloudflare Pages) run.
 #
 # A pull request that touches what the PDF is built from builds a preview (no tests, quality "not measured") as a
 # workflow artifact, so a release PR shows its PDF before the tag. A manual run names an existing tag: dry_run true
-# (the default) builds and publishes nothing, false creates what is missing and attaches the assets again. A tag cut
-# before this workflow existed cannot be rebuilt: its checkout has no build-overview.ts.
+# (the default) builds and publishes nothing, false releases what is missing, attaches the assets again and deploys
+# that tag, which is also how to roll back. A tag cut before this workflow existed cannot be rebuilt: its checkout
+# has no build-overview.ts.
 #
-# Building and writing are separate jobs: `build` holds a read-only token, `release` and `attach` hold the write token
-# and run no npm code beyond release-notes.ts, which reads CHANGELOG.md.
+# Building and writing are separate jobs: `build` holds a read-only token; `release` is the shared workflow, pinned by
+# SHA, and runs no code of this repository.
 on:
   push:
     tags:
-      - "20[0-9][0-9].[0-9][0-9].[0-9][0-9]*"
+      - "20[0-9][0-9].[0-9][0-9].[0-9][0-9]"
   pull_request:
     paths:
       - CHANGELOG.md
@@ -69,37 +73,11 @@ jobs:
             workflow_dispatch) tag="$INPUT_TAG"; if [ "$INPUT_DRY_RUN" = false ]; then publish=true; else publish=false; fi ;;
             *) tag=""; publish=false ;;
           esac
-          if [ -n "$tag" ] && ! [[ "$tag" =~ ^20[0-9]{2}\.[0-9]{2}\.[0-9]{2}(\.[0-9]+)?$ ]]; then
+          if [ -n "$tag" ] && ! [[ "$tag" =~ ^20[0-9]{2}\.[0-9]{2}\.[0-9]{2}$ ]]; then
             echo "::error::$tag is not a release tag (YYYY.0M.0D)"; exit 1
           fi
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
           echo "publish=$publish" >> "$GITHUB_OUTPUT"
-
-  release:
-    needs: plan
-    if: needs.plan.outputs.publish == 'true'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          ref: refs/tags/${{ needs.plan.outputs.tag }}
-          persist-credentials: false
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version: 24
-      - name: Create the pre-release from the changelog, unless it exists
-        env:
-          GH_TOKEN: ${{ github.token }}
-          TAG: ${{ needs.plan.outputs.tag }}
-        run: |
-          if gh release view "$TAG" > /dev/null 2>&1; then
-            echo "The release $TAG exists: its notes are left as they are"
-            exit 0
-          fi
-          node scripts/release-notes.ts "$TAG" > "$RUNNER_TEMP/notes.md"
-          gh release create "$TAG" --verify-tag --prerelease --title "$TAG" --notes-file "$RUNNER_TEMP/notes.md"
 
   build:
     needs: plan
@@ -172,19 +150,58 @@ jobs:
           overwrite: true
           if-no-files-found: error
 
-  attach:
-    needs: [plan, release, build]
+  # The guard, the notes from CHANGELOG.md, the metrics.json check and the full release are the shared workflow's
+  # (ADR-0001). It downloads this run's `release-assets` artifact and attaches all of it.
+  release:
+    name: release (jan-ru/.github ADR-0001)
+    needs: [plan, build]
     if: needs.plan.outputs.publish == 'true'
-    runs-on: ubuntu-latest
+    uses: jan-ru/.github/.github/workflows/release.yml@ecd99374eed7aea24977d4bfa6b148d9ecff86f2
+    with:
+      tag: ${{ needs.plan.outputs.tag }}
+      changelog: CHANGELOG.md
+      latest: true
+      assets-artifact: release-assets
     permissions:
       contents: write
+      pull-requests: read
+      checks: read
+      statuses: read
+
+  # Production deploys only from a release (ADR-0001 part 7); vercel.json turns off Vercel's own deploys of `main`.
+  # Vercel builds the uploaded tag with its production environment variables, so no app secret reaches this runner.
+  # A rollback is Vercel's Instant Rollback to an earlier release's deployment, or a manual run for that tag.
+  deploy:
+    name: deploy (Vercel production)
+    needs: [plan, release]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    concurrency:
+      group: vercel-production
+      cancel-in-progress: false
+    env:
+      TAG: ${{ needs.plan.outputs.tag }}
+      VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
     steps:
-      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          name: release-assets
-          path: assets
-      - name: Attach the PDF and metrics.json
+          ref: refs/tags/${{ needs.plan.outputs.tag }}
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+      - name: Deploy the tag to production
         env:
-          GH_TOKEN: ${{ github.token }}
-          TAG: ${{ needs.plan.outputs.tag }}
-        run: gh release upload "$TAG" assets/* --clobber --repo "$GITHUB_REPOSITORY"
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          npx --yes vercel@66.6.0 deploy --prod --yes --token="$VERCEL_TOKEN" \
+            --meta githubCommitSha="$(git rev-parse HEAD)" --meta githubCommitRef="$TAG"
+
+  # The API reference, from the release as well.
+  api-docs:
+    needs: [plan, release]
+    uses: ./.github/workflows/docs.yml
+    with:
+      ref: ${{ needs.plan.outputs.tag }}
+    secrets: inherit

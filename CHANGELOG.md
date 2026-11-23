@@ -4,6 +4,10 @@ Curated highlights per release, not a per-commit list. Each release section beco
 
 ## [Unreleased]
 
+### Releases
+
+- A release tag now deploys production: `release-assets.yml` builds the PDF and `metrics.json` at the tag, calls jan-ru/.github's shared release workflow for a full release, then deploys the app to Vercel and the API reference to Cloudflare Pages. Vercel no longer deploys every merge to `main`.
+
 ## [2026.11.20] — 2026-11-20
 
 14 merged PRs here (#140 to #154, without #145), plus #7, #9, #10 and #11 of the archived working copy `jan-ru/my-svelte-app-dev`, whose commits came back with #147. The through-line is **one repository, a readable size page and a tighter toolchain**: a one-day detour through a private working copy, undone with its history kept; treemaps that zoom to the small countries and industries; and the dependency and lint updates that piled up meanwhile.

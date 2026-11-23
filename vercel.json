@@ -2,5 +2,10 @@
 	"buildCommand": "npm run build",
 	"devCommand": "npm run dev",
 	"installCommand": "npm ci",
-	"framework": "sveltekit"
+	"framework": "sveltekit",
+	"git": {
+		"deploymentEnabled": {
+			"main": false
+		}
+	}
 }
