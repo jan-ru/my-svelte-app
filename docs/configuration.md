@@ -28,4 +28,4 @@ Pages are served with a Content-Security-Policy (script hashes, no framing, same
 
 ## Deployment
 
-The app builds with `adapter-vercel`, configured in `vite.config.ts` (SvelteKit 3 no longer reads `svelte.config.js`). Vercel uses the Node version from `engines` in `package.json` and the settings in `vercel.json`. Every merge to `main` deploys to production and every pull request gets a preview; [workflows.md](workflows.md) covers CI and the other automation. Dependabot keeps dependencies up to date.
+The app builds with `adapter-vercel`, configured in `vite.config.ts` (SvelteKit 3 no longer reads `svelte.config.js`). Vercel uses the Node version from `engines` in `package.json` and the settings in `vercel.json`. Production is deployed from a release only, by `deploy.yml` (`git.deploymentEnabled` turns off Vercel's own deploys of `main`), and every pull request still gets a preview; [workflows.md](workflows.md) covers CI and the other automation. Dependabot keeps dependencies up to date.

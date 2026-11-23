@@ -1,23 +1,24 @@
 name: Release assets (deploy)
 
-# Stage: deployment. See docs/workflows.md and RELEASING.md. The same shape as finance-tools' release-assets.yml.
+# Stage: deployment. See docs/workflows.md and RELEASING.md.
 #
-# Pushing a release tag creates the GitHub pre-release from the tag's CHANGELOG.md section, only when it does not
-# exist yet, so a re-run never rewrites notes someone edited. Then it attaches the overview PDF and metrics.json, both
-# built from a checkout of the tag after a run of the checks and tests there (`--clobber`, so a re-run replaces them).
-# A red check or test does not stop the PDF: it shows on the quality page.
+# Pushing a release tag builds the overview PDF and metrics.json from a checkout of the tag, after a run of the checks
+# and tests there. A red check or test does not stop the PDF: it shows on the quality page. Then the shared release
+# workflow (jan-ru/.github ADR-0001) guards the tag, creates the full release from the tag's CHANGELOG.md section and
+# attaches both files. Only after the release exists does production follow: the app (deploy.yml) and the API
+# reference (docs.yml), both from the tag.
 #
 # A pull request that touches what the PDF is built from builds a preview (no tests, quality "not measured") as a
 # workflow artifact, so a release PR shows its PDF before the tag. A manual run names an existing tag: dry_run true
-# (the default) builds and publishes nothing, false creates what is missing and attaches the assets again. A tag cut
-# before this workflow existed cannot be rebuilt: its checkout has no build-overview.ts.
+# (the default) builds and publishes nothing; false runs the release again (an existing release keeps its notes, the
+# assets are uploaded again) and deploys it. To deploy an earlier release again without rebuilding, run deploy.yml.
 #
-# Building and writing are separate jobs: `build` holds a read-only token, `release` and `attach` hold the write token
-# and run no npm code beyond release-notes.ts, which reads CHANGELOG.md.
+# Building and writing are separate jobs: `build` holds a read-only token; the shared `release` job holds the write
+# token and runs no code of this repository.
 on:
   push:
     tags:
-      - "20[0-9][0-9].[0-9][0-9].[0-9][0-9]*"
+      - "20[0-9][0-9].[0-9][0-9].[0-9][0-9]"
   pull_request:
     paths:
       - CHANGELOG.md
@@ -29,7 +30,6 @@ on:
       - .github/workflows/release-assets.yml
       - package.json
       - package-lock.json
-      - scripts/release-notes.ts
       - src/lib/at.ts
       - src/lib/metrics.ts
   workflow_dispatch:
@@ -69,37 +69,11 @@ jobs:
             workflow_dispatch) tag="$INPUT_TAG"; if [ "$INPUT_DRY_RUN" = false ]; then publish=true; else publish=false; fi ;;
             *) tag=""; publish=false ;;
           esac
-          if [ -n "$tag" ] && ! [[ "$tag" =~ ^20[0-9]{2}\.[0-9]{2}\.[0-9]{2}(\.[0-9]+)?$ ]]; then
+          if [ -n "$tag" ] && ! [[ "$tag" =~ ^20[0-9]{2}\.(0[1-9]|1[0-2])\.(0[1-9]|[12][0-9]|3[01])$ ]]; then
             echo "::error::$tag is not a release tag (YYYY.0M.0D)"; exit 1
           fi
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
           echo "publish=$publish" >> "$GITHUB_OUTPUT"
-
-  release:
-    needs: plan
-    if: needs.plan.outputs.publish == 'true'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          ref: refs/tags/${{ needs.plan.outputs.tag }}
-          persist-credentials: false
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version: 24
-      - name: Create the pre-release from the changelog, unless it exists
-        env:
-          GH_TOKEN: ${{ github.token }}
-          TAG: ${{ needs.plan.outputs.tag }}
-        run: |
-          if gh release view "$TAG" > /dev/null 2>&1; then
-            echo "The release $TAG exists: its notes are left as they are"
-            exit 0
-          fi
-          node scripts/release-notes.ts "$TAG" > "$RUNNER_TEMP/notes.md"
-          gh release create "$TAG" --verify-tag --prerelease --title "$TAG" --notes-file "$RUNNER_TEMP/notes.md"
 
   build:
     needs: plan
@@ -172,19 +146,36 @@ jobs:
           overwrite: true
           if-no-files-found: error
 
-  attach:
-    needs: [plan, release, build]
+  # The shared workflow (jan-ru/.github ADR-0001): the guard, the full release from the changelog, and the assets. It
+  # waits for `build` alone: a red check at the tag is recorded in metrics.json and does not stop the release (part 6).
+  release:
+    name: release (jan-ru/.github ADR-0001)
+    needs: [plan, build]
     if: needs.plan.outputs.publish == 'true'
-    runs-on: ubuntu-latest
+    uses: jan-ru/.github/.github/workflows/release.yml@ecd99374eed7aea24977d4bfa6b148d9ecff86f2
+    with:
+      changelog: CHANGELOG.md
+      latest: true
+      assets-artifact: release-assets
+      # Empty on a tag push, where the shared workflow takes the pushed tag; the named tag on a manual run.
+      tag: ${{ github.event_name == 'workflow_dispatch' && needs.plan.outputs.tag || '' }}
     permissions:
       contents: write
-    steps:
-      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
-        with:
-          name: release-assets
-          path: assets
-      - name: Attach the PDF and metrics.json
-        env:
-          GH_TOKEN: ${{ github.token }}
-          TAG: ${{ needs.plan.outputs.tag }}
-        run: gh release upload "$TAG" assets/* --clobber --repo "$GITHUB_REPOSITORY"
+      pull-requests: read
+      checks: read
+      statuses: read
+
+  # Production follows the release, never a merge (ADR-0001 part 7).
+  deploy:
+    needs: [plan, release]
+    uses: ./.github/workflows/deploy.yml
+    with:
+      tag: ${{ needs.plan.outputs.tag }}
+    secrets: inherit
+
+  docs:
+    needs: [plan, release]
+    uses: ./.github/workflows/docs.yml
+    with:
+      tag: ${{ needs.plan.outputs.tag }}
+    secrets: inherit

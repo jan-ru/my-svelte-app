@@ -1,6 +1,6 @@
 # Workflows
 
-What runs automatically, grouped by the stage it belongs to. Each GitHub workflow carries its stage in its name: **CI (merge gate)**, **API docs (deploy)**, **Release assets (deploy)** and **NYU data check (scheduled)**. This page is read from `.github/workflows/`, `.github/dependabot.yml`, `vercel.json` and the repository rulesets; Vercel's dashboard settings are not covered.
+What runs automatically, grouped by the stage it belongs to. Each GitHub workflow carries its stage in its name: **CI (merge gate)**, **API docs (deploy)**, **App production deploy (deploy)**, **Release assets (deploy)** and **NYU data check (scheduled)**. This page is read from `.github/workflows/`, `.github/dependabot.yml`, `vercel.json` and the repository rulesets; Vercel's dashboard settings are not covered.
 
 ## The four stages
 
@@ -11,9 +11,9 @@ What runs automatically, grouped by the stage it belongs to. Each GitHub workflo
 | | Vercel preview deployment | Vercel Git integration | Every PR | No |
 | | The same commands on your machine | `package.json` scripts | You | n/a |
 | **Merge gate** (must be green to merge) | `test` | `ci.yml` | PR, and again on push to `main` | **Yes**, the only required check |
-| **Deployment** (publishes something after a merge) | Production deploy of the app | Vercel Git integration; `vercel.json` holds only build commands | Every merge to `main` | n/a |
-| | API reference to Cloudflare Pages | `docs.yml`, `deploy` job | A release tag, or by hand | n/a |
-| | Release: the tag, by hand ([RELEASING.md](../RELEASING.md)); then the pre-release, overview PDF and `metrics.json` | `release-assets.yml` | A release tag, or by hand for a tag (`dry_run` on by default) | n/a |
+| **Deployment** (publishes something from a release) | Release: the tag, by hand ([RELEASING.md](../RELEASING.md)); then the overview PDF, `metrics.json` and the full release, made by the shared workflow of jan-ru/.github | `release-assets.yml`, calling `jan-ru/.github/.github/workflows/release.yml` | A release tag, or by hand for a tag (`dry_run` on by default) | n/a |
+| | Production deploy of the app to Vercel | `deploy.yml`, called by `release-assets.yml` after the release | A release, or by hand for a release tag (a rollback) | n/a |
+| | API reference to Cloudflare Pages | `docs.yml`, `deploy` job, called by `release-assets.yml` after the release | A release, or by hand | n/a |
 | | Overview PDF preview | `release-assets.yml`, `build` job | PR that touches the overview's inputs | No |
 | | `metrics.json` for jan-ru/system-health | `ci.yml`, `metrics` job | Every push to `main`, after `test` and `lighthouse` | n/a |
 | **Scheduled** (runs on a clock, not on a change) | NYU data check | `check-data.yml` | Monthly on the 1st at 06:00 UTC, or by hand | n/a |
@@ -21,7 +21,7 @@ What runs automatically, grouped by the stage it belongs to. Each GitHub workflo
 
 ## The merge gate
 
-The ruleset `Protect_main` requires a pull request and a passing `test` check, and the check is strict: the branch must be up to date with `main` before it can merge (switched on 2026-11-13). It asks for no approvals. Repository admins can bypass the ruleset (bypass mode "always"). A second ruleset, `Basic_Rules`, forbids deleting or force-pushing any branch.
+The ruleset `Protect_main` requires a pull request and a passing `test` check, and the check is strict: the branch must be up to date with `main` before it can merge (switched on 2026-11-13). It asks for no approvals, and nobody can bypass it, admins included (the bypass was removed on 2026-11-23, as in cap-tools): the shared release workflow's guard relies on every merge to `main` having passed `test`. A second ruleset, `Basic_Rules`, forbids deleting or force-pushing any branch.
 
 Because the check is strict, the tree that merges is the tree `test` passed on. When another PR lands first, the branch has to be updated (the "Update branch" button, or `@dependabot rebase` on a Dependabot PR) and `test` runs again, about 2 minutes.
 
@@ -52,14 +52,14 @@ flowchart LR
   MAIN --> TAG[Release tag]
 
   PR -->|every push| VP[Vercel preview]
-  MAIN -->|every merge| VPROD[Vercel production<br/>the app]
-  TAG -->|docs.yml| CF[Cloudflare Pages<br/>API reference]
-  TAG -->|release-assets.yml| RA[Release PDF and metrics.json]
+  TAG -->|release-assets.yml| REL[Full release<br/>PDF and metrics.json]
+  REL -->|deploy.yml| VPROD[Vercel production<br/>the app]
+  REL -->|docs.yml| CF[Cloudflare Pages<br/>API reference]
 ```
 
-- **The app** is deployed by Vercel, not by a workflow: every merge to `main` goes to production and every PR gets a preview. The Vercel checks appear on a PR, but none of them is required.
-- **The API reference** goes to Cloudflare Pages (<https://my-svelte-app-docs.pages.dev/>) at a release tag, or by hand from `main` or a tag. A pull request that touches `src/lib/**`, `typedoc.json`, `tsconfig.json`, `package.json`, `package-lock.json` or `docs.yml` itself only builds it. Deployments run one at a time and a newer one waits for a running one.
-- **A tag deploys the API reference and builds the release assets.** The app itself is not rebuilt for a release ([RELEASING.md](../RELEASING.md)).
+- **The app** goes to production only from a release ([jan-ru/.github ADR-0001](https://github.com/jan-ru/.github/blob/main/docs/adr/0001-releases-from-one-shared-workflow.md) part 7). `deploy.yml` checks that the tag has a full release, uploads the tag's source and lets Vercel build it with the project's own environment variables; `vercel.json` turns off Vercel's own deploys of `main` (`git.deploymentEnabled`). Every PR still gets a preview from the Vercel Git integration; those checks appear on a PR, but none is required. The deploy needs the repository secrets `VERCEL_TOKEN`, `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID`. A rollback is `deploy.yml` run by hand for an earlier release tag.
+- **The API reference** goes to Cloudflare Pages (<https://my-svelte-app-docs.pages.dev/>) after a release, or by hand for a tag or a branch. A pull request that touches `src/lib/**`, `typedoc.json`, `tsconfig.json`, `package.json`, `package-lock.json` or `docs.yml` itself only builds it. Deployments run one at a time and a newer one waits for a running one.
+- **A tag builds the release assets; the release then deploys the app and the API reference.** A tag the shared workflow refuses deploys nothing ([RELEASING.md](../RELEASING.md)).
 - **One repository.** For one day (2026-11-19) development ran in a private copy that published snapshots here; that was undone the same day ([ADR-011](adr/0011-one-public-repository.md)).
 
 ## Metrics for system-health
@@ -79,7 +79,7 @@ The steps that keep reports and the `metrics` job run only in `jan-ru/my-svelte-
 
 ## Things to know
 
-- Nothing in the repository makes Vercel wait for CI. A merge deploys even if the run of `test` on `main` afterwards fails; that second run is a signal after the fact, not a gate. With the check strict it should only fail for a reason the tree does not explain, such as a flaky test or a new advisory in `npm audit`.
+- A merge to `main` deploys nothing. Production changes only when a release is cut, and the release's guard requires the merged PR to have passed `test`.
 - `npm audit` is part of `test` but its result depends on the day, not on the change: a new advisory in a runtime dependency fails every open PR until it is handled.
 - The ruleset binds to the job name `test`. If the job is renamed or split, keep a final job called `test` or change the ruleset in the same PR, or every PR waits for a check that never reports.
 - Changing `docs.yml` triggers the API docs workflow, because the file is in its own path filter.
