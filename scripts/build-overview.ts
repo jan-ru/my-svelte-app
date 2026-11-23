@@ -13,6 +13,7 @@ import { decisionsView, parseAdr } from '../src/lib/overview/adr.ts';
 import { historyRows, parseChangelog, prNumbers } from '../src/lib/overview/changelog.ts';
 import { parseOverview, sectionBody } from '../src/lib/overview/curated.ts';
 import { renderOverview, type OverviewInput } from '../src/lib/overview/document.ts';
+import { absoluteLinks, blobBase } from '../src/lib/overview/links.ts';
 import { isMetrics, qualityView } from '../src/lib/overview/quality.ts';
 import {
 	closingNumbers,
@@ -87,8 +88,14 @@ function gather(release: string | undefined, metrics: string | undefined): Overv
 	const ref = release ?? 'HEAD';
 	const tags = releaseTags(ref);
 	const previous = tags.filter((t) => t !== release).at(-1);
-	const sections = parseChangelog(read('CHANGELOG.md'));
-	const curated = parseOverview(read('docs/overview.md'));
+	// Links in the PDF point at the files of this release (or of the previewed commit) on GitHub.
+	const base = blobBase(
+		run('gh', ['repo', 'view', '--json', 'url', '--jq', '.url']),
+		release ?? run('git', ['rev-parse', 'HEAD'])
+	);
+	const markdown = (file: string): string => absoluteLinks(read(file), file, base);
+	const sections = parseChangelog(markdown('CHANGELOG.md'));
+	const curated = parseOverview(markdown('docs/overview.md'));
 	const adrs = fs
 		.readdirSync('docs/adr')
 		.filter((name) => /^\d{4}-.*\.md$/.test(name))
@@ -106,7 +113,7 @@ function gather(release: string | undefined, metrics: string | undefined): Overv
 		commit: run('git', ['rev-parse', '--short', `${ref}^{commit}`]),
 		fileName: `my-svelte-app-overview-${name}.pdf`,
 		curated,
-		health: sectionBody(read('docs/quality/README.md'), 'Health at a glance', 'docs/quality/README.md'),
+		health: sectionBody(markdown('docs/quality/README.md'), 'Health at a glance', 'docs/quality/README.md'),
 		decisions: decisionsView(adrs),
 		history: historyRows(sections),
 		quality: readMetrics(metrics),
