@@ -4,9 +4,14 @@ Curated highlights per release, not a per-commit list. Each release section beco
 
 ## [Unreleased]
 
+## [2026.11.23] — 2026-11-23
+
+5 merged PRs (#156 to #161, without #160). The through-line is **a release is what runs in production**: each release now carries an overview PDF and `metrics.json` built at its tag, and it is the only way the app and the API reference reach production. This is the first full release; the two before it were pre-releases.
+
 ### Releases
 
-- A release tag now deploys production: `release-assets.yml` builds the PDF and `metrics.json` at the tag, calls jan-ru/.github's shared release workflow for a full release, then deploys the app to Vercel and the API reference to Cloudflare Pages. Vercel no longer deploys every merge to `main`.
+- A release tag now deploys production (#161): `release-assets.yml` builds the PDF and `metrics.json` at the tag, calls jan-ru/.github's shared release workflow for a full release ([ADR-0001](https://github.com/jan-ru/.github/blob/main/docs/adr/0001-releases-from-one-shared-workflow.md)), then deploys the app to Vercel and the API reference to Cloudflare Pages. Vercel no longer deploys every merge to `main`, and a tag is `YYYY.0M.0D` only, so a second release waits a day.
+- Every release carries `my-svelte-app-overview-<tag>.pdf` (#156): the design at a glance, the decisions grouped by theme, the release history, the quality figures measured at the tag and the roadmap by `lane:*` label. A release PR builds a preview of it. Its links point at the release's own files on GitHub (#159), and the data-flow heading stays with its diagram (#158, #157).
 
 ## [2026.11.20] — 2026-11-20
 
