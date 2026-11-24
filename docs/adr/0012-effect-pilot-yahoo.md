@@ -1,11 +1,11 @@
 ---
-status: Proposed
+status: Accepted
 date: 2026-11-24
 decision-makers: Jan-Ru Muller (sole maintainer)
 ---
 # ADR-012: Pilot Effect v4 inside the Yahoo source, behind its existing promise interface
 
-- **Proposed:** 2026-11-24.
+- **Accepted:** 2026-11-24, in #168.
 - **Component:** `src/lib/server/yahoo.ts`, `src/lib/server/yahoo-parse.ts`, `package.json`, a new boundary test
 
 ## Context
@@ -88,4 +88,4 @@ smallest of them (`yahoo.ts`, 184 lines, and `yahoo-parse.ts`, 140) and the one 
 - Yahoo requests stop after 10 s instead of hanging until the function's limit. Visitors get "Yahoo Finance is
   unavailable" sooner, and the cache keeps that failure for a minute as it does now.
 - Most documentation and answers online are still for v3. Write v4 code against its own reference.
-- When it is accepted, ADR-012 needs a theme in `ADR_THEMES` (`Code`).
+- Its theme in `ADR_THEMES` is `Code`.
