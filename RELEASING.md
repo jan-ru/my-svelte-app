@@ -39,7 +39,7 @@ Everything after that runs by itself.
 
 The tag runs `release-assets.yml`:
 
-1. **`build`** runs the checks and tests at the tag and builds `my-svelte-app-overview-YYYY.0M.0D.pdf` and `metrics.json`. A red check or test does not stop them: it shows on the PDF's quality page and in `metrics.json`.
+1. **`scorecard`** runs OpenSSF Scorecard against the repository as it is then, and **`build`** runs the checks and tests at the tag and builds `my-svelte-app-overview-YYYY.0M.0D.pdf` and `metrics.json`, with Scorecard's result as `security.scorecard`. A red check or test does not stop them: it shows on the PDF's quality page and in `metrics.json`. A Scorecard failure is a warning and leaves the field out. To move to a new Scorecard version, change `SCORECARD_VERSION` and `SCORECARD_SHA256` together (the hash is the `linux_amd64` line of the release's `scorecard_checksums.txt`).
 2. **`release`** calls the shared release workflow. It refuses the tag unless its commit is on `main` and is the merge of a PR that passed `test`, takes the notes from the tag's section of `CHANGELOG.md` (a missing or empty section is refused; `node scripts/release-notes.ts YYYY.0M.0D` prints what it will find), creates a **full release** and attaches the PDF and `metrics.json`.
 3. **`deploy`** deploys the tag to Vercel production. Vercel builds it with its production environment variables. It needs the repository secret `VERCEL_TOKEN` and the variables `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID`.
 4. **`api-docs`** runs `docs.yml` for the tag, which builds the API reference and deploys it to Cloudflare Pages at <https://my-svelte-app-docs.pages.dev/>. It needs the repository secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`, as in finance-tools.

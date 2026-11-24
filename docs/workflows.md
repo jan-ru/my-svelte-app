@@ -72,6 +72,7 @@ jan-ru/system-health collects one `metrics.json` per repository (its ADR-0002: i
 | `quality.tests` | Vitest plus Playwright; a test that passed on retry counts as passed |
 | `quality.type_errors`, `quality.lint_errors` | `0` when `npm run check` or `npm run lint` passed (both fail on any error); left out when they failed |
 | `security.vulnerabilities` | `npm audit --package-lock-only` over every dependency, the same scope cap-tools reports, so the counts compare. The `test` gate itself audits runtime dependencies only |
+| `security.scorecard` | OpenSSF Scorecard of the repository during a release run: the `scorecard` job in `release-assets.yml` runs the command-line tool (pinned, checked against its SHA-256) in default mode with its read-only token and no checkout, and `build` adds the result (jan-ru/system-health ADR-0005 and ADR-0009). Each check scored `-1` is left out; the whole field is left out when Scorecard fails or decides nothing. Releases only, not the `main` file of `ci.yml` |
 | `performance.lighthouse` | The Lighthouse scores of the home page `/`: from the `lighthouse` job on `main`, and from `lhci collect` over the tag's build in `release-assets.yml` for a release. Left out when Lighthouse failed |
 | `gates` | `test`, the one required check |
 

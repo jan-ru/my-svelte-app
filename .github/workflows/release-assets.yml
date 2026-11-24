@@ -16,6 +16,8 @@ name: Release assets (deploy)
 # that tag, which is also how to roll back. A tag cut before this workflow existed cannot be rebuilt: its checkout
 # has no build-overview.ts.
 #
+# `scorecard` runs OpenSSF Scorecard against the repository (no checkout) and `build` adds its result to metrics.json.
+#
 # Building and writing are separate jobs: `build` holds a read-only token; `release` is the shared workflow, pinned by
 # SHA, and runs no code of this repository.
 on:
@@ -79,8 +81,79 @@ jobs:
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
           echo "publish=$publish" >> "$GITHUB_OUTPUT"
 
-  build:
+  # OpenSSF Scorecard of the repository as it is during this run (jan-ru/system-health ADR-0005, ADR-0009): the
+  # command-line tool, a pinned release checked against its hash, in default mode, with this job's read-only token. No
+  # checkout: it reads the repository through the API, so no code of this repository runs with the wider read scopes
+  # it needs. `build` adds the result to metrics.json as `security.scorecard`. Measured, not a gate: whatever fails
+  # here is a warning and leaves `scorecard` out, and the job itself never fails, so it cannot skip the release or the
+  # deploy after it. Only a tag is measured; a PR preview has no metrics.json.
+  scorecard:
     needs: plan
+    if: needs.plan.outputs.tag != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      actions: read
+      checks: read
+      issues: read
+      pull-requests: read
+      statuses: read
+      security-events: read
+    outputs:
+      built: ${{ steps.scorecard.outputs.built }}
+    env:
+      SCORECARD_VERSION: "5.7.0"
+      SCORECARD_SHA256: 3b08ec0a8681806c3e744ec9210742a502c7d66f06f25523b70f7128738235d3
+    steps:
+      # ADR-0005's shape: `version` and `score` as Scorecard reports them, and each check that was decided, every -1
+      # left out. An overall -1 (nothing decided) writes nothing.
+      - name: Run Scorecard
+        id: scorecard
+        env:
+          GITHUB_AUTH_TOKEN: ${{ github.token }}
+          REPO: github.com/${{ github.repository }}
+        run: |
+          set -uo pipefail
+          # An explicit && chain: bash ignores `set -e` in a function called from `if`, and a hash that does not match
+          # must stop before the binary runs.
+          archive="scorecard_${SCORECARD_VERSION}_linux_amd64.tar.gz"
+          measure() {
+            curl -fsSL --max-time 120 -o "$RUNNER_TEMP/$archive" "https://github.com/ossf/scorecard/releases/download/v${SCORECARD_VERSION}/$archive" &&
+              echo "$SCORECARD_SHA256  $RUNNER_TEMP/$archive" | sha256sum -c - &&
+              mkdir -p "$RUNNER_TEMP/scorecard-bin" "$RUNNER_TEMP/scorecard" &&
+              tar -xzf "$RUNNER_TEMP/$archive" -C "$RUNNER_TEMP/scorecard-bin" scorecard &&
+              timeout 300 "$RUNNER_TEMP/scorecard-bin/scorecard" --repo="$REPO" --format=json > "$RUNNER_TEMP/scorecard.raw.json" &&
+              jq -c '
+                if (.score | type) == "number" and .score >= 0 and .score <= 10
+                   and (.scorecard.version | type) == "string" and (.scorecard.version | length) > 0
+                then {version: .scorecard.version, score: .score}
+                     + ([.checks[]? | select((.score | type) == "number" and .score >= 0 and .score <= 10 and .score == (.score | floor))
+                         | {key: .name, value: .score}]
+                        | if length > 0 then {checks: from_entries} else {} end)
+                else empty end' "$RUNNER_TEMP/scorecard.raw.json" > "$RUNNER_TEMP/scorecard/scorecard.json" &&
+              [ -s "$RUNNER_TEMP/scorecard/scorecard.json" ]
+          }
+          if measure; then
+            echo "built=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning::No Scorecard result for this release: metrics.json leaves security.scorecard out"
+            echo "built=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Keep the Scorecard result
+        if: steps.scorecard.outputs.built == 'true'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: release-scorecard
+          path: ${{ runner.temp }}/scorecard/scorecard.json
+          retention-days: 14
+          overwrite: true
+          if-no-files-found: error
+
+  build:
+    needs: [plan, scorecard]
+    # Whatever `scorecard` did, skipped on a PR included.
+    if: ${{ !cancelled() && needs.plan.result == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
@@ -143,6 +216,18 @@ jobs:
           cp coverage/coverage-summary.json reports/test/ || true
           npm audit --package-lock-only --json > reports/npm-audit.json || true
           GITHUB_SHA="$(git rev-parse HEAD)" GITHUB_REF="refs/tags/$TAG" node scripts/build-metrics.ts reports > assets/metrics.json
+      # Beside the assets, not among them: the result goes into metrics.json, not onto the release.
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        if: env.TAG != '' && needs.scorecard.outputs.built == 'true'
+        with:
+          name: release-scorecard
+          path: ${{ runner.temp }}/scorecard
+      - name: Add the Scorecard result to metrics.json
+        if: env.TAG != '' && needs.scorecard.outputs.built == 'true'
+        run: |
+          jq --slurpfile sc "$RUNNER_TEMP/scorecard/scorecard.json" '.security = ((.security // {}) + {scorecard: $sc[0]})' \
+            assets/metrics.json > "$RUNNER_TEMP/metrics.json"
+          mv "$RUNNER_TEMP/metrics.json" assets/metrics.json
       - name: The overview PDF
         env:
           GH_TOKEN: ${{ github.token }}
