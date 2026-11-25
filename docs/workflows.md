@@ -28,6 +28,7 @@ Because the check is strict, the tree that merges is the tree `test` passed on. 
 The `test` job runs these commands in order, and the same ones work locally:
 
 ```sh
+gitleaks git --redact --log-opts="origin/main..HEAD" .   # pull requests only: no secret in the commits it adds
 npm run check          # svelte-check, strict
 npm run lint           # typescript-eslint strictTypeChecked, eslint-plugin-svelte
 npm run format:check   # Prettier
@@ -40,6 +41,8 @@ npm audit --omit=dev --audit-level=high
 ```
 
 A failed run uploads the Playwright report as an artifact for 7 days.
+
+The secret scan ([jan-ru/system-health ADR-0011](https://github.com/jan-ru/system-health/blob/main/docs/adr/0011-secret-scanning.md)) runs first, on pull requests only, over exactly the commits the pull request adds (its base to its head). It uses the gitleaks release pinned in `.github/actions/gitleaks/action.yml`, checked against its SHA-256, and the allowlists in `.gitleaks.toml`, each with the reason its matches are not secrets. Any finding fails `test`. The output is redacted and no report is kept. A false positive goes into `.gitleaks.toml` in the same pull request, where it is reviewed like any change to the gate. A real secret that reached a pull request is already on GitHub, so revoke it.
 
 ## Deployment
 
@@ -73,6 +76,7 @@ jan-ru/system-health collects one `metrics.json` per repository (its ADR-0002: i
 | `quality.type_errors`, `quality.lint_errors` | `0` when `npm run check` or `npm run lint` passed (both fail on any error); left out when they failed |
 | `security.vulnerabilities` | `npm audit --package-lock-only` over every dependency, the same scope cap-tools reports, so the counts compare. The `test` gate itself audits runtime dependencies only |
 | `security.scorecard` | OpenSSF Scorecard of the repository during a release run: the `scorecard` job in `release-assets.yml` runs the command-line tool (pinned, checked against its SHA-256) in default mode with its read-only token and no checkout, and `build` adds the result (jan-ru/system-health ADR-0005 and ADR-0009). Each check scored `-1` is left out; the whole field is left out when Scorecard fails or decides nothing. Releases only, not the `main` file of `ci.yml` |
+| `security.secrets_found` | The number of secrets gitleaks finds in the files tracked at the tag, with `.gitleaks.toml`: the `build` job of `release-assets.yml` scans the checkout before anything is installed or built (jan-ru/system-health ADR-0011). Measured, not a gate. Left out when the scan fails, including a manual run for a tag from before the scan existed. Releases only |
 | `performance.lighthouse` | The Lighthouse scores of the home page `/`: from the `lighthouse` job on `main`, and from `lhci collect` over the tag's build in `release-assets.yml` for a release. Left out when Lighthouse failed |
 | `gates` | `test`, the one required check |
 

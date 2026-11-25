@@ -1,0 +1,9 @@
+# gitleaks configuration (jan-ru/system-health ADR-0011). The pull request step in ci.yml and the release count in
+# release-assets.yml both read it. Every allowlist says why its matches are not secrets; a change here is a change to
+# the `test` gate and goes through review like one.
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "The placeholder SESSION_SECRET in the smoke-test steps of plan documents: the hex digits 0-f, repeated"
+regexes = ['''^(0123456789abcdef)+$''']

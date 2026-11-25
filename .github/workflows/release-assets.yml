@@ -17,6 +17,7 @@ name: Release assets (deploy)
 # has no build-overview.ts.
 #
 # `scorecard` runs OpenSSF Scorecard against the repository (no checkout) and `build` adds its result to metrics.json.
+# `build` also counts the secrets gitleaks finds in the tag's files, as security.secrets_found.
 #
 # Building and writing are separate jobs: `build` holds a read-only token; `release` is the shared workflow, pinned by
 # SHA, and runs no code of this repository.
@@ -169,6 +170,23 @@ jobs:
           # every tag and commit: Landed is a git range between tags
           fetch-depth: 0
           persist-credentials: false
+      # Secrets in the files tracked at the tag (jan-ru/system-health ADR-0011), counted before anything writes into the
+      # tree, with .gitleaks.toml. Measured, not a gate: a scan that fails leaves security.secrets_found out of
+      # metrics.json. Redacted; the report stays in the runner's temp directory and is not uploaded.
+      - uses: ./.github/actions/gitleaks
+        id: gitleaks
+        if: env.TAG != ''
+        continue-on-error: true
+      - name: Count secrets at the tag
+        id: secrets
+        if: env.TAG != '' && steps.gitleaks.outcome == 'success'
+        continue-on-error: true
+        run: |
+          # --exit-code 0: findings do not fail the step, so a failure here is the scan's own
+          gitleaks dir --redact --no-banner --exit-code 0 --report-format json --report-path "$RUNNER_TEMP/gitleaks.json" .
+          count="$(jq -e 'if type == "array" then length else error("not a list") end' "$RUNNER_TEMP/gitleaks.json")"
+          echo "count=$count" >> "$GITHUB_OUTPUT"
+          if [ "$count" -gt 0 ]; then echo "::warning::gitleaks found $count secrets at $TAG"; fi
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
@@ -226,6 +244,14 @@ jobs:
         if: env.TAG != '' && needs.scorecard.outputs.built == 'true'
         run: |
           jq --slurpfile sc "$RUNNER_TEMP/scorecard/scorecard.json" '.security = ((.security // {}) + {scorecard: $sc[0]})' \
+            assets/metrics.json > "$RUNNER_TEMP/metrics.json"
+          mv "$RUNNER_TEMP/metrics.json" assets/metrics.json
+      - name: Add the secrets count to metrics.json
+        if: env.TAG != '' && steps.secrets.outcome == 'success'
+        env:
+          SECRETS_FOUND: ${{ steps.secrets.outputs.count }}
+        run: |
+          jq --argjson n "$SECRETS_FOUND" '.security = ((.security // {}) + {secrets_found: $n})' \
             assets/metrics.json > "$RUNNER_TEMP/metrics.json"
           mv "$RUNNER_TEMP/metrics.json" assets/metrics.json
       - name: The overview PDF
