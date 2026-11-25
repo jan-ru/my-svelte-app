@@ -1,5 +1,6 @@
 // src/lib/server/yahoo.ts
-import { Data, Effect } from 'effect';
+import * as Data from 'effect/Data';
+import * as Effect from 'effect/Effect';
 import type { Period } from '../financials-nav';
 import { NEWS_LIMIT } from '../source-data';
 import type { Kind, NewsItem, PricePoint, Profile, Statement } from '../source-data';

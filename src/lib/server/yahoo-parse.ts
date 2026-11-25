@@ -1,5 +1,8 @@
 // src/lib/server/yahoo-parse.ts
-import { Option, Schema, SchemaTransformation } from 'effect';
+// subpaths rather than the 'effect' index, which loads every module (ADR-012's cold-start criterion)
+import * as Option from 'effect/Option';
+import * as Schema from 'effect/Schema';
+import * as SchemaTransformation from 'effect/SchemaTransformation';
 import type { Period } from '../financials-nav';
 import { safeUrl } from '../safe-url';
 import type { Kind, NewsItem, PricePoint, Profile, Statement, StatementYear } from '../source-data';
