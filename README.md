@@ -41,6 +41,7 @@ The dev server runs at <http://localhost:5173>. Without environment variables th
 | [Configuration](docs/configuration.md) | Environment variables, login, caching, security headers, deployment |
 | [Development](docs/development.md) | Scripts, project structure, tech stack, conventions and checks |
 | [Workflows](docs/workflows.md) | What runs in CI, what deploys and what is scheduled |
+| [Security policy](SECURITY.md) | How to report a vulnerability, what is supported and what is in place |
 | [Releasing](RELEASING.md) and [Changelog](CHANGELOG.md) | How a release is cut, and what each release brought |
 | [Decisions](docs/adr/README.md) and [Quality review](docs/quality/README.md) | One ADR per decision; what CI enforces and what to watch |
 | [Classification data](docs/crosswalk.md), [Size pages](docs/size.md), [Design tokens](docs/horizon-tokens.md) | How the generated data and the Horizon theme are built |
