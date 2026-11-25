@@ -2,7 +2,7 @@
 import type { Period } from '../financials-nav';
 import type { Kind, Statement, StatementYear } from '../source-data';
 import { field, isRecord, str } from './coerce';
-import { FETCH_TIMEOUT_MS, MAX_BYTES, readCapped } from './http';
+import { FETCH_TIMEOUT_MS, MAX_BYTES, fetchWithTimeout, readBody, readCapped, statusError } from './http';
 import { SourceError } from './source-error';
 
 export { FETCH_TIMEOUT_MS, MAX_BYTES, readCapped };
@@ -86,29 +86,9 @@ export async function fmpGet(
 	fetchFn: typeof fetch = fetch
 ): Promise<unknown> {
 	const query = new URLSearchParams({ ...params, apikey: apiKey });
-	let response: Response;
-	try {
-		response = await fetchFn(`${BASE}/${path}?${query}`, {
-			signal: AbortSignal.timeout(FETCH_TIMEOUT_MS)
-		});
-	} catch {
-		// the underlying error can contain the request URL, which holds the key
-		throw new SourceError('unavailable', 'FMP could not be reached');
-	}
-
-	const declared = Number(response.headers.get('content-length'));
-	if (declared > MAX_BYTES) throw new SourceError('unavailable', 'FMP response too large');
-	let read: string | null;
-	try {
-		read = await readCapped(response, MAX_BYTES);
-	} catch {
-		// a timeout or reset mid-body; the raw error can carry the request URL
-		throw new SourceError('unavailable', 'FMP response could not be read');
-	}
-	if (read === null) throw new SourceError('unavailable', 'FMP response too large');
-	let text = read;
+	const response = await fetchWithTimeout(fetchFn, `${BASE}/${path}?${query}`, {}, 'FMP');
 	// FMP may echo the key in an error message, bare or encoded; remove it before anything is parsed
-	text = redactKey(text, apiKey);
+	const text = redactKey(await readBody(response, 'FMP'), apiKey);
 
 	let body: unknown;
 	try {
@@ -117,14 +97,11 @@ export async function fmpGet(
 		body = undefined;
 	}
 
-	if (!response.ok) {
+	const failed = statusError(response.status, 'FMP');
+	if (failed) {
+		// FMP's own message says more than the status
 		throwIfErrorBody(body);
-		if (response.status === 401) throw new SourceError('config', 'FMP rejected the API key');
-		if (response.status === 402 || response.status === 403) {
-			throw new SourceError('plan', 'Not available on this FMP plan');
-		}
-		if (response.status === 429) throw new SourceError('limit', 'FMP rate limit reached');
-		throw new SourceError('unavailable', `FMP returned ${response.status}`);
+		throw failed;
 	}
 	return body;
 }
