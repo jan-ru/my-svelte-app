@@ -27,3 +27,4 @@ The ADRs 001 to 009 were written on 2026-11-01 from the code, `CLAUDE.md`, the s
 | ADR-010 | Develop in a private repository and publish snapshots to the public one | Superseded by ADR-011 | [0010-develop-privately-publish-snapshots.md](0010-develop-privately-publish-snapshots.md) |
 | ADR-011 | One public repository again: the private copy's history merged back | Accepted | [0011-one-public-repository.md](0011-one-public-repository.md) |
 | ADR-012 | Pilot Effect v4 inside the Yahoo source, behind its existing promise interface | Accepted | [0012-effect-pilot-yahoo.md](0012-effect-pilot-yahoo.md) |
+| ADR-013 | Extend Effect to the FMP and Eulerpool sources, behind their promise interfaces | Proposed | [0013-effect-in-every-source.md](0013-effect-in-every-source.md) |
