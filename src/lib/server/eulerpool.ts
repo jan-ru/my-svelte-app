@@ -2,7 +2,7 @@
 // Eulerpool (https://eulerpool.com): statements, company profile and daily prices. I/O only; parsing is in eulerpool-parse.ts.
 import type { FairValue, QualityScore } from '../insight';
 import type { Kind, PricePoint, Profile, Statement, SupplyChain } from '../source-data';
-import { FETCH_TIMEOUT_MS, MAX_BYTES, readCapped } from './http';
+import { fetchWithTimeout, readBody, statusError } from './http';
 import {
 	parseEulerpoolCurrency,
 	parseEulerpoolFairValue,
@@ -32,34 +32,17 @@ export async function eulerpoolGet(
 	fetchFn: typeof fetch = fetch
 ): Promise<unknown> {
 	const query = new URLSearchParams(params).toString();
-	let response: Response;
-	try {
-		response = await fetchFn(`${BASE}/${path}${query ? `?${query}` : ''}`, {
-			headers: { Authorization: `Bearer ${apiKey}`, Accept: 'application/json' },
-			signal: AbortSignal.timeout(FETCH_TIMEOUT_MS)
-		});
-	} catch {
-		throw new SourceError('unavailable', 'Eulerpool could not be reached');
-	}
-
+	const response = await fetchWithTimeout(
+		fetchFn,
+		`${BASE}/${path}${query ? `?${query}` : ''}`,
+		{ headers: { Authorization: `Bearer ${apiKey}`, Accept: 'application/json' } },
+		'Eulerpool'
+	);
 	if (response.status === 404) return undefined;
-	if (response.status === 401) throw new SourceError('config', 'Eulerpool rejected the API key');
-	if (response.status === 402 || response.status === 403) {
-		throw new SourceError('plan', 'Not available on this Eulerpool plan');
-	}
-	if (response.status === 429) throw new SourceError('limit', 'Eulerpool rate limit reached');
-	if (!response.ok) throw new SourceError('unavailable', `Eulerpool returned ${response.status}`);
+	const failed = statusError(response.status, 'Eulerpool');
+	if (failed) throw failed;
 
-	if (Number(response.headers.get('content-length')) > MAX_BYTES) {
-		throw new SourceError('unavailable', 'Eulerpool response too large');
-	}
-	let text: string | null;
-	try {
-		text = await readCapped(response, MAX_BYTES);
-	} catch {
-		throw new SourceError('unavailable', 'Eulerpool response could not be read');
-	}
-	if (text === null) throw new SourceError('unavailable', 'Eulerpool response too large');
+	const text = await readBody(response, 'Eulerpool');
 	try {
 		return JSON.parse(text);
 	} catch {
