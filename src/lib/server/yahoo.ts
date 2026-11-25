@@ -1,8 +1,11 @@
 // src/lib/server/yahoo.ts
+import * as Data from 'effect/Data';
+import * as Effect from 'effect/Effect';
 import type { Period } from '../financials-nav';
 import { NEWS_LIMIT } from '../source-data';
 import type { Kind, NewsItem, PricePoint, Profile, Statement } from '../source-data';
 import { field, num, str } from './coerce';
+import { FETCH_TIMEOUT_MS } from './http';
 import { SourceError } from './source-error';
 import { parseYahooNews, parseYahooPrices, parseYahooProfile, parseYahooStatement } from './yahoo-parse';
 
@@ -83,23 +86,58 @@ function describe(error: unknown): string | undefined {
 	return status ? `${error.name} ${status}` : error.name;
 }
 
-/** Fixed messages only: library errors can carry URLs and tokens. */
-function mapError(error: unknown): SourceError {
-	if (error instanceof SourceError) return error;
+// The failures of a Yahoo call, sorted once (ADR-012). None carries the library's text: `detail` is `describe`'s.
+class NotFound extends Data.TaggedError('NotFound') {}
+class RateLimited extends Data.TaggedError('RateLimited')<{ readonly detail: string | undefined }> {}
+class Unavailable extends Data.TaggedError('Unavailable')<{ readonly detail: string | undefined }> {}
+/** A parser found the response unusable; it says so with a fixed `SourceError`. */
+class Unexpected extends Data.TaggedError('Unexpected')<{ readonly error: SourceError }> {}
+type YahooFailure = NotFound | RateLimited | Unavailable | Unexpected;
+
+/** Sorts anything a library call or a parser threw. Total: it never throws. */
+function classify(error: unknown): YahooFailure {
+	if (error instanceof SourceError) return new Unexpected({ error });
+	if (isNotFound(error)) return new NotFound();
 	const text = error instanceof Error ? `${error.name} ${error.message}` : '';
-	if (RATE_LIMITED.test(text)) return new SourceError('limit', 'Yahoo Finance rate limit reached', describe(error));
-	return new SourceError('unavailable', 'Yahoo Finance is unavailable', describe(error));
+	if (RATE_LIMITED.test(text)) return new RateLimited({ detail: describe(error) });
+	return new Unavailable({ detail: describe(error) });
 }
 
-async function tolerant<T>(run: () => Promise<T>, empty: T): Promise<T> {
-	try {
-		return await run();
-	} catch (error) {
-		// a symbol Yahoo does not know is an answer worth caching as empty; any other failure is not
-		if (isNotFound(error)) return empty;
-		throw mapError(error);
+/** One library call, stopped after `FETCH_TIMEOUT_MS` like the other sources; a timeout is `Unavailable`. */
+const call = <T>(run: () => Promise<T>): Effect.Effect<T, YahooFailure> =>
+	Effect.tryPromise({ try: () => run(), catch: classify }).pipe(
+		Effect.timeoutOrElse({
+			duration: FETCH_TIMEOUT_MS,
+			orElse: () => Effect.fail(new Unavailable({ detail: 'TimeoutError' }))
+		})
+	);
+
+/** A parser, run so that the `SourceError` it throws for an unusable response stays a typed failure. */
+const parse = <T>(run: () => T): Effect.Effect<T, YahooFailure> => Effect.try({ try: run, catch: classify });
+
+const clientOf = (client: YahooClient | undefined): Effect.Effect<YahooClient, YahooFailure> =>
+	client ? Effect.succeed(client) : call(defaultClient);
+
+/** Fixed messages only: library errors can carry URLs and tokens. */
+function toSourceError(failure: RateLimited | Unavailable | Unexpected): SourceError {
+	switch (failure._tag) {
+		case 'RateLimited':
+			return new SourceError('limit', 'Yahoo Finance rate limit reached', failure.detail);
+		case 'Unavailable':
+			return new SourceError('unavailable', 'Yahoo Finance is unavailable', failure.detail);
+		case 'Unexpected':
+			return failure.error;
 	}
 }
+
+/** The promise boundary: a symbol Yahoo does not know is an answer worth caching as `empty`; any other failure is not. */
+const run = <T>(program: Effect.Effect<T, YahooFailure>, empty: T): Promise<T> =>
+	Effect.runPromise(
+		program.pipe(
+			Effect.catchTag('NotFound', () => Effect.succeed(empty)),
+			Effect.mapError(toSourceError)
+		)
+	);
 
 export function fetchYahooPrices(
 	symbol: string,
@@ -107,48 +145,68 @@ export function fetchYahooPrices(
 	to: string,
 	client?: YahooClient
 ): Promise<PricePoint[]> {
-	return tolerant(async () => {
-		const c = client ?? (await defaultClient());
-		const result = await c.chart(
-			symbol,
-			{ period1: new Date(`${from}T00:00:00Z`), period2: new Date(`${to}T23:59:59Z`), interval: '1d' },
-			OPTIONS
-		);
-		return parseYahooPrices(field(result, 'quotes'), num(field(field(result, 'meta'), 'gmtoffset')) ?? 0);
-	}, []);
+	const window = {
+		period1: new Date(`${from}T00:00:00Z`),
+		period2: new Date(`${to}T23:59:59Z`),
+		interval: '1d' as const
+	};
+	return run(
+		Effect.gen(function* () {
+			const c = yield* clientOf(client);
+			const result = yield* call(() => c.chart(symbol, window, OPTIONS));
+			return yield* parse(() =>
+				parseYahooPrices(field(result, 'quotes'), num(field(field(result, 'meta'), 'gmtoffset')) ?? 0)
+			);
+		}),
+		[]
+	);
 }
 
 export function fetchYahooProfile(symbol: string, client?: YahooClient): Promise<Profile | null> {
-	return tolerant(async () => {
-		const c = client ?? (await defaultClient());
-		return parseYahooProfile(await c.quoteSummary(symbol, { modules: ['assetProfile', 'price'] }, OPTIONS));
-	}, null);
+	return run(
+		Effect.gen(function* () {
+			const c = yield* clientOf(client);
+			const summary = yield* call(() => c.quoteSummary(symbol, { modules: ['assetProfile', 'price'] }, OPTIONS));
+			return yield* parse(() => parseYahooProfile(summary));
+		}),
+		null
+	);
 }
+
+/** The company's name for a news search; the ticker when the lookup fails in any way. */
+const newsQuery = (c: YahooClient, symbol: string): Effect.Effect<string> =>
+	call(() => c.quoteSummary(symbol, { modules: ['price'] }, OPTIONS)).pipe(
+		Effect.map((summary) => {
+			const price = field(summary, 'price');
+			return str(field(price, 'longName')) ?? str(field(price, 'shortName')) ?? symbol;
+		}),
+		Effect.orElseSucceed(() => symbol)
+	);
 
 /** Yahoo's news is a text search, so search for the company name; the bare ticker finds little outside the US. */
 export function fetchYahooNews(symbol: string, client?: YahooClient): Promise<NewsItem[]> {
-	return tolerant(async () => {
-		const c = client ?? (await defaultClient());
-		let query = symbol;
-		try {
-			const price = field(await c.quoteSummary(symbol, { modules: ['price'] }, OPTIONS), 'price');
-			query = str(field(price, 'longName')) ?? str(field(price, 'shortName')) ?? symbol;
-		} catch {
-			// the ticker is a fine fallback query
-		}
-		const result = await c.search(query, { newsCount: NEWS_LIMIT, quotesCount: 0 }, OPTIONS);
-		return parseYahooNews(field(result, 'news') ?? []);
-	}, []);
+	return run(
+		Effect.gen(function* () {
+			const c = yield* clientOf(client);
+			const query = yield* newsQuery(c, symbol);
+			const result = yield* call(() => c.search(query, { newsCount: NEWS_LIMIT, quotesCount: 0 }, OPTIONS));
+			return yield* parse(() => parseYahooNews(field(result, 'news') ?? []));
+		}),
+		[]
+	);
 }
 
-async function reportingCurrency(c: YahooClient, symbol: string): Promise<string | null> {
-	try {
-		const s = await c.quoteSummary(symbol, { modules: ['financialData', 'price'] }, OPTIONS);
-		return str(field(field(s, 'financialData'), 'financialCurrency')) ?? str(field(field(s, 'price'), 'currency'));
-	} catch {
-		return null;
-	}
-}
+/** The statement's reporting currency; null when the lookup fails in any way. */
+const reportingCurrency = (c: YahooClient, symbol: string): Effect.Effect<string | null> =>
+	call(() => c.quoteSummary(symbol, { modules: ['financialData', 'price'] }, OPTIONS)).pipe(
+		Effect.map(
+			(s) => str(field(field(s, 'financialData'), 'financialCurrency')) ?? str(field(field(s, 'price'), 'currency'))
+		),
+		Effect.orElseSucceed(() => null)
+	);
+
+const series = (c: YahooClient, symbol: string, type: 'annual' | 'trailing', module: StatementModule, from: number) =>
+	call(() => c.fundamentalsTimeSeries(symbol, { period1: new Date(Date.UTC(from, 0, 1)), type, module }, OPTIONS));
 
 export function fetchYahooStatement(
 	kind: Kind,
@@ -156,29 +214,18 @@ export function fetchYahooStatement(
 	period: Period,
 	client?: YahooClient
 ): Promise<Statement> {
-	return tolerant(
-		async () => {
-			const c = client ?? (await defaultClient());
+	return run(
+		Effect.gen(function* () {
+			const c = yield* clientOf(client);
 			const module = MODULES[kind];
 			const year = new Date().getUTCFullYear();
 			// TTM income and cash flow come from the trailing series; the balance sheet has none and uses the latest annual one
 			const wantsTrailing = period === 'ttm' && kind !== 'balance';
-			const annual = wantsTrailing
-				? []
-				: await c.fundamentalsTimeSeries(
-						symbol,
-						{ period1: new Date(Date.UTC(year - 7, 0, 1)), type: 'annual', module },
-						OPTIONS
-					);
-			const trailing = wantsTrailing
-				? await c.fundamentalsTimeSeries(
-						symbol,
-						{ period1: new Date(Date.UTC(year - 2, 0, 1)), type: 'trailing', module },
-						OPTIONS
-					)
-				: null;
-			return parseYahooStatement(kind, annual, trailing, period, await reportingCurrency(c, symbol));
-		},
+			const annual = wantsTrailing ? [] : yield* series(c, symbol, 'annual', module, year - 7);
+			const trailing = wantsTrailing ? yield* series(c, symbol, 'trailing', module, year - 2) : null;
+			const currency = yield* reportingCurrency(c, symbol);
+			return yield* parse(() => parseYahooStatement(kind, annual, trailing, period, currency));
+		}),
 		{ lines: [], years: [] }
 	);
 }
