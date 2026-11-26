@@ -126,3 +126,23 @@ Effect; only the typed failures are.
   - the Effect line in CLAUDE.md and AGENTS.md is rewritten to point here.
 - **The boundary test's allow list grows** with each pull request. It lists only the files that have moved.
 - Dependabot updates of `effect` are reviewed like yahoo-finance2's, and a major is a deliberate pull request.
+
+## Clarification, 2026-11-26: the cold start, measured (decision 6)
+
+The work landed in #174 (FMP) and #176 (Eulerpool, with Yahoo moved onto the shared failures). #176 merged before this
+was recorded. The maintainer measured the cold start on #176's preview (`nodejs24.x`, `iad1`), logged in, after 15
+minutes idle. The figures are from Vercel's invocation details:
+
+| Request | Start | Cold start | Duration | Active CPU |
+|---|---|---|---|---|
+| `/companies/__data.json` (public, no Effect) | Cold | 306 ms | 1.11 s | 190 ms |
+| `/financials/valuation/__data.json` | Cold | 357 ms | 1.53 s | 450 ms |
+| `/financials/__data.json` | Cold | 377 ms | 1.23 s | 310 ms |
+| `/financials/__data.json`, 10 s later | Hot | — | 709 ms | 210 ms |
+
+- **The cold start of the `/financials` pages is 50–70 ms above that of a public page without Effect,** and a cold
+  `/financials` request uses about 100 ms more active CPU than a hot one. Both are within the local cost of loading
+  `effect`, about 102 ms, though they also cover the pages' other modules. The durations include the calls to the data
+  sources, so they are not compared.
+- **So bundling `effect` (`ssr.noExternal`) is not needed now.** It stays the first lever if a later measurement shows
+  a worse start.
