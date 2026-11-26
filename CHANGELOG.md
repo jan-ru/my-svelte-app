@@ -4,7 +4,7 @@ Curated highlights per release, not a per-commit list. Each release section beco
 
 ## [Unreleased]
 
-13 merged PRs (#164, #166 to #174, #176, #177, #<PR>). The through-line is **typed failures in the data sources, and a release that measures itself**: the three financial sources now run on Effect behind their unchanged promise interfaces, and a release's `metrics.json` gains Lighthouse, OpenSSF Scorecard and a secret count.
+13 merged PRs (#164, #166 to #174, #176, #177, #180). The through-line is **typed failures in the data sources, and a release that measures itself**: the three financial sources now run on Effect behind their unchanged promise interfaces, and a release's `metrics.json` gains Lighthouse, OpenSSF Scorecard and a secret count.
 
 ### Financials: the data sources on Effect
 
@@ -23,7 +23,7 @@ Curated highlights per release, not a per-commit list. Each release section beco
 
 ### Access
 
-- Sign in with Google replaces the shared password (#<PR>, ADR-014). Only the Google addresses on `ALLOWED_EMAILS` get in, checked again on every request, so one person's access can be withdrawn. The login runs on Web Crypto and `oauth4webapi`, so it works on Vercel, Cloudflare and a Node server alike. Previews have no login. Everyone logs in once more after the release.
+- Sign in with Google replaces the shared password (#180, ADR-014). Only the Google addresses on `ALLOWED_EMAILS` get in, checked again on every request, so one person's access can be withdrawn. The login runs on Web Crypto and `oauth4webapi`, so it works on Vercel, Cloudflare and a Node server alike. Previews have no login. Everyone logs in once more after the release.
 
 ## [2026.11.23] — 2026-11-23
 
