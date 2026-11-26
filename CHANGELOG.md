@@ -6,7 +6,7 @@ Curated highlights per release, not a per-commit list. Each release section beco
 
 ## [2026.11.26] — 2026-11-26
 
-18 merged PRs (#164, #166 to #174, #176 to #183). The through-line is **typed failures in the data sources, a release that measures itself, and a login per person**: the three financial sources now run on Effect behind their unchanged promise interfaces, a release's `metrics.json` gains Lighthouse, OpenSSF Scorecard and a secret count, and Sign in with Google replaces the shared password.
+19 merged PRs (#160, #164, #166 to #174, #176 to #183). The through-line is **typed failures in the data sources, a release that measures itself, and a login per person**: the three financial sources now run on Effect behind their unchanged promise interfaces, a release's `metrics.json` gains Lighthouse, OpenSSF Scorecard and a secret count, and Sign in with Google replaces the shared password.
 
 ### Financials: the data sources on Effect
 
@@ -31,6 +31,7 @@ Curated highlights per release, not a per-commit list. Each release section beco
 ### Development
 
 - `.env` files stay out of git (#182), and Claude Code runs the read-only checks without asking (#183).
+- Prettier 3.10 (#160).
 
 ## [2026.11.23] — 2026-11-23
 
