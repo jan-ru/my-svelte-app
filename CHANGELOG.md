@@ -4,6 +4,23 @@ Curated highlights per release, not a per-commit list. Each release section beco
 
 ## [Unreleased]
 
+12 merged PRs (#164, #166 to #174, #176, #177). The through-line is **typed failures in the data sources, and a release that measures itself**: the three financial sources now run on Effect behind their unchanged promise interfaces, and a release's `metrics.json` gains Lighthouse, OpenSSF Scorecard and a secret count.
+
+### Financials: the data sources on Effect
+
+- Effect v4 was piloted inside the Yahoo source (#168, #171, ADR-012), then extended to FMP (#174) and Eulerpool (#176) (#173, ADR-013, which supersedes ADR-012). Every exported fetcher keeps its promise signature, and the existing tests are the contract and pass unchanged. The failure kinds are part of each function's type, so leaving one unhandled, or passing a raw error on, does not compile.
+- The three sources share one set of tagged failures and one boundary to `SourceError` in `http.ts`. FMP and Eulerpool already shared their fetch steps there in plain TypeScript (#172).
+- A parser bug no longer reaches the caller as a raw error. It reaches the caller as "<source> is unavailable", and the log `detail` holds only the error's class name, never its text, which can carry a URL or a key.
+- Why Effect: an experiment seeded the same mistakes into the plain and the Effect versions of each source. The compiler or lint caught 12 of 23 before the tests with Effect, against 7 of 23 in plain TypeScript. It also found gaps in the existing tests, now closed: FMP's error body against the status, the error's text in the log detail, and a failed Eulerpool currency lookup.
+- Cost: the server function is 17,444 KiB, up from 13,732, of which `effect` is about 3.7 MiB, and it loads only on the `/financials` pages. On a preview, their cold start measured 357 to 377 ms against 306 ms for a public page (#177).
+
+### Releases and security
+
+- A release's `metrics.json` again has `performance.lighthouse`, now measured at the tag (#166), and gains `security.scorecard`, the OpenSSF Scorecard result (#167).
+- gitleaks scans each pull request's commits in the `test` check, and counts the tree at the tag (#169, system-health ADR-0011). A false positive goes into `.gitleaks.toml` with a description, and output is always redacted.
+- `SECURITY.md` says how to report a vulnerability, through GitHub's private reporting (#170).
+- The shared release workflow's version is named beside its pinned commit (#164).
+
 ## [2026.11.23] — 2026-11-23
 
 5 merged PRs (#156 to #161, without #160). The through-line is **a release is what runs in production**: each release now carries an overview PDF and `metrics.json` built at its tag, and it is the only way the app and the API reference reach production. This is the first full release; the two before it were pre-releases.
