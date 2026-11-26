@@ -4,7 +4,9 @@ Curated highlights per release, not a per-commit list. Each release section beco
 
 ## [Unreleased]
 
-13 merged PRs (#164, #166 to #174, #176, #177, #180). The through-line is **typed failures in the data sources, and a release that measures itself**: the three financial sources now run on Effect behind their unchanged promise interfaces, and a release's `metrics.json` gains Lighthouse, OpenSSF Scorecard and a secret count.
+## [2026.11.26] — 2026-11-26
+
+18 merged PRs (#164, #166 to #174, #176 to #183). The through-line is **typed failures in the data sources, a release that measures itself, and a login per person**: the three financial sources now run on Effect behind their unchanged promise interfaces, a release's `metrics.json` gains Lighthouse, OpenSSF Scorecard and a secret count, and Sign in with Google replaces the shared password.
 
 ### Financials: the data sources on Effect
 
@@ -24,6 +26,11 @@ Curated highlights per release, not a per-commit list. Each release section beco
 ### Access
 
 - Sign in with Google replaces the shared password (#180, ADR-014). Only the Google addresses on `ALLOWED_EMAILS` get in, checked again on every request, so one person's access can be withdrawn. The login runs on Web Crypto and `oauth4webapi`, so it works on Vercel, Cloudflare and a Node server alike. Previews have no login. Everyone logs in once more after the release.
+- The design was written down first (#179), and ADR-014 was accepted after the first working sign-in (#181).
+
+### Development
+
+- `.env` files stay out of git (#182), and Claude Code runs the read-only checks without asking (#183).
 
 ## [2026.11.23] — 2026-11-23
 
