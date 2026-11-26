@@ -1,12 +1,12 @@
 ---
-status: Proposed
+status: Accepted
 date: 2026-11-26
 decision-makers: Jan-Ru Muller (sole maintainer)
 ---
 # ADR-014: Sign in with Google, limited to a list of permitted addresses
 
-- **Proposed:** 2026-11-26. Supersedes ADR-003's sign-in method (the shared password), not its split between public
-  and logged-in views.
+- **Accepted:** 2026-11-26, after the first working sign-in. Supersedes ADR-003's sign-in method (the shared
+  password), not its split between public and logged-in views.
 - **Spec:** `docs/superpowers/specs/2026-11-26-google-sign-in-design.md`, for #133.
 - **Component:** `src/lib/server/session.ts`, `src/lib/server/google.ts`, `src/routes/login/`, `src/hooks.server.ts`
 

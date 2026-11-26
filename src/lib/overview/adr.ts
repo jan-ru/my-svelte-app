@@ -34,7 +34,8 @@ export const ADR_THEMES = {
 	'ADR-008': 'Valuation',
 	'ADR-009': 'Code',
 	'ADR-011': 'Delivery',
-	'ADR-013': 'Code'
+	'ADR-013': 'Code',
+	'ADR-014': 'Access'
 } as const satisfies Readonly<Record<string, Theme>>;
 
 const THEMES: Readonly<Record<string, Theme>> = ADR_THEMES;
