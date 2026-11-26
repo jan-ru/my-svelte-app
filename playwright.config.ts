@@ -16,7 +16,8 @@ export default defineConfig({
 		command: `npm run preview -- --port ${PORT} --strictPort`,
 		port: PORT,
 		reuseExistingServer: !process.env.CI,
-		// test-only values: the login works and the FMP key is set, but no test calls FMP. The bypass token makes
+		// test-only values: sign-in is configured, so /login offers it, and the tests log in by setting a signed session
+		// cookie; no test calls Google or FMP. The bypass token makes
 		// "interactive" need the bypass cookie, as in production.
 		env: {
 			GOOGLE_CLIENT_ID: 'e2e-client-id',
