@@ -21,7 +21,7 @@ code works on Vercel, on Cloudflare Workers and on a Node server (VPS) with `ada
 | Where the list lives | The environment variable `ALLOWED_EMAILS`, comma-separated. Never committed: the repository is public and the addresses are personal data. Changing it takes a redeploy. |
 | Previews | No login. Google needs every callback URL registered in advance, and each preview has a new address. Logged-in work is tested locally (`http://localhost:5173`) and on production. |
 | OpenID Connect client | `oauth4webapi` (MIT, no dependencies, Web standards only, OpenID-certified), pinned exactly. `arctic` was considered and is deprecated on npm. Auth.js and host-level protection (Cloudflare Access, Vercel protection) were ruled out: the first replaces our sessions and sits badly with the ISR bypass cookie and the CSP, the second is tied to one host. |
-| Crypto | Web Crypto (`crypto.subtle`) instead of `node:crypto` in `auth.ts` and `access.ts`, so nothing in the login depends on Node. |
+| Crypto | Web Crypto (`crypto.subtle`) instead of `node:crypto` in the session code and `access.ts`, so nothing in the login depends on Node. |
 | Logs | No addresses. A login event logs a short keyed hash of the address. |
 | Own domain | Not needed first: production has the stable `my-svelte-app-alpha.vercel.app`. Recommended before a move of host, so the callback URL, cookies and bookmarks survive it (issue #175). |
 
@@ -106,8 +106,8 @@ On Vercel the three new variables are set for Production only. Reads of `$app/en
 
 ## Files
 
-- `src/lib/server/auth.ts`: the session format above, on Web Crypto; `parseAllowed`, `isAllowed`, `userHash`;
-  `passwordMatches` removed.
+- `src/lib/server/session.ts` (new, replaces `auth.ts`, which is deleted with `passwordMatches`): the session format
+  above and the `fin_oauth` cookie, on Web Crypto; `parseAllowed`, `isAllowed`, `userHash`, `signInConfig`.
 - `src/lib/server/access.ts`: `isInteractive` compares with a Web Crypto digest instead of `node:crypto`. Behaviour
   unchanged.
 - `src/lib/server/google.ts` (new): the `oauth4webapi` calls (authorization URL, code exchange, ID token claims), with
@@ -132,7 +132,7 @@ On Vercel the three new variables are set for Production only. Reads of `$app/en
 
 ## Tests (no network)
 
-- `auth.test.ts`: create and verify a session; a wrong signature, a changed address, an expired session, the old
+- `session.test.ts`: create and verify a session; a wrong signature, a changed address, an expired session, the old
   two-part format and an address taken off the list all fail. `parseAllowed`: case, spaces, empty entries, entries
   without `@`, unset. `userHash`: stable, 8 hex characters, different under another secret, case-insensitive.
 - `google.test.ts`: the authorization URL's parameters; the exchange against a fake token endpoint, through the
@@ -148,13 +148,16 @@ On Vercel the three new variables are set for Production only. Reads of `$app/en
 - `login-views.test.ts`: the component's two states (the sign-in link; the "only on production" note) and the two error
   messages.
 - `access.test.ts` and `hooks.server.test.ts` keep their assertions.
-- E2E: `/login` loads showing the "only on production" note, as CI has no Google client; no serious axe violations.
+- E2E: the Playwright server gets test-only Google values, so `/login` offers the sign-in and `/login/google` redirects
+  to Google (not followed). The tests log in by setting a signed session cookie for a test address, as the callback
+  would. The "only on production" note is covered by the component test. No serious axe violations.
 
 ## Documents
 
 - **ADR-014**, "Sign in with Google, limited to a list of permitted addresses": the decisions above. It supersedes
   ADR-003's sign-in method (the shared password) but not its split between public and logged-in views. ADR-003 gets a
-  dated clarification pointing to ADR-014, and ADR-014 goes in `ADR_THEMES` (theme `Access`).
+  dated clarification pointing to ADR-014. ADR-014 is written as Proposed; it goes in `ADR_THEMES` (theme `Access`)
+  when it is accepted, since that table names only accepted ADRs.
 - `AGENTS.md` (and so `CLAUDE.md`): the Secrets, Login and `ISR_BYPASS_TOKEN` lines (no more "rotate with a password
   change"; rotate `SESSION_SECRET` to end every session).
 - `docs/financials.md`: the login section.
