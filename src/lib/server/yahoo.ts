@@ -1,11 +1,10 @@
 // src/lib/server/yahoo.ts
-import * as Data from 'effect/Data';
 import * as Effect from 'effect/Effect';
 import type { Period } from '../financials-nav';
 import { NEWS_LIMIT } from '../source-data';
 import type { Kind, NewsItem, PricePoint, Profile, Statement } from '../source-data';
 import { field, num, str } from './coerce';
-import { FETCH_TIMEOUT_MS } from './http';
+import { FETCH_TIMEOUT_MS, NotFound, RateLimited, Unavailable, Unexpected, runSourceOr } from './http';
 import { SourceError } from './source-error';
 import { parseYahooNews, parseYahooPrices, parseYahooProfile, parseYahooStatement } from './yahoo-parse';
 
@@ -86,21 +85,20 @@ function describe(error: unknown): string | undefined {
 	return status ? `${error.name} ${status}` : error.name;
 }
 
-// The failures of a Yahoo call, sorted once (ADR-012). None carries the library's text: `detail` is `describe`'s.
-class NotFound extends Data.TaggedError('NotFound') {}
-class RateLimited extends Data.TaggedError('RateLimited')<{ readonly detail: string | undefined }> {}
-class Unavailable extends Data.TaggedError('Unavailable')<{ readonly detail: string | undefined }> {}
-/** A parser found the response unusable; it says so with a fixed `SourceError`. */
-class Unexpected extends Data.TaggedError('Unexpected')<{ readonly error: SourceError }> {}
+// The failures of a Yahoo call are the shared ones of http.ts (ADR-013). None carries the library's text: `detail`
+// is `describe`'s.
 type YahooFailure = NotFound | RateLimited | Unavailable | Unexpected;
+
+const LIMIT = 'Yahoo Finance rate limit reached';
+const UNAVAILABLE = 'Yahoo Finance is unavailable';
 
 /** Sorts anything a library call or a parser threw. Total: it never throws. */
 function classify(error: unknown): YahooFailure {
 	if (error instanceof SourceError) return new Unexpected({ error });
 	if (isNotFound(error)) return new NotFound();
 	const text = error instanceof Error ? `${error.name} ${error.message}` : '';
-	if (RATE_LIMITED.test(text)) return new RateLimited({ detail: describe(error) });
-	return new Unavailable({ detail: describe(error) });
+	if (RATE_LIMITED.test(text)) return new RateLimited({ message: LIMIT, detail: describe(error) });
+	return new Unavailable({ message: UNAVAILABLE, detail: describe(error) });
 }
 
 /** One library call, stopped after `FETCH_TIMEOUT_MS` like the other sources; a timeout is `Unavailable`. */
@@ -108,7 +106,7 @@ const call = <T>(run: () => Promise<T>): Effect.Effect<T, YahooFailure> =>
 	Effect.tryPromise({ try: () => run(), catch: classify }).pipe(
 		Effect.timeoutOrElse({
 			duration: FETCH_TIMEOUT_MS,
-			orElse: () => Effect.fail(new Unavailable({ detail: 'TimeoutError' }))
+			orElse: () => Effect.fail(new Unavailable({ message: UNAVAILABLE, detail: 'TimeoutError' }))
 		})
 	);
 
@@ -118,26 +116,8 @@ const parse = <T>(run: () => T): Effect.Effect<T, YahooFailure> => Effect.try({ 
 const clientOf = (client: YahooClient | undefined): Effect.Effect<YahooClient, YahooFailure> =>
 	client ? Effect.succeed(client) : call(defaultClient);
 
-/** Fixed messages only: library errors can carry URLs and tokens. */
-function toSourceError(failure: RateLimited | Unavailable | Unexpected): SourceError {
-	switch (failure._tag) {
-		case 'RateLimited':
-			return new SourceError('limit', 'Yahoo Finance rate limit reached', failure.detail);
-		case 'Unavailable':
-			return new SourceError('unavailable', 'Yahoo Finance is unavailable', failure.detail);
-		case 'Unexpected':
-			return failure.error;
-	}
-}
-
 /** The promise boundary: a symbol Yahoo does not know is an answer worth caching as `empty`; any other failure is not. */
-const run = <T>(program: Effect.Effect<T, YahooFailure>, empty: T): Promise<T> =>
-	Effect.runPromise(
-		program.pipe(
-			Effect.catchTag('NotFound', () => Effect.succeed(empty)),
-			Effect.mapError(toSourceError)
-		)
-	);
+const run = <T>(program: Effect.Effect<T, YahooFailure>, empty: T): Promise<T> => runSourceOr(program, empty);
 
 export function fetchYahooPrices(
 	symbol: string,

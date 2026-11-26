@@ -1,7 +1,16 @@
 // The fetch steps that FMP and Eulerpool share: fixed messages that name the source and never carry the error's text.
+// They are Effects (ADR-013); these run them through the one boundary to `SourceError`, as the sources do.
 import { describe, expect, it, vi } from 'vitest';
-import { MAX_BYTES, fetchWithTimeout, readBody, readCapped, statusError } from './http';
+import { MAX_BYTES, fetchE, readBodyE, readCapped, runSource, statusFailure, toSourceError } from './http';
 import { SourceError } from './source-error';
+
+const fetchWithTimeout = (fetchFn: typeof fetch, url: string, init: RequestInit, label: string) =>
+	runSource(fetchE(fetchFn, url, init, label));
+const readBody = (response: Response, label: string) => runSource(readBodyE(response, label));
+const statusError = (status: number, label: string) => {
+	const failure = statusFailure(status, label);
+	return failure && toSourceError(failure);
+};
 
 const failure = (promise: Promise<unknown>) =>
 	promise.then(
