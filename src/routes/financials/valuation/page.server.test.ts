@@ -1,11 +1,19 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 type Env = Record<
-	'SITE_PASSWORD' | 'SESSION_SECRET' | 'ISR_BYPASS_TOKEN' | 'FMP_API_KEY' | 'EULERPOOL_API_KEY',
+	| 'GOOGLE_CLIENT_ID'
+	| 'GOOGLE_CLIENT_SECRET'
+	| 'ALLOWED_EMAILS'
+	| 'SESSION_SECRET'
+	| 'ISR_BYPASS_TOKEN'
+	| 'FMP_API_KEY'
+	| 'EULERPOOL_API_KEY',
 	string | undefined
 >;
 const env = vi.hoisted((): Env => ({
-	SITE_PASSWORD: 'pw',
+	GOOGLE_CLIENT_ID: 'id',
+	GOOGLE_CLIENT_SECRET: 'cs',
+	ALLOWED_EMAILS: 'person@example.test',
 	SESSION_SECRET: 's'.repeat(32),
 	ISR_BYPASS_TOKEN: undefined,
 	FMP_API_KEY: 'KEY',
@@ -37,7 +45,9 @@ const run = async (query: string, authed: boolean, interactive = authed) => {
 
 beforeEach(() => {
 	vi.clearAllMocks();
-	env.SITE_PASSWORD = 'pw';
+	env.GOOGLE_CLIENT_ID = 'id';
+	env.GOOGLE_CLIENT_SECRET = 'cs';
+	env.ALLOWED_EMAILS = 'person@example.test';
 	env.SESSION_SECRET = 's'.repeat(32);
 	env.ISR_BYPASS_TOKEN = undefined;
 });
@@ -65,10 +75,10 @@ describe('valuation load', () => {
 		expect(getIndustries).not.toHaveBeenCalled();
 		expect(data).toMatchObject({ industries: [], nav: { industry: null } });
 	});
-	it('still works when the industry list fails, and reports a missing password setup', async () => {
+	it('still works when the industry list fails, and reports a missing sign-in setup', async () => {
 		vi.mocked(getIndustries).mockRejectedValueOnce(new Error('nyu down'));
 		vi.spyOn(console, 'error').mockImplementation(() => {});
-		env.SITE_PASSWORD = undefined;
+		env.ALLOWED_EMAILS = undefined;
 		const { data } = await run('?industry=Semiconductor', true);
 		expect(data).toMatchObject({ configured: false, industries: [], nav: { industry: null } });
 	});

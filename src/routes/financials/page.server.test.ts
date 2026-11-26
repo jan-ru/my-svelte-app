@@ -1,11 +1,19 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 type Env = Record<
-	'SITE_PASSWORD' | 'SESSION_SECRET' | 'ISR_BYPASS_TOKEN' | 'FMP_API_KEY' | 'EULERPOOL_API_KEY',
+	| 'GOOGLE_CLIENT_ID'
+	| 'GOOGLE_CLIENT_SECRET'
+	| 'ALLOWED_EMAILS'
+	| 'SESSION_SECRET'
+	| 'ISR_BYPASS_TOKEN'
+	| 'FMP_API_KEY'
+	| 'EULERPOOL_API_KEY',
 	string | undefined
 >;
 const env = vi.hoisted((): Env => ({
-	SITE_PASSWORD: 'pw',
+	GOOGLE_CLIENT_ID: 'id',
+	GOOGLE_CLIENT_SECRET: 'cs',
+	ALLOWED_EMAILS: 'person@example.test',
 	SESSION_SECRET: 's'.repeat(32),
 	ISR_BYPASS_TOKEN: 't'.repeat(40),
 	FMP_API_KEY: undefined,
@@ -31,7 +39,9 @@ async function redirected(run: () => unknown): Promise<{ status: number; locatio
 }
 
 beforeEach(() => {
-	env.SITE_PASSWORD = 'pw';
+	env.GOOGLE_CLIENT_ID = 'id';
+	env.GOOGLE_CLIENT_SECRET = 'cs';
+	env.ALLOWED_EMAILS = 'person@example.test';
 	env.SESSION_SECRET = 's'.repeat(32);
 });
 

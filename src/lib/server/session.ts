@@ -1,6 +1,6 @@
 // The signed cookies of the Google sign-in (ADR-014), the permitted list and the log hash. Web Crypto only, so the
 // same code runs on Node, Cloudflare Workers and a VPS. Pure apart from the crypto.
-import { returnPath } from '#lib/return-path';
+import { returnPath } from '../return-path';
 
 export const SESSION_COOKIE = 'fin_session';
 export const SESSION_MS = 7 * 24 * 60 * 60 * 1000;

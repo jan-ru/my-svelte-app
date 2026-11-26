@@ -1,5 +1,4 @@
-import { createHash, timingSafeEqual } from 'node:crypto';
-import { SESSION_MS } from './auth';
+import { SESSION_MS, safeEqual } from './session';
 
 /** The cookie name Vercel checks to skip the ISR cache for one browser. */
 export const BYPASS_COOKIE = '__prerender_bypass';
@@ -53,8 +52,6 @@ export function isrConfig(raw: string | undefined) {
 		: { isr: false as const };
 }
 
-const digest = (value: string) => createHash('sha256').update(value).digest();
-
 /**
  * Interactive = a valid session and, when the cache is on, the bypass cookie equal to the token. A request that
  * can fill the ISR cache has no bypass cookie, so what gets cached is always the anonymous view.
@@ -67,7 +64,7 @@ export function isInteractive(
 	if (!authed) return false;
 	const token = bypassToken(rawToken);
 	if (!token) return true;
-	return bypassCookie !== undefined && timingSafeEqual(digest(bypassCookie), digest(token));
+	return bypassCookie !== undefined && safeEqual(bypassCookie, token);
 }
 
 /**

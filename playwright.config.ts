@@ -19,7 +19,9 @@ export default defineConfig({
 		// test-only values: the login works and the FMP key is set, but no test calls FMP. The bypass token makes
 		// "interactive" need the bypass cookie, as in production.
 		env: {
-			SITE_PASSWORD: 'e2e-password',
+			GOOGLE_CLIENT_ID: 'e2e-client-id',
+			GOOGLE_CLIENT_SECRET: 'e2e-client-secret',
+			ALLOWED_EMAILS: 'e2e@example.test',
 			SESSION_SECRET: 'e2e-session-secret-0123456789abcdef',
 			FMP_API_KEY: 'e2e',
 			ISR_BYPASS_TOKEN: 'e2e-bypass-token-0123456789abcdefghij'
