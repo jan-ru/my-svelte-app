@@ -37,4 +37,5 @@ The failed-login rate limit lives in each serverless instance, so it is best eff
 
 The shared password is gone. People sign in with Google, limited to the addresses on `ALLOWED_EMAILS`
 ([ADR-014](0014-google-sign-in.md)). The split between the cached anonymous view and the interactive view, the bypass
-cookie and the revalidation rule are unchanged.
+cookie and the revalidation rule are unchanged. The password and its failed-login rate limit are gone too, so the open
+challenge above no longer applies.

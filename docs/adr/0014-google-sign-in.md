@@ -28,7 +28,7 @@ looked. The site may also move from Vercel to Cloudflare or a VPS (#175), so the
    days. The state, nonce and verifier travel in a second signed cookie, valid for ten minutes and used once.
 4. **No login on previews.** Google needs every callback URL registered in advance, and each preview has a new
    address. Logged-in work is tested locally and on production.
-5. **Logs hold no addresses.** A login logs `login allowed`, `login refused` or `login failed`, with an 8-character
+5. **Logs hold no addresses.** A login logs `login allowed`, `login refused` or `login failed` (an address Google has not verified is `login failed reason=unverified`), with an 8-character
    keyed hash of the address or a fixed reason.
 6. **ADR-003's split stands.** The ISR bypass cookie, `isInteractive`, `isRevalidation` and `pageParams` are unchanged.
 
@@ -51,4 +51,8 @@ looked. The site may also move from Vercel to Cloudflare or a VPS (#175), so the
 - The maintainer registers each host's callback URL with Google (production and localhost now). An own domain makes a
   move of host keep the same callback.
 - Previews cannot show `/financials`. A fixed staging address can be added later with one more registered callback.
+- A removed person keeps the shared `__prerender_bypass` cookie value, which only skips the cache and always gets the
+  anonymous view; rotate `ISR_BYPASS_TOKEN` (and redeploy) when that matters.
+- The list matches addresses, not Google account ids, so whoever controls a listed address's domain at Google (a
+  Workspace admin) could create an account with that verified address.
 - Rotating `SESSION_SECRET` ends every session and changes every log hash.

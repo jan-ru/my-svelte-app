@@ -6,7 +6,10 @@ import { defineEnvVars } from '@sveltejs/kit/env';
 const optional = (value: string | undefined) => value || undefined;
 
 export const variables = defineEnvVars({
-	SESSION_SECRET: { schema: optional, description: 'HMAC secret for the /financials session cookie' },
+	SESSION_SECRET: {
+		schema: optional,
+		description: 'HMAC secret that signs the site-wide session cookie, the sign-in state cookie and the log hash'
+	},
 	GOOGLE_CLIENT_ID: { schema: optional, description: 'OAuth client id for Sign in with Google' },
 	GOOGLE_CLIENT_SECRET: { schema: optional, description: 'OAuth client secret for Sign in with Google' },
 	ALLOWED_EMAILS: {

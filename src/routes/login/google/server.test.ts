@@ -101,6 +101,12 @@ describe('GET /login/google', () => {
 		expect(stored?.state).toBe(to.searchParams.get('state'));
 		expect(stored?.from).toBe('/financials');
 	});
+	it('is never cached', async () => {
+		const jar = fakeCookies();
+		const e = event('/login/google', jar.cookies);
+		await redirected(() => call(start, e));
+		expect(e.setHeaders).toHaveBeenCalledWith({ 'cache-control': 'private, no-store' });
+	});
 	it('drops a from outside the allow-list', async () => {
 		const jar = fakeCookies();
 		await redirected(() => call(start, event('/login/google?from=https%3A%2F%2Fevil.test', jar.cookies)));
@@ -121,6 +127,12 @@ describe('GET /login/google', () => {
 describe('GET /login/google/callback', () => {
 	const at = '/login/google/callback?code=c&state=st';
 
+	it('is never cached', async () => {
+		const jar = fakeCookies();
+		const e = event(at, jar.cookies);
+		await redirected(() => call(callback, e));
+		expect(e.setHeaders).toHaveBeenCalledWith({ 'cache-control': 'private, no-store' });
+	});
 	it('logs in an address on the list and returns to from', async () => {
 		finish.mockResolvedValue({ ok: true, email: 'person@example.test' });
 		const jar = fakeCookies(await withPending());
