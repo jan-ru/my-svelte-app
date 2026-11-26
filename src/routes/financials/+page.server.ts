@@ -1,5 +1,14 @@
-import { EULERPOOL_API_KEY, FMP_API_KEY, ISR_BYPASS_TOKEN, SESSION_SECRET, SITE_PASSWORD } from '$app/env/private';
+import {
+	ALLOWED_EMAILS,
+	EULERPOOL_API_KEY,
+	FMP_API_KEY,
+	GOOGLE_CLIENT_ID,
+	GOOGLE_CLIENT_SECRET,
+	ISR_BYPASS_TOKEN,
+	SESSION_SECRET
+} from '$app/env/private';
 import { BYPASS_COOKIE, bypassToRestore, sessionCookieOptions } from '#lib/server/access';
+import { signInConfig } from '#lib/server/session';
 import { redirect } from '@sveltejs/kit';
 import { parseNav } from '#lib/financials-nav';
 import { loginHref } from '#lib/return-path';
@@ -18,7 +27,13 @@ export const load: PageServerLoad = async ({ locals, url, setHeaders, cookies })
 	const rawSymbol = url.searchParams.get('symbol');
 
 	return {
-		configured: Boolean(SITE_PASSWORD && SESSION_SECRET),
+		configured:
+			signInConfig({
+				clientId: GOOGLE_CLIENT_ID,
+				clientSecret: GOOGLE_CLIENT_SECRET,
+				sessionSecret: SESSION_SECRET,
+				allowed: ALLOWED_EMAILS
+			}) !== null,
 		nav,
 		symbol: (rawSymbol && parseSymbol(rawSymbol)) || '',
 		view: await loadFinancials({

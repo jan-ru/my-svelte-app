@@ -1,9 +1,9 @@
 <script lang="ts">
 	import Callout from '#lib/components/Callout.svelte';
-	let { configured, from, message }: { configured: boolean; from: string | null; message?: string | undefined } =
+	let { configured, from, error }: { configured: boolean; from: string | null; error: 'denied' | 'failed' | null } =
 		$props();
 
-	const action = $derived(from ? `?/login&from=${encodeURIComponent(from)}` : '?/login');
+	const start = $derived(from ? `/login/google?from=${encodeURIComponent(from)}` : '/login/google');
 </script>
 
 <p class="note">
@@ -11,15 +11,15 @@
 	Valuation pages.
 </p>
 {#if !configured}
-	<Callout variant="negative">Logging in is not configured on this deployment.</Callout>
+	<Callout variant="negative">Logging in is only available on the production site.</Callout>
 {:else}
-	<form class="login" method="POST" {action}>
-		<label for="password">Password</label>
-		<input id="password" name="password" type="password" autocomplete="current-password" required />
-		<button type="submit">Log in</button>
-	</form>
+	<p class="login"><a href={start} data-sveltekit-reload>Sign in with Google</a></p>
 {/if}
-{#if message}<Callout variant="negative">{message}</Callout>{/if}
+{#if error === 'denied'}
+	<Callout variant="negative">This Google account has no access.</Callout>
+{:else if error === 'failed'}
+	<Callout variant="negative">Signing in did not work. Try again.</Callout>
+{/if}
 {#if from}<p class="note"><a href={from}>Back without logging in</a></p>{/if}
 
 <style>
@@ -27,10 +27,6 @@
 		color: var(--text-secondary);
 	}
 	.login {
-		display: flex;
-		gap: var(--space-2);
-		align-items: center;
-		flex-wrap: wrap;
 		margin: var(--space-4) 0;
 		padding: var(--space-3) var(--space-4);
 		background: var(--surface-card);

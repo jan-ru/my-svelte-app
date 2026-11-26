@@ -1,6 +1,6 @@
 # Security policy
 
-my-svelte-app is a public SvelteKit app with one maintainer ([@jan-ru](https://github.com/jan-ru)). Its public pages are open to anyone; `/financials` and the valuation page sit behind a password ([docs/configuration.md](docs/configuration.md)).
+my-svelte-app is a public SvelteKit app with one maintainer ([@jan-ru](https://github.com/jan-ru)). Its public pages are open to anyone; `/financials` and the valuation page sit behind Sign in with Google ([docs/configuration.md](docs/configuration.md)).
 
 ## Supported versions
 

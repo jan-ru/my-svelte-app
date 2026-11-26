@@ -2,6 +2,11 @@
 // Each page loads in a real browser with no script or CSP errors and no serious axe violations.
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
+import { SESSION_COOKIE, createSession } from '../src/lib/server/session';
+
+// These must equal the values in playwright.config.ts.
+const SESSION_SECRET = 'e2e-session-secret-0123456789abcdef';
+const BYPASS = 'e2e-bypass-token-0123456789abcdefghij';
 
 const PUBLIC_PAGES = [
 	'/',
@@ -36,10 +41,14 @@ async function expectAccessible(page: Page): Promise<void> {
 	).toEqual([]);
 }
 
+/** Logs in as the e2e address by setting the signed session and bypass cookies, as the Google callback would. */
 async function logIn(page: Page): Promise<void> {
-	await page.goto('/login?from=%2Ffinancials');
-	await page.getByLabel('Password').fill('e2e-password');
-	await page.getByRole('button', { name: 'Log in' }).click();
+	const session = await createSession(SESSION_SECRET, 'e2e@example.test');
+	await page.context().addCookies([
+		{ name: SESSION_COOKIE, value: session, domain: 'localhost', path: '/', httpOnly: true, sameSite: 'Lax' },
+		{ name: '__prerender_bypass', value: BYPASS, domain: 'localhost', path: '/', httpOnly: true, sameSite: 'Lax' }
+	]);
+	await page.goto('/financials');
 	await expect(page.getByRole('button', { name: 'Log out' })).toBeVisible();
 }
 
@@ -74,11 +83,13 @@ test('an unknown address shows the site error page', async ({ page }) => {
 	await expect(page.getByRole('navigation', { name: 'Main' })).toBeVisible();
 });
 
-test('a wrong password is refused', async ({ page }) => {
-	await page.goto('/login');
-	await page.getByLabel('Password').fill('wrong');
-	await page.getByRole('button', { name: 'Log in' }).click();
-	await expect(page.getByRole('alert')).toHaveText('Wrong password.');
+test('the sign-in starts at Google, and a refused account is told so', async ({ page, request }) => {
+	const response = await request.get('/login/google?from=%2Ffinancials', { maxRedirects: 0 });
+	expect(response.status()).toBe(303);
+	expect(response.headers().location).toMatch(/^https:\/\/accounts\.google\.com\/o\/oauth2\/v2\/auth\?/);
+	await page.goto('/login?error=denied');
+	await expect(page.getByRole('alert')).toHaveText('This Google account has no access.');
+	await expectAccessible(page);
 });
 
 test('logging in opens /financials and logging out locks it again', async ({ page }) => {
@@ -98,9 +109,12 @@ test('the menubar login returns to the page it was opened from', async ({ page }
 	await page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Log in' }).click();
 	await expect(page).toHaveURL(/\/login\?from=%2Fcompanies$/);
 	await expectAccessible(page);
-	await page.getByLabel('Password').fill('e2e-password');
-	await page.getByRole('button', { name: 'Log in' }).click();
-	await expect(page).toHaveURL(/\/companies$/);
+	await expect(page.getByRole('link', { name: 'Sign in with Google' })).toHaveAttribute(
+		'href',
+		'/login/google?from=%2Fcompanies'
+	);
+	await logIn(page);
+	await page.goto('/companies');
 	await expect(page.getByRole('button', { name: 'Log out' })).toBeVisible();
 	expect(errors).toEqual([]);
 });
@@ -254,11 +268,9 @@ test.describe('without JavaScript', () => {
 		await expect(page.locator('h1')).toBeVisible();
 	});
 
-	test('a wrong password is refused and the right one opens /financials', async ({ page }) => {
-		await page.goto('/login');
-		await page.getByLabel('Password').fill('wrong');
-		await page.getByRole('button', { name: 'Log in' }).click();
-		await expect(page.getByRole('alert')).toHaveText('Wrong password.');
+	test('a refused account is told so and a signed session opens /financials', async ({ page }) => {
+		await page.goto('/login?error=denied');
+		await expect(page.getByRole('alert')).toHaveText('This Google account has no access.');
 		await logIn(page);
 		await expect(page.getByLabel('Ticker')).toBeVisible();
 	});

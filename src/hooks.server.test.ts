@@ -2,12 +2,13 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const env = vi.hoisted(() => ({
 	SESSION_SECRET: undefined as string | undefined,
+	ALLOWED_EMAILS: undefined as string | undefined,
 	ISR_BYPASS_TOKEN: undefined as string | undefined
 }));
 vi.mock('$app/env/private', () => env);
 
 import { BYPASS_COOKIE } from '#lib/server/access';
-import { SESSION_COOKIE, createSession } from '#lib/server/auth';
+import { SESSION_COOKIE, createSession } from '#lib/server/session';
 import { handle, handleError } from './hooks.server';
 
 const SECRET = 's'.repeat(32);
@@ -30,10 +31,11 @@ async function run(path: string, opts: { cookies?: Record<string, string>; heade
 	return { locals, response, cache: response.headers.get('cache-control') };
 }
 
-const session = () => createSession(SECRET);
+const session = () => createSession(SECRET, 'person@example.test');
 
 beforeEach(() => {
 	env.SESSION_SECRET = SECRET;
+	env.ALLOWED_EMAILS = 'person@example.test';
 	env.ISR_BYPASS_TOKEN = TOKEN;
 });
 
@@ -47,14 +49,14 @@ describe('handle', () => {
 
 	it('treats a session plus the matching bypass cookie as interactive and private', async () => {
 		const { locals, cache } = await run('/companies', {
-			cookies: { [SESSION_COOKIE]: session(), [BYPASS_COOKIE]: TOKEN }
+			cookies: { [SESSION_COOKIE]: await session(), [BYPASS_COOKIE]: TOKEN }
 		});
 		expect(locals).toEqual({ authed: true, interactive: true });
 		expect(cache).toBe('private, no-store');
 	});
 
 	it('keeps a session without the bypass cookie anonymous and leaves the loader header', async () => {
-		const { locals, cache } = await run('/companies', { cookies: { [SESSION_COOKIE]: session() } });
+		const { locals, cache } = await run('/companies', { cookies: { [SESSION_COOKIE]: await session() } });
 		expect(locals).toEqual({ authed: true, interactive: false });
 		expect(cache).toBe(LOADER_HEADER);
 	});
@@ -67,7 +69,7 @@ describe('handle', () => {
 
 	it('always renders the anonymous view for a revalidation request (C1)', async () => {
 		const { locals, cache } = await run('/companies', {
-			cookies: { [SESSION_COOKIE]: session(), [BYPASS_COOKIE]: TOKEN },
+			cookies: { [SESSION_COOKIE]: await session(), [BYPASS_COOKIE]: TOKEN },
 			headers: { 'x-prerender-revalidate': TOKEN }
 		});
 		expect(locals.interactive).toBe(false);
@@ -76,7 +78,9 @@ describe('handle', () => {
 
 	it('is private and uncached on /financials, with or without a session', async () => {
 		expect((await run('/financials')).cache).toBe('private, no-store');
-		expect((await run('/financials', { cookies: { [SESSION_COOKIE]: session() } })).cache).toBe('private, no-store');
+		expect((await run('/financials', { cookies: { [SESSION_COOKIE]: await session() } })).cache).toBe(
+			'private, no-store'
+		);
 	});
 
 	it.each([undefined, 'short'])('drops the public header when the token is unusable (%s) (I2)', async (token) => {
@@ -84,14 +88,24 @@ describe('handle', () => {
 		const anon = await run('/companies');
 		expect(anon.locals.interactive).toBe(false);
 		expect(anon.cache).toBe('private, no-store');
-		const authed = await run('/companies', { cookies: { [SESSION_COOKIE]: session() } });
+		const authed = await run('/companies', { cookies: { [SESSION_COOKIE]: await session() } });
 		expect(authed.locals).toEqual({ authed: true, interactive: true });
 		expect(authed.cache).toBe('private, no-store');
 	});
 
+	it('ends the session of an address taken off the list', async () => {
+		const cookie = await session();
+		env.ALLOWED_EMAILS = 'other@example.test';
+		const { locals } = await run('/companies', { cookies: { [SESSION_COOKIE]: cookie, [BYPASS_COOKIE]: TOKEN } });
+		expect(locals.authed).toBe(false);
+		expect(locals.interactive).toBe(false);
+	});
+
 	it('fails closed without SESSION_SECRET', async () => {
 		env.SESSION_SECRET = undefined;
-		const { locals } = await run('/companies', { cookies: { [SESSION_COOKIE]: session(), [BYPASS_COOKIE]: TOKEN } });
+		const { locals } = await run('/companies', {
+			cookies: { [SESSION_COOKIE]: await session(), [BYPASS_COOKIE]: TOKEN }
+		});
 		expect(locals).toEqual({ authed: false, interactive: false });
 	});
 });

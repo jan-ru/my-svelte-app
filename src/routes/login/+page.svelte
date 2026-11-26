@@ -3,7 +3,7 @@
 	import LoginForm from '#lib/components/LoginForm.svelte';
 	import type { PageProps } from './$types';
 
-	let { data, form }: PageProps = $props();
+	let { data }: PageProps = $props();
 </script>
 
 <svelte:head>
@@ -13,7 +13,7 @@
 
 <main>
 	<h1>Log in</h1>
-	<LoginForm configured={data.configured} from={data.from} message={form?.message} />
+	<LoginForm configured={data.configured} from={data.from} error={data.error} />
 </main>
 
 <style>
