@@ -1,11 +1,12 @@
 ---
-status: Accepted
+status: Superseded by ADR-013
 date: 2026-11-24
 decision-makers: Jan-Ru Muller (sole maintainer)
 ---
 # ADR-012: Pilot Effect v4 inside the Yahoo source, behind its existing promise interface
 
 - **Accepted:** 2026-11-24, in #168.
+- **Superseded:** 2026-11-26 by [ADR-013](0013-effect-in-every-source.md): Effect extends to the FMP and Eulerpool sources.
 - **Component:** `src/lib/server/yahoo.ts`, `src/lib/server/yahoo-parse.ts`, `package.json`, a new boundary test
 
 ## Context

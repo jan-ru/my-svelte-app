@@ -1,11 +1,11 @@
 ---
-status: Proposed
+status: Accepted
 date: 2026-11-25
 decision-makers: Jan-Ru Muller (sole maintainer)
 ---
 # ADR-013: Extend Effect to the FMP and Eulerpool sources, behind their promise interfaces
 
-- **Proposed:** 2026-11-25. Supersedes [ADR-012](0012-effect-pilot-yahoo.md) once accepted.
+- **Accepted:** 2026-11-26, in #173. Supersedes [ADR-012](0012-effect-pilot-yahoo.md).
 - **Component:** `src/lib/server/fmp.ts`, `fmp-info.ts`, `eulerpool.ts`, `eulerpool-parse.ts`, `http.ts`, the Yahoo
   modules of the pilot, `effect-boundary.test.ts`
 
