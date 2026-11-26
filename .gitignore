@@ -21,3 +21,4 @@ test-results/
 # Cloudflare Wrangler local state (cache, created when wrangler runs here)
 .wrangler/
 /my-svelte-app-overview-*.pdf
+.env*
