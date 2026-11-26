@@ -57,8 +57,9 @@
 
 		<h2 id="access">Public and logged-in</h2>
 		<p>
-			Without a login you see the default view of each public page, cached for a day. The shared password unlocks the
-			filters, search and paging, and the Financials and Valuation pages, which are never cached publicly.
+			Without a login you see the default view of each public page, cached for a day. Signing in with Google, for the
+			permitted accounts, unlocks the filters, search and paging, and the Financials and Valuation pages, which are
+			never cached publicly.
 		</p>
 
 		<h2 id="sources">Data sources</h2>

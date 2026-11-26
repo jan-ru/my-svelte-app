@@ -4,7 +4,7 @@
 [![Release](https://img.shields.io/github/v/release/jan-ru/my-svelte-app?include_prereleases&sort=date)](https://github.com/jan-ru/my-svelte-app/releases)
 [![API docs](https://img.shields.io/badge/API%20docs-TypeDoc-blue)](https://my-svelte-app-docs.pages.dev/)
 
-A [SvelteKit](https://svelte.dev/docs/kit) app on Vercel that compares valuation multiples from the [NYU Stern](https://pages.stern.nyu.edu/~adamodar/New_Home_Page/data.html) industry datasets in public, and, behind a shared password, shows a company's financials and values it against peers.
+A [SvelteKit](https://svelte.dev/docs/kit) app on Vercel that compares valuation multiples from the [NYU Stern](https://pages.stern.nyu.edu/~adamodar/New_Home_Page/data.html) industry datasets in public, and, behind Sign in with Google, shows a company's financials and values it against peers.
 
 ## Pages
 
@@ -12,11 +12,11 @@ A [SvelteKit](https://svelte.dev/docs/kit) app on Vercel that compares valuation
 - **Find industry** (`/classification`): link SBI 2025 codes to the Damodaran industries, in both directions. [More](docs/pages.md#industry-classification)
 - **Companies** (`/companies`): the companies behind an industry, with filters. [More](docs/pages.md#companies)
 - **Countries** and **Industries** (`/countries`, `/industries`): each one's share of the global total, as a treemap and ranked bars. [More](docs/pages.md#countries-and-industries)
-- **Financials** (`/financials`, password): income statement, balance sheet and cash flow for the last 5 years, plus ratios, estimates, news and prices, from FMP, Yahoo Finance or Eulerpool. [More](docs/financials.md#using-the-financials-page)
-- **Valuation** (`/financials/valuation`, password): values one company with multiples against peers picked by hand, with a football-field chart. [More](docs/financials.md#using-the-valuation-page)
+- **Financials** (`/financials`, Google login): income statement, balance sheet and cash flow for the last 5 years, plus ratios, estimates, news and prices, from FMP, Yahoo Finance or Eulerpool. [More](docs/financials.md#using-the-financials-page)
+- **Valuation** (`/financials/valuation`, Google login): values one company with multiples against peers picked by hand, with a football-field chart. [More](docs/financials.md#using-the-valuation-page)
 - **About**: the app and its sources in short.
 
-Anonymous visitors see a cached default view of the public pages; the shared password unlocks the interactive versions and `/financials` ([details](docs/pages.md#public-and-logged-in)).
+Anonymous visitors see a cached default view of the public pages; Sign in with Google unlocks the interactive versions and `/financials` ([details](docs/pages.md#public-and-logged-in)).
 
 ## Quick start
 
@@ -41,6 +41,7 @@ The dev server runs at <http://localhost:5173>. Without environment variables th
 | [Configuration](docs/configuration.md) | Environment variables, login, caching, security headers, deployment |
 | [Development](docs/development.md) | Scripts, project structure, tech stack, conventions and checks |
 | [Workflows](docs/workflows.md) | What runs in CI, what deploys and what is scheduled |
+| [Security policy](SECURITY.md) | How to report a vulnerability, what is supported and what is in place |
 | [Releasing](RELEASING.md) and [Changelog](CHANGELOG.md) | How a release is cut, and what each release brought |
 | [Decisions](docs/adr/README.md) and [Quality review](docs/quality/README.md) | One ADR per decision; what CI enforces and what to watch |
 | [Classification data](docs/crosswalk.md), [Size pages](docs/size.md), [Design tokens](docs/horizon-tokens.md) | How the generated data and the Horizon theme are built |

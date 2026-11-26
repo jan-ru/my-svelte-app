@@ -1,6 +1,6 @@
 # Pages
 
-What each public page does. The password-protected `/financials` and valuation pages are in [financials.md](financials.md); the design tokens are in [horizon-tokens.md](horizon-tokens.md); the design at a glance is in [overview.md](overview.md).
+What each public page does. The `/financials` and valuation pages, behind Sign in with Google, are in [financials.md](financials.md); the design tokens are in [horizon-tokens.md](horizon-tokens.md); the design at a glance is in [overview.md](overview.md).
 
 ## Multiples
 
@@ -35,7 +35,7 @@ The `/companies` page lists the companies behind an industry. Filter by Damodara
 
 ## Public and logged-in
 
-Anonymous visitors see the default view of Multiples, Countries, Industries, Companies (the first 20 companies), Find industry and About, cached for a day. They cannot use filters, search or paging; the URL parameters are ignored, except `band`, which zooms the Countries and Industries treemaps. The same shared password unlocks interactive versions of every page. `/financials` is unchanged. `robots.txt` disallows crawlers.
+Anonymous visitors see the default view of Multiples, Countries, Industries, Companies (the first 20 companies), Find industry and About, cached for a day. They cannot use filters, search or paging; the URL parameters are ignored, except `band`, which zooms the Countries and Industries treemaps. Signing in with Google unlocks interactive versions of every page. `/financials` is unchanged. `robots.txt` disallows crawlers.
 
 ## Look and navigation
 

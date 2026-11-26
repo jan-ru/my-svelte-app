@@ -3,7 +3,7 @@ import { safeUrl } from '../safe-url';
 import { NEWS_LIMIT } from '../source-data';
 import type { NewsItem, Peer, PricePoint, PriceTarget, Profile } from '../source-data';
 import { isRecord, num, str } from './coerce';
-import { fmpGet, throwIfErrorBody } from './fmp';
+import { fmpFetch, throwIfErrorBody } from './fmp';
 import { SourceError } from './source-error';
 
 export const PEERS_LIMIT = 20;
@@ -73,26 +73,22 @@ export function parsePrices(body: unknown): PricePoint[] {
 	return [...byDate.values()].sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
 }
 
-export async function fetchProfile(
-	symbol: string,
-	apiKey: string,
-	fetchFn: typeof fetch = fetch
-): Promise<Profile | null> {
-	return parseProfile(await fmpGet('profile', { symbol }, apiKey, fetchFn));
+export function fetchProfile(symbol: string, apiKey: string, fetchFn: typeof fetch = fetch): Promise<Profile | null> {
+	return fmpFetch('profile', { symbol }, apiKey, fetchFn, parseProfile);
 }
 
-export async function fetchNews(symbol: string, apiKey: string, fetchFn: typeof fetch = fetch): Promise<NewsItem[]> {
-	return parseNews(await fmpGet(NEWS_PATH, { symbols: symbol, limit: String(NEWS_LIMIT) }, apiKey, fetchFn));
+export function fetchNews(symbol: string, apiKey: string, fetchFn: typeof fetch = fetch): Promise<NewsItem[]> {
+	return fmpFetch(NEWS_PATH, { symbols: symbol, limit: String(NEWS_LIMIT) }, apiKey, fetchFn, parseNews);
 }
 
-export async function fetchPrices(
+export function fetchPrices(
 	symbol: string,
 	apiKey: string,
 	from: string,
 	to: string,
 	fetchFn: typeof fetch = fetch
 ): Promise<PricePoint[]> {
-	return parsePrices(await fmpGet('historical-price-eod/full', { symbol, from, to }, apiKey, fetchFn));
+	return fmpFetch('historical-price-eod/full', { symbol, from, to }, apiKey, fetchFn, parsePrices);
 }
 
 export function parsePriceTarget(body: unknown): PriceTarget | null {
@@ -122,14 +118,14 @@ export function parsePeers(body: unknown): Peer[] {
 	return peers.slice(0, PEERS_LIMIT);
 }
 
-export async function fetchPriceTarget(
+export function fetchPriceTarget(
 	symbol: string,
 	apiKey: string,
 	fetchFn: typeof fetch = fetch
 ): Promise<PriceTarget | null> {
-	return parsePriceTarget(await fmpGet('price-target-consensus', { symbol }, apiKey, fetchFn));
+	return fmpFetch('price-target-consensus', { symbol }, apiKey, fetchFn, parsePriceTarget);
 }
 
-export async function fetchPeers(symbol: string, apiKey: string, fetchFn: typeof fetch = fetch): Promise<Peer[]> {
-	return parsePeers(await fmpGet('stock-peers', { symbol }, apiKey, fetchFn));
+export function fetchPeers(symbol: string, apiKey: string, fetchFn: typeof fetch = fetch): Promise<Peer[]> {
+	return fmpFetch('stock-peers', { symbol }, apiKey, fetchFn, parsePeers);
 }

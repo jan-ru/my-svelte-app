@@ -1,6 +1,6 @@
 # Releasing
 
-`my-svelte-app` deploys every merge to `main` on Vercel, so a release does not ship code. A release is a **dated, curated record**: a changelog section, an overview PDF built at the tag (with the quality figures measured there) and `metrics.json`. It follows the release process of `finance-tools`, scaled down to one app. Which workflows run before a merge, which deploy and what a tag does not trigger: [docs/workflows.md](docs/workflows.md).
+A release is **what runs in production**: the app and the API reference are deployed only from a release tag, never from a push to `main` ([jan-ru/.github ADR-0001](https://github.com/jan-ru/.github/blob/main/docs/adr/0001-releases-from-one-shared-workflow.md), the release standard of every jan-ru repository with production software). A release also carries a curated changelog section, an overview PDF built at the tag (with the quality figures measured there) and `metrics.json`. Which workflows run before a merge, which deploy and what a tag does not trigger: [docs/workflows.md](docs/workflows.md).
 
 Versions are **CalVer `YYYY.0M.0D`** (for example `2026.11.08`), the date the release was cut. There is no version to bump in `package.json`; the tag is the version. Cut a release when there is something worth recording, aiming for about once a week. Skipping a week is normal, and an empty release is noise.
 
@@ -33,16 +33,23 @@ git tag -a YYYY.0M.0D -m "YYYY.0M.0D"
 git push origin YYYY.0M.0D
 ```
 
-The tag runs `release-assets.yml`. It creates the GitHub **pre-release** with the changelog section as its notes (`node scripts/release-notes.ts YYYY.0M.0D` prints them), runs the checks and tests at the tag, and attaches `my-svelte-app-overview-YYYY.0M.0D.pdf` and `metrics.json`. A red check or test at the tag does not stop the PDF: it shows on the quality page. If the build fails, the release still stands. A manual re-run with `dry_run` off uses the tag's own scripts and lockfile, so it only helps when the cause is outside the tag (a `gh` outage, a label, the workflow file). A fix to the script, the parsers or a dependency needs a new tag (`YYYY.0M.0D.1`), because a published tag is never moved. The tag also runs `docs.yml` (step 5).
+Everything after that runs by itself.
 
-### 5. The API reference
+## What the tag does
 
-Pushing the tag runs `docs.yml`, which builds the API reference and deploys it to Cloudflare Pages at
-<https://my-svelte-app-docs.pages.dev/>. It needs the repository secrets `CLOUDFLARE_API_TOKEN` and
-`CLOUDFLARE_ACCOUNT_ID`, as in finance-tools.
+The tag runs `release-assets.yml`:
+
+1. **`scorecard`** runs OpenSSF Scorecard against the repository as it is then, and **`build`** runs the checks and tests at the tag and builds `my-svelte-app-overview-YYYY.0M.0D.pdf` and `metrics.json`, with Scorecard's result as `security.scorecard`. Before it installs anything, `build` counts the secrets gitleaks finds in the tag's files into `security.secrets_found` (a failed scan leaves the field out). A red check or test does not stop them: it shows on the PDF's quality page and in `metrics.json`. A Scorecard failure is a warning and leaves the field out. To move to a new Scorecard version, change `SCORECARD_VERSION` and `SCORECARD_SHA256` together (the hash is the `linux_amd64` line of the release's `scorecard_checksums.txt`).
+2. **`release`** calls the shared release workflow. It refuses the tag unless its commit is on `main` and is the merge of a PR that passed `test`, takes the notes from the tag's section of `CHANGELOG.md` (a missing or empty section is refused; `node scripts/release-notes.ts YYYY.0M.0D` prints what it will find), creates a **full release** and attaches the PDF and `metrics.json`.
+3. **`deploy`** deploys the tag to Vercel production. Vercel builds it with its production environment variables. It needs the repository secret `VERCEL_TOKEN` and the variables `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID`.
+4. **`api-docs`** runs `docs.yml` for the tag, which builds the API reference and deploys it to Cloudflare Pages at <https://my-svelte-app-docs.pages.dev/>. It needs the repository secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`, as in finance-tools.
+
+A refused tag, or a failed `build`, gets no release and deploys nothing. A manual run (Actions → Release assets → Run workflow, the tag, `dry_run` off) uses the tag's own scripts and lockfile, so it helps only when the cause is outside the tag (a `gh` or Vercel outage, a label, a secret). Otherwise delete the unreleased tag (`git push origin :refs/tags/YYYY.0M.0D`), fix the cause in a PR, and tag again. A tag that has a release is never moved.
+
+**Rollback:** Vercel's Instant Rollback to an earlier release's deployment, or a manual run of `release-assets.yml` for that release's tag with `dry_run` off, which deploys it again.
 
 ## Conventions
 
-- **One release per day.** If a second is really needed, append a counter (`2026.11.08.1`); never move a published tag.
-- **Pre-release.** The app is under active development with no supported older versions.
+- **One release per day.** The shared workflow accepts `YYYY.0M.0D` only, so a second release waits for the next day.
+- **Full releases.** A release is what is deployed, so it is never marked as a pre-release. The releases before this change were, and stay so as history.
 - **Generated data is not part of a release.** `src/lib/data/*.json` is rebuilt in its own PR when its source changes (`docs/crosswalk.md`, `docs/size.md`).

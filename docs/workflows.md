@@ -11,9 +11,9 @@ What runs automatically, grouped by the stage it belongs to. Each GitHub workflo
 | | Vercel preview deployment | Vercel Git integration | Every PR | No |
 | | The same commands on your machine | `package.json` scripts | You | n/a |
 | **Merge gate** (must be green to merge) | `test` | `ci.yml` | PR, and again on push to `main` | **Yes**, the only required check |
-| **Deployment** (publishes something after a merge) | Production deploy of the app | Vercel Git integration; `vercel.json` holds only build commands | Every merge to `main` | n/a |
-| | API reference to Cloudflare Pages | `docs.yml`, `deploy` job | A release tag, or by hand | n/a |
-| | Release: the tag, by hand ([RELEASING.md](../RELEASING.md)); then the pre-release, overview PDF and `metrics.json` | `release-assets.yml` | A release tag, or by hand for a tag (`dry_run` on by default) | n/a |
+| **Deployment** (publishes a release) | Release: the tag, by hand ([RELEASING.md](../RELEASING.md)); then the overview PDF and `metrics.json` at the tag, and the full release through jan-ru/.github's shared workflow | `release-assets.yml`, `build` and `release` jobs | A release tag, or by hand for a tag (`dry_run` on by default) | n/a |
+| | Production deploy of the app to Vercel | `release-assets.yml`, `deploy` job; `vercel.json` turns off Vercel's deploys of `main` | After the release | n/a |
+| | API reference to Cloudflare Pages | `docs.yml`, called by `release-assets.yml` | After the release, or by hand | n/a |
 | | Overview PDF preview | `release-assets.yml`, `build` job | PR that touches the overview's inputs | No |
 | | `metrics.json` for jan-ru/system-health | `ci.yml`, `metrics` job | Every push to `main`, after `test` and `lighthouse` | n/a |
 | **Scheduled** (runs on a clock, not on a change) | NYU data check | `check-data.yml` | Monthly on the 1st at 06:00 UTC, or by hand | n/a |
@@ -28,6 +28,7 @@ Because the check is strict, the tree that merges is the tree `test` passed on. 
 The `test` job runs these commands in order, and the same ones work locally:
 
 ```sh
+gitleaks git --redact --log-opts="origin/main..HEAD" .   # pull requests only: no secret in the commits it adds
 npm run check          # svelte-check, strict
 npm run lint           # typescript-eslint strictTypeChecked, eslint-plugin-svelte
 npm run format:check   # Prettier
@@ -41,6 +42,8 @@ npm audit --omit=dev --audit-level=high
 
 A failed run uploads the Playwright report as an artifact for 7 days.
 
+The secret scan ([jan-ru/system-health ADR-0011](https://github.com/jan-ru/system-health/blob/main/docs/adr/0011-secret-scanning.md)) runs first, on pull requests only, over exactly the commits the pull request adds (its base to its head). It uses the gitleaks release pinned in `.github/actions/gitleaks/action.yml`, checked against its SHA-256, and the allowlists in `.gitleaks.toml`, each with the reason its matches are not secrets. Any finding fails `test`. The output is redacted and no report is kept. A false positive goes into `.gitleaks.toml` in the same pull request, where it is reviewed like any change to the gate. A real secret that reached a pull request is already on GitHub, so revoke it.
+
 ## Deployment
 
 Where each part goes:
@@ -52,19 +55,19 @@ flowchart LR
   MAIN --> TAG[Release tag]
 
   PR -->|every push| VP[Vercel preview]
-  MAIN -->|every merge| VPROD[Vercel production<br/>the app]
-  TAG -->|docs.yml| CF[Cloudflare Pages<br/>API reference]
-  TAG -->|release-assets.yml| RA[Release PDF and metrics.json]
+  TAG -->|release-assets.yml| REL[Full release<br/>PDF and metrics.json]
+  REL -->|deploy| VPROD[Vercel production<br/>the app]
+  REL -->|docs.yml| CF[Cloudflare Pages<br/>API reference]
 ```
 
-- **The app** is deployed by Vercel, not by a workflow: every merge to `main` goes to production and every PR gets a preview. The Vercel checks appear on a PR, but none of them is required.
-- **The API reference** goes to Cloudflare Pages (<https://my-svelte-app-docs.pages.dev/>) at a release tag, or by hand from `main` or a tag. A pull request that touches `src/lib/**`, `typedoc.json`, `tsconfig.json`, `package.json`, `package-lock.json` or `docs.yml` itself only builds it. Deployments run one at a time and a newer one waits for a running one.
-- **A tag deploys the API reference and builds the release assets.** The app itself is not rebuilt for a release ([RELEASING.md](../RELEASING.md)).
+- **The app** goes to production only from a release: `release-assets.yml` uploads the tag to Vercel, which builds it with its production environment variables ([jan-ru/.github ADR-0001](https://github.com/jan-ru/.github/blob/main/docs/adr/0001-releases-from-one-shared-workflow.md)). `vercel.json` turns off Vercel's own deploys of `main`; every PR still gets a preview. The Vercel checks appear on a PR, but none of them is required.
+- **The API reference** goes to Cloudflare Pages (<https://my-svelte-app-docs.pages.dev/>) after a release, or by hand from `main` or a tag. A pull request that touches `src/lib/**`, `typedoc.json`, `tsconfig.json`, `package.json`, `package-lock.json` or `docs.yml` itself only builds it. Deployments run one at a time and a newer one waits for a running one.
+- **A tag is the only way to production.** It builds the release assets, creates the release, then deploys the app and the API reference ([RELEASING.md](../RELEASING.md)).
 - **One repository.** For one day (2026-11-19) development ran in a private copy that published snapshots here; that was undone the same day ([ADR-011](adr/0011-one-public-repository.md)).
 
 ## Metrics for system-health
 
-jan-ru/system-health collects one `metrics.json` per repository (its ADR-0002: it pulls the file, nothing here pushes). On every push to `main`, the `metrics` job in `ci.yml` runs after `test` and `lighthouse`, whatever their result. `scripts/build-metrics.ts` builds the file from the reports those jobs kept, using `src/lib/metrics.ts`, and the job uploads it as the artifact `metrics` for 90 days. The format is system-health's `schema/metrics.v1.schema.json`. A field that was not measured is left out, never written as 0:
+jan-ru/system-health collects one `metrics.json` per repository (its ADR-0002: it pulls the file, nothing here pushes). Since 2026.11.23 it reads the file attached to each release (system-health #16), which `release-assets.yml` builds at the tag with the same script. On every push to `main`, the `metrics` job in `ci.yml` runs after `test` and `lighthouse`, whatever their result. `scripts/build-metrics.ts` builds the file from the reports those jobs kept, using `src/lib/metrics.ts`, and the job uploads it as the artifact `metrics` for 90 days. The format is system-health's `schema/metrics.v1.schema.json`. A field that was not measured is left out, never written as 0:
 
 | Field | From |
 |---|---|
@@ -72,14 +75,16 @@ jan-ru/system-health collects one `metrics.json` per repository (its ADR-0002: i
 | `quality.tests` | Vitest plus Playwright; a test that passed on retry counts as passed |
 | `quality.type_errors`, `quality.lint_errors` | `0` when `npm run check` or `npm run lint` passed (both fail on any error); left out when they failed |
 | `security.vulnerabilities` | `npm audit --package-lock-only` over every dependency, the same scope cap-tools reports, so the counts compare. The `test` gate itself audits runtime dependencies only |
-| `performance.lighthouse` | The Lighthouse scores of the home page `/` from the `lighthouse` job |
+| `security.scorecard` | OpenSSF Scorecard of the repository during a release run: the `scorecard` job in `release-assets.yml` runs the command-line tool (pinned, checked against its SHA-256) in default mode with its read-only token and no checkout, and `build` adds the result (jan-ru/system-health ADR-0005 and ADR-0009). Each check scored `-1` is left out; the whole field is left out when Scorecard fails or decides nothing. Releases only, not the `main` file of `ci.yml` |
+| `security.secrets_found` | The number of secrets gitleaks finds in the files tracked at the tag, with `.gitleaks.toml`: the `build` job of `release-assets.yml` scans the checkout before anything is installed or built (jan-ru/system-health ADR-0011). Measured, not a gate. Left out when the scan fails, including a manual run for a tag from before the scan existed. Releases only |
+| `performance.lighthouse` | The Lighthouse scores of the home page `/`: from the `lighthouse` job on `main`, and from `lhci collect` over the tag's build in `release-assets.yml` for a release. Left out when Lighthouse failed |
 | `gates` | `test`, the one required check |
 
 The steps that keep reports and the `metrics` job run only in `jan-ru/my-svelte-app`, not in forks.
 
 ## Things to know
 
-- Nothing in the repository makes Vercel wait for CI. A merge deploys even if the run of `test` on `main` afterwards fails; that second run is a signal after the fact, not a gate. With the check strict it should only fail for a reason the tree does not explain, such as a flaky test or a new advisory in `npm audit`.
+- A merge deploys nothing. Production follows a release, and the shared release workflow refuses a tag whose PR did not pass `test`. The run of `test` on `main` after a merge is a signal after the fact; with the check strict it should only fail for a reason the tree does not explain, such as a flaky test or a new advisory in `npm audit`.
 - `npm audit` is part of `test` but its result depends on the day, not on the change: a new advisory in a runtime dependency fails every open PR until it is handled.
 - The ruleset binds to the job name `test`. If the job is renamed or split, keep a final job called `test` or change the ruleset in the same PR, or every PR waits for a check that never reports.
 - Changing `docs.yml` triggers the API docs workflow, because the file is in its own path filter.

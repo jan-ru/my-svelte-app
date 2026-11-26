@@ -1,12 +1,17 @@
-import { ISR_BYPASS_TOKEN, SESSION_SECRET } from '$app/env/private';
-import { SESSION_COOKIE, verifySession } from '#lib/server/auth';
+import { ALLOWED_EMAILS, ISR_BYPASS_TOKEN, SESSION_SECRET } from '$app/env/private';
+import { SESSION_COOKIE, parseAllowed, verifySession } from '#lib/server/session';
 import { BYPASS_COOKIE, bypassToken, isInteractive, isRevalidation } from '#lib/server/access';
-import { randomUUID } from 'node:crypto';
 import type { Handle, HandleServerError } from '@sveltejs/kit/hooks';
 
 export const handle: Handle = async ({ event, resolve }) => {
-	// Fails closed: with no SESSION_SECRET configured, verifySession is always false.
-	event.locals.authed = verifySession(event.cookies.get(SESSION_COOKIE), SESSION_SECRET ?? '');
+	// Fails closed: with no SESSION_SECRET or an empty ALLOWED_EMAILS, nobody is logged in. An address taken off the
+	// list ends its session at the next request after the redeploy (ADR-014).
+	const email = await verifySession(
+		event.cookies.get(SESSION_COOKIE),
+		SESSION_SECRET ?? '',
+		parseAllowed(ALLOWED_EMAILS)
+	);
+	event.locals.authed = email !== null;
 	// A revalidation request regenerates the cached public copy, so it always gets the anonymous view.
 	event.locals.interactive =
 		!isRevalidation(event.request.headers) &&
@@ -30,7 +35,7 @@ export const handle: Handle = async ({ event, resolve }) => {
  */
 export const handleError: HandleServerError = ({ kind, error, event }) => {
 	if (kind !== 'unknown') return;
-	const errorId = randomUUID();
+	const errorId = crypto.randomUUID();
 	console.error(`unexpected error ${errorId} on ${event.request.method} ${event.url.pathname}`, error);
 	return { message: 'Something went wrong.', errorId };
 };

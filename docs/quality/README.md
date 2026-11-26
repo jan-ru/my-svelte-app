@@ -48,7 +48,6 @@ The rules bind new and changed code; existing code is not rewritten only to matc
 - **SheetJS** comes from `cdn.sheetjs.com` and Dependabot cannot update it. Check for a new release now and then.
 - **Yahoo Finance** goes through the unofficial yahoo-finance2 package and can break without notice. A symbol counts as unknown only when Yahoo's own not-found wording matches (`NOT_FOUND` in `yahoo.ts`); if Yahoo changes that wording, a real not-found shows as "unavailable" until it is updated, which is the safer direction (#33, #138).
 - **TypeDoc** supports TypeScript up to 6.0.x, so TypeScript 7 waits for it.
-- **The login rate limit** is per serverless instance, so best effort only ([ADR-003](../adr/0003-public-pages-isr-login-unlocks.md)).
 - **Svelte components** are covered by render tests but not by TypeDoc, and there is no DOM test library; behaviour in a browser is covered by the Playwright smoke tests in `e2e/`.
 - **Vercel Analytics and Speed Insights** are loaded through their generic entry points in `+layout.svelte`, because their `/sveltekit` entry points import `$app/stores`, which SvelteKit 3 removed. Switch back when they support SvelteKit 3.
 - **Playwright** is pinned exactly, and `playwright-core` follows it through `overrides`, so `@axe-core/playwright` uses the same copy.

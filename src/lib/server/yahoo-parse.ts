@@ -1,4 +1,8 @@
 // src/lib/server/yahoo-parse.ts
+// subpaths rather than the 'effect' index, which loads every module (ADR-012's cold-start criterion)
+import * as Option from 'effect/Option';
+import * as Schema from 'effect/Schema';
+import * as SchemaTransformation from 'effect/SchemaTransformation';
 import type { Period } from '../financials-nav';
 import { safeUrl } from '../safe-url';
 import type { Kind, NewsItem, PricePoint, Profile, Statement, StatementYear } from '../source-data';
@@ -24,15 +28,37 @@ const records = (body: unknown): readonly Readonly<Record<string, unknown>>[] =>
 	return body.filter(isRecord);
 };
 
+// The quotes of `chart()` as Effect Schemas, the pilot of ADR-012. They accept what `num` and `toDate` accept.
+const Text = Schema.Trim.pipe(Schema.check(Schema.isNonEmpty()));
+/** A finite number, or a string that reads as one. */
+const Num = Schema.Union([Schema.Finite, Text.pipe(Schema.decodeTo(Schema.FiniteFromString))]);
+/** Epoch seconds, or milliseconds from 1e11 on. */
+const Epoch = Schema.Finite.pipe(
+	Schema.decodeTo(
+		Schema.Date,
+		SchemaTransformation.transform({
+			decode: (n: number) => new Date(n < 1e11 ? n * 1000 : n),
+			encode: (date: Date) => date.getTime()
+		})
+	)
+);
+/** A date string goes to `Date` as it is, untrimmed, as `toDate` does: `Date` reads a padded one differently. */
+const DateText = Schema.String.pipe(Schema.check(Schema.isPattern(/\S/)), Schema.decodeTo(Schema.DateFromString));
+const When = Schema.Union([Schema.Date, Epoch, DateText]);
+/** A quote that counts: a date and a close. Anything else in the list is skipped, as before. */
+const Quote = Schema.Struct({ date: When, close: Num, volume: Schema.optionalKey(Schema.Unknown) });
+const Quotes = Schema.Array(Schema.Unknown);
+
+const decodeQuote = Schema.decodeUnknownOption(Quote);
+const decodeNum = Schema.decodeUnknownOption(Num);
+
 /** Daily closes from `chart().quotes`; `gmtoffsetSeconds` (from `chart().meta`) puts each quote on its exchange-local date. */
 export function parseYahooPrices(quotes: unknown, gmtoffsetSeconds = 0): PricePoint[] {
+	const list = Option.getOrThrowWith(Schema.decodeUnknownOption(Quotes)(quotes), unexpected);
 	const byDate = new Map<string, PricePoint>();
-	for (const rec of records(quotes)) {
-		const when = toDate(rec.date);
-		const close = num(rec.close);
-		if (!when || close === null) continue;
-		const date = isoDate(when, gmtoffsetSeconds);
-		byDate.set(date, { date, close, volume: num(rec.volume) });
+	for (const quote of list.flatMap((item) => Option.toArray(decodeQuote(item)))) {
+		const date = isoDate(quote.date, gmtoffsetSeconds);
+		byDate.set(date, { date, close: quote.close, volume: Option.getOrNull(decodeNum(quote.volume)) });
 	}
 	return [...byDate.values()].sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
 }

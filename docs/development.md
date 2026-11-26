@@ -68,8 +68,8 @@ src/
     data/               Generated crosswalk.json, companies.json, gdp.json and macro.json
     components/         Charts, tables, menus (SideMenu, SideLayout), Icon and the login prompt
     server/             Workbook download, parsing, cache, comparison; the FMP, Yahoo and Eulerpool clients and
-                        parsers; financial-sources.ts and financials.ts (fetcher sets and tab loaders); session
-                        auth; access rules (ISR, interactive)
+                        parsers; financial-sources.ts and financials.ts (fetcher sets and tab loaders); session and
+                        Google sign-in (session.ts, google.ts); access rules (ISR, interactive)
   env.ts                Declares the private environment variables
   hooks.server.ts       Security headers, session and interactive flag, cache header
   routes/
@@ -80,7 +80,7 @@ src/
       companies/        Company list with industry, region, sector, SIC and country filters
       countries/        Country size versus global (companies or GDP)
       industries/       Industry and sector size versus global
-    financials/         Password-protected financial statements (FMP, Yahoo or Eulerpool)
+    financials/         Financial statements behind the login (FMP, Yahoo or Eulerpool)
       valuation/        Valuation versus peers and sector, template download and upload
     login/              The login page and its login and logout actions
     about/              About page with an "On this page" menu

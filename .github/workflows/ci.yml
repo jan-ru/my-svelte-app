@@ -19,6 +19,24 @@ jobs:
       lint: ${{ steps.lint.outcome }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # a pull request needs its base and head commits for the secret scan below
+          fetch-depth: ${{ github.event_name == 'pull_request' && '0' || '1' }}
+      # No secret in the commits this pull request adds (jan-ru/system-health ADR-0011), with .gitleaks.toml.
+      # Redacted, and no report is kept. Pull requests only: a push to main brings commits already scanned here.
+      - uses: ./.github/actions/gitleaks
+        if: github.event_name == 'pull_request'
+      - name: No secrets in this pull request's commits
+        if: github.event_name == 'pull_request'
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          # gitleaks reports no leaks for a range git cannot resolve, so both ends must be here first
+          for c in "$BASE" "$HEAD"; do
+            git cat-file -e "$c^{commit}" || { echo "::error::Commit $c is not in the checkout"; exit 1; }
+          done
+          gitleaks git --redact --no-banner --log-opts="$BASE..$HEAD" .
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
