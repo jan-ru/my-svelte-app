@@ -140,8 +140,9 @@ minutes idle. The figures are from Vercel's invocation details:
 | `/financials/__data.json` | Cold | 377 ms | 1.23 s | 310 ms |
 | `/financials/__data.json`, 10 s later | Hot | — | 709 ms | 210 ms |
 
-- **The cold start of the `/financials` pages is 50–70 ms above that of a public page without Effect.** That is in line
-  with the local cost of loading `effect`, about 102 ms, of which part falls outside the measured start. The durations
-  include the calls to the data sources, so they are not compared.
+- **The cold start of the `/financials` pages is 50–70 ms above that of a public page without Effect,** and a cold
+  `/financials` request uses about 100 ms more active CPU than a hot one. Both are within the local cost of loading
+  `effect`, about 102 ms, though they also cover the pages' other modules. The durations include the calls to the data
+  sources, so they are not compared.
 - **So bundling `effect` (`ssr.noExternal`) is not needed now.** It stays the first lever if a later measurement shows
   a worse start.
