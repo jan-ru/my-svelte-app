@@ -32,3 +32,9 @@ Anonymous visitors get the default view of each public page, cached by Vercel IS
 ## Open challenge
 
 The failed-login rate limit lives in each serverless instance, so it is best effort only.
+
+## Clarification, 2026-11-26: the sign-in is now Google's (ADR-014)
+
+The shared password is gone. People sign in with Google, limited to the addresses on `ALLOWED_EMAILS`
+([ADR-014](0014-google-sign-in.md)). The split between the cached anonymous view and the interactive view, the bypass
+cookie and the revalidation rule are unchanged.

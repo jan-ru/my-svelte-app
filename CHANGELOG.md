@@ -4,7 +4,7 @@ Curated highlights per release, not a per-commit list. Each release section beco
 
 ## [Unreleased]
 
-12 merged PRs (#164, #166 to #174, #176, #177). The through-line is **typed failures in the data sources, and a release that measures itself**: the three financial sources now run on Effect behind their unchanged promise interfaces, and a release's `metrics.json` gains Lighthouse, OpenSSF Scorecard and a secret count.
+13 merged PRs (#164, #166 to #174, #176, #177, #<PR>). The through-line is **typed failures in the data sources, and a release that measures itself**: the three financial sources now run on Effect behind their unchanged promise interfaces, and a release's `metrics.json` gains Lighthouse, OpenSSF Scorecard and a secret count.
 
 ### Financials: the data sources on Effect
 
@@ -20,6 +20,10 @@ Curated highlights per release, not a per-commit list. Each release section beco
 - gitleaks scans each pull request's commits in the `test` check, and counts the tree at the tag (#169, system-health ADR-0011). A false positive goes into `.gitleaks.toml` with a description, and output is always redacted.
 - `SECURITY.md` says how to report a vulnerability, through GitHub's private reporting (#170).
 - The shared release workflow's version is named beside its pinned commit (#164).
+
+### Access
+
+- Sign in with Google replaces the shared password (#<PR>, ADR-014). Only the Google addresses on `ALLOWED_EMAILS` get in, checked again on every request, so one person's access can be withdrawn. The login runs on Web Crypto and `oauth4webapi`, so it works on Vercel, Cloudflare and a Node server alike. Previews have no login. Everyone logs in once more after the release.
 
 ## [2026.11.23] — 2026-11-23
 
