@@ -53,6 +53,7 @@
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.1.0",
     "effect": "4.1.5",
+    "oauth4webapi": "3.8.9",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
     "yahoo-finance2": "4.0.6"
   },
