@@ -1,11 +1,16 @@
-// ADR-012 allows Effect in the Yahoo source only, for its pilot: this keeps it out of every other file until a
-// follow-up ADR extends or removes it.
+// ADR-013 allows Effect in the source modules of src/lib/server/ only. ALLOWED lists the files that have moved so
+// far; every other file stays free of it.
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 const ROOT = join(import.meta.dirname, '../../..');
-const ALLOWED = ['src/lib/server/yahoo-parse.ts', 'src/lib/server/yahoo.ts'];
+const ALLOWED = [
+	'src/lib/server/fmp.ts',
+	'src/lib/server/http.ts',
+	'src/lib/server/yahoo-parse.ts',
+	'src/lib/server/yahoo.ts'
+];
 /** This file, whose examples below would match. */
 const SELF = 'src/lib/server/effect-boundary.test.ts';
 /** A static, re-exported or dynamic import of `effect`, `effect/...` or `@effect/...`. */
@@ -24,7 +29,7 @@ const users = (): string[] =>
 		.sort();
 
 describe('the Effect boundary', () => {
-	it('finds Effect in the two files of the pilot, so the scan reads what it should', () => {
+	it('finds Effect in each allowed file, so the scan reads what it should', () => {
 		expect(users().filter((path) => ALLOWED.includes(path))).toEqual(ALLOWED);
 	});
 	it('finds it in no other file under src/ or scripts/', () => {
