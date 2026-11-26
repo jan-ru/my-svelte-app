@@ -1,11 +1,12 @@
-// ADR-013 allows Effect in the source modules of src/lib/server/ only. ALLOWED lists the files that have moved so
-// far; every other file stays free of it.
+// ADR-013 allows Effect in the source modules of src/lib/server/ only. ALLOWED lists the ones that import it;
+// fmp-info.ts and eulerpool-parse.ts may, but need not. Every other file stays free of it.
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 const ROOT = join(import.meta.dirname, '../../..');
 const ALLOWED = [
+	'src/lib/server/eulerpool.ts',
 	'src/lib/server/fmp.ts',
 	'src/lib/server/http.ts',
 	'src/lib/server/yahoo-parse.ts',

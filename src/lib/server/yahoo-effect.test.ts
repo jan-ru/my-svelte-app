@@ -1,10 +1,10 @@
-// The Effect pilot's additions to the Yahoo source (ADR-012): the timeout and each failure kind, through the promise
+// The Effect pilot's additions to the Yahoo source (ADR-012, ADR-013): the timeout and each failure kind, through the promise
 // interface. yahoo.test.ts stays the contract; this file sets a short timeout so the hung calls finish quickly.
 import { describe, expect, it, vi } from 'vitest';
 import { SourceError } from './source-error';
 import { fetchYahooNews, fetchYahooPrices, fetchYahooProfile, fetchYahooStatement, type YahooClient } from './yahoo';
 
-vi.mock('./http', () => ({ FETCH_TIMEOUT_MS: 40 }));
+vi.mock('./http', async (actual) => ({ ...(await actual<typeof import('./http')>()), FETCH_TIMEOUT_MS: 40 }));
 
 const never = () => new Promise<never>(() => {});
 /** Answers that come after the timeout: a value, or a failure. */
