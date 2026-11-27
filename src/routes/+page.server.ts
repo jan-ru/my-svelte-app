@@ -1,5 +1,5 @@
 import { buildLayout } from '#lib/layout';
-import { parseParams } from '#lib/params';
+import { DISPLAY_PARAM, parseDisplay, parseParams } from '#lib/params';
 import { getComparison, getIndustries } from '#lib/server/compare';
 import { isrConfig, pageParams } from '#lib/server/access';
 import type { PageServerLoad } from './$types';
@@ -20,7 +20,10 @@ export const load: PageServerLoad = async ({ url, locals, setHeaders }) => {
 
 	// parseParams filters against the known list before the cap, but its fallback defaults are not
 	// filtered, so drop any default the data does not know.
-	const view = parseParams(pageParams(locals.interactive, url), industries.length > 0 ? industries : undefined);
+	// The display (chart or table) is public: anonymous visitors may switch too, and `v` is part of the cache key.
+	const params = pageParams(locals.interactive, url, [DISPLAY_PARAM]);
+	const display = parseDisplay(params);
+	const view = parseParams(params, industries.length > 0 ? industries : undefined);
 	if (industries.length > 0) {
 		view.selection.industries = view.selection.industries.filter((name) => industries.includes(name));
 	}
@@ -30,7 +33,7 @@ export const load: PageServerLoad = async ({ url, locals, setHeaders }) => {
 
 	if (loadError || !ready) {
 		setHeaders({ 'cache-control': 'no-store' });
-		return { view, industries, loadError, model: null, updated: null };
+		return { view, display, industries, loadError, model: null, updated: null };
 	}
 
 	const comparison = await getComparison(selection);
@@ -39,6 +42,7 @@ export const load: PageServerLoad = async ({ url, locals, setHeaders }) => {
 
 	return {
 		view,
+		display,
 		industries,
 		loadError: null,
 		model: buildLayout(selection, layout, comparison),

@@ -1,7 +1,36 @@
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_LAYOUT, DEFAULT_SELECTION, applyRole, parseParams, toSearchParams } from './params';
+import {
+	DEFAULT_LAYOUT,
+	DEFAULT_SELECTION,
+	DISPLAY_PARAM,
+	applyRole,
+	displayHref,
+	parseDisplay,
+	parseParams,
+	toSearchParams
+} from './params';
+import { ISR_ALLOW_QUERY } from './server/access';
 
 const parse = (q: string) => parseParams(new URLSearchParams(q));
+
+describe('the display', () => {
+	const display = (q: string) => parseDisplay(new URLSearchParams(q));
+	it('is the chart unless the query asks for the table', () => {
+		expect(display('')).toBe('chart');
+		expect(display('v=table')).toBe('table');
+		expect(display('v=chart')).toBe('chart');
+		expect(display('v=TABLE&v=x')).toBe('chart');
+	});
+	it('links keep the rest of the query and leave the default out', () => {
+		expect(displayHref('?m=pe_trailing&v=table', 'chart')).toBe('?m=pe_trailing');
+		expect(displayHref('?m=pe_trailing', 'table')).toBe('?m=pe_trailing&v=table');
+		expect(displayHref('', 'chart')).toBe('?');
+		expect(displayHref('?v=table&v=table', 'table')).toBe('?v=table');
+	});
+	it('reaches a cached route: Vercel drops parameters not in ISR_ALLOW_QUERY', () => {
+		expect(ISR_ALLOW_QUERY).toContain(DISPLAY_PARAM);
+	});
+});
 
 describe('parseParams', () => {
 	it('uses the defaults when there are no params', () => {

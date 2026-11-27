@@ -11,6 +11,8 @@ import CheckGroup from './CheckGroup.svelte';
 import ClassificationGlossary from './ClassificationGlossary.svelte';
 import CrosswalkTrace from './CrosswalkTrace.svelte';
 import DataTable from './DataTable.svelte';
+import DisplaySwitch from './DisplaySwitch.svelte';
+import SelectionChips from './SelectionChips.svelte';
 import ErrorMessage from './ErrorMessage.svelte';
 import Icon from './Icon.svelte';
 import IndustryPicker from './IndustryPicker.svelte';
@@ -255,7 +257,46 @@ describe('ChartPanel', () => {
 		expect(body).toMatch(/<h2[^>]*>EV\/EBITDA<\/h2>/);
 		expect(body).toContain('<svg');
 		expect(body).toMatch(/<th scope="row"[^>]*>Banks<\/th>/);
-		expect(text(body)).toContain('Banks 12.3x unavailable');
+		expect(text(body)).toContain('Banks 12.3x 40 firms unavailable');
+		expect(body).toContain('Show data');
+	});
+	it('shows only the table, without the chart, as a table', () => {
+		const panel: PanelModel = {
+			key: 'k',
+			title: 'EV/EBITDA',
+			categories: ['Banks'],
+			series: ['US'],
+			bars: [[{ value: 8, firms: 3 }]]
+		};
+		const body = html(ChartPanel, { panel, colors: ['#000'], uid: 0, display: 'table' });
+		expect(body).not.toContain('<svg');
+		expect(body).not.toContain('Show data');
+		expect(body).toMatch(/<th scope="col"[^>]*>US<\/th>/);
+		// 3 firms is below LOW_FIRMS_THRESHOLD: the value is marked
+		expect(text(body)).toContain('Banks 8.0x * 3 firms');
+		expect(body).toMatch(/<span class="low[^"]*">\*<\/span>/);
+	});
+});
+
+describe('SelectionChips', () => {
+	it('writes each group with its chips and leaves out an empty group', () => {
+		const body = html(SelectionChips, {
+			groups: [
+				{ label: 'Multiples', items: ['EV/EBITDA', 'P/E (trailing)'] },
+				{ label: 'Regions', items: [] }
+			]
+		}).replace(/<!--[^]*?-->/g, '');
+		expect(body).toContain('aria-label="Selection"');
+		expect(body).toMatch(/<dt[^>]*>Multiples<\/dt>\s*<dd[^>]*>EV\/EBITDA<\/dd>\s*<dd[^>]*>P\/E \(trailing\)<\/dd>/);
+		expect(body).not.toContain('Regions');
+	});
+});
+
+describe('DisplaySwitch', () => {
+	it('links both displays, keeps the query and marks the current one', () => {
+		const body = html(DisplaySwitch, { display: 'table', search: '?m=pe_trailing&v=table' });
+		expect(body).toMatch(/<a href="\?m=pe_trailing"[^>]*>Chart<\/a>/);
+		expect(body).toMatch(/<a href="\?m=pe_trailing&amp;v=table"[^>]*aria-current="true"[^>]*>Table<\/a>/);
 	});
 });
 

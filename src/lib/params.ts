@@ -79,6 +79,24 @@ export function parseParams(sp: URLSearchParams, knownIndustries?: readonly stri
 	};
 }
 
+/** How the figures are shown: as the bar charts (the default) or as tables. */
+export type Display = 'chart' | 'table';
+
+/** The display parameter. Public: anonymous visitors may switch too, and it is part of the cache key. */
+export const DISPLAY_PARAM = 'v';
+
+/** The display in the query; anything but `table` is the chart. */
+export const parseDisplay = (sp: URLSearchParams): Display => (sp.get(DISPLAY_PARAM) === 'table' ? 'table' : 'chart');
+
+/** The current query with the display set; the chart, the default, leaves the parameter out. */
+export function displayHref(search: string, display: Display): string {
+	const sp = new URLSearchParams(search);
+	sp.delete(DISPLAY_PARAM);
+	if (display === 'table') sp.set(DISPLAY_PARAM, 'table');
+	const query = sp.toString();
+	return query === '' ? '?' : `?${query}`;
+}
+
 export function toSearchParams({ selection, layout }: ViewParams): URLSearchParams {
 	const sp = new URLSearchParams();
 	const write = (key: string, values: string[]) => {
