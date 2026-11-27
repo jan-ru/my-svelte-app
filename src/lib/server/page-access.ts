@@ -29,12 +29,29 @@ export type AccessRules = ReadonlyMap<string, Grant>;
 
 const isAccessPage = (path: string): path is AccessPage => ACCESS_PAGES.some((p) => p.path === path);
 
-/** The page a path belongs to, or null for a path no permission covers (About, the login pages). */
+/** The routes every signed-in person may use, with the routes below them. Any other route is closed unless granted. */
+export const OPEN_PATHS = ['/about', '/login'] as const;
+
+const within = (path: string, base: string): boolean => path === base || path.startsWith(`${base}/`);
+
+/**
+ * The path of the route SvelteKit matched (`event.route.id`), without its `(group)` segments: `/(explore)/companies`
+ * is `/companies`. Rules are checked against this and never against the raw URL, which SvelteKit decodes before it
+ * matches (`/%66inancials` is served by `/financials`). Null when no route matched.
+ */
+export function routePathOf(routeId: string | null): string | null {
+	if (routeId === null) return null;
+	const path = routeId
+		.split('/')
+		.filter((segment) => !/^\(.*\)$/.test(segment))
+		.join('/');
+	return path === '' ? '/' : path;
+}
+
+/** The page a route path belongs to, or null when no permission covers it. */
 export function accessPageOf(pathname: string): AccessPage | null {
 	if (pathname === '/') return '/';
-	const matches = ACCESS_PAGES.filter(
-		(p) => p.path !== '/' && (pathname === p.path || pathname.startsWith(`${p.path}/`))
-	);
+	const matches = ACCESS_PAGES.filter((p) => p.path !== '/' && within(pathname, p.path));
 	// the longest match wins, so /financials/valuation is not taken for /financials
 	return matches.reduce<AccessPage | null>(
 		(best, p) => (best === null || p.path.length > best.length ? p.path : best),
@@ -82,17 +99,21 @@ export function formatPageAccess(rules: AccessRules): string {
 		.join('; ');
 }
 
-/** Whether a person (null when not signed in) may use the page at `pathname`. Pages no permission covers are open. */
+/**
+ * Whether a person (null when not signed in) may use the route at `routePath` (from `routePathOf`). Fails closed:
+ * no route, or a route that is neither a page in ACCESS_PAGES nor in OPEN_PATHS, is closed to everyone.
+ */
 export function mayUse(
 	email: string | null,
-	pathname: string,
+	routePath: string | null,
 	admins: ReadonlySet<string>,
 	rules: AccessRules
 ): boolean {
+	if (routePath === null) return false;
 	const isAdmin = email !== null && admins.has(email.toLowerCase());
-	if (pathname === SETTINGS_PATH || pathname.startsWith(`${SETTINGS_PATH}/`)) return isAdmin;
-	const page = accessPageOf(pathname);
-	if (page === null) return true;
+	if (within(routePath, SETTINGS_PATH)) return isAdmin;
+	const page = accessPageOf(routePath);
+	if (page === null) return OPEN_PATHS.some((open) => within(routePath, open));
 	if (email === null) return false;
 	if (isAdmin) return true;
 	const grant = rules.get(email.toLowerCase());

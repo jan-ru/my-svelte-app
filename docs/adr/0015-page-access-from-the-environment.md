@@ -24,10 +24,14 @@ a Docker container on a VPS (#175), and the solution should be low-tech and safe
 3. **The settings page writes nothing.** It shows the grid of the rules in force, and *Create value* turns the ticked
    boxes into a new `PAGE_ACCESS` value that the admin pastes into the host's environment and deploys. For anyone but
    an admin, `/settings` is a 404. It is never cached.
-4. **Checked in hooks on every request.** `locals.authed` now means "signed in and may use this page", so every
-   existing check (`interactive`, the Financials loaders, the template download) follows the rules unchanged. A path
-   below a page belongs to it (`/financials/valuation/template`), and SvelteKit's data requests carry the page's path.
-5. **Fails closed.** Unset, an unreadable entry, an unknown page or an address without an entry grants nothing.
+4. **Checked in hooks on every request, on the matched route.** `locals.authed` now means "signed in and may use this
+   page", so every existing check (`interactive`, the Financials loaders, the template download) follows the rules
+   unchanged. The rules are matched against the route SvelteKit chose (`event.route.id`, without its groups), never the
+   raw URL: SvelteKit decodes the path before matching, so `/%66inancials` serves `/financials`. A route below a page
+   belongs to it (`/financials/valuation/template`), and a data request has its page's route.
+5. **Fails closed.** Unset, an unreadable entry, an unknown page or an address without an entry grants nothing. A route
+   that is neither a page in `ACCESS_PAGES` nor in `OPEN_PATHS` (About and the login routes) is closed to everyone, and
+   a test fails when a route in `src/routes` is in neither.
 6. **What a page permission unlocks.** On the public pages (Multiples, Explore) it unlocks the interactive view; without
    it a signed-in person gets the anonymous view, which is the same as the cached copy, so ADR-003's cache is unchanged.
    On Financials and Valuation it unlocks the whole page; without it the page says the account has no access. About

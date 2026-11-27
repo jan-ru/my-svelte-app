@@ -1,7 +1,12 @@
+import { readdirSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import {
 	ACCESS_PAGES,
 	ALL_PAGES,
+	OPEN_PATHS,
+	SETTINGS_PATH,
+	routePathOf,
 	accessPageOf,
 	formatPageAccess,
 	mayUse,
@@ -73,9 +78,38 @@ describe('mayUse', () => {
 		expect(mayUse('all@example.test', '/settings', admins, rules)).toBe(false);
 		expect(mayUse(null, '/settings', admins, rules)).toBe(false);
 	});
-	it('leaves pages no permission covers open', () => {
+	it('leaves only the open paths open and closes every other route', () => {
 		expect(mayUse('reader@example.test', '/about', admins, rules)).toBe(true);
 		expect(mayUse(null, '/login', admins, rules)).toBe(true);
+		expect(mayUse('reader@example.test', '/login/google/callback', admins, rules)).toBe(true);
+		expect(mayUse('all@example.test', '/a-new-page', admins, rules)).toBe(false);
+		expect(mayUse('boss@example.test', '/a-new-page', admins, rules)).toBe(false);
+		expect(mayUse('all@example.test', null, admins, rules)).toBe(false);
+	});
+});
+
+describe('routePathOf', () => {
+	it('drops route groups and keeps the rest of the route id', () => {
+		expect(routePathOf('/(explore)/companies')).toBe('/companies');
+		expect(routePathOf('/')).toBe('/');
+		expect(routePathOf('/financials/valuation/template')).toBe('/financials/valuation/template');
+		expect(routePathOf(null)).toBeNull();
+	});
+
+	it('classifies every route in src/routes, so a new one cannot fall through unnoticed', () => {
+		const root = fileURLToPath(new URL('../../routes', import.meta.url));
+		const routes = readdirSync(root, { recursive: true, encoding: 'utf8' })
+			.map((file) => file.replaceAll('\\', '/'))
+			.filter((file) => /(^|\/)\+(page|server)\.(svelte|ts)$/.test(file))
+			.map((file) => routePathOf(`/${file.replace(/\/?\+(page|server)\.(svelte|ts)$/, '')}`) ?? '');
+		expect(routes.length).toBeGreaterThan(10);
+		for (const route of routes) {
+			const classified =
+				accessPageOf(route) !== null ||
+				OPEN_PATHS.some((open) => route === open || route.startsWith(`${open}/`)) ||
+				route === SETTINGS_PATH;
+			expect(classified, `${route} is in neither ACCESS_PAGES, OPEN_PATHS nor /settings`).toBe(true);
+		}
 	});
 });
 

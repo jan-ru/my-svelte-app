@@ -19,11 +19,16 @@ const LOADER_HEADER = 'public, s-maxage=86400, stale-while-revalidate=86400';
 
 type Locals = { authed?: boolean; interactive?: boolean; denied?: boolean; admin?: boolean; settings?: unknown };
 
-async function run(path: string, opts: { cookies?: Record<string, string>; headers?: Record<string, string> } = {}) {
+/** `route` is the route id SvelteKit matched; by default the path itself, as for a route outside any group. */
+async function run(
+	path: string,
+	opts: { cookies?: Record<string, string>; headers?: Record<string, string>; route?: string | null } = {}
+) {
 	const cookies = opts.cookies ?? {};
 	const locals: Locals = {};
 	const event = {
 		locals,
+		route: { id: opts.route === undefined ? new URL(`http://x.test${path}`).pathname : opts.route },
 		url: new URL(`http://x.test${path}`),
 		cookies: { get: (name: string) => cookies[name] },
 		request: new Request(`http://x.test${path}`, { headers: opts.headers })
@@ -130,6 +135,21 @@ describe('handle: page access (ADR-015)', () => {
 		env.PAGE_ACCESS = 'person@example.test=/financials';
 		expect((await run('/financials/valuation/template', { cookies: await signedIn() })).locals.authed).toBe(false);
 		expect((await run('/login', { cookies: await signedIn() })).locals.authed).toBe(true);
+	});
+
+	it('decides on the matched route, not the raw URL, so an encoded path cannot slip past', async () => {
+		env.PAGE_ACCESS = 'person@example.test=/countries';
+		const encoded = await run('/%66inancials', { cookies: await signedIn(), route: '/financials' });
+		expect(encoded.locals).toMatchObject({ authed: false, denied: true });
+		expect(encoded.cache).toBe('private, no-store');
+		const grouped = await run('/countries', { cookies: await signedIn(), route: '/(explore)/countries' });
+		expect(grouped.locals.authed).toBe(true);
+	});
+
+	it('closes a route that is neither granted nor open, and an unmatched one', async () => {
+		env.PAGE_ACCESS = 'person@example.test=*';
+		expect((await run('/a-new-page', { cookies: await signedIn() })).locals.authed).toBe(false);
+		expect((await run('/nowhere', { cookies: await signedIn(), route: null })).locals.authed).toBe(false);
 	});
 
 	it('fails closed when PAGE_ACCESS is unset', async () => {

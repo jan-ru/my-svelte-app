@@ -1,7 +1,7 @@
 import { ADMIN_EMAILS, ALLOWED_EMAILS, ISR_BYPASS_TOKEN, PAGE_ACCESS, SESSION_SECRET } from '$app/env/private';
 import { SESSION_COOKIE, parseAllowed, verifySession } from '#lib/server/session';
 import { BYPASS_COOKIE, bypassToken, isInteractive, isRevalidation } from '#lib/server/access';
-import { SETTINGS_PATH, mayUse, parsePageAccess } from '#lib/server/page-access';
+import { SETTINGS_PATH, mayUse, parsePageAccess, routePathOf } from '#lib/server/page-access';
 import type { Handle, HandleServerError } from '@sveltejs/kit/hooks';
 
 export const handle: Handle = async ({ event, resolve }) => {
@@ -9,16 +9,18 @@ export const handle: Handle = async ({ event, resolve }) => {
 	// list ends its session at the next request after the redeploy (ADR-014).
 	const allowed = parseAllowed(ALLOWED_EMAILS);
 	const email = await verifySession(event.cookies.get(SESSION_COOKIE), SESSION_SECRET ?? '', allowed);
-	// Which pages that person may use comes from ADMIN_EMAILS and PAGE_ACCESS, checked on every request (ADR-015).
-	// SvelteKit gives a data request the page's own path, so a page's data is covered by the page's permission.
+	// Which pages that person may use comes from ADMIN_EMAILS and PAGE_ACCESS, checked on every request (ADR-015),
+	// against the route SvelteKit matched, never the raw URL (which it decodes before matching). A data request has
+	// its page's route, so a page's data is covered by the page's permission.
 	const admins = parseAllowed(ADMIN_EMAILS);
 	const rules = parsePageAccess(PAGE_ACCESS);
 	const { pathname } = event.url;
-	const permitted = email !== null && mayUse(email, pathname, admins, rules);
+	const route = routePathOf(event.route.id);
+	const permitted = email !== null && mayUse(email, route, admins, rules);
 	event.locals.authed = permitted;
 	event.locals.denied = email !== null && !permitted;
 	event.locals.admin = email !== null && admins.has(email);
-	if (event.locals.admin && pathname === SETTINGS_PATH) {
+	if (event.locals.admin && route === SETTINGS_PATH) {
 		event.locals.settings = { allowed: [...allowed].sort(), admins: [...admins].sort(), rules };
 	}
 	// A revalidation request regenerates the cached public copy, so it always gets the anonymous view.
@@ -35,6 +37,8 @@ export const handle: Handle = async ({ event, resolve }) => {
 	if (
 		event.locals.interactive ||
 		pathname.startsWith('/financials') ||
+		route?.startsWith('/financials') === true ||
+		route === SETTINGS_PATH ||
 		pathname.startsWith(SETTINGS_PATH) ||
 		!bypassToken(ISR_BYPASS_TOKEN)
 	) {
