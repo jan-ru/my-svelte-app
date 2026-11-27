@@ -48,6 +48,8 @@
 			</p>
 			{#if !data.configured}
 				<Callout variant="negative">This page is not configured on this deployment.</Callout>
+			{:else if data.denied}
+				<Callout variant="critical">Your account does not have access to this page. Ask an administrator.</Callout>
 			{:else}
 				<LoginPrompt from={page.url.pathname + page.url.search}>to look up a company.</LoginPrompt>
 			{/if}

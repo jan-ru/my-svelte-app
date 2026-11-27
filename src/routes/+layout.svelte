@@ -19,7 +19,7 @@
 	import SiteFooter from '#lib/components/SiteFooter.svelte';
 	import type { Snippet } from 'svelte';
 
-	let { children, data }: { children: Snippet; data: { interactive: boolean } } = $props();
+	let { children, data }: { children: Snippet; data: { interactive: boolean; admin: boolean } } = $props();
 
 	const APP_NAME = 'Fetch valuation multiples';
 
@@ -41,7 +41,13 @@
 	});
 </script>
 
-<AppHeader name={APP_NAME} pathname={page.url.pathname} search={page.url.search} interactive={data.interactive} />
+<AppHeader
+	name={APP_NAME}
+	pathname={page.url.pathname}
+	search={page.url.search}
+	interactive={data.interactive}
+	admin={data.admin}
+/>
 
 {@render children()}
 

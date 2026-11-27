@@ -51,7 +51,9 @@
 		</p>
 
 		{#if view.state === 'locked'}
-			{#if data.configured}
+			{#if data.configured && data.denied}
+				<Callout variant="critical">Your account does not have access to this page. Ask an administrator.</Callout>
+			{:else if data.configured}
 				<LoginPrompt from={page.url.pathname + page.url.search}>to value a company.</LoginPrompt>
 			{:else}
 				<Callout variant="negative">This page is not configured on this deployment.</Callout>
