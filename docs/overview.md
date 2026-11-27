@@ -4,7 +4,7 @@
 
 ## 1. The design at a glance
 
-**In one sentence:** a SvelteKit app on Vercel that compares valuation multiples from the NYU Stern datasets in public, and behind Sign in with Google shows a company's financials and values it against peers.
+**In one sentence:** a SvelteKit app on Vercel that compares valuation multiples from the NYU Stern datasets in public, and behind Sign in with Google, page by page as an admin grants it, shows a company's financials and values it against peers.
 
 Two pictures, drawn the way the `finance-tools` design page draws them: the landscape (external sources on top, the two parts of the site with their pages, the shared library below) and the canonical data flow every view follows. Both are simplified to the main components and flows.
 
@@ -29,6 +29,7 @@ flowchart TB
   subgraph PRIV["Behind the login"]
     F[Financials<br/>9 tabs, FMP, Yahoo or<br/>Eulerpool per ticker]
     V[Valuation<br/>picked peers,<br/>P25–P75]
+    S[Settings<br/>admins only:<br/>who may use which page]
   end
 
   OUT[Football field and<br/>valuation range]
@@ -53,7 +54,7 @@ flowchart TB
   classDef out fill:#e6f2ea,stroke:#5f9b72,color:#2f6b44
   classDef lib fill:#f4f0e6,stroke:#b8a77a,color:#222222
   class NYU,REF,FMP,YF,EP,XL ext
-  class M,C,CO,AB,F,V sys
+  class M,C,CO,AB,F,V,S sys
   class OUT out
   class LIB lib
   style PUB fill:#f7fafd,stroke:#4a7bab

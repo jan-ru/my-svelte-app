@@ -4,6 +4,21 @@ Curated highlights per release, not a per-commit list. Each release section beco
 
 ## [Unreleased]
 
+## [2026.11.27] — 2026-11-27
+
+3 merged PRs (#185 to #187). The through-line is **who may use which page, and an About page that maps the site**: signed-in people now get the pages an admin grants them, edited on an admin-only Settings page, and About is redesigned on Horizon cards.
+
+### Access
+
+- Per-page access (#186, ADR-015, accepted in #187). `ADMIN_EMAILS` (each also on `ALLOWED_EMAILS`) get every page and Settings, and `PAGE_ACCESS` grants pages to everyone else, for example `a@x.test=*; b@y.test=/financials,/countries`. Both are environment variables, so it needs no database and runs the same on Vercel, Cloudflare and a VPS. It fails closed: unset grants no page to anyone but the admins.
+- The Settings page (`/settings`, admins only) shows users as rows and pages as columns. It stores nothing: it writes the new `PAGE_ACCESS` value for the admin to set on the host and deploy.
+- Hooks check the rules on every request against the route SvelteKit matched, not the raw URL, after a review found that `/%66inancials` would have reached `/financials`. Any route that is neither a page nor About or the login is closed, and a test fails when a new route is unclassified.
+- Without a permission, Multiples and Explore show their public view, and Financials and Valuation say the account has no access.
+
+### About
+
+- The About page is redesigned on Horizon cards (#185): the pages as cards grouped Multiples, Explore and Financials, with a "Sign-in required" status on the two behind the login, public and signed-in side by side, and each data source on its own row, Eulerpool included.
+
 ## [2026.11.26] — 2026-11-26
 
 19 merged PRs (#160, #164, #166 to #174, #176 to #183). The through-line is **typed failures in the data sources, a release that measures itself, and a login per person**: the three financial sources now run on Effect behind their unchanged promise interfaces, a release's `metrics.json` gains Lighthouse, OpenSSF Scorecard and a secret count, and Sign in with Google replaces the shared password.
