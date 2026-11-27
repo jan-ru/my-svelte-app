@@ -13,18 +13,8 @@
 		readonly signIn: boolean;
 	}
 
+	// in the order of the menubar
 	const groups: readonly { readonly title: string; readonly pages: readonly PageCard[] }[] = [
-		{
-			title: 'Multiples',
-			pages: [
-				{
-					href: '/',
-					title: 'Multiples',
-					text: 'Valuation multiples, such as EV/EBITDA and P/E, by industry and region.',
-					signIn: false
-				}
-			]
-		},
 		{
 			title: 'Explore',
 			pages: [
@@ -50,6 +40,17 @@
 					href: '/classification',
 					title: 'Find Industry',
 					text: 'From a Dutch SBI 2025 code to the matching NYU Stern industries, and back.',
+					signIn: false
+				}
+			]
+		},
+		{
+			title: 'Multiples',
+			pages: [
+				{
+					href: '/',
+					title: 'Multiples',
+					text: 'Valuation multiples, such as EV/EBITDA and P/E, by industry and region.',
 					signIn: false
 				}
 			]

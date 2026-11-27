@@ -1,10 +1,11 @@
 <script lang="ts">
-	import { mainLinks } from '#lib/nav';
+	import Icon from '#lib/components/Icon.svelte';
+	import { aboutLink, mainLinks } from '#lib/nav';
 	import { loginHref, logoutAction } from '#lib/return-path';
 
 	/**
-	 * The bar at the top: the app name, the five pages (the current one by `aria-current`), Settings for an admin and
-	 * Log in or Log out. Works without JavaScript.
+	 * The bar at the top: the app name and the four work pages on the left (the current one by `aria-current`); About,
+	 * Settings as a gear for an admin, and Log in or Log out on the right. Works without JavaScript.
 	 */
 	let {
 		name,
@@ -16,6 +17,7 @@
 
 	// The page to come back to after logging in or out, with its query so a selection or ticker survives.
 	const here = $derived(pathname + search);
+	const about = $derived(aboutLink(pathname));
 </script>
 
 <nav aria-label="Main">
@@ -24,8 +26,15 @@
 		<a href={link.href} aria-current={link.current ? 'page' : undefined}>{link.label}</a>
 	{/each}
 	<span class="spacer"></span>
+	<a href={about.href} aria-current={about.current ? 'page' : undefined}>{about.label}</a>
 	{#if admin}
-		<a href="/settings" aria-current={pathname === '/settings' ? 'page' : undefined}>Settings</a>
+		<a
+			class="icon-link"
+			href="/settings"
+			aria-label="Settings"
+			title="Settings"
+			aria-current={pathname === '/settings' ? 'page' : undefined}><Icon name="settings" /></a
+		>
 	{/if}
 	{#if interactive}
 		<form method="POST" action={logoutAction(here)}>
@@ -77,6 +86,16 @@
 	}
 	.spacer {
 		margin-left: auto;
+	}
+	/* a 44px square touch target around the gear; the icon's own start margin is not needed here */
+	.icon-link {
+		justify-content: center;
+		min-width: var(--shell-header-height);
+		padding: 0;
+		font-size: 1.25rem;
+	}
+	.icon-link :global(.icon) {
+		margin-inline-start: 0;
 	}
 	nav form {
 		display: flex;
