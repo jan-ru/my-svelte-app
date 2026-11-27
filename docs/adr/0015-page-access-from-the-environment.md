@@ -1,11 +1,11 @@
 ---
-status: Proposed
+status: Accepted
 date: 2026-11-27
 decision-makers: Jan-Ru Muller (sole maintainer)
 ---
 # ADR-015: Per-page access from two environment variables, edited on an admin-only settings page
 
-- **Proposed:** 2026-11-27. Extends ADR-014: the list of who may sign in stays as it is, and this decides which pages
+- **Accepted:** 2026-11-27, with #186. Extends ADR-014: the list of who may sign in stays as it is, and this decides which pages
   each signed-in person may use.
 - **Component:** `src/lib/server/page-access.ts`, `src/hooks.server.ts`, `src/routes/settings/`
 
