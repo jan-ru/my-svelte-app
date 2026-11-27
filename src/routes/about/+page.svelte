@@ -86,12 +86,26 @@
 			text: 'Industry multiples and the company list.'
 		},
 		{ name: 'CBS, UN Statistics Division and US Census Bureau', text: 'The classification tables.' },
-		{ name: 'World Bank', text: 'GDP (current US$), licensed CC BY 4.0.' },
 		{
-			name: 'Financial Modeling Prep and Yahoo Finance',
-			text: 'Company financials, prices, news, analyst estimates and peer suggestions.'
+			name: 'World Bank',
+			href: 'https://data.worldbank.org/indicator/NY.GDP.MKTP.CD',
+			text: 'GDP (current US$), licensed CC BY 4.0.'
 		},
-		{ name: 'Eulerpool', text: 'Company financials, a fair value and a quality score.' }
+		{
+			name: 'Financial Modeling Prep',
+			href: 'https://site.financialmodelingprep.com/',
+			text: 'Financial statements, ratios, estimates, earnings, news, prices and peer suggestions. The default for US tickers.'
+		},
+		{
+			name: 'Yahoo Finance',
+			href: 'https://finance.yahoo.com/',
+			text: 'Financial statements with TTM, prices, news and the company profile. The default for tickers with an exchange suffix, such as ABN.AS. Unofficial and may be delayed.'
+		},
+		{
+			name: 'Eulerpool',
+			href: 'https://eulerpool.com',
+			text: 'Financial statements, prices, the supply chain, a fair value and a quality score. Only when picked on the page.'
+		}
 	];
 </script>
 
