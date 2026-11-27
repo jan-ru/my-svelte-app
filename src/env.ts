@@ -16,6 +16,16 @@ export const variables = defineEnvVars({
 		schema: optional,
 		description: 'Comma-separated Google addresses that may log in; unset lets nobody in'
 	},
+	ADMIN_EMAILS: {
+		schema: optional,
+		description:
+			'Comma-separated addresses, each also on ALLOWED_EMAILS, that get every page and /settings; unset means no admin'
+	},
+	PAGE_ACCESS: {
+		schema: optional,
+		description:
+			'Which pages each signed-in address may use, e.g. "a@x.test=*; b@y.test=/financials,/countries" (ADR-015); unset grants none'
+	},
 	FMP_API_KEY: { schema: optional, description: 'Financial Modeling Prep API key' },
 	EULERPOOL_API_KEY: { schema: optional, description: 'Eulerpool API key' },
 	ISR_BYPASS_TOKEN: {

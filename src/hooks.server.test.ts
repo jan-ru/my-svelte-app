@@ -3,6 +3,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 const env = vi.hoisted(() => ({
 	SESSION_SECRET: undefined as string | undefined,
 	ALLOWED_EMAILS: undefined as string | undefined,
+	ADMIN_EMAILS: undefined as string | undefined,
+	PAGE_ACCESS: undefined as string | undefined,
 	ISR_BYPASS_TOKEN: undefined as string | undefined
 }));
 vi.mock('$app/env/private', () => env);
@@ -15,7 +17,7 @@ const SECRET = 's'.repeat(32);
 const TOKEN = 't'.repeat(40);
 const LOADER_HEADER = 'public, s-maxage=86400, stale-while-revalidate=86400';
 
-type Locals = { authed?: boolean; interactive?: boolean };
+type Locals = { authed?: boolean; interactive?: boolean; denied?: boolean; admin?: boolean; settings?: unknown };
 
 async function run(path: string, opts: { cookies?: Record<string, string>; headers?: Record<string, string> } = {}) {
 	const cookies = opts.cookies ?? {};
@@ -36,6 +38,8 @@ const session = () => createSession(SECRET, 'person@example.test');
 beforeEach(() => {
 	env.SESSION_SECRET = SECRET;
 	env.ALLOWED_EMAILS = 'person@example.test';
+	env.ADMIN_EMAILS = undefined;
+	env.PAGE_ACCESS = 'person@example.test=*';
 	env.ISR_BYPASS_TOKEN = TOKEN;
 });
 
@@ -51,19 +55,19 @@ describe('handle', () => {
 		const { locals, cache } = await run('/companies', {
 			cookies: { [SESSION_COOKIE]: await session(), [BYPASS_COOKIE]: TOKEN }
 		});
-		expect(locals).toEqual({ authed: true, interactive: true });
+		expect(locals).toEqual({ authed: true, interactive: true, denied: false, admin: false });
 		expect(cache).toBe('private, no-store');
 	});
 
 	it('keeps a session without the bypass cookie anonymous and leaves the loader header', async () => {
 		const { locals, cache } = await run('/companies', { cookies: { [SESSION_COOKIE]: await session() } });
-		expect(locals).toEqual({ authed: true, interactive: false });
+		expect(locals).toEqual({ authed: true, interactive: false, denied: false, admin: false });
 		expect(cache).toBe(LOADER_HEADER);
 	});
 
 	it('ignores a forged bypass cookie without a session', async () => {
 		const { locals, cache } = await run('/companies', { cookies: { [BYPASS_COOKIE]: TOKEN } });
-		expect(locals).toEqual({ authed: false, interactive: false });
+		expect(locals).toEqual({ authed: false, interactive: false, denied: false, admin: false });
 		expect(cache).toBe(LOADER_HEADER);
 	});
 
@@ -89,7 +93,7 @@ describe('handle', () => {
 		expect(anon.locals.interactive).toBe(false);
 		expect(anon.cache).toBe('private, no-store');
 		const authed = await run('/companies', { cookies: { [SESSION_COOKIE]: await session() } });
-		expect(authed.locals).toEqual({ authed: true, interactive: true });
+		expect(authed.locals).toEqual({ authed: true, interactive: true, denied: false, admin: false });
 		expect(authed.cache).toBe('private, no-store');
 	});
 
@@ -106,7 +110,59 @@ describe('handle', () => {
 		const { locals } = await run('/companies', {
 			cookies: { [SESSION_COOKIE]: await session(), [BYPASS_COOKIE]: TOKEN }
 		});
-		expect(locals).toEqual({ authed: false, interactive: false });
+		expect(locals).toEqual({ authed: false, interactive: false, denied: false, admin: false });
+	});
+});
+
+describe('handle: page access (ADR-015)', () => {
+	const signedIn = async () => ({ [SESSION_COOKIE]: await session(), [BYPASS_COOKIE]: TOKEN });
+
+	it('gives a person only the pages PAGE_ACCESS grants, and the anonymous view elsewhere', async () => {
+		env.PAGE_ACCESS = 'person@example.test=/countries';
+		const granted = await run('/countries', { cookies: await signedIn() });
+		expect(granted.locals).toMatchObject({ authed: true, interactive: true, denied: false });
+		const other = await run('/companies', { cookies: await signedIn() });
+		expect(other.locals).toMatchObject({ authed: false, interactive: false, denied: true });
+		expect(other.cache).toBe(LOADER_HEADER);
+	});
+
+	it('covers the paths below a page and leaves uncovered pages open', async () => {
+		env.PAGE_ACCESS = 'person@example.test=/financials';
+		expect((await run('/financials/valuation/template', { cookies: await signedIn() })).locals.authed).toBe(false);
+		expect((await run('/login', { cookies: await signedIn() })).locals.authed).toBe(true);
+	});
+
+	it('fails closed when PAGE_ACCESS is unset', async () => {
+		env.PAGE_ACCESS = undefined;
+		const { locals } = await run('/', { cookies: await signedIn() });
+		expect(locals).toMatchObject({ authed: false, denied: true });
+	});
+
+	it('gives an admin every page and the settings data, and no one else', async () => {
+		env.PAGE_ACCESS = undefined;
+		env.ADMIN_EMAILS = 'Person@Example.test';
+		const page = await run('/financials/valuation', { cookies: await signedIn() });
+		expect(page.locals).toMatchObject({ authed: true, admin: true, denied: false });
+		expect(page.locals.settings).toBeUndefined();
+		const settings = await run('/settings', { cookies: await signedIn() });
+		expect(settings.locals.settings).toEqual({
+			allowed: ['person@example.test'],
+			admins: ['person@example.test'],
+			rules: new Map()
+		});
+		expect(settings.cache).toBe('private, no-store');
+
+		env.ADMIN_EMAILS = 'other@example.test';
+		const notAdmin = await run('/settings', { cookies: await signedIn() });
+		expect(notAdmin.locals).toMatchObject({ authed: false, admin: false });
+		expect(notAdmin.locals.settings).toBeUndefined();
+	});
+
+	it('needs an admin on ALLOWED_EMAILS to sign in at all', async () => {
+		env.ADMIN_EMAILS = 'person@example.test';
+		env.ALLOWED_EMAILS = 'other@example.test';
+		const { locals } = await run('/settings', { cookies: await signedIn() });
+		expect(locals).toMatchObject({ authed: false, admin: false });
 	});
 });
 

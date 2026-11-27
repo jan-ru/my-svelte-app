@@ -2,13 +2,17 @@
 	import { mainLinks } from '#lib/nav';
 	import { loginHref, logoutAction } from '#lib/return-path';
 
-	/** The bar at the top: the app name, the five pages (the current one by `aria-current`) and Log in or Log out. Works without JavaScript. */
+	/**
+	 * The bar at the top: the app name, the five pages (the current one by `aria-current`), Settings for an admin and
+	 * Log in or Log out. Works without JavaScript.
+	 */
 	let {
 		name,
 		pathname,
 		search,
-		interactive
-	}: { name: string; pathname: string; search: string; interactive: boolean } = $props();
+		interactive,
+		admin = false
+	}: { name: string; pathname: string; search: string; interactive: boolean; admin?: boolean } = $props();
 
 	// The page to come back to after logging in or out, with its query so a selection or ticker survives.
 	const here = $derived(pathname + search);
@@ -20,6 +24,9 @@
 		<a href={link.href} aria-current={link.current ? 'page' : undefined}>{link.label}</a>
 	{/each}
 	<span class="spacer"></span>
+	{#if admin}
+		<a href="/settings" aria-current={pathname === '/settings' ? 'page' : undefined}>Settings</a>
+	{/if}
 	{#if interactive}
 		<form method="POST" action={logoutAction(here)}>
 			<button type="submit" class="link">Log out</button>

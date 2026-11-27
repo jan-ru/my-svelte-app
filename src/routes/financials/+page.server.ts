@@ -34,6 +34,7 @@ export const load: PageServerLoad = async ({ locals, url, setHeaders, cookies })
 				sessionSecret: SESSION_SECRET,
 				allowed: ALLOWED_EMAILS
 			}) !== null,
+		denied: locals.denied,
 		nav,
 		symbol: (rawSymbol && parseSymbol(rawSymbol)) || '',
 		view: await loadFinancials({
