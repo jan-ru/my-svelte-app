@@ -13,9 +13,8 @@ export const inExplore = (pathname: string): boolean => EXPLORE_LINKS.some((l) =
 /** The sections of the About page, in order: the "On this page" menu links to each heading's `id`. */
 export const ABOUT_SECTIONS = [
 	{ id: 'pages', label: 'Pages' },
-	{ id: 'access', label: 'Public and logged-in' },
-	{ id: 'sources', label: 'Data sources' },
-	{ id: 'status', label: 'Status' }
+	{ id: 'access', label: 'Public and signed in' },
+	{ id: 'sources', label: 'Data sources' }
 ] as const;
 
 export interface MainLink {
