@@ -4,16 +4,27 @@
 	import { MAX_SELECTION, MULTIPLES, REGIONS, type Role } from '#lib/catalog';
 	import { LOW_FIRMS_THRESHOLD, PALETTE } from '#lib/chart';
 	import CheckGroup from '#lib/components/CheckGroup.svelte';
+	import DisplaySwitch from '#lib/components/DisplaySwitch.svelte';
 	import IndustryPicker from '#lib/components/IndustryPicker.svelte';
 	import LoginPrompt from '#lib/components/LoginPrompt.svelte';
 	import PanelGrid from '#lib/components/PanelGrid.svelte';
-	import { applyRole } from '#lib/params';
+	import SelectionChips from '#lib/components/SelectionChips.svelte';
+	import { DISPLAY_PARAM, applyRole } from '#lib/params';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
 
 	const selection = $derived(data.view.selection);
 	const layout = $derived(data.view.layout);
+	const display = $derived(data.display);
+
+	const labelsOf = (ids: readonly string[], catalog: readonly { id: string; label: string }[]): string[] =>
+		ids.map((id) => catalog.find((c) => c.id === id)?.label ?? id);
+	const chips = $derived([
+		{ label: 'Multiples', items: labelsOf(selection.multiples, MULTIPLES) },
+		{ label: 'Regions', items: labelsOf(selection.regions, REGIONS) },
+		{ label: 'Industries', items: selection.industries }
+	]);
 
 	const roles: { id: Role; label: string }[] = [
 		{ id: 'multiples', label: 'Multiples' },
@@ -102,6 +113,7 @@
 				</div>
 			</details>
 
+			{#if display === 'table'}<input type="hidden" name={DISPLAY_PARAM} value="table" />{/if}
 			<noscript><button type="submit">Update</button></noscript>
 		</form>
 	{:else}
@@ -116,11 +128,18 @@
 	{:else if !ready}
 		<Callout variant="info">Pick at least one multiple, region and industry.</Callout>
 	{:else if data.model}
-		<ul class="legend" aria-label="Legend">
-			{#each data.model.series as name, i (name)}
-				<li><span class="swatch" style:background={PALETTE[i]}></span>{name}</li>
-			{/each}
-		</ul>
+		<div class="toolbar">
+			<SelectionChips groups={chips} />
+			<DisplaySwitch {display} search={page.url.search} />
+		</div>
+
+		{#if display === 'chart'}
+			<ul class="legend" aria-label="Legend">
+				{#each data.model.series as name, i (name)}
+					<li><span class="swatch" style:background={PALETTE[i]}></span>{name}</li>
+				{/each}
+			</ul>
+		{/if}
 
 		<p class="peers">
 			Companies in
@@ -129,10 +148,12 @@
 					>{:else}{name}{/if}{/each}
 		</p>
 
-		<PanelGrid panels={data.model.panels} colors={PALETTE} />
+		<PanelGrid panels={data.model.panels} colors={PALETTE} {display} />
 
 		{#if hasLowFirms}
-			<p class="footnote">Hatched bars are based on fewer than {LOW_FIRMS_THRESHOLD} firms.</p>
+			<p class="footnote">
+				{display === 'table' ? 'Values marked * are' : 'Hatched bars are'} based on fewer than {LOW_FIRMS_THRESHOLD} firms.
+			</p>
 		{/if}
 		{#if errors.length > 0}
 			<p class="footnote" role="status">Some data is unavailable: {errors.join('; ')}</p>
@@ -173,6 +194,13 @@
 		align-items: center;
 		gap: var(--space-2);
 		font-size: var(--text-sm);
+	}
+	.toolbar {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0 var(--space-4);
 	}
 	.peers {
 		margin: 0 0 var(--space-3);

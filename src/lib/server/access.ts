@@ -7,7 +7,8 @@ export const ISR_EXPIRATION_SECONDS = 86400;
  * The query parameters that reach a cached route (the adapter adds `__pathname`). Vercel drops every other parameter
  * before the function runs, even for a logged-in request that skips the cache, so the pages' own filter and selection
  * parameters must be listed or the interactive controls stop working. Each value gets its own cache entry. The
- * anonymous loaders ignore all of them except the few a page names as public in `pageParams` (the size pages' `band`),
+ * anonymous loaders ignore all of them except the few a page names as public in `pageParams` (the size pages' `band`,
+ * the home page's `v`),
  * so an entry holds the anonymous view for those values only, the same whoever asked first. The two `x-sveltekit-*`
  * parameters are SvelteKit's `__data.json` request parameters, which it reads before hooks run.
  */
@@ -19,6 +20,7 @@ export const ISR_ALLOW_QUERY = [
 	'p',
 	'x',
 	'c',
+	'v',
 	// Find Industry and Companies
 	'q',
 	'code',

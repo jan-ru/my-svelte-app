@@ -1,36 +1,29 @@
 <script lang="ts">
-	// One panel of the multiples chart, with its figures as a table under "Show data".
-	import { formatMultiple } from '#lib/chart';
+	// One panel of the multiples view: the chart with its figures under "Show data", or the figures as a table alone.
+	import type { Display } from '#lib/params';
 	import type { PanelModel } from '#lib/layout';
 	import GroupedBarChart from './GroupedBarChart.svelte';
+	import PanelTable from './PanelTable.svelte';
 
-	let { panel, colors, uid }: { panel: PanelModel; colors: readonly string[]; uid: number } = $props();
+	let {
+		panel,
+		colors,
+		uid,
+		display = 'chart'
+	}: { panel: PanelModel; colors: readonly string[]; uid: number; display?: Display } = $props();
 </script>
 
 <section>
 	<h2>{panel.title}</h2>
-	<GroupedBarChart {panel} {colors} {uid} />
-	<details>
-		<summary>Show data</summary>
-		<table>
-			<thead>
-				<tr>
-					<th></th>
-					{#each panel.series as name (name)}<th>{name}</th>{/each}
-				</tr>
-			</thead>
-			<tbody>
-				{#each panel.categories as category, ci (category)}
-					<tr>
-						<th scope="row">{category}</th>
-						{#each panel.bars[ci] as bar, si (si)}
-							<td title={bar.error}>{bar.error ? 'unavailable' : formatMultiple(bar.value)}</td>
-						{/each}
-					</tr>
-				{/each}
-			</tbody>
-		</table>
-	</details>
+	{#if display === 'table'}
+		<PanelTable {panel} />
+	{:else}
+		<GroupedBarChart {panel} {colors} {uid} />
+		<details>
+			<summary>Show data</summary>
+			<PanelTable {panel} />
+		</details>
+	{/if}
 </section>
 
 <style>
@@ -47,16 +40,5 @@
 	}
 	details {
 		margin-top: var(--space-2);
-	}
-	table {
-		margin-top: var(--space-2);
-		font-size: var(--text-sm);
-	}
-	th,
-	td {
-		text-align: right;
-	}
-	th:first-child {
-		text-align: left;
 	}
 </style>

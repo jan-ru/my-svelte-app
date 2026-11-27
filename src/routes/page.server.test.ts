@@ -40,6 +40,7 @@ const run = async (query: string, interactive: boolean) => {
 		setHeaders
 	} as unknown as Parameters<typeof load>[0])) as unknown as {
 		view: { selection: Selection };
+		display: 'chart' | 'table';
 		loadError: string | null;
 		model: unknown;
 	};
@@ -62,6 +63,21 @@ describe('home loader', () => {
 			DEFAULT_SELECTION,
 			DEFAULT_SELECTION
 		]);
+	});
+
+	it('lets anonymous visitors switch to the table, and only that', async () => {
+		const plain = await run('', false);
+		const table = await run('?v=table&i=Steel', false);
+		expect(plain.data.display).toBe('chart');
+		expect(table.data.display).toBe('table');
+		expect(table.data.view.selection).toEqual(DEFAULT_SELECTION);
+		expect({ ...table.data, display: 'chart' }).toEqual(plain.data);
+	});
+
+	it('reads the display for interactive requests too', async () => {
+		const { data } = await run('?v=table&m=pe_trailing', true);
+		expect(data.display).toBe('table');
+		expect(data.view.selection.multiples).toEqual(['pe_trailing']);
 	});
 
 	it('caches a complete anonymous result publicly', async () => {
