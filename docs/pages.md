@@ -10,9 +10,11 @@ Pick 1-4 multiples, 1-4 regions and 1-4 industries on the home page and the app 
 - **Regions:** US, Europe, Global, Japan, India, China, Emerging Markets, Australia/NZ/Canada.
 - **Industries:** the 94 NYU industries plus the 2 market-wide total rows.
 
-By default each multiple gets its own panel, industries run along the x axis and regions are the colours. The *Chart layout* dropdowns let you swap those roles. Bars based on fewer than 10 firms are hatched, missing values show as "n/a", and *Show data* lists the exact numbers.
+By default each multiple gets its own panel, industries run along the x axis and regions are the colours. The *Chart options* dropdowns let you swap those roles. Bars based on fewer than 10 firms are hatched, missing values show as "n/a", and *Show data* lists the exact numbers with the number of firms behind each.
 
-Every selection is stored in the URL, so a view can be bookmarked or shared, for example `/?m=pe_trailing&m=pbv&r=us&r=europe&i=Steel&i=Total+Market`. Parameters: `m` multiples, `r` regions, `i` industry names (repeat a parameter for each value), and `p`, `x`, `c` for the panel, x-axis and colour roles.
+Above the charts, the selection is shown as chips, so the cached anonymous view says what it shows. The *Chart | Table* switch beside them shows the same figures as one table per panel instead, each value with its number of firms and an asterisk when fewer than 10 firms are behind it.
+
+Every selection is stored in the URL, so a view can be bookmarked or shared, for example `/?m=pe_trailing&m=pbv&r=us&r=europe&i=Steel&i=Total+Market`. Parameters: `m` multiples, `r` regions, `i` industry names (repeat a parameter for each value), `p`, `x`, `c` for the panel, x-axis and colour roles, and `v=table` for the tables (left out for the charts).
 
 ## Industry classification
 
@@ -35,7 +37,7 @@ The `/companies` page lists the companies behind an industry. Filter by Damodara
 
 ## Public and logged-in
 
-Anonymous visitors see the default view of Multiples, Countries, Industries, Companies (the first 20 companies), Find industry and About, cached for a day. They cannot use filters, search or paging; the URL parameters are ignored, except `band`, which zooms the Countries and Industries treemaps. Signing in with Google unlocks interactive versions of every page. `/financials` is unchanged. `robots.txt` disallows crawlers.
+Anonymous visitors see the default view of Multiples, Countries, Industries, Companies (the first 20 companies), Find industry and About, cached for a day. They cannot use filters, search or paging; the URL parameters are ignored, except `band`, which zooms the Countries and Industries treemaps, and `v`, which switches Multiples between charts and tables. Signing in with Google unlocks interactive versions of every page. `/financials` is unchanged. `robots.txt` disallows crawlers.
 
 ## Look and navigation
 
