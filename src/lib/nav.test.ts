@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
-import { ABOUT_SECTIONS, EXPLORE_HOME, EXPLORE_LINKS, inExplore, mainLinks } from './nav';
+import { ABOUT_SECTIONS, EXPLORE_HOME, EXPLORE_LINKS, aboutLink, inExplore, mainLinks } from './nav';
 
 describe('explore navigation', () => {
 	it('recognises exactly the explore pages', () => {
@@ -27,17 +27,24 @@ describe('mainLinks', () => {
 		mainLinks(pathname)
 			.filter((l) => l.current)
 			.map((l) => l.label);
-	it('lists the five pages in order', () => {
-		expect(mainLinks('/').map((l) => l.label)).toEqual(['Multiples', 'Explore', 'Financials', 'Valuation', 'About']);
+	it('lists the four work pages from broad to narrow', () => {
+		expect(mainLinks('/').map((l) => l.label)).toEqual(['Explore', 'Multiples', 'Financials', 'Valuation']);
 	});
 	it('marks exactly the page you are on', () => {
 		expect(current('/')).toEqual(['Multiples']);
 		expect(current('/companies')).toEqual(['Explore']);
 		expect(current('/financials')).toEqual(['Financials']);
 		expect(current('/financials/valuation')).toEqual(['Valuation']);
-		expect(current('/about')).toEqual(['About']);
 	});
 	it('marks nothing on a page outside the menu', () => {
 		expect(current('/login')).toEqual([]);
+		expect(current('/about')).toEqual([]);
+	});
+});
+
+describe('aboutLink', () => {
+	it('is marked only on the About page', () => {
+		expect(aboutLink('/about')).toEqual({ href: '/about', label: 'About', current: true });
+		expect(aboutLink('/').current).toBe(false);
 	});
 });

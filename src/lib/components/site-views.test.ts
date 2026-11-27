@@ -115,6 +115,16 @@ describe('AppHeader', () => {
 		expect(out).toMatch(/<a[^>]*aria-current="page"[^>]*>Financials<\/a>/);
 		expect(out).toContain('>Valuation</a>');
 	});
+	it('puts the work pages first and About after them, on the right', () => {
+		const labels = [...html(AppHeader, props).matchAll(/<a[^>]*>([^<]+)<\/a>/g)].map((m) => m[1]);
+		expect(labels).toEqual(['App', 'Explore', 'Multiples', 'Financials', 'Valuation', 'About', 'Log in']);
+	});
+	it('shows Settings as a labelled gear only to an admin', () => {
+		expect(html(AppHeader, props)).not.toContain('/settings');
+		const out = html(AppHeader, { ...props, interactive: true, admin: true });
+		expect(out).toMatch(/<a[^>]*href="\/settings"[^>]*aria-label="Settings"/);
+		expect(out).toMatch(/href="\/about"[\s\S]*href="\/settings"[\s\S]*Log out/);
+	});
 	it('offers Log in with the way back when logged out', () => {
 		const out = html(AppHeader, props);
 		expect(out).toContain('Log in');

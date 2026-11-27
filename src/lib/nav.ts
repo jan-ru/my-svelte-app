@@ -23,13 +23,22 @@ export interface MainLink {
 	readonly current: boolean;
 }
 
-/** The pages of the menubar, with the one for `pathname` marked. Result first, then reference data, then company data. */
+/**
+ * The work pages of the menubar, with the one for `pathname` marked, from broad to narrow: countries and industries,
+ * multiples per industry, one company, its valuation. About sits apart, on the right (`aboutLink`).
+ */
 export function mainLinks(pathname: string): readonly MainLink[] {
 	return [
-		{ href: '/', label: 'Multiples', current: pathname === '/' },
 		{ href: EXPLORE_HOME, label: 'Explore', current: inExplore(pathname) },
+		{ href: '/', label: 'Multiples', current: pathname === '/' },
 		{ href: '/financials', label: 'Financials', current: pathname === '/financials' },
-		{ href: '/financials/valuation', label: 'Valuation', current: pathname === '/financials/valuation' },
-		{ href: '/about', label: 'About', current: pathname === '/about' }
+		{ href: '/financials/valuation', label: 'Valuation', current: pathname === '/financials/valuation' }
 	];
 }
+
+/** The About link on the right of the bar, next to Settings and Log in. */
+export const aboutLink = (pathname: string): MainLink => ({
+	href: '/about',
+	label: 'About',
+	current: pathname === '/about'
+});
