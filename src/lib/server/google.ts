@@ -33,13 +33,17 @@ export function newPending(from: string | null): Pending {
 	};
 }
 
-/** Where to send the browser: Google's sign-in, asking only for the address. */
+/**
+ * Where to send the browser: Google's sign-in, asking only for the address. Google shows its account chooser every
+ * time, so signing in after signing out is a visible step and switching accounts needs no Google sign-out.
+ */
 export async function authorizationUrl(client: GoogleClient, origin: string, pending: Pending): Promise<URL> {
 	const url = new URL(GOOGLE.authorization_endpoint ?? '');
 	url.searchParams.set('client_id', client.id);
 	url.searchParams.set('redirect_uri', redirectUri(origin));
 	url.searchParams.set('response_type', 'code');
 	url.searchParams.set('scope', 'openid email');
+	url.searchParams.set('prompt', 'select_account');
 	url.searchParams.set('state', pending.state);
 	url.searchParams.set('nonce', pending.nonce);
 	url.searchParams.set('code_challenge', await oauth.calculatePKCECodeChallenge(pending.verifier));

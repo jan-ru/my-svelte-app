@@ -39,6 +39,7 @@ describe('authorizationUrl', () => {
 		expect(url.searchParams.get('redirect_uri')).toBe(`${ORIGIN}${CALLBACK_PATH}`);
 		expect(url.searchParams.get('response_type')).toBe('code');
 		expect(url.searchParams.get('scope')).toBe('openid email');
+		expect(url.searchParams.get('prompt')).toBe('select_account');
 		expect(url.searchParams.get('state')).toBe(pending.state);
 		expect(url.searchParams.get('nonce')).toBe(pending.nonce);
 		expect(url.searchParams.get('code_challenge_method')).toBe('S256');
